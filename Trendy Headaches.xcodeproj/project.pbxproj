@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		360F6BB92E5BAE3F00415F0E /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 360F6BB82E5BAE3F00415F0E /* SQLite */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		360F6B652E57854000415F0E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				360F6BB92E5BAE3F00415F0E /* SQLite in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 				360F6B552E57853E00415F0E /* Trendy Headaches */,
 				360F6B672E57854000415F0E /* Trendy HeadachesTests */,
 				360F6B712E57854000415F0E /* Trendy HeadachesUITests */,
+				360F6BB72E5BAE3F00415F0E /* Frameworks */,
 				360F6B542E57853E00415F0E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +96,13 @@
 				360F6B6E2E57854000415F0E /* Trendy HeadachesUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		360F6BB72E5BAE3F00415F0E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +125,7 @@
 			);
 			name = "Trendy Headaches";
 			packageProductDependencies = (
+				360F6BB82E5BAE3F00415F0E /* SQLite */,
 			);
 			productName = "Trendy Headaches";
 			productReference = 360F6B532E57853E00415F0E /* Trendy Headaches.app */;
@@ -195,6 +209,9 @@
 			);
 			mainGroup = 360F6B4A2E57853E00415F0E;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				360F6BB62E5BACB900415F0E /* XCRemoteSwiftPackageReference "SQLite" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 360F6B542E57853E00415F0E /* Products */;
 			projectDirPath = "";
@@ -591,6 +608,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		360F6BB62E5BACB900415F0E /* XCRemoteSwiftPackageReference "SQLite" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stephencelis/SQLite.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.15.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		360F6BB82E5BAE3F00415F0E /* SQLite */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 360F6BB62E5BACB900415F0E /* XCRemoteSwiftPackageReference "SQLite" */;
+			productName = SQLite;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 360F6B4B2E57853E00415F0E /* Project object */;
 }
