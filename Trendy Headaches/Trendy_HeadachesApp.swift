@@ -11,7 +11,10 @@ import SwiftUI
 struct Trendy_HeadachesApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            //original view created with project
+            //ContentView()
+            //
+            InitialView()
         }
     }
 }
