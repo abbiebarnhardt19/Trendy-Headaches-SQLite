@@ -62,20 +62,20 @@ class DatabaseManager {
             // get file path for the database
             let documentsDirectory = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
             let dbPath = "\(documentsDirectory)/headache_tracker.sqlite3"
-
+            
             // create database
             db = try Connection(dbPath)
-
+            
             // enable foreign keys
             db.foreignKeys = true
-
+            
             // print the **full path to the DB file**
             print("Database full path: \(dbPath)")
         } catch {
             print("Database connection error: \(error)")
         }
     }
-
+    
     private func createTables() {
         //create each table
         do {
@@ -147,7 +147,7 @@ class DatabaseManager {
         }
     }
     // functions to add something to a tablr
-
+    
     func addUser(firstName: String, emailAddress: String, phone: String, birthDate: Date, passwordHash: String) throws -> Int64 {
         let insert = users.insert(
             first_name <- firstName,
@@ -159,7 +159,7 @@ class DatabaseManager {
         let rowId = try db.run(insert)
         return rowId
     }
-
+    
     func addPainType(userId: Int64, painTypeName: String) throws -> Int64 {
         let insert = painTypes.insert(
             user_id <- userId,
@@ -168,7 +168,7 @@ class DatabaseManager {
         let rowId = try db.run(insert)
         return rowId
     }
-
+    
     func addMedication(painTypeId: Int64, category: String, medName: String, prescription: String, start: Date, end: Date?) throws -> Int64 {
         let insert = medications.insert(
             pain_type_id <- painTypeId,
@@ -181,7 +181,7 @@ class DatabaseManager {
         let rowId = try db.run(insert)
         return rowId
     }
-
+    
     func addTrigger(userId: Int64, triggerName: String) throws -> Int64 {
         let insert = triggers.insert(
             user_id <- userId,
@@ -190,7 +190,7 @@ class DatabaseManager {
         let rowId = try db.run(insert)
         return rowId
     }
-
+    
     func addLog(userId: Int64, dateVal: Date, timeVal: String, painLvl: Int, painTypeId: Int64, medTaken: Bool, medWorked: Bool, painDesc: String, note: String) throws -> Int64 {
         let insert = logs.insert(
             user_id <- userId,
@@ -206,7 +206,7 @@ class DatabaseManager {
         let rowId = try db.run(insert)
         return rowId
     }
-
+    
     func addLogTrigger(logIdVal: Int64, triggerIdVal: Int64) throws {
         let insert = logTriggers.insert(
             log_id <- logIdVal,
@@ -214,8 +214,29 @@ class DatabaseManager {
         )
         try db.run(insert)
     }
-
+    
+    
+    
+    
+    
+    func loginUser(emailAddress: String, passwordInput: String) throws -> Bool {
+        let users = Table("Users")                // exact table name
+        let emailCol = SQLite.Expression<String>("email")    // exact column name
+        let passwordCol = SQLite.Expression<String>("password") // exact column name
+        
+        if let _ = try DatabaseManager.shared.db.pluck(
+            users.filter(emailCol == emailAddress && passwordCol == passwordInput)
+        ) {
+            return true
+        } else {
+            return false
+        }
+    }
+    
 }
+
+
+
 //
 //  DatabaseManager.swift
 //  learning_xcode
