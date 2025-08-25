@@ -12,12 +12,17 @@ struct InitialView: View {
         NavigationStack{
             VStack{
                 //go to the temp page, this will turn into the log page
+                
                 CustomNavButton(label: "Sign In", destination: LoginView())
                 CustomNavButton(label: "Sign Up", destination: CreateAccountView())
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background {
                 Color(hex: "#001D00")
+            }
+            //access the database
+            .onAppear{
+                _ = DatabaseManager.shared
             }
         }
     }

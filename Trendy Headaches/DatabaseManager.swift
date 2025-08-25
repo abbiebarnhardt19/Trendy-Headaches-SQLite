@@ -59,20 +59,23 @@ class DatabaseManager {
     
     private func connect() {
         do {
-            //get file path for the database
-            let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
-            //create database
-            db = try Connection("\(path)/headache_tracker.sqlite3")
-            //enable foreign keys
+            // get file path for the database
+            let documentsDirectory = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
+            let dbPath = "\(documentsDirectory)/headache_tracker.sqlite3"
+
+            // create database
+            db = try Connection(dbPath)
+
+            // enable foreign keys
             db.foreignKeys = true
-            
-            //print statements for testing
-            print("Database path: \(path)/headache_tracker.sqlite3")
+
+            // print the **full path to the DB file**
+            print("Database full path: \(dbPath)")
         } catch {
             print("Database connection error: \(error)")
         }
     }
-    
+
     private func createTables() {
         //create each table
         do {
