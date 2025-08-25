@@ -8,17 +8,28 @@
 import SwiftUI
 
 struct TempView: View {
+    let userId: Int64   // 👈 Accept userId
+
+    @State private var firstName: String = ""
+
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("After log in")
+            Text("Hello \(firstName)") // 👈 show first name
+                .font(.largeTitle)
+                .padding()
         }
-        .padding()
+        .onAppear {
+            fetchFirstName()
+        }
     }
-}
 
-#Preview {
-    TempView()
+    private func fetchFirstName() {
+        do {
+            if let name = try DatabaseManager.shared.getFirstName(for: userId) {
+                firstName = name
+            }
+        } catch {
+            print("Error fetching first name: \(error)")
+        }
+    }
 }

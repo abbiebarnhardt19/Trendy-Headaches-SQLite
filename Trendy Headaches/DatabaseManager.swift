@@ -1,6 +1,10 @@
 import Foundation
 import SQLite
 
+enum DatabaseError: Error {
+    case connectionFailed
+}
+
 class DatabaseManager {
     static let shared = DatabaseManager()
     private var db: Connection!
@@ -218,21 +222,28 @@ class DatabaseManager {
     
     
     
-    
-    func loginUser(emailAddress: String, passwordInput: String) throws -> Bool {
-        let users = Table("Users")                // exact table name
-        let emailCol = SQLite.Expression<String>("email")    // exact column name
-        let passwordCol = SQLite.Expression<String>("password") // exact column name
-        
-        if let _ = try DatabaseManager.shared.db.pluck(
-            users.filter(emailCol == emailAddress && passwordCol == passwordInput)
-        ) {
-            return true
+    //login function, returns row of the user
+    func loginUser(emailAddress: String, passwordInput: String) throws -> Int64? {
+        guard db != nil else {
+            throw DatabaseError.connectionFailed
+        }
+
+        // use the class-level `users` table and columns
+        if let user = try db.pluck(users.filter(email == emailAddress && password == passwordInput)) {
+            return user[user_id] // return the correct user_id
         } else {
-            return false
+            return nil
         }
     }
     
+    func getFirstName(for userId: Int64) throws -> String? {
+        if let user = try db.pluck(users.filter(user_id == userId)) {
+            return user[first_name]
+        }
+        return nil
+    }
+
+
 }
 
 

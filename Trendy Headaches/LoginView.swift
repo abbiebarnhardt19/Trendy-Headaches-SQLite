@@ -7,27 +7,28 @@ struct LoginView: SwiftUI.View {
     @State private var password: String = ""
     @State private var isLoggedIn: Bool = false
     @State private var loginError: String? = nil
+    @State private var userId: Int64? = nil
     
     var body: some SwiftUI.View {
         NavigationStack {
             VStack(spacing: 20) {
-
+                //header text
                 Text("Welcome Back!")
                     .font(.system(size: 50, weight: .bold))
                     .foregroundColor(Color(hex: "#b5c4b9"))
                     .padding(.bottom, 50)
                 
-                // Email
+                //email label and text box with custom styling
                 CustomText(text: "Email")
                 SwiftUI.TextField("Enter your email", text: $email)
                     .textFieldStyle(CustomTextField())
                 
-                // Password
+                // password label and text box wit custom styling
                 CustomText(text: "Password")
                 SecureField("Enter your password", text: $password)
                     .textFieldStyle(CustomTextField())
                 
-                // Log In Button
+                // Log In Button, calls function that will check if username and password are right
                 Button("Log In") {
                     login()
                 }
@@ -36,6 +37,7 @@ struct LoginView: SwiftUI.View {
                 .foregroundColor(Color(hex: "#001d00"))
                 .cornerRadius(10)
                 
+                //button to add user to database, for testing only
                 Button("Add User") {
                     do {
                         let newUserId = try DatabaseManager.shared.addUser(
@@ -62,10 +64,6 @@ struct LoginView: SwiftUI.View {
                         .padding(.top, 10)
                 }
                 
-                // Programmatic navigation
-                NavigationLink("", destination: TempView(), isActive: $isLoggedIn)
-                    .hidden()
-                
             }
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -74,25 +72,30 @@ struct LoginView: SwiftUI.View {
                 // Ensure database is initialized
                 _ = DatabaseManager.shared
             }
+            
+            // if the login info is valid, go to the next page
+            .navigationDestination(isPresented: $isLoggedIn) {
+                if let userId = userId {
+                    TempView(userId: userId)
+                }
+            }
         }
     }
     
-    // MARK: - Login Function
+    // login function
     private func login() {
         do {
-            let success = try DatabaseManager.shared.loginUser(
+            if let id = try DatabaseManager.shared.loginUser(
                 emailAddress: email,
                 passwordInput: password
-            )
-            
-            if success {
+            ) {
+                userId = id
                 isLoggedIn = true
                 loginError = nil
             } else {
                 loginError = "Invalid email or password."
                 isLoggedIn = false
             }
-            
         } catch {
             loginError = "Database error: \(error.localizedDescription)"
         }
