@@ -8,11 +8,16 @@
 import SwiftUI
 
 struct CreateAccountView2: View {
+    var firstName: String = ""
+    var email: String = ""
+    var passwordOne: String = ""
+    
     var body: some View {
         VStack {
-            Text("Continue create account")
+            Text("First Name: \(firstName)")
+            Text("Email: \(email)")
+            Text("Password: \(passwordOne)")
         }
-        .padding()
     }
 }
 
