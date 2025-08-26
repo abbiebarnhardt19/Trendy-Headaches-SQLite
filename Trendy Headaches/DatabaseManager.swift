@@ -242,6 +242,14 @@ class DatabaseManager {
         }
         return nil
     }
+    
+    func emailExists(_ email: String) throws -> Bool {
+        let users = Table("users")
+        let emailColumn = SQLite.Expression<String>("email")
+
+        let query = users.filter(emailColumn == email)
+        return try db.pluck(query) != nil
+    }
 
 
 }
