@@ -45,89 +45,58 @@ struct CreateAccountView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                Text("Welcome!")
-                    .font(.system(size: 50, weight: .bold))
-                    .foregroundColor(Color(hex: "#b5c4b9"))
-                    .padding(.bottom, 20)
-                    .padding(.top, 30)
+                CustomWelcome(text: "Welcome!")
+                CustomInstructions(text: "Please fill in the following fields to begin creating your account.")
 
-                Text("Please fill in the following fields to begin creating your account.")
-                    .fixedSize(horizontal: false, vertical: true)
-                    .multilineTextAlignment(.center)
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(Color(hex: "#b5c4b9"))
-                    .padding(.bottom, 20)
-
+                //start of form
                 CustomText(text: "First Name")
                 TextField("Enter your first name", text: $first_name)
                     .textFieldStyle(CustomTextField())
 
-                //only check email once you click out
+                //enter email and only check email once you click out
                 CustomText(text: "Email")
                 TextField("Enter your email", text: $email)
                     .textFieldStyle(CustomTextField())
                     .focused($focusedField, equals: .email)
-                    .onChange(of: focusedField) { newField in
-                        // When user leaves email field
-                        if newField != .email {
+                    .onChange(of: focusedField) { oldValue, newValue in
+                        if newValue != .email {
                             checkEmailAvailability()
                         }
                     }
-                
-                //if email exists, display statement
-                //make warning style?
+
+
+                //if email already exists, display warning
                 if !emailAvailable && !email.isEmpty {
-                    Text("There is already an account associated with this email")
-                        .foregroundColor(.red)
-                        .font(.footnote)
-                        .padding(.top, 5)
-                        .padding(.bottom, 5)
-                        .multilineTextAlignment(.leading)
+                    CustomWarningText(text: "There is already an account associated with this email")
                 }
-
-
+                
                 CustomText(text: "Password")
                 SecureField("Enter your password", text: $password_one)
                     .textFieldStyle(CustomTextField())
 
-                //display complexity warning
+                //display warning if it password is not complex enough
                 if !isPasswordValid(password_one) && !password_one.isEmpty {
-                    Text("Password must be at least 8 characters, contain uppercase, lowercase, number, and special character.")
-                        .foregroundColor(.red)
-                        .font(.footnote)
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(nil)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, 5)
-                        .padding(.bottom, 5)
+                    CustomSubtext(text: "Password must be at least 8 characters, contain uppercase, lowercase, number, and special character.")
                 }
 
                 CustomText(text: "Confirm Password")
                 SecureField("Re-enter your password", text: $password_two)
                     .textFieldStyle(CustomTextField())
-                    .padding(.bottom, 10)
 
-                // check if passwords match
+                // check if passwords match, if not, display warning
                 if !password_two.isEmpty {
                     if password_two != password_one
                     {
-                        Text("Passwords do not match")
-                            .foregroundColor(.red)
-                            .multilineTextAlignment(.leading)
+                        CustomWarningText(text: "Passwords do not match.")
                     }
-                    
-
                 }
 
                 //gray out button until form is valid
                 CustomNavButton(label: "Continue", destination: CreateAccountView2())
-                    .padding(.top, 30)
                     .disabled(!formIsValid)
                     .opacity(formIsValid ? 1.0 : 0.5)
             }
-            .padding()
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(hex: "#001D00"))
+            .CustomView()
         }
     }
 }

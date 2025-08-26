@@ -78,6 +78,7 @@ struct CustomNavButton<Destination: View>: View {
                 .foregroundColor(Color(hex: "#001d00"))
                 .cornerRadius(10)
         }
+        .padding(.top, 10)
     }
 }
 
@@ -90,3 +91,79 @@ struct TempLinkText: View {
             .frame(maxWidth:.infinity, alignment: .leading)
     }
 }
+
+struct CustomWarningText: View {
+    var text: String
+    var body: some View {
+        Text(text)
+            .foregroundColor(.red)
+            .font(.footnote)
+            .padding(.top, 5)
+            .padding(.bottom, 5)
+            .multilineTextAlignment(.leading)
+    }
+}
+
+struct CustomSubtext: View {
+    var text: String
+    var body: some View {
+        Text(text)
+            .foregroundColor(.red)
+            .font(.footnote)
+            .multilineTextAlignment(.leading)
+            .lineLimit(nil)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.top, 5)
+            .padding(.bottom, 5)
+    }
+}
+
+struct CustomWelcome: View {
+    var text: String
+    var body: some View {
+        Text(text)
+            .font(.system(size: 50, weight: .bold))
+            .foregroundColor(Color(hex: "#b5c4b9"))
+            .multilineTextAlignment(.center)
+            .padding(.bottom, 20)
+    }
+}
+
+struct CustomInstructions: View {
+    var text: String
+    var body: some View {
+        Text(text)
+            .fixedSize(horizontal: false, vertical: true)
+            .multilineTextAlignment(.center)
+            .font(.system(size: 20, weight: .bold))
+            .foregroundColor(Color(hex: "#b5c4b9"))
+            .padding(.bottom, 20)
+    }
+}
+
+extension View {
+    func CustomView() -> some View {
+        self
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(hex: "#001D00"))
+    }
+}
+
+struct CustomButton: View {
+    var text: String
+    var action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(text)
+                .padding()
+                .background(Color(hex: "#b5c4b9"))
+                .foregroundColor(Color(hex: "#001d00"))
+                .cornerRadius(10)
+        }
+    }
+}
+
+
+

@@ -13,32 +13,29 @@ struct LoginView: SwiftUI.View {
         NavigationStack {
             VStack(spacing: 20) {
                 //header text
-                Text("Welcome Back!")
-                    .font(.system(size: 50, weight: .bold))
-                    .foregroundColor(Color(hex: "#b5c4b9"))
-                    .padding(.bottom, 50)
-                
-                //email label and text box with custom styling
+                CustomWelcome(text: "Welcome Back!")
+
+                //start of form
                 CustomText(text: "Email")
                 SwiftUI.TextField("Enter your email", text: $email)
                     .textFieldStyle(CustomTextField())
                 
-                // password label and text box wit custom styling
                 CustomText(text: "Password")
                 SecureField("Enter your password", text: $password)
                     .textFieldStyle(CustomTextField())
                 
+                // Error message
+                if let loginError = loginError {
+                    CustomWarningText(text: loginError)
+                }
+                
                 // Log In Button, calls function that will check if username and password are right
-                Button("Log In") {
+                CustomButton(text: "Log In") {
                     login()
                 }
-                .padding()
-                .background(Color(hex: "#b5c4b9"))
-                .foregroundColor(Color(hex: "#001d00"))
-                .cornerRadius(10)
-                
+
                 //button to add user to database, for testing only
-                Button("Add User") {
+                CustomButton(text: "Add User") {
                     do {
                         let newUserId = try DatabaseManager.shared.addUser(
                             firstName: "Abigail",
@@ -52,22 +49,8 @@ struct LoginView: SwiftUI.View {
                         print("Insert error: \(error)")
                     }
                 }
-                .padding()
-                .background(Color(hex: "#b5c4b9"))
-                .foregroundColor(Color(hex: "#001d00"))
-                .cornerRadius(10)
-                
-                // Error message
-                if let loginError = loginError {
-                    Text(loginError)
-                        .foregroundColor(.red)
-                        .padding(.top, 10)
-                }
-                
             }
-            .padding()
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(hex: "#001D00"))
+            .CustomView()
             .onAppear {
                 // Ensure database is initialized
                 _ = DatabaseManager.shared
