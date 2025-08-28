@@ -54,9 +54,25 @@ class DatabaseManager {
     
     // initialize
     private init() {
-        connect()
-        createTables()
+        let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
+        let dbPath = "\(path)/headache_tracker.sqlite3"
+
+        // 🚨 Force delete old DB on every launch (for debugging)
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: dbPath) {
+            try? fileManager.removeItem(atPath: dbPath)
+            print("Deleted old DB at: \(dbPath)")
+        }
+
+        do {
+            db = try Connection(dbPath)
+            db.foreignKeys = true
+            createTables()
+        } catch {
+            print("Database connection failed: \(error)")
+        }
     }
+
     
     private func connect() {
         do {

@@ -77,8 +77,7 @@ struct CreateAccountView2: View {
             
         } catch {
             errorMessage = "Failed to create account: \(error.localizedDescription)"
-            CustomWarningText(text: error.localizedDescription)
-            print(errorMessage)
+            print(error)
         }
     }
 }
