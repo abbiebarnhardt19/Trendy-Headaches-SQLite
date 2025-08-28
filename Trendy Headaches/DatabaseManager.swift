@@ -103,6 +103,7 @@ class DatabaseManager {
                 t.column(med_name)
                 t.column(med_start)
                 t.column(med_end)
+                t.column(user_id)
                 t.foreignKey(user_id, references: users, user_id, delete: .cascade)
             })
             
@@ -298,13 +299,11 @@ class DatabaseManager {
         return nil
     }
     
-    func emailExists(_ email: String) throws -> Bool {
-        let users = Table("users")
-        let emailColumn = SQLite.Expression<String>("email")
-
-        let query = users.filter(emailColumn == email)
+    func emailExists(_ emailAddress: String) throws -> Bool {
+        let query = users.filter(email == emailAddress)
         return try db.pluck(query) != nil
     }
+
 
 
 }
