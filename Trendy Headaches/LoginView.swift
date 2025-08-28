@@ -17,11 +17,11 @@ struct LoginView: SwiftUI.View {
 
                 //start of form
                 CustomText(text: "Email")
-                SwiftUI.TextField("Enter your email", text: $email)
+                SwiftUI.TextField("", text: $email)
                     .textFieldStyle(CustomTextField())
                 
                 CustomText(text: "Password")
-                SecureField("Enter your password", text: $password)
+                SecureField("", text: $password)
                     .textFieldStyle(CustomTextField())
                 
                 // Error message
@@ -32,22 +32,6 @@ struct LoginView: SwiftUI.View {
                 // Log In Button, calls function that will check if username and password are right
                 CustomButton(text: "Log In") {
                     login()
-                }
-
-                //button to add user to database, for testing only
-                CustomButton(text: "Add User") {
-                    do {
-                        let newUserId = try DatabaseManager.shared.addUser(
-                            firstName: "Abigail",
-                            emailAddress: "Abbie@example.com",
-                            phone: "1234567890",
-                            birthDate: Date(),
-                            passwordHash: "Hashed_password_here"
-                        )
-                        print("Added user with ID: \(newUserId)")
-                    } catch {
-                        print("Insert error: \(error)")
-                    }
                 }
             }
             .CustomView()

@@ -44,12 +44,12 @@ struct CreateAccountView: View {
 
                 // First Name
                 CustomText(text: "First Name")
-                TextField("Enter your first name", text: $first_name)
+                TextField("", text: $first_name)
                     .textFieldStyle(CustomTextField())
 
                 // Email with live debounced check
                 CustomText(text: "Email")
-                TextField("Enter your email", text: $email)
+                TextField("", text: $email)
                     .textFieldStyle(CustomTextField())
                     .onChange(of: email) { _ in
                         // Cancel previous task if user types quickly
@@ -69,7 +69,7 @@ struct CreateAccountView: View {
 
                 // Password
                 CustomText(text: "Password")
-                SecureField("Enter your password", text: $password_one)
+                SecureField("", text: $password_one)
                     .textFieldStyle(CustomTextField())
 
                 if !isPasswordValid(password_one) && !password_one.isEmpty {
@@ -78,7 +78,7 @@ struct CreateAccountView: View {
 
                 // Confirm Password
                 CustomText(text: "Confirm Password")
-                SecureField("Re-enter your password", text: $password_two)
+                SecureField("", text: $password_two)
                     .textFieldStyle(CustomTextField())
 
                 if !password_two.isEmpty && password_two != password_one {

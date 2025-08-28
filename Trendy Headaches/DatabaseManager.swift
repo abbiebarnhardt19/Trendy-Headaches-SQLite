@@ -11,7 +11,7 @@ class DatabaseManager {
     
     // tables
     let users = Table("Users")
-    let painTypes = Table("Pain_Types")
+    let symptoms = Table("Symptoms")
     let medications = Table("Medications")
     let triggers = Table("Triggers")
     let logs = Table("Logs")
@@ -22,21 +22,18 @@ class DatabaseManager {
     let user_id = SQLite.Expression<Int64>("user_id")
     let first_name = SQLite.Expression<String>("first_name")
     let email = SQLite.Expression<String>("email")
-    let phone_number = SQLite.Expression<String>("phone_number")
-    let birthday = SQLite.Expression<Date>("birthday")
     let password = SQLite.Expression<String>("password")
     
-    // pain types
-    let pain_type_id = SQLite.Expression<Int64>("pain_type_id")
-    let pain_type_name = SQLite.Expression<String>("pain_type_name")
+    // symptom types
+    let symptom_id = SQLite.Expression<Int64>("symptom_id")
+    let symptom_name = SQLite.Expression<String>("symptom_name")
     
     // medications
     let med_id = SQLite.Expression<Int64>("med_id")
     let med_category = SQLite.Expression<String>("med_category")
     let med_name = SQLite.Expression<String>("med_name")
-    let current_prescription = SQLite.Expression<String>("current_prescription")
-    let start_date = SQLite.Expression<Date>("start_date")
-    let end_date = SQLite.Expression<Date?>("end_date")
+    let med_start = SQLite.Expression<Date>("med_start")
+    let med_end = SQLite.Expression<Date?>("med_end")
     
     // triggers
     let trigger_id = SQLite.Expression<Int64>("trigger_id")
@@ -46,10 +43,10 @@ class DatabaseManager {
     let log_id = SQLite.Expression<Int64>("log_id")
     let date = SQLite.Expression<Date>("date")
     let time = SQLite.Expression<String>("time")
-    let pain_level = SQLite.Expression<Int>("pain_level")
+    let severity = SQLite.Expression<Int>("severity_level")
     let med_taken = SQLite.Expression<Bool>("med_taken")
     let med_worked = SQLite.Expression<Bool>("med_worked")
-    let pain_description = SQLite.Expression<String>("pain_description")
+    let symptom_description = SQLite.Expression<String>("symptom_description")
     let notes = SQLite.Expression<String>("notes")
     
     // log triggers
@@ -88,29 +85,25 @@ class DatabaseManager {
                 t.column(user_id, primaryKey: .autoincrement)
                 t.column(first_name)
                 t.column(email, unique: true)
-                t.column(phone_number)
-                t.column(birthday)
                 t.column(password)
             })
             
-            // Pain_Types
-            try db.run(painTypes.create(ifNotExists: true) { t in
-                t.column(pain_type_id, primaryKey: .autoincrement)
+            // Symptom_Types
+            try db.run(symptoms.create(ifNotExists: true) { t in
+                t.column(symptom_id, primaryKey: .autoincrement)
                 t.column(user_id)
-                t.column(pain_type_name)
+                t.column(symptom_name)
                 t.foreignKey(user_id, references: users, user_id, delete: .cascade)
             })
             
             // Medications
             try db.run(medications.create(ifNotExists: true) { t in
                 t.column(med_id, primaryKey: .autoincrement)
-                t.column(pain_type_id)
                 t.column(med_category)
                 t.column(med_name)
-                t.column(current_prescription)
-                t.column(start_date)
-                t.column(end_date)
-                t.foreignKey(pain_type_id, references: painTypes, pain_type_id, delete: .cascade)
+                t.column(med_start)
+                t.column(med_end)
+                t.foreignKey(user_id, references: users, user_id, delete: .cascade)
             })
             
             // Triggers
@@ -127,14 +120,14 @@ class DatabaseManager {
                 t.column(user_id)
                 t.column(date)
                 t.column(time)
-                t.column(pain_level)
-                t.column(pain_type_id)
+                t.column(severity)
+                t.column(symptom_id)
                 t.column(med_taken)
                 t.column(med_worked)
-                t.column(pain_description)
+                t.column(symptom_description)
                 t.column(notes)
                 t.foreignKey(user_id, references: users, user_id, delete: .cascade)
-                t.foreignKey(pain_type_id, references: painTypes, pain_type_id, delete: .setNull)
+                t.foreignKey(symptom_id, references: symptoms, symptom_id, delete: .setNull)
             })
             
             // Log_Triggers
@@ -152,35 +145,97 @@ class DatabaseManager {
     }
     // functions to add something to a tablr
     
-    func addUser(firstName: String, emailAddress: String, phone: String, birthDate: Date, passwordHash: String) throws -> Int64 {
-        let insert = users.insert(
+    
+    func addUser(
+        firstName: String,
+        emailAddress: String,
+        passwordHash: String,
+        preventativeMedsCSV: String? = nil,
+        emergencyMedsCSV: String? = nil,
+        symptomsCSV: String? = nil,
+        triggersCSV: String? = nil
+    ) throws -> Int64 {
+        // 1. Insert into Users
+        let insertUser = users.insert(
             first_name <- firstName,
             email <- emailAddress,
-            phone_number <- phone,
-            birthday <- birthDate,
             password <- passwordHash
         )
-        let rowId = try db.run(insert)
-        return rowId
+        let userId = try db.run(insertUser)
+        
+        // 2. Insert Preventative Medications
+        if let preventative = preventativeMedsCSV, !preventative.isEmpty {
+            let medsArray = preventative.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+            for med in medsArray where !med.isEmpty {
+                let insertMed = medications.insert(
+                    user_id <- userId,
+                    med_category <- "Preventative",
+                    med_name <- med,
+                    med_start <- Date(),
+                    med_end <- nil
+                )
+                try db.run(insertMed)
+            }
+        }
+        
+        // 3. Insert Emergency Medications
+        if let emergency = emergencyMedsCSV, !emergency.isEmpty {
+            let medsArray = emergency.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+            for med in medsArray where !med.isEmpty {
+                let insertMed = medications.insert(
+                    user_id <- userId,
+                    med_category <- "Emergency",
+                    med_name <- med,
+                    med_start <- Date(),
+                    med_end <- nil
+                )
+                try db.run(insertMed)
+            }
+        }
+        
+        // 4. Insert Triggers
+        if let triggersList = triggersCSV, !triggersList.isEmpty {
+            let array = triggersList.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+            for trig in array where !trig.isEmpty {
+                let insertTrig = triggers.insert(
+                    user_id <- userId,
+                    trigger_name <- trig
+                )
+                try db.run(insertTrig)
+            }
+        }
+        
+        // 5. Insert Symptoms
+        if let symptomsList = symptomsCSV, !symptomsList.isEmpty {
+            let array = symptomsList.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+            for symptom in array where !symptom.isEmpty {
+                let insertSymptom = symptoms.insert(
+                    user_id <- userId,
+                    symptom_name <- symptom
+                )
+                try db.run(insertSymptom)
+            }
+        }
+        
+        return userId
     }
+
     
-    func addPainType(userId: Int64, painTypeName: String) throws -> Int64 {
-        let insert = painTypes.insert(
+    func addSymptom(userId: Int64, symptomName: String) throws -> Int64 {
+        let insert = symptoms.insert(
             user_id <- userId,
-            pain_type_name <- painTypeName
+            symptom_name <- symptomName
         )
         let rowId = try db.run(insert)
         return rowId
     }
     
-    func addMedication(painTypeId: Int64, category: String, medName: String, prescription: String, start: Date, end: Date?) throws -> Int64 {
+    func addMedication(category: String, medName: String, prescription: String, start: Date, end: Date?) throws -> Int64 {
         let insert = medications.insert(
-            pain_type_id <- painTypeId,
             med_category <- category,
             med_name <- medName,
-            current_prescription <- prescription,
-            start_date <- start,
-            end_date <- end
+            med_start <- start,
+            med_end <- end
         )
         let rowId = try db.run(insert)
         return rowId
@@ -195,16 +250,16 @@ class DatabaseManager {
         return rowId
     }
     
-    func addLog(userId: Int64, dateVal: Date, timeVal: String, painLvl: Int, painTypeId: Int64, medTaken: Bool, medWorked: Bool, painDesc: String, note: String) throws -> Int64 {
+    func addLog(userId: Int64, dateVal: Date, timeVal: String, severityLvl: Int, symptomId: Int64, medTaken: Bool, medWorked: Bool, symptomDesc: String, note: String) throws -> Int64 {
         let insert = logs.insert(
             user_id <- userId,
             date <- dateVal,
             time <- timeVal,
-            pain_level <- painLvl,
-            pain_type_id <- painTypeId,
+            severity <- severityLvl,
+            symptom_id <- symptomId,
             med_taken <- medTaken,
             med_worked <- medWorked,
-            pain_description <- painDesc,
+            symptom_description <- symptomDesc,
             notes <- note
         )
         let rowId = try db.run(insert)
