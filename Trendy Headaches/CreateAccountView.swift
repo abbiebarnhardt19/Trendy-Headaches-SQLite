@@ -3,6 +3,8 @@ import SwiftUI
 struct CreateAccountView: View {
     @State private var first_name: String = ""
     @State private var email: String = ""
+    @State private var security_question: String = ""
+    @State private var security_answer: String = ""
     @State private var password_one: String = ""
     @State private var password_two: String = ""
     @State private var emailAvailable: Bool = true
@@ -11,7 +13,8 @@ struct CreateAccountView: View {
     
     // Check if all fields are filled in, passwords match & complex enough, email available
     private var formIsValid: Bool {
-        !first_name.isEmpty &&
+        !security_question.isEmpty &&
+        !security_answer.isEmpty &&
         !email.isEmpty &&
         !password_one.isEmpty &&
         !password_two.isEmpty &&
@@ -42,16 +45,13 @@ struct CreateAccountView: View {
                 CustomWelcome(text: "Welcome!")
                 CustomInstructions(text: "Please fill in the following fields to begin creating your account.")
 
-                // First Name
-                CustomText(text: "First Name")
-                TextField("", text: $first_name)
-                    .textFieldStyle(CustomTextField())
+
 
                 // Email with live debounced check
                 CustomText(text: "Email")
                 TextField("", text: $email)
                     .textFieldStyle(CustomTextField())
-                    .onChange(of: email) { _ in
+                    .onChange(of: email) {
                         // Cancel previous task if user types quickly
                         emailCheckTask?.cancel()
                         emailCheckTask = Task {
@@ -84,14 +84,23 @@ struct CreateAccountView: View {
                 if !password_two.isEmpty && password_two != password_one {
                     CustomWarningText(text: "Passwords do not match.")
                 }
+                
+                CustomText(text: "Security Question")
+                TextField("", text: $security_question)
+                    .textFieldStyle(CustomTextField())
+                
+                CustomText(text: "Security Question Answer")
+                TextField("", text: $security_answer)
+                    .textFieldStyle(CustomTextField())
 
                 // Continue button
                 CustomNavButton(
                     label: "Continue",
                     destination: CreateAccountView2(
-                        firstName: first_name,
                         email: email,
-                        passwordOne: password_one
+                        passwordOne: password_one,
+                        currentSecurityQuestion: security_question,
+                        currentSecurityAnswer: security_answer
                     )
                 )
                 .disabled(!formIsValid)

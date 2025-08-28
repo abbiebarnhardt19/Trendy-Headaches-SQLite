@@ -47,7 +47,10 @@ extension Color {
 struct CustomTextField: TextFieldStyle {
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
-            .padding()
+            .padding(.top, 10)
+            .padding(.bottom, 10)
+            .padding(.leading, 10)
+            .padding(.trailing, 10)
             .background(Color(hex: "#b5c4b9"))
             .foregroundColor(Color(hex: "#001d00"))
             .cornerRadius(8)
@@ -59,7 +62,7 @@ struct CustomText: View {
     var text: String
     var body: some View {
         Text(text)
-            .font(.system(size: 24, weight: .bold))
+            .font(.system(size: 22, weight: .bold))
             .foregroundColor(Color(hex: "#b5c4b9"))
             .frame(maxWidth:.infinity, alignment: .leading)
     }
@@ -70,7 +73,9 @@ struct CustomNavButton<Destination: View>: View {
     var destination: Destination
 
     var body: some View {
-        NavigationLink(destination: destination) {
+        NavigationLink {
+            destination
+        } label: {
             Text(label)
                 .padding(.horizontal, 40)
                 .padding(.vertical, 10)

@@ -20,9 +20,10 @@ class DatabaseManager {
     // columns
     // users columns
     let user_id = SQLite.Expression<Int64>("user_id")
-    let first_name = SQLite.Expression<String>("first_name")
     let email = SQLite.Expression<String>("email")
     let password = SQLite.Expression<String>("password")
+    let security_question = SQLite.Expression<String>("security_question")
+    let security_answer = SQLite.Expression<String>("security_answers")
     
     // symptom types
     let symptom_id = SQLite.Expression<Int64>("symptom_id")
@@ -57,7 +58,7 @@ class DatabaseManager {
         let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
         let dbPath = "\(path)/headache_tracker.sqlite3"
 
-        // 🚨 Force delete old DB on every launch (for debugging)
+        //Force delete old DB on every launch (for debugging)
         let fileManager = FileManager.default
         if fileManager.fileExists(atPath: dbPath) {
             try? fileManager.removeItem(atPath: dbPath)
@@ -99,9 +100,10 @@ class DatabaseManager {
             // Users
             try db.run(users.create(ifNotExists: true) { t in
                 t.column(user_id, primaryKey: .autoincrement)
-                t.column(first_name)
                 t.column(email, unique: true)
                 t.column(password)
+                t.column(security_question)
+                t.column(security_answer)
             })
             
             // Symptom_Types
@@ -164,7 +166,8 @@ class DatabaseManager {
     
     
     func addUser(
-        firstName: String,
+        security_question_string: String,
+        security_answer_string: String,
         emailAddress: String,
         passwordHash: String,
         preventativeMedsCSV: String? = nil,
@@ -174,7 +177,8 @@ class DatabaseManager {
     ) throws -> Int64 {
         // 1. Insert into Users
         let insertUser = users.insert(
-            first_name <- firstName,
+            security_question <- security_question_string,
+            security_answer <- security_answer_string,
             email <- emailAddress,
             password <- passwordHash
         )
@@ -308,19 +312,35 @@ class DatabaseManager {
         }
     }
     
-    func getFirstName(for userId: Int64) throws -> String? {
-        if let user = try db.pluck(users.filter(user_id == userId)) {
-            return user[first_name]
+    func getSingleColumnValue(userId: Int64,columnName: String) throws -> String? {
+        let userIdColumn = SQLite.Expression<Int64>("user_id")
+        let targetColumn = SQLite.Expression<String>(columnName)
+
+        if let row = try db.pluck(users.filter(userIdColumn == userId)) {
+            return row[targetColumn]
+        } else {
+            return nil
         }
-        return nil
+    }
+
+    func getForeignKeyColumnValues(userId: Int64, tableName: String, columnName: String) throws -> [String] {
+        let table = Table(tableName)
+        let userIdColumn = SQLite.Expression<Int64>("user_id")
+        let targetColumn = SQLite.Expression<String>(columnName)
+
+        var results: [String] = []
+
+        for row in try db.prepare(table.filter(userIdColumn == userId)) {
+            results.append(row[targetColumn])
+        }
+
+        return results
     }
     
     func emailExists(_ emailAddress: String) throws -> Bool {
         let query = users.filter(email == emailAddress)
         return try db.pluck(query) != nil
     }
-
-
 
 }
 

@@ -43,7 +43,7 @@ struct LoginView: SwiftUI.View {
             // if the login info is valid, go to the next page
             .navigationDestination(isPresented: $isLoggedIn) {
                 if let userId = userId {
-                    TempView(userId: userId)
+                    TempView(currentUserId: userId)
                 }
             }
         }

@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct CreateAccountView2: View {
-    var firstName: String = ""
     var email: String = ""
     var passwordOne: String = ""
+    var currentSecurityQuestion: String = ""
+    var currentSecurityAnswer: String = ""
+    
     
     @State private var symptoms: String = ""
     @State private var preventativeMeds: String = ""
@@ -17,7 +19,7 @@ struct CreateAccountView2: View {
             VStack {
                 CustomInstructions(text: "These fields are optional. If you’d like to add more than one item, please separate them with a comma. We’ll only use this info to help filter your data logs to give you better insights.")
                 
-                CustomText(text: "Symptoms")
+                CustomText(text: "Symptom or Illness")
                 TextField("", text: $symptoms)
                     .textFieldStyle(CustomTextField())
                 
@@ -29,7 +31,7 @@ struct CreateAccountView2: View {
                 TextField("", text: $emergencyMeds)
                     .textFieldStyle(CustomTextField())
                 
-                CustomText(text: "Symptom Triggers")
+                CustomText(text: "Triggers")
                 TextField("", text: $triggers)
                     .textFieldStyle(CustomTextField())
                 
@@ -50,8 +52,8 @@ struct CreateAccountView2: View {
                 Spacer()
                 
                 // Hidden navigation link triggered when account is created
-                NavigationLink(destination: LoginView(), isActive: $accountCreated) {
-                    EmptyView()
+                .navigationDestination(isPresented: $accountCreated) {
+                    LoginView()
                 }
             }
             .CustomView()
@@ -61,7 +63,8 @@ struct CreateAccountView2: View {
     private func createAccount() {
         do {
             let userId = try DatabaseManager.shared.addUser(
-                firstName: firstName,
+                security_question_string: currentSecurityQuestion,
+                security_answer_string: currentSecurityAnswer,
                 emailAddress: email,
                 passwordHash: passwordOne,
                 preventativeMedsCSV: preventativeMeds,
@@ -83,5 +86,5 @@ struct CreateAccountView2: View {
 }
 
 #Preview {
-    CreateAccountView2(firstName: "Abbie", email: "test@test.com", passwordOne: "password123")
+    CreateAccountView2(email: "test@test.com", passwordOne: "password123", currentSecurityQuestion: "?", currentSecurityAnswer: "answer")
 }

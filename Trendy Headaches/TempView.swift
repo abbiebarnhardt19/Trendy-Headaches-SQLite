@@ -6,30 +6,134 @@
 //
 
 import SwiftUI
+import SQLite
 
-struct TempView: View {
-    let userId: Int64   // 👈 Accept userId
-
-    @State private var firstName: String = ""
-
-    var body: some View {
-        VStack {
-            Text("Hello \(firstName)") // 👈 show first name
-                .font(.largeTitle)
-                .padding()
+struct TempView: SwiftUI.View {
+    let currentUserId: Int64   // 👈 Accept userId
+    
+    // Single-row values (from Users table)
+    @State private var currentEmail: String = ""
+    @State private var currentPassword: String = ""
+    @State private var securityQuestion: String = ""
+    @State private var securityAnswer: String = ""
+    
+    // Multi-row values (from related tables)
+    @State private var triggers: [String] = []
+    @State private var medications: [String] = []
+    @State private var symptoms: [String] = []
+    
+    var body: some SwiftUI.View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Account Info")
+                    .font(.title2)
+                    .bold()
+                
+                Text("Email: \(currentEmail)")
+                Text("Password: \(currentPassword)")
+                Text("Security Q: \(securityQuestion)")
+                Text("Security A: \(securityAnswer)")
+                
+                Divider()
+                
+                Text("Triggers")
+                    .font(.headline)
+                ForEach(triggers, id: \.self) { trigger in
+                    Text("• \(trigger)")
+                }
+                
+                Text("Medications")
+                    .font(.headline)
+                ForEach(medications, id: \.self) { med in
+                    Text("• \(med)")
+                }
+                
+                Text("Symptoms")
+                    .font(.headline)
+                ForEach(symptoms, id: \.self) { sym in
+                    Text("• \(sym)")
+                }
+            }
+            .padding()
         }
         .onAppear {
-            fetchFirstName()
+            fetchUserInfo()
+            fetchTriggers()
+            fetchMedications()
+            fetchSymptoms()
         }
     }
-
-    private func fetchFirstName() {
+    
+    // MARK: - User Info
+    private func fetchUserInfo() {
         do {
-            if let name = try DatabaseManager.shared.getFirstName(for: userId) {
-                firstName = name
+            if let email = try DatabaseManager.shared.getSingleColumnValue(
+                userId: currentUserId,
+                columnName: "email"
+            ) {
+                currentEmail = email
+            }
+            if let password = try DatabaseManager.shared.getSingleColumnValue(
+                userId: currentUserId,
+                columnName: "password"
+            ) {
+                currentPassword = password
+            }
+            if let question = try DatabaseManager.shared.getSingleColumnValue(
+                userId: currentUserId,
+                columnName: "security_question"
+            ) {
+                securityQuestion = question
+            }
+            if let answer = try DatabaseManager.shared.getSingleColumnValue(
+                userId: currentUserId,
+                columnName: "security_answer"
+            ) {
+                securityAnswer = answer
             }
         } catch {
-            print("Error fetching first name: \(error)")
+            print("Error fetching user info: \(error)")
+        }
+    }
+    
+    // MARK: - Triggers
+    private func fetchTriggers() {
+        do {
+            let triggers = try DatabaseManager.shared.getForeignKeyColumnValues(
+                userId: currentUserId,
+                tableName: "triggers",
+                columnName: "trigger_name"
+            )
+            print("Triggers:", triggers)
+        } catch {
+            print("Error fetching triggers:", error)
+        }
+    }
+    
+    private func fetchMedications() {
+        do {
+            let meds = try DatabaseManager.shared.getForeignKeyColumnValues(
+                userId: currentUserId,
+                tableName: "medications",
+                columnName: "medication_name"
+            )
+            print("Medications:", meds)
+        } catch {
+            print("Error fetching medications:", error)
+        }
+    }
+    
+    private func fetchSymptoms() {
+        do {
+            let symptoms = try DatabaseManager.shared.getForeignKeyColumnValues(
+                userId: currentUserId,
+                tableName: "symptoms",
+                columnName: "symptom_name"
+            )
+            print("Symptoms:", symptoms)
+        } catch {
+            print("Error fetching symptoms:", error)
         }
     }
 }
+
