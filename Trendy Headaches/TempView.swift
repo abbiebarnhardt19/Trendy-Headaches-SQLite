@@ -16,6 +16,7 @@ struct TempView: SwiftUI.View {
     @State private var currentPassword: String = ""
     @State private var securityQuestion: String = ""
     @State private var securityAnswer: String = ""
+    @State private var colorScheme: String = ""
     
     // Multi-row values (from related tables)
     @State private var triggers: [String] = []
@@ -33,6 +34,7 @@ struct TempView: SwiftUI.View {
                 Text("Password: \(currentPassword)")
                 Text("Security Q: \(securityQuestion)")
                 Text("Security A: \(securityAnswer)")
+                Text("Color: \(colorScheme)")
                 
                 Divider()
                 
@@ -90,6 +92,13 @@ struct TempView: SwiftUI.View {
                 columnName: "security_answer"
             ) {
                 securityAnswer = answer
+            }
+            
+            if let color = try DatabaseManager.shared.getSingleColumnValue(
+                userId: currentUserId,
+                columnName: "color_scheme"
+            ) {
+                colorScheme = color
             }
         } catch {
             print("Error fetching user info: \(error)")

@@ -33,6 +33,7 @@ struct LoginView: SwiftUI.View {
                 CustomButton(text: "Log In") {
                     login()
                 }
+                CustomNavButton(label: "Forgot Password", destination: ForgotPasswordView1())
             }
             .CustomView()
             .onAppear {
@@ -54,7 +55,7 @@ struct LoginView: SwiftUI.View {
         do {
             if let id = try DatabaseManager.shared.loginUser(
                 emailAddress: email,
-                passwordInput: password
+                passwordInput: CryptoHelper.hashString(password)
             ) {
                 userId = id
                 isLoggedIn = true
@@ -66,5 +67,11 @@ struct LoginView: SwiftUI.View {
         } catch {
             loginError = "Database error: \(error.localizedDescription)"
         }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        LoginView()
     }
 }

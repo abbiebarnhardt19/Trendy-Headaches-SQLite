@@ -24,6 +24,7 @@ class DatabaseManager {
     let password = SQLite.Expression<String>("password")
     let security_question = SQLite.Expression<String>("security_question")
     let security_answer = SQLite.Expression<String>("security_answer")
+    let color_scheme = SQLite.Expression<String>("color_scheme")
     
     // symptom types
     let symptom_id = SQLite.Expression<Int64>("symptom_id")
@@ -59,11 +60,11 @@ class DatabaseManager {
         let dbPath = "\(path)/headache_tracker.sqlite3"
 
         //Force delete old DB on every launch (for debugging)
-        let fileManager = FileManager.default
-        if fileManager.fileExists(atPath: dbPath) {
-            try? fileManager.removeItem(atPath: dbPath)
-            print("Deleted old DB at: \(dbPath)")
-        }
+        //let fileManager = FileManager.default
+        //if fileManager.fileExists(atPath: dbPath) {
+        //    try? fileManager.removeItem(atPath: dbPath)
+         //   print("Deleted old DB at: \(dbPath)")
+        //}
 
         do {
             db = try Connection(dbPath)
@@ -104,6 +105,7 @@ class DatabaseManager {
                 t.column(password)
                 t.column(security_question)
                 t.column(security_answer)
+                t.column(color_scheme)
             })
             
             // Symptom_Types
@@ -170,6 +172,7 @@ class DatabaseManager {
         security_answer_string: String,
         emailAddress: String,
         passwordHash: String,
+        userColor: String,
         preventativeMedsCSV: String? = nil,
         emergencyMedsCSV: String? = nil,
         symptomsCSV: String? = nil,
@@ -180,7 +183,8 @@ class DatabaseManager {
             security_question <- security_question_string,
             security_answer <- security_answer_string,
             email <- emailAddress,
-            password <- passwordHash
+            password <- passwordHash,
+            color_scheme <- userColor
         )
         let userId = try db.run(insertUser)
         
@@ -295,9 +299,6 @@ class DatabaseManager {
         try db.run(insert)
     }
     
-    
-    
-    
     //login function, returns row of the user
     func loginUser(emailAddress: String, passwordInput: String) throws -> Int64? {
         guard db != nil else {
@@ -338,8 +339,13 @@ class DatabaseManager {
     }
     
     func emailExists(_ emailAddress: String) throws -> Bool {
-        let query = users.filter(email == emailAddress)
+        let cleaned = normalizedEmail(emailAddress) // trim + lowercase
+        let query = users.filter(email == cleaned)  // direct equality
         return try db.pluck(query) != nil
+    }
+
+    func normalizedEmail(_ s: String) -> String {
+        s.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 
 }

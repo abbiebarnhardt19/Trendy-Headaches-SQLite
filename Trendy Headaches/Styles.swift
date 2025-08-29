@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import Foundation
+import CryptoKit
 //dark green: #001d00
 //light green: #b5c4b9
 
@@ -103,32 +105,24 @@ struct TempLinkText: View {
     }
 }
 
+
+//under textField text
 struct CustomWarningText: View {
     var text: String
     var body: some View {
         Text(text)
             .foregroundColor(.red)
             .font(.footnote)
+            .multilineTextAlignment(.leading) // ensures multi-line text aligns left
+            .frame(maxWidth: .infinity, alignment: .leading) // ensures single-line stays left
             .padding(.top, 5)
             .padding(.bottom, 5)
-            .multilineTextAlignment(.leading)
+            .padding(.leading, 15)
+            .padding(.trailing, 15)
     }
 }
 
-struct CustomSubtext: View {
-    var text: String
-    var body: some View {
-        Text(text)
-            .foregroundColor(.red)
-            .font(.footnote)
-            .multilineTextAlignment(.leading)
-            .lineLimit(nil)
-            .fixedSize(horizontal: false, vertical: true)
-            .padding(.top, 5)
-            .padding(.bottom, 5)
-    }
-}
-
+//main title text
 struct CustomWelcome: View {
     var text: String
     var body: some View {
@@ -140,6 +134,7 @@ struct CustomWelcome: View {
     }
 }
 
+//text that goes under titletext
 struct CustomInstructions: View {
     var text: String
     var body: some View {
@@ -154,6 +149,8 @@ struct CustomInstructions: View {
     }
 }
 
+//sets the background color
+//make this so it takes in the string and gets the hex codes from that?
 extension View {
     func CustomView() -> some View {
         self
@@ -163,6 +160,7 @@ extension View {
     }
 }
 
+//stylied button
 struct CustomButton: View {
     var text: String
     var action: () -> Void
@@ -170,8 +168,7 @@ struct CustomButton: View {
     var body: some View {
         Button(action: action) {
             Text(text)
-                .padding(.top, 15)
-                .padding(.bottom, 15)
+                .padding(.vertical, 10)
                 .padding(.leading, 15)
                 .padding(.trailing,15)
                 .background(Color(hex: "#b5c4b9"))
@@ -181,6 +178,16 @@ struct CustomButton: View {
         .buttonStyle(.plain)
     }
 }
+
+//hashing function
+struct CryptoHelper {
+    static func hashString(_ input: String) -> String {
+        let inputData = Data(input.utf8)
+        let hashed = SHA256.hash(data: inputData)
+        return hashed.map { String(format: "%02x", $0) }.joined()
+    }
+}
+
 
 
 

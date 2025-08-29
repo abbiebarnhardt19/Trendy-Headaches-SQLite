@@ -29,7 +29,8 @@ struct CreateAccountView: View {
     
     private func checkEmailAvailability() {
         do {
-            emailAvailable = try !DatabaseManager.shared.emailExists(email)
+            let cleanedEmail = DatabaseManager.shared.normalizedEmail(email)
+            emailAvailable = try !DatabaseManager.shared.emailExists(cleanedEmail)
         } catch {
             print("Database error: \(error.localizedDescription)")
             emailAvailable = false
@@ -65,7 +66,7 @@ struct CreateAccountView: View {
                         .textFieldStyle(CustomTextField())
                     
                     if !isPasswordValid(password_one) && !password_one.isEmpty {
-                        CustomSubtext(text: "Password must be at least 8 characters, contain uppercase, lowercase, number, and special character.")
+                        CustomWarningText(text: "Password must be at least 8 characters, contain uppercase, lowercase, number, and special character.")
                     }
                     
                     CustomText(text: "Confirm Password")

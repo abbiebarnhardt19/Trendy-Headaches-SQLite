@@ -16,10 +16,7 @@ struct InitialView: View {
                 CustomNavButton(label: "Sign In", destination: LoginView())
                 CustomNavButton(label: "Sign Up", destination: CreateAccountView())
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background {
-                Color(hex: "#001D00")
-            }
+            .CustomView()
             //access the database
             .onAppear{
                 _ = DatabaseManager.shared
