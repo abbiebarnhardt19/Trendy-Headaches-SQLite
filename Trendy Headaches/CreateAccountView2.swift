@@ -6,59 +6,67 @@ struct CreateAccountView2: View {
     var currentSecurityQuestion: String = ""
     var currentSecurityAnswer: String = ""
     
-    
     @State private var symptoms: String = ""
     @State private var preventativeMeds: String = ""
     @State private var emergencyMeds: String = ""
     @State private var triggers: String = ""
     @State private var errorMessage: String = ""
-    @State private var accountCreated = false  // <-- New state
+    @State private var accountCreated = false
     
     var body: some View {
         NavigationStack {
-            VStack {
-               Text("Continue Creating Your Account")
-                    .multilineTextAlignment(.center)
-                    .font(.system(size: 40, weight: .bold))
-                    .foregroundColor(Color(hex: "#b5c4b9"))
-                    .padding(.bottom, 20)
+            ScrollView {
+                VStack(spacing: 20) {
+                    VStack(spacing: 10) {
+                        Text("Continue Creating Your Account")
+                            .multilineTextAlignment(.center)
+                            .font(.system(size: 34, weight: .bold))
+                            .foregroundColor(Color(hex: "#b5c4b9"))
+                            .fixedSize(horizontal: false, vertical: true)
+                        
+                        CustomInstructions(text: "These fields are optional and help us provide personalized insights from your data. Add multiple items by separating them with commas.")
+                    }
 
-                
-                CustomInstructions(text: "These fields are optional. If you’d like to add more than one item, please separate them with a comma. We’ll only use this info to help filter your data logs to give you better insights.")
-                
-                CustomText(text: "Symptom or Illness")
-                TextField("", text: $symptoms)
-                    .textFieldStyle(CustomTextField())
-                
-                CustomText(text: "Preventative Medications")
-                TextField("", text: $preventativeMeds)
-                    .textFieldStyle(CustomTextField())
-                
-                CustomText(text: "Emergency Medications")
-                TextField("", text: $emergencyMeds)
-                    .textFieldStyle(CustomTextField())
-                
-                CustomText(text: "Triggers")
-                TextField("", text: $triggers)
-                    .textFieldStyle(CustomTextField())
-                
-                CustomButton(text: "Create Account") {
-                    createAccount()
+                    VStack(spacing: 15) {
+                        CustomText(text: "Symptom or Illness")
+                        TextField("", text: $symptoms)
+                            .textFieldStyle(CustomTextField())
+
+                        CustomText(text: "Preventative Medications")
+                        TextField("", text: $preventativeMeds)
+                            .textFieldStyle(CustomTextField())
+
+
+                        CustomText(text: "Emergency Medications")
+                        TextField("", text: $emergencyMeds)
+                            .textFieldStyle(CustomTextField())
+
+
+                        CustomText(text: "Triggers")
+                        TextField("", text: $triggers)
+                            .textFieldStyle(CustomTextField())
+
+                    }
+
+                    CustomButton(text: "Create Account") {
+                        createAccount()
+                    }
+                    .padding(.top, 10)
+
+                    if !errorMessage.isEmpty {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .padding(.top)
+                    }
+
+                    Spacer(minLength: 40)
                 }
-                .padding(.top, 15)
-                
-                if !errorMessage.isEmpty {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .padding(.top)
-                }
-                
-                Spacer()
-                
-                // Hidden navigation link triggered when account is created
-                .navigationDestination(isPresented: $accountCreated) {
-                    LoginView()
-                }
+                .padding(.horizontal, 0) // Increase horizontal padding for margin
+                .padding(.vertical, 10)
+            }
+
+            .navigationDestination(isPresented: $accountCreated) {
+                LoginView()
             }
             .CustomView()
         }
@@ -78,10 +86,7 @@ struct CreateAccountView2: View {
             )
             print("User created with ID: \(userId)")
             errorMessage = ""
-            
-            // Navigate to LoginView
             accountCreated = true
-            
         } catch {
             errorMessage = "Failed to create account: \(error.localizedDescription)"
             print(error)
@@ -90,5 +95,8 @@ struct CreateAccountView2: View {
 }
 
 #Preview {
-    CreateAccountView2(email: "test@test.com", passwordOne: "password123", currentSecurityQuestion: "?", currentSecurityAnswer: "answer")
+    NavigationStack {
+        CreateAccountView2()
+    }
 }
+

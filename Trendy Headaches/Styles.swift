@@ -54,7 +54,10 @@ struct CustomTextField: TextFieldStyle {
             .background(Color(hex: "#b5c4b9"))
             .foregroundColor(Color(hex: "#001d00"))
             .cornerRadius(8)
+        .padding(.trailing, 20)
+        .padding(.leading, 20)
     }
+
 }
 
 
@@ -65,6 +68,8 @@ struct CustomText: View {
             .font(.system(size: 22, weight: .bold))
             .foregroundColor(Color(hex: "#b5c4b9"))
             .frame(maxWidth:.infinity, alignment: .leading)
+        .padding(.trailing, 20)
+        .padding(.leading, 20)
     }
 }
 
@@ -84,6 +89,7 @@ struct CustomNavButton<Destination: View>: View {
                 .cornerRadius(10)
         }
         .padding(.top, 10)
+        .buttonStyle(.plain)
     }
 }
 
@@ -128,9 +134,9 @@ struct CustomWelcome: View {
     var body: some View {
         Text(text)
             .multilineTextAlignment(.center)
-            .font(.system(size: 50, weight: .bold))
+            .font(.system(size: 40, weight: .bold))
             .foregroundColor(Color(hex: "#b5c4b9"))
-            .padding(.bottom, 20)
+            .padding(.bottom, 10)
     }
 }
 
@@ -142,7 +148,9 @@ struct CustomInstructions: View {
             .multilineTextAlignment(.center)
             .font(.system(size: 20, weight: .bold))
             .foregroundColor(Color(hex: "#b5c4b9"))
-            .padding(.bottom, 20)
+            .padding(.bottom, 10)
+        .padding(.trailing, 15)
+        .padding(.leading, 15)
     }
 }
 
@@ -162,11 +170,15 @@ struct CustomButton: View {
     var body: some View {
         Button(action: action) {
             Text(text)
-                .padding()
+                .padding(.top, 15)
+                .padding(.bottom, 15)
+                .padding(.leading, 15)
+                .padding(.trailing,15)
                 .background(Color(hex: "#b5c4b9"))
                 .foregroundColor(Color(hex: "#001d00"))
                 .cornerRadius(10)
         }
+        .buttonStyle(.plain)
     }
 }
 

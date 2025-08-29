@@ -110,3 +110,9 @@ struct CreateAccountView: View {
         }
     }
 }
+
+#Preview {
+    NavigationStack {
+        CreateAccountView()
+    }
+}
