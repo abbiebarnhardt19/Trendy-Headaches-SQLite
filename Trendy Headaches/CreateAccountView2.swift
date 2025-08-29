@@ -17,6 +17,13 @@ struct CreateAccountView2: View {
     var body: some View {
         NavigationStack {
             VStack {
+               Text("Continue Creating Your Account")
+                    .multilineTextAlignment(.center)
+                    .font(.system(size: 40, weight: .bold))
+                    .foregroundColor(Color(hex: "#b5c4b9"))
+                    .padding(.bottom, 20)
+
+                
                 CustomInstructions(text: "These fields are optional. If you’d like to add more than one item, please separate them with a comma. We’ll only use this info to help filter your data logs to give you better insights.")
                 
                 CustomText(text: "Symptom or Illness")
@@ -35,13 +42,10 @@ struct CreateAccountView2: View {
                 TextField("", text: $triggers)
                     .textFieldStyle(CustomTextField())
                 
-                Button("Create Account") {
+                CustomButton(text: "Create Account") {
                     createAccount()
                 }
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
+                .padding(.top, 15)
                 
                 if !errorMessage.isEmpty {
                     Text(errorMessage)

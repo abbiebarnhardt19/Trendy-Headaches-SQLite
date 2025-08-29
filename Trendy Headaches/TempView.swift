@@ -115,7 +115,7 @@ struct TempView: SwiftUI.View {
             let meds = try DatabaseManager.shared.getForeignKeyColumnValues(
                 userId: currentUserId,
                 tableName: "medications",
-                columnName: "medication_name"
+                columnName: "med_name"
             )
             print("Medications:", meds)
         } catch {

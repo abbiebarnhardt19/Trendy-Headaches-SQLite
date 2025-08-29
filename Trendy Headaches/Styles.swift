@@ -127,9 +127,9 @@ struct CustomWelcome: View {
     var text: String
     var body: some View {
         Text(text)
+            .multilineTextAlignment(.center)
             .font(.system(size: 50, weight: .bold))
             .foregroundColor(Color(hex: "#b5c4b9"))
-            .multilineTextAlignment(.center)
             .padding(.bottom, 20)
     }
 }

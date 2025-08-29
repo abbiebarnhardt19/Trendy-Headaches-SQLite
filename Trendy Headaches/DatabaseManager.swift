@@ -23,7 +23,7 @@ class DatabaseManager {
     let email = SQLite.Expression<String>("email")
     let password = SQLite.Expression<String>("password")
     let security_question = SQLite.Expression<String>("security_question")
-    let security_answer = SQLite.Expression<String>("security_answers")
+    let security_answer = SQLite.Expression<String>("security_answer")
     
     // symptom types
     let symptom_id = SQLite.Expression<Int64>("symptom_id")
