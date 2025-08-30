@@ -32,7 +32,7 @@ struct ForgotPasswordView1: View {
                     }
                 }
                 
-                CustomNavButton(label: "Continue", destination: ForgotPasswordView2())
+                CustomNavButton(label: "Continue", destination: ForgotPasswordView2(enteredEmail: email))
                     .disabled(!(emailExists ?? false)) // disable if nil or false
                     .opacity((emailExists ?? false) ? 1.0 : 0.5)
             }
@@ -40,7 +40,6 @@ struct ForgotPasswordView1: View {
             .CustomView()
         }
     }
-    
 
     
     private func checkEmailAvailability() {

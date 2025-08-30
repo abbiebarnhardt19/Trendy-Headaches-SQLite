@@ -63,7 +63,7 @@ class DatabaseManager {
         //let fileManager = FileManager.default
         //if fileManager.fileExists(atPath: dbPath) {
         //    try? fileManager.removeItem(atPath: dbPath)
-         //   print("Deleted old DB at: \(dbPath)")
+        //    print("Deleted old DB at: \(dbPath)")
         //}
 
         do {
@@ -313,29 +313,47 @@ class DatabaseManager {
         }
     }
     
-    func getSingleColumnValue(userId: Int64,columnName: String) throws -> String? {
-        let userIdColumn = SQLite.Expression<Int64>("user_id")
-        let targetColumn = SQLite.Expression<String>(columnName)
+    func getUserFromEmail(email: String) -> Int64? {
+        do {
+            let emailColumn = SQLite.Expression<String>("email")
+            let targetColumn = SQLite.Expression<Int64>("user_id")
 
-        if let row = try db.pluck(users.filter(userIdColumn == userId)) {
-            return row[targetColumn]
-        } else {
-            return nil
+            if let row = try db.pluck(users.filter(emailColumn == email)) {
+                return row[targetColumn]
+            }
+        } catch {
+            print("DB error: \(error)")
         }
+        return nil
     }
 
-    func getForeignKeyColumnValues(userId: Int64, tableName: String, columnName: String) throws -> [String] {
-        let table = Table(tableName)
-        let userIdColumn = SQLite.Expression<Int64>("user_id")
-        let targetColumn = SQLite.Expression<String>(columnName)
+    func getSingleColumnValue(userId: Int64, columnName: String) -> String? {
+        do {
+            let idColumn = SQLite.Expression<Int64>("user_id")
+            let targetColumn = SQLite.Expression<String>(columnName)
 
-        var results: [String] = []
-
-        for row in try db.prepare(table.filter(userIdColumn == userId)) {
-            results.append(row[targetColumn])
+            if let row = try db.pluck(users.filter(idColumn == userId)) {
+                return row[targetColumn]
+            }
+        } catch {
+            print("DB error: \(error)")
         }
+        return nil
+    }
 
-        return results
+    func getForeignKeyColumnValues(userId: Int64, tableName: String, columnName: String) -> [String] {
+        do {
+            let idColumn = SQLite.Expression<Int64>("user_id")
+            let targetColumn = SQLite.Expression<String>(columnName)
+            let table = Table(tableName)
+
+            return try db.prepare(table.filter(idColumn == userId)).map { row in
+                row[targetColumn]
+            }
+        } catch {
+            print("DB error in getForeignKeyColumnValues:", error)
+            return []
+        }
     }
     
     func emailExists(_ emailAddress: String) throws -> Bool {

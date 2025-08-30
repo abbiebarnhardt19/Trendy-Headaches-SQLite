@@ -77,7 +77,7 @@ struct CreateAccountView2: View {
         do {
             let userId = try DatabaseManager.shared.addUser(
                 security_question_string: currentSecurityQuestion,
-                security_answer_string: CryptoHelper.hashString(currentSecurityAnswer),
+                security_answer_string: CryptoHelper.hashString(DatabaseManager.shared.normalizedEmail(currentSecurityAnswer)),
                 emailAddress: DatabaseManager.shared.normalizedEmail(email),
                 passwordHash: CryptoHelper.hashString(passwordOne),
                 userColor: "green",

@@ -11,14 +11,14 @@ import SQLite
 struct TempView: SwiftUI.View {
     let currentUserId: Int64   // 👈 Accept userId
     
-    // Single-row values (from Users table)
+    // Single-row values
     @State private var currentEmail: String = ""
     @State private var currentPassword: String = ""
     @State private var securityQuestion: String = ""
     @State private var securityAnswer: String = ""
     @State private var colorScheme: String = ""
     
-    // Multi-row values (from related tables)
+    // Multi-row values
     @State private var triggers: [String] = []
     @State private var medications: [String] = []
     @State private var symptoms: [String] = []
@@ -68,81 +68,41 @@ struct TempView: SwiftUI.View {
     
     // MARK: - User Info
     private func fetchUserInfo() {
-        do {
-            if let email = try DatabaseManager.shared.getSingleColumnValue(
-                userId: currentUserId,
-                columnName: "email"
-            ) {
-                currentEmail = email
-            }
-            if let password = try DatabaseManager.shared.getSingleColumnValue(
-                userId: currentUserId,
-                columnName: "password"
-            ) {
-                currentPassword = password
-            }
-            if let question = try DatabaseManager.shared.getSingleColumnValue(
-                userId: currentUserId,
-                columnName: "security_question"
-            ) {
-                securityQuestion = question
-            }
-            if let answer = try DatabaseManager.shared.getSingleColumnValue(
-                userId: currentUserId,
-                columnName: "security_answer"
-            ) {
-                securityAnswer = answer
-            }
-            
-            if let color = try DatabaseManager.shared.getSingleColumnValue(
-                userId: currentUserId,
-                columnName: "color_scheme"
-            ) {
-                colorScheme = color
-            }
-        } catch {
-            print("Error fetching user info: \(error)")
-        }
+        currentEmail = DatabaseManager.shared.getSingleColumnValue(userId: currentUserId, columnName: "email") ?? ""
+        currentPassword = DatabaseManager.shared.getSingleColumnValue(userId: currentUserId, columnName: "password") ?? ""
+        securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: currentUserId, columnName: "security_question") ?? ""
+        securityAnswer = DatabaseManager.shared.getSingleColumnValue(userId: currentUserId, columnName: "security_answer") ?? ""
+        colorScheme = DatabaseManager.shared.getSingleColumnValue(userId: currentUserId, columnName: "color_scheme") ?? ""
     }
     
     // MARK: - Triggers
     private func fetchTriggers() {
-        do {
-            let triggers = try DatabaseManager.shared.getForeignKeyColumnValues(
-                userId: currentUserId,
-                tableName: "triggers",
-                columnName: "trigger_name"
-            )
-            print("Triggers:", triggers)
-        } catch {
-            print("Error fetching triggers:", error)
-        }
+        triggers = DatabaseManager.shared.getForeignKeyColumnValues(
+            userId: currentUserId,
+            tableName: "triggers",
+            columnName: "trigger_name"
+        )
     }
     
     private func fetchMedications() {
-        do {
-            let meds = try DatabaseManager.shared.getForeignKeyColumnValues(
-                userId: currentUserId,
-                tableName: "medications",
-                columnName: "med_name"
-            )
-            print("Medications:", meds)
-        } catch {
-            print("Error fetching medications:", error)
-        }
+        medications = DatabaseManager.shared.getForeignKeyColumnValues(
+            userId: currentUserId,
+            tableName: "medications",
+            columnName: "med_name"
+        )
     }
     
     private func fetchSymptoms() {
-        do {
-            let symptoms = try DatabaseManager.shared.getForeignKeyColumnValues(
-                userId: currentUserId,
-                tableName: "symptoms",
-                columnName: "symptom_name"
-            )
-            print("Symptoms:", symptoms)
-        } catch {
-            print("Error fetching symptoms:", error)
-        }
+        symptoms = DatabaseManager.shared.getForeignKeyColumnValues(
+            userId: currentUserId,
+            tableName: "symptoms",
+            columnName: "symptom_name"
+        )
     }
 }
 
+#Preview {
+    NavigationStack {
+        TempView(currentUserId: 1)
+    }
+}
