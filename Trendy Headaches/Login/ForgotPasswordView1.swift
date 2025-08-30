@@ -26,7 +26,7 @@ struct ForgotPasswordView1: View {
                             try? await Task.sleep(nanoseconds: 500_000_000)
                             if !Task.isCancelled {
                                 // call the fully qualified static helper
-                                emailExists = DatabaseManager.UserHelpers.doesEmailExist(email)
+                                emailExists = DatabaseManager.doesEmailExist(email)
                             }
                         }
                     }

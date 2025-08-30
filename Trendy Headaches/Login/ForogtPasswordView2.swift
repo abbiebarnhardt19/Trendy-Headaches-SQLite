@@ -20,7 +20,7 @@ struct ForgotPasswordView2: View {
         let normalizedInput = DatabaseManager.shared.normalizedValue(
             enteredAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
         )
-        let hashedInput = CryptoHelper.hashString(normalizedInput)
+        let hashedInput = DatabaseManager.hashString(normalizedInput)
         return hashedInput == securityAnswerHash
     }
     
@@ -48,7 +48,7 @@ struct ForgotPasswordView2: View {
             .CustomView()
             .onAppear {
                 // directly assign values using the helper in CustomFunctions
-                let result = DatabaseManager.UserHelpers.getSecurityQuestionAndAnswer(forEmail: enteredEmail)
+                let result = DatabaseManager.getSecurityQuestionAndAnswer(forEmail: enteredEmail)
                 userID = result.userId
                 securityQuestion = result.question
                 securityAnswerHash = result.hashedAnswer

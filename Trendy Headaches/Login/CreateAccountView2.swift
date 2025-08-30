@@ -37,20 +37,32 @@ struct CreateAccountView2: View {
                         TextField("", text: $preventativeMeds)
                             .textFieldStyle(CustomTextField())
                         
-                        
                         CustomText(text: "Emergency Medications")
                         TextField("", text: $emergencyMeds)
                             .textFieldStyle(CustomTextField())
                         
-                        
                         CustomText(text: "Triggers")
                         TextField("", text: $triggers)
                             .textFieldStyle(CustomTextField())
-                        
                     }
                     
                     CustomButton(text: "Create Account") {
-                        createAccount()
+                        do {
+                            try DatabaseManager.createUser(
+                                email: email,
+                                password: passwordOne,
+                                securityQuestion: currentSecurityQuestion,
+                                securityAnswer: currentSecurityAnswer,
+                                symptoms: symptoms,
+                                preventativeMeds: preventativeMeds,
+                                emergencyMeds: emergencyMeds,
+                                triggers: triggers
+                            )
+                            errorMessage = ""
+                            accountCreated = true
+                        } catch {
+                            errorMessage = "Failed to create account: \(error.localizedDescription)"
+                        }
                     }
                     .padding(.top, 10)
                     
@@ -62,36 +74,13 @@ struct CreateAccountView2: View {
                     
                     Spacer(minLength: 40)
                 }
-                .padding(.horizontal, 0) // Increase horizontal padding for margin
+                .padding(.horizontal, 0)
                 .padding(.vertical, 10)
             }
-            
             .navigationDestination(isPresented: $accountCreated) {
                 LoginView()
             }
             .CustomView()
-        }
-    }
-    
-    private func createAccount() {
-        do {
-            let userId = try DatabaseManager.shared.addUser(
-                security_question_string: currentSecurityQuestion,
-                security_answer_string: CryptoHelper.hashString(DatabaseManager.shared.normalizedValue(currentSecurityAnswer)),
-                emailAddress: DatabaseManager.shared.normalizedValue(email),
-                passwordHash: CryptoHelper.hashString(passwordOne),
-                userColor: "green",
-                preventativeMedsCSV: preventativeMeds,
-                emergencyMedsCSV: emergencyMeds,
-                symptomsCSV: symptoms,
-                triggersCSV: triggers
-            )
-            print("User created with ID: \(userId)")
-            errorMessage = ""
-            accountCreated = true
-        } catch {
-            errorMessage = "Failed to create account: \(error.localizedDescription)"
-            print(error)
         }
     }
 }
@@ -101,4 +90,3 @@ struct CreateAccountView2: View {
         CreateAccountView2()
     }
 }
-

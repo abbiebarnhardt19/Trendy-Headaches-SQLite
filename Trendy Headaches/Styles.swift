@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Foundation
-import CryptoKit
+
 //dark green: #001d00
 //light green: #b5c4b9
 
@@ -178,16 +178,3 @@ struct CustomButton: View {
         .buttonStyle(.plain)
     }
 }
-
-//hashing function
-struct CryptoHelper {
-    static func hashString(_ input: String) -> String {
-        let inputData = Data(input.utf8)
-        let hashed = SHA256.hash(data: inputData)
-        return hashed.map { String(format: "%02x", $0) }.joined()
-    }
-}
-
-
-
-

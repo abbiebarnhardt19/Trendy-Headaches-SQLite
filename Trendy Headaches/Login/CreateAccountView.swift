@@ -18,23 +18,8 @@ struct CreateAccountView: View {
         !password_one.isEmpty &&
         !password_two.isEmpty &&
         (password_one == password_two) &&
-        isPasswordValid(password_one) &&
+        DatabaseManager.isPasswordValid(password_one) &&
         emailAvailable
-    }
-    
-    func isPasswordValid(_ password: String) -> Bool {
-        let passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$"
-        return NSPredicate(format: "SELF MATCHES %@", passwordRegex).evaluate(with: password)
-    }
-    
-    private func checkEmailAvailability() {
-        do {
-            let cleanedEmail = DatabaseManager.shared.normalizedValue(email)
-            emailAvailable = try !DatabaseManager.shared.emailExists(cleanedEmail)
-        } catch {
-            print("Database error: \(error.localizedDescription)")
-            emailAvailable = false
-        }
     }
     
     var body: some View {
@@ -52,7 +37,7 @@ struct CreateAccountView: View {
                             emailCheckTask = Task {
                                 try? await Task.sleep(nanoseconds: 500_000_000)
                                 if !Task.isCancelled {
-                                    checkEmailAvailability()
+                                    emailAvailable = !DatabaseManager.doesEmailExist(email)
                                 }
                             }
                         }
@@ -65,7 +50,7 @@ struct CreateAccountView: View {
                     SecureField("", text: $password_one)
                         .textFieldStyle(CustomTextField())
                     
-                    if !isPasswordValid(password_one) && !password_one.isEmpty {
+                    if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
                         CustomWarningText(text: "Password must be at least 8 characters, contain uppercase, lowercase, number, and special character.")
                     }
                     
@@ -97,7 +82,6 @@ struct CreateAccountView: View {
                     .disabled(!formIsValid)
                     .opacity(formIsValid ? 1.0 : 0.5)
                 }
-
             }
             .CustomView()
         }

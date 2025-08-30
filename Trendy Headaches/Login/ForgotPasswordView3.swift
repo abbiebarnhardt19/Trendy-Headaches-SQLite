@@ -17,7 +17,7 @@ struct ForgotPasswordView3: View {
     @State private var currentPassword: String = ""
     
     private var passwordResetValid: Bool {
-        DatabaseManager.PasswordResetHelper.isPasswordResetValid(
+        DatabaseManager.isPasswordResetValid(
             newPassword: password_one,
             confirmPassword: password_two,
             currentHashedPassword: currentPassword
@@ -25,13 +25,13 @@ struct ForgotPasswordView3: View {
     }
     
     private func loadCurrentPassword() {
-        let result = DatabaseManager.PasswordResetHelper.getCurrentPassword(forEmail: enteredEmail)
+        let result = DatabaseManager.getCurrentPassword(forEmail: enteredEmail)
         currentPassword = result.currentPassword
     }
     
     private func resetPassword() {
         do {
-            try DatabaseManager.PasswordResetHelper.updatePassword(forEmail: enteredEmail, newPassword: password_one)
+            try DatabaseManager.updatePassword(forEmail: enteredEmail, newPassword: password_one)
             isPasswordUpdated = true
         } catch {
             print("Error updating password: \(error.localizedDescription)")
@@ -44,12 +44,13 @@ struct ForgotPasswordView3: View {
                 CustomText(text: "New Password")
                 SecureField("", text: $password_one)
                     .textFieldStyle(CustomTextField())
+                    .padding(.bottom, 15)
                 
-                if !DatabaseManager.PasswordResetHelper.isPasswordValid(password_one) && !password_one.isEmpty {
+                if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
                     CustomWarningText(text: "Password must be at least 8 characters, contain uppercase, lowercase, number, and special character.")
                 }
                 
-                if !password_one.isEmpty && CryptoHelper.hashString(password_one) == currentPassword {
+                if !password_one.isEmpty && DatabaseManager.hashString(password_one) == currentPassword {
                     CustomWarningText(text: "New password must be different from previous password.")
                 }
                 

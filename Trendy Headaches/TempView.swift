@@ -9,7 +9,7 @@ import SwiftUI
 import SQLite
 
 struct TempView: SwiftUI.View {
-    let currentUserId: Int64   // 👈 Accept userId
+    let currentUserId: Int64 
     
     // Single-row values
     @State private var currentEmail: String = ""
@@ -59,45 +59,17 @@ struct TempView: SwiftUI.View {
             .padding()
         }
         .onAppear {
-            fetchUserInfo()
-            fetchTriggers()
-            fetchMedications()
-            fetchSymptoms()
+            let userInfo = DatabaseManager.shared.getUserInfo(userId: currentUserId)
+            currentEmail = userInfo.email
+            currentPassword = userInfo.password
+            securityQuestion = userInfo.securityQuestion
+            securityAnswer = userInfo.securityAnswer
+            colorScheme = userInfo.colorScheme
+
+            triggers = DatabaseManager.shared.getTriggers(forUserId: currentUserId)
+            medications = DatabaseManager.shared.getMedications(forUserId: currentUserId)
+            symptoms = DatabaseManager.shared.getSymptoms(forUserId: currentUserId)
         }
-    }
-    
-    // MARK: - User Info
-    private func fetchUserInfo() {
-        currentEmail = DatabaseManager.shared.getSingleColumnValue(userId: currentUserId, columnName: "email") ?? ""
-        currentPassword = DatabaseManager.shared.getSingleColumnValue(userId: currentUserId, columnName: "password") ?? ""
-        securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: currentUserId, columnName: "security_question") ?? ""
-        securityAnswer = DatabaseManager.shared.getSingleColumnValue(userId: currentUserId, columnName: "security_answer") ?? ""
-        colorScheme = DatabaseManager.shared.getSingleColumnValue(userId: currentUserId, columnName: "color_scheme") ?? ""
-    }
-    
-    // MARK: - Triggers
-    private func fetchTriggers() {
-        triggers = DatabaseManager.shared.getForeignKeyColumnValues(
-            userId: currentUserId,
-            tableName: "triggers",
-            columnName: "trigger_name"
-        )
-    }
-    
-    private func fetchMedications() {
-        medications = DatabaseManager.shared.getForeignKeyColumnValues(
-            userId: currentUserId,
-            tableName: "medications",
-            columnName: "med_name"
-        )
-    }
-    
-    private func fetchSymptoms() {
-        symptoms = DatabaseManager.shared.getForeignKeyColumnValues(
-            userId: currentUserId,
-            tableName: "symptoms",
-            columnName: "symptom_name"
-        )
     }
 }
 

@@ -12,60 +12,38 @@ struct LoginView: SwiftUI.View {
     var body: some SwiftUI.View {
         NavigationStack {
             VStack(spacing: 20) {
-                //header text
                 CustomWelcome(text: "Welcome Back!")
-
-                //start of form
+                
                 CustomText(text: "Email")
-                SwiftUI.TextField("", text: $email)
+                TextField("", text: $email)
                     .textFieldStyle(CustomTextField())
                 
                 CustomText(text: "Password")
                 SecureField("", text: $password)
                     .textFieldStyle(CustomTextField())
                 
-                // Error message
                 if let loginError = loginError {
                     CustomWarningText(text: loginError)
                 }
                 
-                // Log In Button, calls function that will check if username and password are right
                 CustomButton(text: "Log In") {
-                    login()
+                    let result = DatabaseManager.shared.attemptLogin(email: email, password: password)
+                    userId = result.userId
+                    loginError = result.error
+                    isLoggedIn = userId != nil
                 }
+                
                 CustomNavButton(label: "Forgot Password", destination: ForgotPasswordView1())
             }
             .CustomView()
             .onAppear {
-                // Ensure database is initialized
                 _ = DatabaseManager.shared
             }
-            
-            // if the login info is valid, go to the next page
             .navigationDestination(isPresented: $isLoggedIn) {
                 if let userId = userId {
                     TempView(currentUserId: userId)
                 }
             }
-        }
-    }
-    
-    // login function
-    private func login() {
-        do {
-            if let id = try DatabaseManager.shared.loginUser(
-                emailAddress: DatabaseManager.shared.normalizedValue(email),
-                passwordInput: CryptoHelper.hashString(password)
-            ) {
-                userId = id
-                isLoggedIn = true
-                loginError = nil
-            } else {
-                loginError = "Invalid email or password."
-                isLoggedIn = false
-            }
-        } catch {
-            loginError = "Database error: \(error.localizedDescription)"
         }
     }
 }
