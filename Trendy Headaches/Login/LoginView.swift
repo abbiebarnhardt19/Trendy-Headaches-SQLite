@@ -54,7 +54,7 @@ struct LoginView: SwiftUI.View {
     private func login() {
         do {
             if let id = try DatabaseManager.shared.loginUser(
-                emailAddress: email,
+                emailAddress: DatabaseManager.shared.normalizedValue(email),
                 passwordInput: CryptoHelper.hashString(password)
             ) {
                 userId = id

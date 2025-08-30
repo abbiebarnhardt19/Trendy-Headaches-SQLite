@@ -1,3 +1,9 @@
+//
+//  ForgotPasswordView3.swift
+//  Trendy Headaches
+//
+//  Created by Abigail Barnhardt on 8/28/25.
+//
 import SwiftUI
 
 struct ForgotPasswordView1: View {
@@ -13,43 +19,32 @@ struct ForgotPasswordView1: View {
                 CustomText(text: "Email")
                 TextField("", text: $email)
                     .textFieldStyle(CustomTextField())
-                    .autocapitalization(.none)
                     .keyboardType(.emailAddress)
                     .onChange(of: email) {
                         emailCheckTask?.cancel()
                         emailCheckTask = Task {
                             try? await Task.sleep(nanoseconds: 500_000_000)
                             if !Task.isCancelled {
-                                checkEmailAvailability()
+                                // call the fully qualified static helper
+                                emailExists = DatabaseManager.UserHelpers.doesEmailExist(email)
                             }
                         }
                     }
                 
-                if let exists = emailExists {
-                    if !exists {
-                        Text("No account found with this email")
-                            .foregroundColor(.red)
-                    }
+                if let exists = emailExists, !exists {
+                    Text("No account found with this email")
+                        .foregroundColor(.red)
                 }
                 
-                CustomNavButton(label: "Continue", destination: ForgotPasswordView2(enteredEmail: email))
-                    .disabled(!(emailExists ?? false)) // disable if nil or false
-                    .opacity((emailExists ?? false) ? 1.0 : 0.5)
+                CustomNavButton(
+                    label: "Continue",
+                    destination: ForgotPasswordView2(enteredEmail: DatabaseManager.shared.normalizedValue(email))
+                )
+                .disabled(!(emailExists ?? false))
+                .opacity((emailExists ?? false) ? 1.0 : 0.5)
             }
             .padding()
             .CustomView()
-        }
-    }
-
-    
-    private func checkEmailAvailability() {
-        do {
-            // emailExists returns true if account exists
-            let cleaned = DatabaseManager.shared.normalizedEmail(email)
-            emailExists = try DatabaseManager.shared.emailExists(cleaned)
-        } catch {
-            print("Database error: \(error.localizedDescription)")
-            emailExists = nil
         }
     }
 }

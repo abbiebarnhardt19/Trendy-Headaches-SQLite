@@ -1,3 +1,10 @@
+//
+//  DatabaseManager.swift
+//  learning_xcode
+//
+//  Created by Abigail Barnhardt on 8/24/25.
+//
+
 import Foundation
 import SQLite
 
@@ -7,8 +14,8 @@ enum DatabaseError: Error {
 
 class DatabaseManager {
     static let shared = DatabaseManager()
-    private var db: Connection!
-    
+    private let db: Connection
+
     // tables
     let users = Table("Users")
     let symptoms = Table("Symptoms")
@@ -51,47 +58,17 @@ class DatabaseManager {
     let symptom_description = SQLite.Expression<String>("symptom_description")
     let notes = SQLite.Expression<String>("notes")
     
-    // log triggers
-    // no unique ID, composite primary key of log_id and trigger_id
-    
-    // initialize
+    //create database
     private init() {
         let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
         let dbPath = "\(path)/headache_tracker.sqlite3"
 
-        //Force delete old DB on every launch (for debugging)
-        //let fileManager = FileManager.default
-        //if fileManager.fileExists(atPath: dbPath) {
-        //    try? fileManager.removeItem(atPath: dbPath)
-        //    print("Deleted old DB at: \(dbPath)")
-        //}
-
         do {
-            db = try Connection(dbPath)
-            db.foreignKeys = true
-            createTables()
+            db = try Connection(dbPath) // only throws here
+            db.foreignKeys = true       // does not throw
+            createTables()              // does throw, catch inside createTables
         } catch {
-            print("Database connection failed: \(error)")
-        }
-    }
-
-    
-    private func connect() {
-        do {
-            // get file path for the database
-            let documentsDirectory = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
-            let dbPath = "\(documentsDirectory)/headache_tracker.sqlite3"
-            
-            // create database
-            db = try Connection(dbPath)
-            
-            // enable foreign keys
-            db.foreignKeys = true
-            
-            // print the **full path to the DB file**
-            print("Database full path: \(dbPath)")
-        } catch {
-            print("Database connection error: \(error)")
+            fatalError("Database connection failed: \(error)")
         }
     }
     
@@ -164,8 +141,6 @@ class DatabaseManager {
             print("Table creation error: \(error)")
         }
     }
-    // functions to add something to a tablr
-    
     
     func addUser(
         security_question_string: String,
@@ -244,136 +219,33 @@ class DatabaseManager {
         
         return userId
     }
-
     
-    func addSymptom(userId: Int64, symptomName: String) throws -> Int64 {
-        let insert = symptoms.insert(
-            user_id <- userId,
-            symptom_name <- symptomName
-        )
-        let rowId = try db.run(insert)
-        return rowId
-    }
-    
-    func addMedication(category: String, medName: String, prescription: String, start: Date, end: Date?) throws -> Int64 {
-        let insert = medications.insert(
-            med_category <- category,
-            med_name <- medName,
-            med_start <- start,
-            med_end <- end
-        )
-        let rowId = try db.run(insert)
-        return rowId
-    }
-    
-    func addTrigger(userId: Int64, triggerName: String) throws -> Int64 {
-        let insert = triggers.insert(
-            user_id <- userId,
-            trigger_name <- triggerName
-        )
-        let rowId = try db.run(insert)
-        return rowId
-    }
-    
-    func addLog(userId: Int64, dateVal: Date, timeVal: String, severityLvl: Int, symptomId: Int64, medTaken: Bool, medWorked: Bool, symptomDesc: String, note: String) throws -> Int64 {
-        let insert = logs.insert(
-            user_id <- userId,
-            date <- dateVal,
-            time <- timeVal,
-            severity <- severityLvl,
-            symptom_id <- symptomId,
-            med_taken <- medTaken,
-            med_worked <- medWorked,
-            symptom_description <- symptomDesc,
-            notes <- note
-        )
-        let rowId = try db.run(insert)
-        return rowId
-    }
-    
-    func addLogTrigger(logIdVal: Int64, triggerIdVal: Int64) throws {
-        let insert = logTriggers.insert(
-            log_id <- logIdVal,
-            trigger_id <- triggerIdVal
-        )
+    // MARK: - Database Access Helpers
+        
+    // Run an insert/update/delete statement and return last inserted row ID
+    // For Insert statements
+    func run(_ insert: SQLite.Insert) throws -> Int64 {
         try db.run(insert)
     }
-    
-    //login function, returns row of the user
-    func loginUser(emailAddress: String, passwordInput: String) throws -> Int64? {
-        guard db != nil else {
-            throw DatabaseError.connectionFailed
-        }
 
-        // use the class-level `users` table and columns
-        if let user = try db.pluck(users.filter(email == emailAddress && password == passwordInput)) {
-            return user[user_id] // return the correct user_id
-        } else {
-            return nil
-        }
-    }
-    
-    func getUserFromEmail(email: String) -> Int64? {
-        do {
-            let emailColumn = SQLite.Expression<String>("email")
-            let targetColumn = SQLite.Expression<Int64>("user_id")
-
-            if let row = try db.pluck(users.filter(emailColumn == email)) {
-                return row[targetColumn]
-            }
-        } catch {
-            print("DB error: \(error)")
-        }
-        return nil
+    // For Update statements
+    func run(_ update: SQLite.Update) throws -> Int {
+        try db.run(update)
     }
 
-    func getSingleColumnValue(userId: Int64, columnName: String) -> String? {
-        do {
-            let idColumn = SQLite.Expression<Int64>("user_id")
-            let targetColumn = SQLite.Expression<String>(columnName)
-
-            if let row = try db.pluck(users.filter(idColumn == userId)) {
-                return row[targetColumn]
-            }
-        } catch {
-            print("DB error: \(error)")
-        }
-        return nil
+    // For Delete statements
+    func run(_ delete: SQLite.Delete) throws -> Int {
+        try db.run(delete)
     }
 
-    func getForeignKeyColumnValues(userId: Int64, tableName: String, columnName: String) -> [String] {
-        do {
-            let idColumn = SQLite.Expression<Int64>("user_id")
-            let targetColumn = SQLite.Expression<String>(columnName)
-            let table = Table(tableName)
-
-            return try db.prepare(table.filter(idColumn == userId)).map { row in
-                row[targetColumn]
-            }
-        } catch {
-            print("DB error in getForeignKeyColumnValues:", error)
-            return []
-        }
-    }
-    
-    func emailExists(_ emailAddress: String) throws -> Bool {
-        let cleaned = normalizedEmail(emailAddress) // trim + lowercase
-        let query = users.filter(email == cleaned)  // direct equality
-        return try db.pluck(query) != nil
+    // Pluck a single row
+    func pluck(_ query: SQLite.QueryType) throws -> SQLite.Row? {
+        try db.pluck(query)
     }
 
-    func normalizedEmail(_ s: String) -> String {
-        s.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    // Prepare a query for iteration
+    func prepare(_ query: SQLite.QueryType) throws -> AnySequence<SQLite.Row> {
+        try db.prepare(query)
     }
 
 }
-
-
-
-//
-//  DatabaseManager.swift
-//  learning_xcode
-//
-//  Created by Abigail Barnhardt on 8/24/25.
-//
-

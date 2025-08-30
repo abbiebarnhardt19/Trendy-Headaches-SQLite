@@ -1,8 +1,9 @@
 //
-//  ForgotPasswordView2.swift
+//  ForgotPasswordView3.swift
 //  Trendy Headaches
 //
-
+//  Created by Abigail Barnhardt on 8/28/25.
+//
 import SwiftUI
 
 struct ForgotPasswordView2: View {
@@ -16,7 +17,7 @@ struct ForgotPasswordView2: View {
     // Computed property to check if entered answer is correct
     private var isCorrectAnswer: Bool {
         guard !enteredAnswer.isEmpty else { return false }
-        let normalizedInput = DatabaseManager.shared.normalizedEmail(
+        let normalizedInput = DatabaseManager.shared.normalizedValue(
             enteredAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
         )
         let hashedInput = CryptoHelper.hashString(normalizedInput)
@@ -26,6 +27,9 @@ struct ForgotPasswordView2: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
+                
+                CustomInstructions(text: "Please answer the following security question to proceed.")
+                
                 CustomText(text: securityQuestion)
                 
                 SecureField("", text: $enteredAnswer)
@@ -37,36 +41,19 @@ struct ForgotPasswordView2: View {
                     CustomWarningText(text: "Answers do not match.")
                 }
                 
-                CustomNavButton(label: "Continue", destination: ForgotPasswordView3())
+                CustomNavButton(label: "Continue", destination: ForgotPasswordView3(enteredEmail: enteredEmail))
                     .disabled(!isCorrectAnswer)
             }
             .padding()
             .CustomView()
             .onAppear {
-                loadSecurityQuestion()
+                // directly assign values using the helper in CustomFunctions
+                let result = DatabaseManager.UserHelpers.getSecurityQuestionAndAnswer(forEmail: enteredEmail)
+                userID = result.userId
+                securityQuestion = result.question
+                securityAnswerHash = result.hashedAnswer
             }
         }
-    }
-    
-    private func loadSecurityQuestion() {
-        guard let id = DatabaseManager.shared.getUserFromEmail(email: enteredEmail) else {
-            userID = nil
-            securityQuestion = ""
-            securityAnswerHash = ""
-            return
-        }
-        
-        userID = id
-        securityQuestion = DatabaseManager.shared.getSingleColumnValue(
-            userId: id,
-            columnName: "security_question"
-        ) ?? ""
-        
-        // Load the hashed security answer exactly as stored
-        securityAnswerHash = DatabaseManager.shared.getSingleColumnValue(
-            userId: id,
-            columnName: "security_answer"
-        ) ?? ""
     }
 }
 

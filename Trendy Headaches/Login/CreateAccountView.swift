@@ -29,7 +29,7 @@ struct CreateAccountView: View {
     
     private func checkEmailAvailability() {
         do {
-            let cleanedEmail = DatabaseManager.shared.normalizedEmail(email)
+            let cleanedEmail = DatabaseManager.shared.normalizedValue(email)
             emailAvailable = try !DatabaseManager.shared.emailExists(cleanedEmail)
         } catch {
             print("Database error: \(error.localizedDescription)")
