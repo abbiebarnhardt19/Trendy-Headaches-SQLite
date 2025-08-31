@@ -62,17 +62,31 @@ class DatabaseManager {
     
     //create database
     private init() {
+        // Get path to documents directory
         let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
         let dbPath = "\(path)/headache_tracker.sqlite3"
+        
+        // Delete old database if it exists
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: dbPath) {
+            do {
+                try fileManager.removeItem(atPath: dbPath)
+                print("Old database deleted successfully")
+            } catch {
+                print("Failed to delete old database: \(error)")
+            }
+        }
 
         do {
-            db = try Connection(dbPath) // only throws here
-            db.foreignKeys = true       // does not throw
-            createTables()              // does throw, catch inside createTables
+            db = try Connection(dbPath)
+            db.foreignKeys = true
+            createTables()  // create fresh tables
+            print("Database created successfully")
         } catch {
             fatalError("Database connection failed: \(error)")
         }
     }
+
     
     private func createTables() {
         //create each table

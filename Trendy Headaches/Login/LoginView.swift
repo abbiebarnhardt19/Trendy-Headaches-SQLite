@@ -3,6 +3,10 @@ import SQLite
 
 struct LoginView: SwiftUI.View {
     
+    // Optional parameters with defaults
+    var background: String = "#001d00"
+    var accent: String = "#b5c4b9"
+    
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var isLoggedIn: Bool = false
@@ -12,30 +16,30 @@ struct LoginView: SwiftUI.View {
     var body: some SwiftUI.View {
         NavigationStack {
             VStack(spacing: 20) {
-                CustomWelcome(text: "Welcome Back!", color: "#b5c4b9")
+                CustomWelcome(text: "Welcome Back!", color: accent)
                 
-                CustomText(text: "Email", color: "#b5c4b9")
+                CustomText(text: "Email", color: accent)
                 TextField("", text: $email)
-                    .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
+                    .textFieldStyle(CustomTextField(background: background, accent: accent))
                 
-                CustomText(text: "Password", color: "#b5c4b9")
+                CustomText(text: "Password", color: accent)
                 SecureField("", text: $password)
-                    .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
+                    .textFieldStyle(CustomTextField(background: background, accent: accent))
                 
                 if let loginError = loginError {
                     CustomWarningText(text: loginError)
                 }
                 
-                CustomButton(text: "Log In", background: "#b5c4b9", accent: "#001d00") {
+                CustomButton(text: "Log In", background: accent, accent: background) {
                     let result = DatabaseManager.shared.attemptLogin(email: email, password: password)
                     userId = result.userId
                     loginError = result.error
                     isLoggedIn = userId != nil
                 }
                 
-                CustomNavButton(label: "Forgot Password", destination: ForgotPasswordView1(), background: "#001d00", accent: "#b5c4b9")
+                CustomNavButton(label: "Forgot Password", destination: ForgotPasswordView1(), background: background, accent: accent)
             }
-            .CustomView(color: "#001d00")
+            
             .onAppear {
                 _ = DatabaseManager.shared
             }
@@ -45,6 +49,7 @@ struct LoginView: SwiftUI.View {
                 }
             }
         }
+        .CustomView(color: background)
     }
 }
 
