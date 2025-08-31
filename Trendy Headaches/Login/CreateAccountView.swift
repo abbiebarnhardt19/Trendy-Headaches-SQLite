@@ -26,12 +26,12 @@ struct CreateAccountView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 15) {
-                    CustomWelcome(text: "Welcome!")
-                    CustomInstructions(text: "Please fill in the following fields to begin creating your account.")
+                    CustomWelcome(text: "Welcome!", color: "#b5c4b9")
+                    CustomInstructions(text: "Please fill in the following fields to begin creating your account.", color: "#b5c4b9")
                     
-                    CustomText(text: "Email")
+                    CustomText(text: "Email", color: "#b5c4b9")
                     TextField("", text: $email)
-                        .textFieldStyle(CustomTextField())
+                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
                         .onChange(of: email) {
                             emailCheckTask?.cancel()
                             emailCheckTask = Task {
@@ -46,44 +46,44 @@ struct CreateAccountView: View {
                         CustomWarningText(text: "There is already an account associated with this email")
                     }
                     
-                    CustomText(text: "Password")
+                    CustomText(text: "Password", color: "#b5c4b9")
                     SecureField("", text: $password_one)
-                        .textFieldStyle(CustomTextField())
+                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
                     
                     if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
                         CustomWarningText(text: "Password must be at least 8 characters, contain uppercase, lowercase, number, and special character.")
                     }
                     
-                    CustomText(text: "Confirm Password")
+                    CustomText(text: "Confirm Password", color: "#b5c4b9")
                     SecureField("", text: $password_two)
-                        .textFieldStyle(CustomTextField())
+                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
                     
                     if !password_two.isEmpty && password_two != password_one {
                         CustomWarningText(text: "Passwords do not match.")
                     }
                     
-                    CustomText(text: "Security Question")
+                    CustomText(text: "Security Question", color: "#b5c4b9")
                     TextField("", text: $security_question)
-                        .textFieldStyle(CustomTextField())
+                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
                     
-                    CustomText(text: "Security Question Answer")
+                    CustomText(text: "Security Question Answer", color: "#b5c4b9")
                     TextField("", text: $security_answer)
-                        .textFieldStyle(CustomTextField())
+                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
                     
                     CustomNavButton(
                         label: "Continue",
-                        destination: CreateAccountView2(
+                        destination: CreateAccountView3(
                             email: email,
-                            passwordOne: password_one,
-                            currentSecurityQuestion: security_question,
-                            currentSecurityAnswer: security_answer
-                        )
+                            password_one: password_one,
+                            security_question: security_question,
+                            security_answer: security_answer
+                        ), background: "#001d00", accent: "#b5c4b9"
                     )
                     .disabled(!formIsValid)
                     .opacity(formIsValid ? 1.0 : 0.5)
                 }
             }
-            .CustomView()
+            .CustomView(color: "#001d00")
         }
     }
 }

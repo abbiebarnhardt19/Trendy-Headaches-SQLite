@@ -31,7 +31,9 @@ class DatabaseManager {
     let password = SQLite.Expression<String>("password")
     let security_question = SQLite.Expression<String>("security_question")
     let security_answer = SQLite.Expression<String>("security_answer")
-    let color_scheme = SQLite.Expression<String>("color_scheme")
+    let background_color = SQLite.Expression<String>("background_color")
+    let accent_color = SQLite.Expression<String>("accent_color")
+    
     
     // symptom types
     let symptom_id = SQLite.Expression<Int64>("symptom_id")
@@ -82,7 +84,8 @@ class DatabaseManager {
                 t.column(password)
                 t.column(security_question)
                 t.column(security_answer)
-                t.column(color_scheme)
+                t.column(background_color)
+                t.column(accent_color)
             })
             
             // Symptom_Types
@@ -147,7 +150,8 @@ class DatabaseManager {
         security_answer_string: String,
         emailAddress: String,
         passwordHash: String,
-        userColor: String,
+        userBackground: String,
+        userAccent: String,
         preventativeMedsCSV: String? = nil,
         emergencyMedsCSV: String? = nil,
         symptomsCSV: String? = nil,
@@ -159,7 +163,8 @@ class DatabaseManager {
             security_answer <- security_answer_string,
             email <- emailAddress,
             password <- passwordHash,
-            color_scheme <- userColor
+            background_color <- userBackground,
+            accent_color <- userAccent
         )
         let userId = try db.run(insertUser)
         

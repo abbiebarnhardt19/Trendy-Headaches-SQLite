@@ -14,11 +14,11 @@ struct ForgotPasswordView1: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                CustomInstructions(text: "Please enter the email address of the account you wish to reset the password of.")
+                CustomInstructions(text: "Please enter the email address of the account you wish to reset the password of.", color: "#b5c4b9")
                 
-                CustomText(text: "Email")
+                CustomText(text: "Email", color: "#b5c4b9")
                 TextField("", text: $email)
-                    .textFieldStyle(CustomTextField())
+                    .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
                     .keyboardType(.emailAddress)
                     .onChange(of: email) {
                         emailCheckTask?.cancel()
@@ -38,13 +38,13 @@ struct ForgotPasswordView1: View {
                 
                 CustomNavButton(
                     label: "Continue",
-                    destination: ForgotPasswordView2(enteredEmail: DatabaseManager.shared.normalizedValue(email))
+                    destination: ForgotPasswordView2(enteredEmail: DatabaseManager.normalizedValue(email)), background: "#001d00", accent: "#b5c4b9"
                 )
                 .disabled(!(emailExists ?? false))
                 .opacity((emailExists ?? false) ? 1.0 : 0.5)
             }
             .padding()
-            .CustomView()
+            .CustomView(color: "#001d00")
         }
     }
 }

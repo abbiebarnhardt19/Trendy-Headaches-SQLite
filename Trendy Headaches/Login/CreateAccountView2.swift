@@ -2,6 +2,8 @@ import SwiftUI
 import CryptoKit
 
 struct CreateAccountView2: View {
+    var background: String = ""
+    var accent: String = ""
     var email: String = ""
     var passwordOne: String = ""
     var currentSecurityQuestion: String = ""
@@ -22,37 +24,39 @@ struct CreateAccountView2: View {
                         Text("Continue Creating Your Account")
                             .multilineTextAlignment(.center)
                             .font(.system(size: 34, weight: .bold))
-                            .foregroundColor(Color(hex: "#b5c4b9"))
+                            .foregroundColor(Color(hex: accent))
                             .fixedSize(horizontal: false, vertical: true)
                         
-                        CustomInstructions(text: "These fields are optional and help us provide personalized insights from your data. Add multiple items by separating them with commas.")
+                        CustomInstructions(text: "These fields are optional and help us provide personalized insights from your data. Add multiple items by separating them with commas.", color: accent)
                     }
                     
                     VStack(spacing: 15) {
-                        CustomText(text: "Symptom or Illness")
+                        CustomText(text: "Symptom or Illness", color: accent)
                         TextField("", text: $symptoms)
-                            .textFieldStyle(CustomTextField())
+                            .textFieldStyle(CustomTextField(background: background, accent: accent))
                         
-                        CustomText(text: "Preventative Medications")
+                        CustomText(text: "Preventative Medications", color: accent)
                         TextField("", text: $preventativeMeds)
-                            .textFieldStyle(CustomTextField())
+                            .textFieldStyle(CustomTextField(background: background, accent: accent))
                         
-                        CustomText(text: "Emergency Medications")
+                        CustomText(text: "Emergency Medications", color: accent)
                         TextField("", text: $emergencyMeds)
-                            .textFieldStyle(CustomTextField())
+                            .textFieldStyle(CustomTextField(background: background, accent: accent))
                         
-                        CustomText(text: "Triggers")
+                        CustomText(text: "Triggers", color: accent)
                         TextField("", text: $triggers)
-                            .textFieldStyle(CustomTextField())
+                            .textFieldStyle(CustomTextField(background: background, accent: accent))
                     }
                     
-                    CustomButton(text: "Create Account") {
+                    CustomButton(text: "Create Account", background: accent, accent: background) {
                         do {
                             try DatabaseManager.createUser(
                                 email: email,
                                 password: passwordOne,
                                 securityQuestion: currentSecurityQuestion,
                                 securityAnswer: currentSecurityAnswer,
+                                background: background,
+                                accent: accent,
                                 symptoms: symptoms,
                                 preventativeMeds: preventativeMeds,
                                 emergencyMeds: emergencyMeds,
@@ -80,7 +84,7 @@ struct CreateAccountView2: View {
             .navigationDestination(isPresented: $accountCreated) {
                 LoginView()
             }
-            .CustomView()
+            .CustomView(color: background)
         }
     }
 }

@@ -17,7 +17,7 @@ struct ForgotPasswordView2: View {
     // Computed property to check if entered answer is correct
     private var isCorrectAnswer: Bool {
         guard !enteredAnswer.isEmpty else { return false }
-        let normalizedInput = DatabaseManager.shared.normalizedValue(
+        let normalizedInput = DatabaseManager.normalizedValue(
             enteredAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
         )
         let hashedInput = DatabaseManager.hashString(normalizedInput)
@@ -28,12 +28,12 @@ struct ForgotPasswordView2: View {
         NavigationStack {
             VStack(spacing: 20) {
                 
-                CustomInstructions(text: "Please answer the following security question to proceed.")
+                CustomInstructions(text: "Please answer the following security question to proceed.", color: "#b5c4b9")
                 
-                CustomText(text: securityQuestion)
+                CustomText(text: securityQuestion, color: "#b5c4b9")
                 
                 SecureField("", text: $enteredAnswer)
-                    .textFieldStyle(CustomTextField())
+                    .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
                 
@@ -41,11 +41,11 @@ struct ForgotPasswordView2: View {
                     CustomWarningText(text: "Answers do not match.")
                 }
                 
-                CustomNavButton(label: "Continue", destination: ForgotPasswordView3(enteredEmail: enteredEmail))
+                CustomNavButton(label: "Continue", destination: ForgotPasswordView3(enteredEmail: enteredEmail), background: "#001d00", accent: "#b5c4b9")
                     .disabled(!isCorrectAnswer)
             }
             .padding()
-            .CustomView()
+            .CustomView(color: "#001d00")
             .onAppear {
                 // directly assign values using the helper in CustomFunctions
                 let result = DatabaseManager.getSecurityQuestionAndAnswer(forEmail: enteredEmail)

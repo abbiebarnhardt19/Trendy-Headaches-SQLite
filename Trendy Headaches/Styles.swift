@@ -47,37 +47,43 @@ extension Color {
 }
 
 struct CustomTextField: TextFieldStyle {
+    let background: String
+    let accent: String
+    
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
             .padding(.top, 10)
             .padding(.bottom, 10)
             .padding(.leading, 10)
             .padding(.trailing, 10)
-            .background(Color(hex: "#b5c4b9"))
-            .foregroundColor(Color(hex: "#001d00"))
+            .background(Color(hex: accent))
+            .foregroundColor(Color(hex: background))
             .cornerRadius(8)
-        .padding(.trailing, 20)
-        .padding(.leading, 20)
+            .padding(.leading, 20)
+            .padding(.trailing, 20)
     }
-
 }
 
 
 struct CustomText: View {
     var text: String
+    var color: String
+    
     var body: some View {
         Text(text)
             .font(.system(size: 22, weight: .bold))
-            .foregroundColor(Color(hex: "#b5c4b9"))
-            .frame(maxWidth:.infinity, alignment: .leading)
-        .padding(.trailing, 20)
-        .padding(.leading, 20)
+            .foregroundColor(Color(hex: color))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.trailing, 20)
+            .padding(.leading, 20)
     }
 }
 
 struct CustomNavButton<Destination: View>: View {
     var label: String
     var destination: Destination
+    var background: String
+    var accent: String
 
     var body: some View {
         NavigationLink {
@@ -86,8 +92,8 @@ struct CustomNavButton<Destination: View>: View {
             Text(label)
                 .padding(.horizontal, 40)
                 .padding(.vertical, 10)
-                .background(Color(hex: "#b5c4b9"))
-                .foregroundColor(Color(hex: "#001d00"))
+                .background(Color(hex: accent))
+                .foregroundColor(Color(hex: background))
                 .cornerRadius(10)
         }
         .padding(.top, 10)
@@ -125,11 +131,12 @@ struct CustomWarningText: View {
 //main title text
 struct CustomWelcome: View {
     var text: String
+    var color: String
     var body: some View {
         Text(text)
             .multilineTextAlignment(.center)
             .font(.system(size: 50, weight: .bold))
-            .foregroundColor(Color(hex: "#b5c4b9"))
+            .foregroundColor(Color(hex: color))
             .padding(.bottom, 10)
     }
 }
@@ -137,12 +144,13 @@ struct CustomWelcome: View {
 //text that goes under titletext
 struct CustomInstructions: View {
     var text: String
+    var color: String
     var body: some View {
         Text(text)
             .fixedSize(horizontal: false, vertical: true)
             .multilineTextAlignment(.center)
             .font(.system(size: 20, weight: .bold))
-            .foregroundColor(Color(hex: "#b5c4b9"))
+            .foregroundColor(Color(hex: color))
             .padding(.bottom, 10)
         .padding(.trailing, 15)
         .padding(.leading, 15)
@@ -152,17 +160,19 @@ struct CustomInstructions: View {
 //sets the background color
 //make this so it takes in the string and gets the hex codes from that?
 extension View {
-    func CustomView() -> some View {
+    func CustomView(color: String) -> some View {
         self
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(hex: "#001D00"))
+            .background(Color(hex: color))
     }
 }
 
 //stylied button
 struct CustomButton: View {
     var text: String
+    var background: String
+    var accent: String
     var action: () -> Void
     
     var body: some View {
@@ -171,10 +181,76 @@ struct CustomButton: View {
                 .padding(.vertical, 10)
                 .padding(.leading, 15)
                 .padding(.trailing,15)
-                .background(Color(hex: "#b5c4b9"))
-                .foregroundColor(Color(hex: "#001d00"))
+                .background(Color(hex: background))
+                .foregroundColor(Color(hex: accent))
                 .cornerRadius(10)
         }
         .buttonStyle(.plain)
+    }
+}
+struct DropdownMenu: View {
+    @Binding var selection: String
+    let options: [String]
+    let background: String  // hex string for background
+    let accent: String      // hex string for accent
+    
+    @State private var isExpanded = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            
+            // Dropdown label (currently selected option)
+            Button(action: {
+                withAnimation {
+                    isExpanded.toggle()
+                }
+            }) {
+                HStack {
+                    Text(selection.isEmpty ? "Select an option" : selection)
+                        .foregroundColor(selection.isEmpty ? Color(hex: accent) : Color(hex: accent))
+                    Spacer()
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .foregroundColor(Color(hex: accent))
+                }
+                .padding()
+                .background(Color(hex: background).opacity(0.2))
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color(hex: accent), lineWidth: 2)
+                )
+            }
+            
+            // Dropdown options
+            if isExpanded {
+                VStack(spacing: 0) {
+                    ForEach(options, id: \.self) { option in
+                        Button(action: {
+                            selection = option
+                            withAnimation {
+                                isExpanded = false
+                            }
+                        }) {
+                            HStack {
+                                Text(option)
+                                    .foregroundColor(Color(hex: accent))
+                                Spacer()
+                            }
+                            .padding()
+                            .background(Color(hex: background))
+                        }
+                        .buttonStyle(.plain)
+                        
+                        if option != options.last {
+                            Divider()
+                        }
+                    }
+                }
+                .background(Color(hex: background))
+                .cornerRadius(10)
+                .shadow(radius: 4)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
     }
 }

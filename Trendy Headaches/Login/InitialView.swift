@@ -11,15 +11,15 @@ struct InitialView: View {
     var body: some View {
         NavigationStack{
             VStack{
-                CustomNavButton(label: "Sign In", destination: LoginView())
-                CustomNavButton(label: "Sign Up", destination: CreateAccountView())
+                CustomNavButton(label: "Sign In", destination: LoginView(), background: "#b5c4b9", accent: "#001d00")
+                CustomNavButton(label: "Sign Up", destination: CreateAccountView(), background: "#b5c4b9", accent: "#001d00")
             }
-            .CustomView()
+            .CustomView(color: "#001d00")
             .onAppear{
                 _ = DatabaseManager.shared
             }
         }
-        .CustomView()
+        .CustomView(color: "#001d00")
     }
 }
 

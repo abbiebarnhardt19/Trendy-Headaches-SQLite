@@ -41,9 +41,9 @@ struct ForgotPasswordView3: View {
     var body: some View {
         NavigationStack {
             VStack {
-                CustomText(text: "New Password")
+                CustomText(text: "New Password", color: "#b5c4b9")
                 SecureField("", text: $password_one)
-                    .textFieldStyle(CustomTextField())
+                    .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
                     .padding(.bottom, 15)
                 
                 if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
@@ -54,15 +54,15 @@ struct ForgotPasswordView3: View {
                     CustomWarningText(text: "New password must be different from previous password.")
                 }
                 
-                CustomText(text: "Confirm New Password")
+                CustomText(text: "Confirm New Password", color: "#b5c4b9")
                 SecureField("", text: $password_two)
-                    .textFieldStyle(CustomTextField())
+                    .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
                 
                 if !password_two.isEmpty && password_two != password_one {
                     CustomWarningText(text: "Passwords do not match.")
                 }
                 
-                CustomButton(text: "Reset Password") {
+                CustomButton(text: "Reset Password", background: "#b5c4b9", accent: "#001d00") {
                     resetPassword()
                 }
                 .padding(.top, 15)
@@ -74,12 +74,12 @@ struct ForgotPasswordView3: View {
                     LoginView()
                 }
             }
-            .CustomView()
+            .CustomView(color: "#001d00")
             .onAppear {
                 loadCurrentPassword()
             }
         }
-        .CustomView()
+        .CustomView(color: "#001d00")
     }
 }
 

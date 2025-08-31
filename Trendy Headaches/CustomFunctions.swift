@@ -87,12 +87,12 @@ extension DatabaseManager {
     }
     
     func emailExists(_ emailAddress: String) throws -> Bool {
-        let cleaned = normalizedValue(emailAddress)
+        let cleaned = DatabaseManager.normalizedValue(emailAddress)
         let query = users.filter(email == cleaned)
         return try pluck(query) != nil
     }
     
-    func normalizedValue(_ s: String) -> String {
+    static func normalizedValue(_ s: String) -> String {
         s.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
     
@@ -104,7 +104,7 @@ extension DatabaseManager {
     }
     
     static func doesEmailExist(_ email: String) -> Bool {
-        let cleaned = DatabaseManager.shared.normalizedValue(email)
+        let cleaned = DatabaseManager.normalizedValue(email)
         do {
             return try DatabaseManager.shared.emailExists(cleaned)
         } catch {
@@ -135,21 +135,24 @@ extension DatabaseManager {
         password: String,
         securityQuestion: String,
         securityAnswer: String,
+        background: String,
+        accent: String,
         symptoms: String,
         preventativeMeds: String,
         emergencyMeds: String,
         triggers: String
     ) throws {
-        let normalizedEmail = DatabaseManager.shared.normalizedValue(email)
+        let normalizedEmail = DatabaseManager.normalizedValue(email)
         let hashedPassword = DatabaseManager.hashString(password)
-        let hashedSecurityAnswer = DatabaseManager.hashString(DatabaseManager.shared.normalizedValue(securityAnswer))
+        let hashedSecurityAnswer = DatabaseManager.hashString(DatabaseManager.normalizedValue(securityAnswer))
         
         let userId = try DatabaseManager.shared.addUser(
             security_question_string: securityQuestion,
             security_answer_string: hashedSecurityAnswer,
             emailAddress: normalizedEmail,
             passwordHash: hashedPassword,
-            userColor: "green",
+            userBackground: background,
+            userAccent: accent,
             preventativeMedsCSV: preventativeMeds,
             emergencyMedsCSV: emergencyMeds,
             symptomsCSV: symptoms,
@@ -226,7 +229,7 @@ extension DatabaseManager {
     }
     
     func attemptLogin(email: String, password: String) -> (userId: Int64?, error: String?) {
-        let normalizedEmail = normalizedValue(email)
+        let normalizedEmail = DatabaseManager.normalizedValue(email)
         let hashedPassword = DatabaseManager.hashString(password)
         
         do {
@@ -244,5 +247,60 @@ extension DatabaseManager {
         let inputData = Data(input.utf8)
         let hashed = SHA256.hash(data: inputData)
         return hashed.map { String(format: "%02x", $0) }.joined()
+    }
+    
+    static func getColors(theme: String) -> (background: String, accent: String) {
+        var selected_background = ""
+        var selected_accent = ""
+        
+        if theme == "Red (light mode)" {
+            selected_background = "#F0B1A3"
+            selected_accent = "#3B0E04"
+        }
+        if theme == "Red (dark mode)" {
+            selected_background = "#3B0E04"
+            selected_accent = "#F0B1A3"
+        }
+        if theme == "Green (light mode)" {
+            selected_background = "#b5c4b9"
+            selected_accent = "#001d00"
+        }
+        if theme == "Green (dark mode)" {
+            selected_background = "#001d00"
+            selected_accent = "#b5c4b9"
+        }
+        if theme == "Blue (light mode)" {
+            selected_background = "#B8D2F2"
+            selected_accent = "#021124"
+        }
+        if theme == "Blue (dark mode)" {
+            selected_background = "#021124"
+            selected_accent = "#B8D2F2"
+        }
+        if theme == "Purple (light mode)" {
+            selected_background = "#E0CDF7"
+            selected_accent = "#180233"
+        }
+        if theme == "Purple (dark mode)" {
+            selected_background = "#180233"
+            selected_accent = "#E0CDF7"
+        }
+        if theme == "Pink (light mode)" {
+            selected_background = "#F5CEEB"
+            selected_accent = "#38022B"
+        }
+        if theme == "Pink (dark mode)" {
+            selected_background = "#38022B"
+            selected_accent = "#F5CEEB"
+        }
+        if theme == "White" {
+            selected_background = "#FAF7F7"
+            selected_accent = "#5E5D5D"
+        }
+        if theme == "Black" {
+            selected_background = "#0A0A0A"
+            selected_accent = "#CCCCCC"
+        }
+        return (selected_background, selected_accent)
     }
 }
