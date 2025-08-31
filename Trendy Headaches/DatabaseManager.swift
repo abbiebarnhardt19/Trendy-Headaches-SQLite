@@ -74,7 +74,7 @@ class DatabaseManager {
                 print("Old database deleted successfully")
             } catch {
                 print("Failed to delete old database: \(error)")
-            }
+           }
         }
 
         do {
@@ -171,29 +171,40 @@ class DatabaseManager {
         symptomsCSV: String? = nil,
         triggersCSV: String? = nil
     ) throws -> Int64 {
+        
+        var userId: Int64 = 0
+        
         // 1. Insert into Users
-        let insertUser = users.insert(
-            security_question <- security_question_string,
-            security_answer <- security_answer_string,
-            email <- emailAddress,
-            password <- passwordHash,
-            background_color <- userBackground,
-            accent_color <- userAccent
-        )
-        let userId = try db.run(insertUser)
+        do {
+            let insertUser = users.insert(
+                security_question <- security_question_string,
+                security_answer <- security_answer_string,
+                email <- emailAddress,
+                password <- passwordHash,
+                background_color <- userBackground,
+                accent_color <- userAccent
+            )
+            userId = try db.run(insertUser)
+        } catch {
+            throw NSError(domain: "Database Error", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to insert user. Error: \(error)"])
+        }
         
         // 2. Insert Preventative Medications
         if let preventative = preventativeMedsCSV, !preventative.isEmpty {
             let medsArray = preventative.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             for med in medsArray where !med.isEmpty {
-                let insertMed = medications.insert(
-                    user_id <- userId,
-                    med_category <- "Preventative",
-                    med_name <- med,
-                    med_start <- Date(),
-                    med_end <- nil
-                )
-                try db.run(insertMed)
+                do {
+                    let insertMed = medications.insert(
+                        user_id <- userId,
+                        med_category <- "Preventative",
+                        med_name <- med,
+                        med_start <- Date(),
+                        med_end <- nil
+                    )
+                    try db.run(insertMed)
+                } catch {
+                    throw NSError(domain: "Database Error", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to insert preventative medication '\(med)'. Error: \(error)"])
+                }
             }
         }
         
@@ -201,14 +212,18 @@ class DatabaseManager {
         if let emergency = emergencyMedsCSV, !emergency.isEmpty {
             let medsArray = emergency.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             for med in medsArray where !med.isEmpty {
-                let insertMed = medications.insert(
-                    user_id <- userId,
-                    med_category <- "Emergency",
-                    med_name <- med,
-                    med_start <- Date(),
-                    med_end <- nil
-                )
-                try db.run(insertMed)
+                do {
+                    let insertMed = medications.insert(
+                        user_id <- userId,
+                        med_category <- "Emergency",
+                        med_name <- med,
+                        med_start <- Date(),
+                        med_end <- nil
+                    )
+                    try db.run(insertMed)
+                } catch {
+                    throw NSError(domain: "Database Error", code: 3, userInfo: [NSLocalizedDescriptionKey: "Failed to insert emergency medication '\(med)'. Error: \(error)"])
+                }
             }
         }
         
@@ -216,11 +231,15 @@ class DatabaseManager {
         if let triggersList = triggersCSV, !triggersList.isEmpty {
             let array = triggersList.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             for trig in array where !trig.isEmpty {
-                let insertTrig = triggers.insert(
-                    user_id <- userId,
-                    trigger_name <- trig
-                )
-                try db.run(insertTrig)
+                do {
+                    let insertTrig = triggers.insert(
+                        user_id <- userId,
+                        trigger_name <- trig
+                    )
+                    try db.run(insertTrig)
+                } catch {
+                    throw NSError(domain: "Database Error", code: 4, userInfo: [NSLocalizedDescriptionKey: "Failed to insert trigger '\(trig)'. Error: \(error)"])
+                }
             }
         }
         
@@ -228,16 +247,21 @@ class DatabaseManager {
         if let symptomsList = symptomsCSV, !symptomsList.isEmpty {
             let array = symptomsList.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             for symptom in array where !symptom.isEmpty {
-                let insertSymptom = symptoms.insert(
-                    user_id <- userId,
-                    symptom_name <- symptom
-                )
-                try db.run(insertSymptom)
+                do {
+                    let insertSymptom = symptoms.insert(
+                        user_id <- userId,
+                        symptom_name <- symptom
+                    )
+                    try db.run(insertSymptom)
+                } catch {
+                    throw NSError(domain: "Database Error", code: 5, userInfo: [NSLocalizedDescriptionKey: "Failed to insert symptom '\(symptom)'. Error: \(error)"])
+                }
             }
         }
         
         return userId
     }
+
     
     // MARK: - Database Access Helpers
         

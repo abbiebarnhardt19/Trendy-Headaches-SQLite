@@ -45,7 +45,12 @@ struct LoginView: SwiftUI.View {
             }
             .navigationDestination(isPresented: $isLoggedIn) {
                 if let userId = userId {
-                    TempView(currentUserId: userId)
+                    let normalizedEmail = DatabaseManager.normalizedValue(email)
+                    let (backgroundColor, accentColor) = DatabaseManager.getColors(email: normalizedEmail)
+                    NavBarView(userID: userId, backgroundColor: backgroundColor, accentColor: accentColor)
+                } else {
+                    // Fallback view if something goes wrong
+                    Text("Error: Could not retrieve user ID")
                 }
             }
         }

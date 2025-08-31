@@ -79,6 +79,22 @@ struct CustomText: View {
     }
 }
 
+
+struct CustomList: View {
+    var text: String
+    var color: String
+    
+    var body: some View {
+        Text(text)
+            .font(.system(size: 18))
+            .foregroundColor(Color(hex: color))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.trailing, 20)
+            .padding(.leading, 20)
+    }
+}
+
+
 struct CustomNavButton<Destination: View>: View {
     var label: String
     var destination: Destination

@@ -146,43 +146,62 @@ extension DatabaseManager {
         let hashedPassword = DatabaseManager.hashString(password)
         let hashedSecurityAnswer = DatabaseManager.hashString(DatabaseManager.normalizedValue(securityAnswer))
         
-        let userId = try DatabaseManager.shared.addUser(
-            security_question_string: securityQuestion,
-            security_answer_string: hashedSecurityAnswer,
-            emailAddress: normalizedEmail,
-            passwordHash: hashedPassword,
-            userBackground: background,
-            userAccent: accent,
-            preventativeMedsCSV: preventativeMeds,
-            emergencyMedsCSV: emergencyMeds,
-            symptomsCSV: symptoms,
-            triggersCSV: triggers
-        )
+        let userId: Int64
+        do {
+            userId = try DatabaseManager.shared.addUser(
+                security_question_string: securityQuestion,
+                security_answer_string: hashedSecurityAnswer,
+                emailAddress: normalizedEmail,
+                passwordHash: hashedPassword,
+                userBackground: background,
+                userAccent: accent,
+                preventativeMedsCSV: preventativeMeds,
+                emergencyMedsCSV: emergencyMeds,
+                symptomsCSV: symptoms,
+                triggersCSV: triggers
+            )
+        } catch {
+            print("Failed to add user to database: \(error)")
+            throw error
+        }
         
-        symptoms.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.forEach { symptom in
-            if !symptom.isEmpty {
-                _ = try? DatabaseManager.shared.addSymptom(userId: userId, symptomName: symptom)
+        // Symptoms
+        for symptom in symptoms.split(separator: ",").map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) where !symptom.isEmpty {
+            do {
+                _ = try DatabaseManager.shared.addSymptom(userId: userId, symptomName: symptom)
+            } catch {
+                print("Failed to add symptom '\(symptom)' for user \(userId): \(error)")
             }
         }
         
-        triggers.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.forEach { trigger in
-            if !trigger.isEmpty {
-                _ = try? DatabaseManager.shared.addTrigger(userId: userId, triggerName: trigger)
+        // Triggers
+        for trigger in triggers.split(separator: ",").map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) where !trigger.isEmpty {
+            do {
+                _ = try DatabaseManager.shared.addTrigger(userId: userId, triggerName: trigger)
+            } catch {
+                print("Failed to add trigger '\(trigger)' for user \(userId): \(error)")
             }
         }
         
-        preventativeMeds.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.forEach { med in
-            if !med.isEmpty {
-                _ = try? DatabaseManager.shared.addMedication(category: "preventative", medName: med, prescription: "", start: Date(), end: nil)
+        // Preventative Medications
+        for med in preventativeMeds.split(separator: ",").map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) where !med.isEmpty {
+            do {
+                _ = try DatabaseManager.shared.addMedication(category: "preventative", medName: med, prescription: "", start: Date(), end: nil)
+            } catch {
+                print("Failed to add preventative medication '\(med)' for user \(userId): \(error)")
             }
         }
         
-        emergencyMeds.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.forEach { med in
-            if !med.isEmpty {
-                _ = try? DatabaseManager.shared.addMedication(category: "emergency", medName: med, prescription: "", start: Date(), end: nil)
+        // Emergency Medications
+        for med in emergencyMeds.split(separator: ",").map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) where !med.isEmpty {
+            do {
+                _ = try DatabaseManager.shared.addMedication(category: "emergency", medName: med, prescription: "", start: Date(), end: nil)
+            } catch {
+                print("Failed to add emergency medication '\(med)' for user \(userId): \(error)")
             }
         }
     }
+
     
     static func isPasswordResetValid(newPassword: String, confirmPassword: String, currentHashedPassword: String) -> Bool {
         guard !newPassword.isEmpty, !confirmPassword.isEmpty else { return false }
@@ -207,13 +226,14 @@ extension DatabaseManager {
         print("Password successfully updated for user \(id)")
     }
     
-    func getUserInfo(userId: Int64) -> (email: String, password: String, securityQuestion: String, securityAnswer: String, colorScheme: String) {
+    func getUserInfo(userId: Int64) -> (email: String, password: String, securityQuestion: String, securityAnswer: String, backgroundColor: String, accentColor: String) {
         let email = getSingleColumnValue(userId: userId, columnName: "email") ?? ""
         let password = getSingleColumnValue(userId: userId, columnName: "password") ?? ""
         let securityQuestion = getSingleColumnValue(userId: userId, columnName: "security_question") ?? ""
         let securityAnswer = getSingleColumnValue(userId: userId, columnName: "security_answer") ?? ""
-        let colorScheme = getSingleColumnValue(userId: userId, columnName: "color_scheme") ?? ""
-        return (email, password, securityQuestion, securityAnswer, colorScheme)
+        let backgroundColor = getSingleColumnValue(userId: userId, columnName: "backgroundColor") ?? ""
+        let accentColor = getSingleColumnValue(userId: userId, columnName: "accentColor") ?? ""
+        return (email, password, securityQuestion, securityAnswer, backgroundColor, accentColor)
     }
 
     func getTriggers(forUserId userId: Int64) -> [String] {
@@ -249,7 +269,7 @@ extension DatabaseManager {
         return hashed.map { String(format: "%02x", $0) }.joined()
     }
     
-    static func getColors(theme: String) -> (background: String, accent: String) {
+    static func getThemeColors(theme: String) -> (background: String, accent: String) {
         var selected_background = ""
         var selected_accent = ""
         
@@ -303,4 +323,17 @@ extension DatabaseManager {
         }
         return (selected_background, selected_accent)
     }
+    
+    static func getColors(email: String) -> (background: String, accent: String) {
+        var selected_background = ""
+        var selected_accent = ""
+
+        if let userID = DatabaseManager.shared.getUserFromEmail(email: email) {
+            selected_background = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "background_color") ?? ""
+            selected_accent = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "accent_color") ?? ""
+        }
+
+        return (selected_background, selected_accent)
+    }
 }
+

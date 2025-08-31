@@ -27,7 +27,7 @@ struct CreateAccountView3: View {
                 
                 DropdownMenu(selection: $color_theme, options: options, background: background_color, accent: accent_color)
                     .onChange(of: color_theme) {
-                        let colors = DatabaseManager.getColors(theme: color_theme)
+                        let colors = DatabaseManager.getThemeColors(theme: color_theme)
                         background_color = colors.background
                         accent_color = colors.accent
                     }

@@ -16,7 +16,8 @@ struct TempView: SwiftUI.View {
     @State private var currentPassword: String = ""
     @State private var securityQuestion: String = ""
     @State private var securityAnswer: String = ""
-    @State private var colorScheme: String = ""
+    @State private var backgroundColor: String = ""
+    @State private var accentColor: String = ""
     
     // Multi-row values
     @State private var triggers: [String] = []
@@ -34,7 +35,8 @@ struct TempView: SwiftUI.View {
                 Text("Password: \(currentPassword)")
                 Text("Security Q: \(securityQuestion)")
                 Text("Security A: \(securityAnswer)")
-                Text("Color: \(colorScheme)")
+                Text("Background: \(backgroundColor)")
+                Text("Accent: \(accentColor)")
                 
                 Divider()
                 
@@ -64,7 +66,8 @@ struct TempView: SwiftUI.View {
             currentPassword = userInfo.password
             securityQuestion = userInfo.securityQuestion
             securityAnswer = userInfo.securityAnswer
-            colorScheme = userInfo.colorScheme
+            backgroundColor = userInfo.backgroundColor
+            accentColor = userInfo.accentColor
 
             triggers = DatabaseManager.shared.getTriggers(forUserId: currentUserId)
             medications = DatabaseManager.shared.getMedications(forUserId: currentUserId)
