@@ -61,6 +61,7 @@ struct CustomTextField: TextFieldStyle {
             .cornerRadius(8)
             .padding(.leading, 20)
             .padding(.trailing, 20)
+            .tint(Color(hex: background))
     }
 }
 
@@ -79,18 +80,36 @@ struct CustomText: View {
     }
 }
 
-
 struct CustomList: View {
-    var text: String
+    var items: [String]
     var color: String
     
+    private let columns = [
+        GridItem(.flexible(), spacing: 16),
+        GridItem(.flexible(), spacing: 16)
+    ]
+    
     var body: some View {
-        Text(text)
-            .font(.system(size: 18))
-            .foregroundColor(Color(hex: color))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.trailing, 20)
-            .padding(.leading, 20)
+        if items.count > 1{
+            LazyVGrid(columns: columns, spacing: 16) {
+                ForEach(items, id: \.self) { item in
+                    Text("• \(item)")
+                        .font(.system(size: 18))
+                        .foregroundColor(Color(hex: color))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                }
+                .padding(.bottom, 7)
+            }
+        }
+        else{
+            Text("• \(items[0])")
+                .font(.system(size: 18))
+                .foregroundColor(Color(hex: color))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 10)
+        }
     }
 }
 

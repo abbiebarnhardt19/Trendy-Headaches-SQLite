@@ -18,7 +18,7 @@ extension DatabaseManager {
         return try run(insert)
     }
     
-    func addMedication(category: String, medName: String, prescription: String, start: Date, end: Date?) throws -> Int64 {
+    func addMedication(category: String, medName: String, start: Date, end: Date?) throws -> Int64 {
         let insert = medications.insert(med_category <- category, med_name <- medName, med_start <- start, med_end <- end)
         return try run(insert)
     }
@@ -31,11 +31,6 @@ extension DatabaseManager {
     func addLog(userId: Int64, dateVal: Date, timeVal: String, severityLvl: Int, symptomId: Int64, medTaken: Bool, medWorked: Bool, symptomDesc: String, note: String) throws -> Int64 {
         let insert = logs.insert(user_id <- userId, date <- dateVal, time <- timeVal, severity <- severityLvl, symptom_id <- symptomId, med_taken <- medTaken, med_worked <- medWorked, symptom_description <- symptomDesc, notes <- note)
         return try run(insert)
-    }
-    
-    func addLogTrigger(logIdVal: Int64, triggerIdVal: Int64) throws {
-        let insert = logTriggers.insert(log_id <- logIdVal, trigger_id <- triggerIdVal)
-        try _ = run(insert)
     }
     
     func loginUser(emailAddress: String, passwordInput: String) throws -> Int64? {
@@ -77,7 +72,16 @@ extension DatabaseManager {
             let idColumn = SQLite.Expression<Int64>("user_id")
             let targetColumn = SQLite.Expression<String>(columnName)
             let table = Table(tableName)
-            return try prepare(table.filter(idColumn == userId)).map { row in
+            
+            // Build the "end" column name dynamically
+            let endColumnName = "\(tableName.lowercased().dropLast())_end"
+            let endColumn = SQLite.Expression<String?>(endColumnName)
+            
+            let query = table
+                .filter(idColumn == userId)
+                .filter(endColumn == nil)  // only rows where `tablenameend` is NULL
+            
+            return try prepare(query).map { row in
                 row[targetColumn]
             }
         } catch {
@@ -186,7 +190,7 @@ extension DatabaseManager {
         // Preventative Medications
         for med in preventativeMeds.split(separator: ",").map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) where !med.isEmpty {
             do {
-                _ = try DatabaseManager.shared.addMedication(category: "preventative", medName: med, prescription: "", start: Date(), end: nil)
+                _ = try DatabaseManager.shared.addMedication(category: "preventative", medName: med, start: Date(), end: nil)
             } catch {
                 print("Failed to add preventative medication '\(med)' for user \(userId): \(error)")
             }
@@ -195,7 +199,7 @@ extension DatabaseManager {
         // Emergency Medications
         for med in emergencyMeds.split(separator: ",").map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) where !med.isEmpty {
             do {
-                _ = try DatabaseManager.shared.addMedication(category: "emergency", medName: med, prescription: "", start: Date(), end: nil)
+                _ = try DatabaseManager.shared.addMedication(category: "emergency", medName: med, start: Date(), end: nil)
             } catch {
                 print("Failed to add emergency medication '\(med)' for user \(userId): \(error)")
             }
@@ -240,8 +244,25 @@ extension DatabaseManager {
         getForeignKeyColumnValues(userId: userId, tableName: "triggers", columnName: "trigger_name")
     }
 
-    func getMedications(forUserId userId: Int64) -> [String] {
-        getForeignKeyColumnValues(userId: userId, tableName: "medications", columnName: "med_name")
+    func getMeds(forUserId userId: Int64, medCategory: String) -> [String] {
+        do {
+            let idColumn = SQLite.Expression<Int64>("user_id")
+            let nameColumn = SQLite.Expression<String>("med_name")
+            let categoryColumn = SQLite.Expression<String>("med_category")
+            let endDateColumn = SQLite.Expression<Date?>("med_end")
+            
+            return try prepare(
+                medications
+                    .filter(idColumn == userId &&
+                            categoryColumn == medCategory &&
+                            endDateColumn == nil)
+            ).map { row in
+                row[nameColumn]
+            }
+        } catch {
+            print("DB error in getPreventativeMeds:", error)
+            return []
+        }
     }
 
     func getSymptoms(forUserId userId: Int64) -> [String] {
@@ -324,6 +345,48 @@ extension DatabaseManager {
         return (selected_background, selected_accent)
     }
     
+    static func getThemeName(selected_background: String, selected_accent: String) -> String{
+        var themeName = ""
+        
+        if selected_background == "#F0B1A3" && selected_accent == "#3B0E04" {
+            themeName = "Red (light mode)"
+        }
+        if selected_background == "#3B0E04" && selected_accent == "#F0B1A3"{
+            themeName = "Red (dark mode)"
+        }
+        if selected_background == "#b5c4b9" && selected_accent == "#001d00"{
+            themeName = "Green (light mode)"
+        }
+        if selected_background == "#001d00" && selected_accent == "#b5c4b9" {
+            themeName = "Green (dark mode)"
+        }
+        if selected_background == "#B8D2F2" && selected_accent == "#021124" {
+            themeName = "Blue (light mode)"
+        }
+        if selected_background == "#021124" && selected_accent == "#B8D2F2"{
+            themeName = "Blue (dark mode)"
+        }
+        if selected_background == "#E0CDF7" && selected_accent == "#180233" {
+            themeName = "Purple (light mode)"
+        }
+        if selected_background == "#180233" && selected_accent == "#E0CDF7" {
+            themeName = "Purple (dark mode)"
+        }
+        if selected_background == "#F5CEEB" && selected_accent == "#38022B" {
+            themeName = "Pink (light mode)"
+        }
+        if selected_background == "#38022B" && selected_accent == "#F5CEEB"{
+            themeName = "Pink (dark mode)"
+        }
+        if selected_background == "#FAF7F7" && selected_accent == "#5E5D5D"{
+            themeName = "White"
+        }
+        if selected_background == "#0A0A0A" && selected_accent == "#CCCCCC" {
+            themeName = "Black"
+        }
+        return themeName
+    }
+    
     static func getColors(email: String) -> (background: String, accent: String) {
         var selected_background = ""
         var selected_accent = ""
@@ -334,6 +397,17 @@ extension DatabaseManager {
         }
 
         return (selected_background, selected_accent)
+    }
+    
+    static func deleteListDuplicates(list: [String]) -> [String]{
+        var tempList = [String]()
+        for item in list{
+            if !tempList.contains(item){
+                tempList.append(item)
+            }
+        }
+        
+        return tempList
     }
 }
 

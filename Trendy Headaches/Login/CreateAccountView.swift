@@ -83,8 +83,8 @@ struct CreateAccountView: View {
                     .opacity(formIsValid ? 1.0 : 0.5)
                 }
             }
-            .CustomView(color: "#001d00")
         }
+        .CustomView(color: "#001d00")
     }
 }
 

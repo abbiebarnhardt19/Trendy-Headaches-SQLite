@@ -16,46 +16,96 @@ struct ProfileView: View {
     @State private var isEditing = false
     @State private var symptoms: [String] = []
     @State private var hasLoadedSymptoms: Bool = false
+    @State private var triggers: [String] = []
+    @State private var prevMeds: [String] = []
+    @State private var emergencyMeds: [String] = []
+    
+    @State private var securityQuestion: String = ""
+    @State private var securityAnswer: String = ""
+    @State private var themeName: String = ""
     
     var body: some View {
-        VStack(spacing: 20) {
-            
-            CustomText(text: "Symptoms/Illnesses", color: accentColor)
-            
-            if isEditing {
-                TextField("Name", text: $name)
-                    .textFieldStyle(CustomTextField(background: backgroundColor, accent: accentColor))
-            } else {
-                if symptoms.isEmpty {
-                    CustomText(text:"No symptoms or illnesses entered yet", color:accentColor)
-                        .foregroundColor(.red)
-                } else {
-                    ForEach(symptoms, id: \.self) { symptom in
-                        CustomList(text:"• \(symptom)", color: accentColor)
-                    }
+        ScrollView {
+            VStack(spacing: 20) {
+                
+                if isEditing {
+                    TextField("Name", text: $name)
+                        .textFieldStyle(CustomTextField(background: backgroundColor, accent: accentColor))
                 }
+                else {
+                    CustomText(text: "Symptoms/Illnesses", color: accentColor)
+                    if symptoms.isEmpty {
+                        CustomList(items: ["No current symptoms or triggers entered"], color: accentColor)
+                    } else {
+                        CustomList(items: symptoms, color: accentColor)
+                    }
+                    
+                    CustomText(text: "Triggers", color: accentColor)
+                    
+                    if triggers.isEmpty {
+                        CustomList(items: ["No current triggers entered"], color: accentColor)
+                    } else {
+                        CustomList(items: triggers, color: accentColor)
+                    }
+                    
+                    CustomText(text: "Preventative Meds", color: accentColor)
+                    
+                    if prevMeds.isEmpty {
+                        CustomList(items: ["No current preventative meds entered"], color: accentColor)
+                    } else {
+                        CustomList(items: prevMeds, color: accentColor)
+                    }
+                    
+                    CustomText(text: "Emergency Meds", color: accentColor)
+
+                    if emergencyMeds.isEmpty {
+                        CustomList(items: ["No current emergency meds entered"], color: accentColor)
+                    } else {
+                        CustomList(items: emergencyMeds, color: accentColor)
+                    }
+                    
+                    CustomText(text: "Security Question", color: accentColor)
+                    CustomList(items: [securityQuestion], color: accentColor)
+                    
+                    CustomText(text: "Theme", color: accentColor)
+                    CustomList(items: [themeName], color: accentColor)
+                    
+                }
+                
+                CustomButton(
+                    text: isEditing ? "Save" : "Edit",
+                    background: accentColor,
+                    accent: backgroundColor
+                ) {
+                    isEditing.toggle()
+                    // Optionally save the updated name to database here
+                }
+                
             }
-            
-            CustomButton(
-                text: isEditing ? "Save" : "Edit",
-                background: accentColor,
-                accent: backgroundColor
-            ) {
-                isEditing.toggle()
-                // Optionally save the updated name to database here
+            .onAppear {
+                // Only load once to avoid duplicates
+                guard !hasLoadedSymptoms else { return }
+                hasLoadedSymptoms = true
+                
+                // Fetch symptoms from database
+                symptoms = DatabaseManager.shared.getSymptoms(forUserId: userID)
+                symptoms = DatabaseManager.deleteListDuplicates(list: symptoms)
+                
+                triggers = DatabaseManager.shared.getTriggers(forUserId: userID)
+                triggers = DatabaseManager.deleteListDuplicates(list: triggers)
+                
+                prevMeds = DatabaseManager.shared.getMeds(forUserId: userID, medCategory: "preventative")
+                prevMeds = DatabaseManager.deleteListDuplicates(list: prevMeds)
+                
+                emergencyMeds = DatabaseManager.shared.getMeds(forUserId: userID, medCategory: "emergency")
+                emergencyMeds = DatabaseManager.deleteListDuplicates(list: emergencyMeds)
+                securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "security_question") ?? "No security question set"
+                
+                themeName = DatabaseManager.getThemeName(selected_background: backgroundColor, selected_accent: accentColor)
             }
-            
         }
         .padding()
         .CustomView(color: backgroundColor)
-        .onAppear {
-            // Only load once to avoid duplicates
-            guard !hasLoadedSymptoms else { return }
-            hasLoadedSymptoms = true
-            
-            // Fetch symptoms from database
-            symptoms = DatabaseManager.shared.getSymptoms(forUserId: userID)
-        }
     }
 }
 

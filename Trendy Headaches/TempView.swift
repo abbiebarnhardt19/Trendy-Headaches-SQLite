@@ -70,7 +70,7 @@ struct TempView: SwiftUI.View {
             accentColor = userInfo.accentColor
 
             triggers = DatabaseManager.shared.getTriggers(forUserId: currentUserId)
-            medications = DatabaseManager.shared.getMedications(forUserId: currentUserId)
+            //medications = DatabaseManager.shared.getMedications(forUserId: currentUserId)
             symptoms = DatabaseManager.shared.getSymptoms(forUserId: currentUserId)
         }
     }

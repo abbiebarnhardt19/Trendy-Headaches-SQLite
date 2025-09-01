@@ -22,7 +22,6 @@ class DatabaseManager {
     let medications = Table("Medications")
     let triggers = Table("Triggers")
     let logs = Table("Logs")
-    let logTriggers = Table("Log_Triggers")
     
     // columns
     // users columns
@@ -38,6 +37,8 @@ class DatabaseManager {
     // symptom types
     let symptom_id = SQLite.Expression<Int64>("symptom_id")
     let symptom_name = SQLite.Expression<String>("symptom_name")
+    let symptom_start = SQLite.Expression<Date>("symptom_start")
+    let symptom_end = SQLite.Expression<Date?>("symptom_end")
     
     // medications
     let med_id = SQLite.Expression<Int64>("med_id")
@@ -49,6 +50,8 @@ class DatabaseManager {
     // triggers
     let trigger_id = SQLite.Expression<Int64>("trigger_id")
     let trigger_name = SQLite.Expression<String>("trigger_name")
+    let trigger_start = SQLite.Expression<Date>("trigger_start")
+    let trigger_end = SQLite.Expression<Date?>("trigger_end")
     
     // logs
     let log_id = SQLite.Expression<Int64>("log_id")
@@ -67,15 +70,15 @@ class DatabaseManager {
         let dbPath = "\(path)/headache_tracker.sqlite3"
         
         // Delete old database if it exists
-        let fileManager = FileManager.default
-        if fileManager.fileExists(atPath: dbPath) {
-            do {
-                try fileManager.removeItem(atPath: dbPath)
-                print("Old database deleted successfully")
-            } catch {
-                print("Failed to delete old database: \(error)")
-           }
-        }
+        //let fileManager = FileManager.default
+//        if fileManager.fileExists(atPath: dbPath) {
+//            do {
+//                try fileManager.removeItem(atPath: dbPath)
+//                print("Old database deleted successfully")
+//            } catch {
+//                print("Failed to delete old database: \(error)")
+//           }
+//        }
 
         do {
             db = try Connection(dbPath)
@@ -107,6 +110,8 @@ class DatabaseManager {
                 t.column(symptom_id, primaryKey: .autoincrement)
                 t.column(user_id)
                 t.column(symptom_name)
+                t.column(symptom_start)
+                t.column(symptom_end)
                 t.foreignKey(user_id, references: users, user_id, delete: .cascade)
             })
             
@@ -126,6 +131,8 @@ class DatabaseManager {
                 t.column(trigger_id, primaryKey: .autoincrement)
                 t.column(user_id)
                 t.column(trigger_name)
+                t.column(trigger_start)
+                t.column(trigger_end)
                 t.foreignKey(user_id, references: users, user_id, delete: .cascade)
             })
             
@@ -143,15 +150,6 @@ class DatabaseManager {
                 t.column(notes)
                 t.foreignKey(user_id, references: users, user_id, delete: .cascade)
                 t.foreignKey(symptom_id, references: symptoms, symptom_id, delete: .setNull)
-            })
-            
-            // Log_Triggers
-            try db.run(logTriggers.create(ifNotExists: true) { t in
-                t.column(log_id)
-                t.column(trigger_id)
-                t.foreignKey(log_id, references: logs, log_id, delete: .cascade)
-                t.foreignKey(trigger_id, references: triggers, trigger_id, delete: .cascade)
-                t.primaryKey(log_id, trigger_id)
             })
             
         } catch {
@@ -196,7 +194,7 @@ class DatabaseManager {
                 do {
                     let insertMed = medications.insert(
                         user_id <- userId,
-                        med_category <- "Preventative",
+                        med_category <- "preventative",
                         med_name <- med,
                         med_start <- Date(),
                         med_end <- nil
@@ -215,7 +213,7 @@ class DatabaseManager {
                 do {
                     let insertMed = medications.insert(
                         user_id <- userId,
-                        med_category <- "Emergency",
+                        med_category <- "emergency",
                         med_name <- med,
                         med_start <- Date(),
                         med_end <- nil
@@ -234,7 +232,9 @@ class DatabaseManager {
                 do {
                     let insertTrig = triggers.insert(
                         user_id <- userId,
-                        trigger_name <- trig
+                        trigger_name <- trig,
+                        trigger_start <- Date(),
+                        trigger_end <- nil
                     )
                     try db.run(insertTrig)
                 } catch {
@@ -250,7 +250,9 @@ class DatabaseManager {
                 do {
                     let insertSymptom = symptoms.insert(
                         user_id <- userId,
-                        symptom_name <- symptom
+                        symptom_name <- symptom,
+                        symptom_start <- Date(),
+                        symptom_end <- nil
                     )
                     try db.run(insertSymptom)
                 } catch {
