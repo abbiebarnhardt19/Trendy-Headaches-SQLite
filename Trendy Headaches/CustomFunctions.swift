@@ -319,12 +319,8 @@ extension DatabaseManager {
             selected_accent = "#B6CCFE"
         }
         else if theme == "Dark Purple" {
-            selected_background = "#24046"
+            selected_background = "#240046"
             selected_accent = "#E7C6FF"
-        }
-        else if theme == "Purple (dark mode)" {
-            selected_background = "#180233"
-            selected_accent = "#E0CDF7"
         }
         else
         {
@@ -343,7 +339,7 @@ extension DatabaseManager {
         else if selected_background == "#FFCEFF" && selected_accent == "#A4133C"{
             themeName = "Light Pink"
         }
-        else  if selected_background == "#FFFAE5" && selected_accent == "#F283B6"{
+        else  if selected_background == "#FFFAE5" && selected_accent == "#848383"{
             themeName = "Light Yellow"
         }
         else if selected_background == "#0A0A0A" && selected_accent == "#CCCCCC" {

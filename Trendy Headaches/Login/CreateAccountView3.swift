@@ -70,9 +70,11 @@ struct CreateAccountView3: View {
                 
                 
             }
-            .padding()
             .CustomView(color: background_color)
+
         }
+        .padding()
+        .CustomView(color: background_color)
     }
 }
 
