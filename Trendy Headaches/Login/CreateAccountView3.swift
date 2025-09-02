@@ -13,7 +13,7 @@ struct CreateAccountView3: View {
     var security_question: String = ""
     var security_answer: String = ""
     
-    let options = ["Red (light mode)", "Red (dark mode)", "Green (light mode)", "Green (dark mode)", "Blue (light mode)", "Blue (dark mode)", "Purple (light mode)", "Purple (dark mode)", "Pink (light mode)", "Pink (dark mode)", "White", "Black"]
+    let options = ["Classic Light", "Light Pink", "Light Yellow", "Classic Dark", "Dark Green","Dark Blue", "Dark Purple", "Custom"]
     
     @State private var color_theme: String = ""
     @State private var background_color: String = "#001d00"
@@ -30,8 +30,22 @@ struct CreateAccountView3: View {
                         let colors = DatabaseManager.getThemeColors(theme: color_theme)
                         background_color = colors.background
                         accent_color = colors.accent
-                    }
+                    }.padding(.bottom, 20)
                 
+                if color_theme == "Custom"{
+                    CustomText(text:"Or, design a custom theme by entering two hex codes", color: accent_color)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    TextField("", text: $background_color)
+                        .textFieldStyle(CustomTextField(background: background_color, accent: accent_color))
+                    .padding(.bottom, 15)
+                    
+                    TextField("", text: $accent_color)
+                        .textFieldStyle(CustomTextField(background: background_color, accent: accent_color))
+                    .padding(.bottom, 15)
+                }
+        
                 CustomNavButton(label: "Continue",
                         destination: CreateAccountView2(
                             background: background_color,

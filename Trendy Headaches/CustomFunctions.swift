@@ -294,53 +294,42 @@ extension DatabaseManager {
         var selected_background = ""
         var selected_accent = ""
         
-        if theme == "Red (light mode)" {
-            selected_background = "#F0B1A3"
-            selected_accent = "#3B0E04"
-        }
-        if theme == "Red (dark mode)" {
-            selected_background = "#3B0E04"
-            selected_accent = "#F0B1A3"
-        }
-        if theme == "Green (light mode)" {
-            selected_background = "#b5c4b9"
-            selected_accent = "#001d00"
-        }
-        if theme == "Green (dark mode)" {
-            selected_background = "#001d00"
-            selected_accent = "#b5c4b9"
-        }
-        if theme == "Blue (light mode)" {
-            selected_background = "#B8D2F2"
-            selected_accent = "#021124"
-        }
-        if theme == "Blue (dark mode)" {
-            selected_background = "#021124"
-            selected_accent = "#B8D2F2"
-        }
-        if theme == "Purple (light mode)" {
-            selected_background = "#E0CDF7"
-            selected_accent = "#180233"
-        }
-        if theme == "Purple (dark mode)" {
-            selected_background = "#180233"
-            selected_accent = "#E0CDF7"
-        }
-        if theme == "Pink (light mode)" {
-            selected_background = "#F5CEEB"
-            selected_accent = "#38022B"
-        }
-        if theme == "Pink (dark mode)" {
-            selected_background = "#38022B"
-            selected_accent = "#F5CEEB"
-        }
-        if theme == "White" {
+        if theme == "Classic Light" {
             selected_background = "#FAF7F7"
             selected_accent = "#5E5D5D"
         }
-        if theme == "Black" {
+        else if theme == "Light Pink" {
+            selected_background = "#FFCEFF"
+            selected_accent = "#F283B6"
+        }
+        else if theme == "Light Yellow" {
+            selected_background = "FFFAE5"
+            selected_accent = "#848383"
+        }
+        else if theme == "Classic Dark" {
             selected_background = "#0A0A0A"
             selected_accent = "#CCCCCC"
+        }
+        else  if theme == "Dark Green" {
+            selected_background = "#001D00"
+            selected_accent = "#B5C4B9"
+        }
+        else if theme == "Dark Blue" {
+            selected_background = "#000814"
+            selected_accent = "#B6CCFE"
+        }
+        else if theme == "Dark Purple" {
+            selected_background = "#24046"
+            selected_accent = "#E7C6FF"
+        }
+        else if theme == "Purple (dark mode)" {
+            selected_background = "#180233"
+            selected_accent = "#E0CDF7"
+        }
+        else
+        {
+            selected_background = "#001d00"
+            selected_accent = "#b5c4b9"
         }
         return (selected_background, selected_accent)
     }
@@ -348,41 +337,29 @@ extension DatabaseManager {
     static func getThemeName(selected_background: String, selected_accent: String) -> String{
         var themeName = ""
         
-        if selected_background == "#F0B1A3" && selected_accent == "#3B0E04" {
-            themeName = "Red (light mode)"
+        if selected_background == "#FAF7F7" && selected_accent == "#5E5D5D" {
+            themeName = "Custom Light"
         }
-        if selected_background == "#3B0E04" && selected_accent == "#F0B1A3"{
-            themeName = "Red (dark mode)"
+        else if selected_background == "#FFCEFF" && selected_accent == "#F283B6"{
+            themeName = "Light Pink"
         }
-        if selected_background == "#b5c4b9" && selected_accent == "#001d00"{
-            themeName = "Green (light mode)"
+        else  if selected_background == "#FFFAE5" && selected_accent == "#F283B6"{
+            themeName = "Light Yellow"
         }
-        if selected_background == "#001d00" && selected_accent == "#b5c4b9" {
-            themeName = "Green (dark mode)"
+        else if selected_background == "#0A0A0A" && selected_accent == "#CCCCCC" {
+            themeName = "Classic Dark"
         }
-        if selected_background == "#B8D2F2" && selected_accent == "#021124" {
-            themeName = "Blue (light mode)"
+        else if selected_background == "#001D00" && selected_accent == "#B5C4B9" {
+            themeName = "Dark Green"
         }
-        if selected_background == "#021124" && selected_accent == "#B8D2F2"{
-            themeName = "Blue (dark mode)"
+        else if selected_background == "#000814" && selected_accent == "#B6CCFE"{
+            themeName = "Dark Blue"
         }
-        if selected_background == "#E0CDF7" && selected_accent == "#180233" {
-            themeName = "Purple (light mode)"
+        else if selected_background == "#240046" && selected_accent == "#E7E6FF" {
+            themeName = "Dark Purple"
         }
-        if selected_background == "#180233" && selected_accent == "#E0CDF7" {
-            themeName = "Purple (dark mode)"
-        }
-        if selected_background == "#F5CEEB" && selected_accent == "#38022B" {
-            themeName = "Pink (light mode)"
-        }
-        if selected_background == "#38022B" && selected_accent == "#F5CEEB"{
-            themeName = "Pink (dark mode)"
-        }
-        if selected_background == "#FAF7F7" && selected_accent == "#5E5D5D"{
-            themeName = "White"
-        }
-        if selected_background == "#0A0A0A" && selected_accent == "#CCCCCC" {
-            themeName = "Black"
+        else{
+            themeName = "Custom"
         }
         return themeName
     }

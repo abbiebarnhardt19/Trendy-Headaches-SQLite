@@ -70,6 +70,11 @@ struct ProfileView: View {
                     CustomText(text: "Theme", color: accentColor)
                     CustomList(items: [themeName], color: accentColor)
                     
+                    if themeName == "Custom"{
+                        CustomList(items: [backgroundColor, accentColor], color: accentColor)
+                            .padding(.leading, 15)
+                    }
+                    
                 }
                 
                 CustomButton(
@@ -110,5 +115,5 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(userID: 1, backgroundColor: "#001d00", accentColor: "#b5c4b9")
+    ProfileView(userID: 0, backgroundColor: "#001d00", accentColor: "#b5c4b9")
 }

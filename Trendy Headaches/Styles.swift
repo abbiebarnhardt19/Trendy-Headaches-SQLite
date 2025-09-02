@@ -99,7 +99,6 @@ struct CustomList: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 20)
                 }
-                .padding(.bottom, 7)
             }
         }
         else{
@@ -108,7 +107,6 @@ struct CustomList: View {
                 .foregroundColor(Color(hex: color))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 20)
-                .padding(.bottom, 10)
         }
     }
 }
@@ -285,7 +283,10 @@ struct DropdownMenu: View {
                 .cornerRadius(10)
                 .shadow(radius: 4)
                 .transition(.opacity.combined(with: .move(edge: .top)))
+                
             }
         }
+        .padding(.horizontal, 20)
     }
+        
 }

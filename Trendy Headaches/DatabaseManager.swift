@@ -70,7 +70,7 @@ class DatabaseManager {
         let dbPath = "\(path)/headache_tracker.sqlite3"
         
         // Delete old database if it exists
-        //let fileManager = FileManager.default
+//        let fileManager = FileManager.default
 //        if fileManager.fileExists(atPath: dbPath) {
 //            do {
 //                try fileManager.removeItem(atPath: dbPath)

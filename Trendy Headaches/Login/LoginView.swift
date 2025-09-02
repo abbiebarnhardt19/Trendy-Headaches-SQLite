@@ -36,8 +36,11 @@ struct LoginView: SwiftUI.View {
                     loginError = result.error
                     isLoggedIn = userId != nil
                 }
+                .padding(.top, 10)
                 
                 CustomNavButton(label: "Forgot Password", destination: ForgotPasswordView1(), background: background, accent: accent)
+                
+                CustomNavButton(label: "Create Account", destination: CreateAccountView(), background: background, accent: accent)
             }
             
             .onAppear {
