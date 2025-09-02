@@ -37,6 +37,15 @@ struct CreateAccountView3: View {
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
+                    Text("Hint: coolors.co is a great place to find hex code combos!")
+                        .foregroundColor(Color(hex: accent_color))
+                        .font(.system(size: 15))
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading, 20)
+                        .padding(.top, 1)
+                        .padding(.bottom, 10)
+                    
                     TextField("", text: $background_color)
                         .textFieldStyle(CustomTextField(background: background_color, accent: accent_color))
                     .padding(.bottom, 15)
@@ -44,6 +53,7 @@ struct CreateAccountView3: View {
                     TextField("", text: $accent_color)
                         .textFieldStyle(CustomTextField(background: background_color, accent: accent_color))
                     .padding(.bottom, 15)
+
                 }
         
                 CustomNavButton(label: "Continue",

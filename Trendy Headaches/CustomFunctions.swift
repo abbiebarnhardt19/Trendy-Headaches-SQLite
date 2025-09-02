@@ -300,7 +300,7 @@ extension DatabaseManager {
         }
         else if theme == "Light Pink" {
             selected_background = "#FFCEFF"
-            selected_accent = "#F283B6"
+            selected_accent = "#A4133C"
         }
         else if theme == "Light Yellow" {
             selected_background = "FFFAE5"
@@ -340,7 +340,7 @@ extension DatabaseManager {
         if selected_background == "#FAF7F7" && selected_accent == "#5E5D5D" {
             themeName = "Custom Light"
         }
-        else if selected_background == "#FFCEFF" && selected_accent == "#F283B6"{
+        else if selected_background == "#FFCEFF" && selected_accent == "#A4133C"{
             themeName = "Light Pink"
         }
         else  if selected_background == "#FFFAE5" && selected_accent == "#F283B6"{
