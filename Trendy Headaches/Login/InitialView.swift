@@ -15,17 +15,17 @@ struct InitialView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                DiagonalCornerWave(waves: 8, amplitude: 20)
+                DiagonalCornerWave(waves: 12, amplitude: 25)
                     .fill(Color(hex: accent))
-                    .frame(width: 350, height: 350)
-                    .offset(x:275, y: -50)
-                    .rotationEffect(.degrees(270))
+                    .frame(width: 700, height: 500)
+                    .offset(x:225, y: -125)
+                    .rotationEffect(.degrees(280))
                 
-                DiagonalCornerWave(waves: 8, amplitude: 20)
+                DiagonalCornerWave(waves: 12, amplitude: 25)
                     .fill(Color(hex: accent))
-                    .frame(width: 350, height: 350)
-                    .offset(x:275, y: -50)
-                    .rotationEffect(.degrees(90))
+                    .frame(width: 700, height: 500)
+                    .offset(x:225, y: -125)
+                    .rotationEffect(.degrees(100))
 
                 // Foreground content (buttons)
                 VStack(spacing: 20) {
