@@ -292,3 +292,64 @@ struct DropdownMenu: View {
     }
         
 }
+
+extension CGPoint {
+    func scale(x xScale: CGFloat, y yScale: CGFloat) -> CGPoint {
+        CGPoint(x: self.x * xScale, y: self.y * yScale)
+    }
+}
+
+struct DiagonalCornerWave: Shape {
+    var waves: Int
+    var amplitude: CGFloat
+    var seed: Int = Int.random(in: 0...10_000)
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let step = rect.width / CGFloat(waves)
+        var rng = SeededGenerator(seed: seed)
+
+        path.move(to: CGPoint(x: 0, y: 0))
+
+        for i in 0..<waves {
+            let startX = CGFloat(i) * step
+            let endX = startX + step
+
+            // Midpoint along the diagonal
+            let midX = (startX + endX) / 2
+            let midY = midX * (rect.height / rect.width)
+
+            // Randomized amplitudes for control points
+            let controlAmp1 = amplitude * CGFloat(Double.random(in: 0.7...1.3, using: &rng))
+            let controlAmp2 = amplitude * CGFloat(Double.random(in: 0.7...1.3, using: &rng))
+
+            let direction: CGFloat = (i % 2 == 0 ? -1 : 1)
+
+            let controlX1 = startX + step * 0.25
+            let controlY1 = midY + direction * controlAmp1
+
+            let controlX2 = startX + step * 0.75
+            let controlY2 = midY + direction * controlAmp2
+
+            path.addCurve(
+                to: CGPoint(x: endX, y: endX * (rect.height / rect.width)),
+                control1: CGPoint(x: controlX1, y: controlY1),
+                control2: CGPoint(x: controlX2, y: controlY2)
+            )
+        }
+
+        path.addLine(to: CGPoint(x: rect.width, y: 0))
+        path.closeSubpath()
+        return path
+    }
+}
+
+// Helper random generator so SwiftUI redraws stay consistent
+struct SeededGenerator: RandomNumberGenerator {
+    private var state: UInt64
+    init(seed: Int) { self.state = UInt64(seed) }
+    mutating func next() -> UInt64 {
+        state = state &* 6364136223846793005 &+ 1
+        return state
+    }
+}
