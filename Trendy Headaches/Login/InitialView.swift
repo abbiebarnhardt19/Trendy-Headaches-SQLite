@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct InitialView: View {
-    @State private var controlPoints = BlobShape.createPoints(minGrowth: 7, edges: 50)
     let accent = "#b5c4b9"
     let background = "#001d00"
     
@@ -27,25 +26,22 @@ struct InitialView: View {
                     .offset(x:225, y: -125)
                     .rotationEffect(.degrees(100))
 
-                // Foreground content (buttons)
-                VStack(spacing: 20) {
-                    Text("Trendy Headaches")
-                        .multilineTextAlignment(.center)
-                        .font(.system(size: 40, design: .serif))
-                        .foregroundColor(Color(hex: accent))
-                        .padding(.bottom, 10)
+                VStack() {
+                    CustomWelcome(text: "Trendy Headaches", color: accent)
                     
                     CustomNavButton(label: "Sign In",
                                     destination: LoginView(),
                                     background: background,
                                     accent: accent,
-                                    height: 50,
-                                    width: 150)
+                                    height: 60,
+                                    width: 160)
                     
                     CustomNavButton(label: "Sign Up",
                                     destination: CreateAccountView(),
                                     background: background,
-                                    accent: accent)
+                                    accent: accent,
+                                    height: 60,
+                                    width: 160)
                 }
             }
             .CustomView(color: background)

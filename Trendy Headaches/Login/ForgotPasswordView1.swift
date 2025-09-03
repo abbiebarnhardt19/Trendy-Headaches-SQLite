@@ -18,7 +18,7 @@ struct ForgotPasswordView1: View {
                 
                 CustomText(text: "Email", color: "#b5c4b9")
                 TextField("", text: $email)
-                    .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
+                    .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9", height: 60, width: 160))
                     .keyboardType(.emailAddress)
                     .onChange(of: email) {
                         emailCheckTask?.cancel()

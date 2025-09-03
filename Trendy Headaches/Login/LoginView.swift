@@ -15,45 +15,74 @@ struct LoginView: SwiftUI.View {
     
     var body: some SwiftUI.View {
         NavigationStack {
-            VStack(spacing: 20) {
-                CustomWelcome(text: "Welcome Back!", color: accent)
+            ZStack {
                 
-                CustomText(text: "Email", color: accent)
-                TextField("", text: $email)
-                    .textFieldStyle(CustomTextField(background: background, accent: accent))
+                DiagonalCornerWave(waves: 8, amplitude: 20)
+                    .fill(Color(hex: accent))
+                    .frame(width: 700, height: 500)
+                    .offset(x:225, y: -201)
+                    .rotationEffect(.degrees(0))
                 
-                CustomText(text: "Password", color: accent)
-                SecureField("", text: $password)
-                    .textFieldStyle(CustomTextField(background: background, accent: accent))
+                DiagonalCornerWave(waves: 8, amplitude:20)
+                    .fill(Color(hex: accent))
+                    .frame(width: 700, height: 500)
+                    .offset(x:225, y: -201)
+                    .rotationEffect(.degrees(180))
                 
-                if let loginError = loginError {
-                    CustomWarningText(text: loginError)
+                VStack() {
+                    Text("Log In")
+                        .multilineTextAlignment(.center)
+                        .font(.system(size: 50, weight: .bold, design: .serif))
+                        .foregroundColor(Color(hex: accent))
+                        .padding(.bottom, 15)
+                    
+                    CustomText(text: "Email", color: accent)
+                        .padding(.leading, 160)
+                    TextField("", text: $email)
+                        .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 350))
+                    
+                    CustomText(text: "Password", color: accent)
+                        .padding(.leading, 160)
+                        .padding(.top, 15)
+                    SecureField("", text: $password)
+                        .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 350))
+                        
+                    
+                    NavigationLink(destination: ForgotPasswordView1()){
+                        Text("Forgot Password?")
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .font(.system(size: 18, design: .serif))
+                            .foregroundColor(Color(hex: accent))
+                            .underline(true, color: Color(hex: accent))
+                    }
+                    .padding(.vertical, 10)
+                    .padding(.trailing, 190)
+                    
+                    if let loginError = loginError {
+                        CustomWarningText(text: loginError)
+                    }
+                    
+                    CustomButton(text: "Log In", background: background, accent: accent, height: 60, width: 160) {
+                        let result = DatabaseManager.shared.attemptLogin(email: email, password: password)
+                        userId = result.userId
+                        loginError = result.error
+                        isLoggedIn = userId != nil
+                    }
+                    .padding(.top, 7)
                 }
                 
-                CustomButton(text: "Log In", background: accent, accent: background) {
-                    let result = DatabaseManager.shared.attemptLogin(email: email, password: password)
-                    userId = result.userId
-                    loginError = result.error
-                    isLoggedIn = userId != nil
+                .onAppear {
+                    _ = DatabaseManager.shared
                 }
-                .padding(.top, 10)
-                
-                CustomNavButton(label: "Forgot Password", destination: ForgotPasswordView1(), background: background, accent: accent)
-                
-                CustomNavButton(label: "Create Account", destination: CreateAccountView(), background: background, accent: accent)
-            }
-            
-            .onAppear {
-                _ = DatabaseManager.shared
-            }
-            .navigationDestination(isPresented: $isLoggedIn) {
-                if let userId = userId {
-                    let normalizedEmail = DatabaseManager.normalizedValue(email)
-                    let (backgroundColor, accentColor) = DatabaseManager.getColors(email: normalizedEmail)
-                    NavBarView(userID: userId, backgroundColor: backgroundColor, accentColor: accentColor)
-                } else {
-                    // Fallback view if something goes wrong
-                    Text("Error: Could not retrieve user ID")
+                .navigationDestination(isPresented: $isLoggedIn) {
+                    if let userId = userId {
+                        let normalizedEmail = DatabaseManager.normalizedValue(email)
+                        let (backgroundColor, accentColor) = DatabaseManager.getColors(email: normalizedEmail)
+                        NavBarView(userID: userId, backgroundColor: backgroundColor, accentColor: accentColor)
+                    } else {
+                        // Fallback view if something goes wrong
+                        Text("Error: Could not retrieve user ID")
+                    }
                 }
             }
         }

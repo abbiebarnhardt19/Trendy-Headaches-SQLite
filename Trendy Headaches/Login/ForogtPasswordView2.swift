@@ -33,7 +33,7 @@ struct ForgotPasswordView2: View {
                 CustomText(text: securityQuestion, color: "#b5c4b9")
                 
                 SecureField("", text: $enteredAnswer)
-                    .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
+                    .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9", height: 60, width: 160))
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
                 

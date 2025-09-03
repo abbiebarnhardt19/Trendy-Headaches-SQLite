@@ -47,11 +47,11 @@ struct CreateAccountView3: View {
                         .padding(.bottom, 10)
                     
                     TextField("", text: $background_color)
-                        .textFieldStyle(CustomTextField(background: background_color, accent: accent_color))
+                        .textFieldStyle(CustomTextField(background: background_color, accent: accent_color, height: 60, width: 160))
                     .padding(.bottom, 15)
                     
                     TextField("", text: $accent_color)
-                        .textFieldStyle(CustomTextField(background: background_color, accent: accent_color))
+                        .textFieldStyle(CustomTextField(background: background_color, accent: accent_color, height: 60, width: 160))
                     .padding(.bottom, 15)
 
                 }

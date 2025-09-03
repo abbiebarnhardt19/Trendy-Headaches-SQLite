@@ -49,18 +49,17 @@ extension Color {
 struct CustomTextField: TextFieldStyle {
     let background: String
     let accent: String
+    let height: CGFloat?
+    let width: CGFloat?
     
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
-            .padding(.top, 10)
-            .padding(.bottom, 10)
-            .padding(.leading, 10)
-            .padding(.trailing, 10)
+            .padding(.horizontal, 20) // ensures text doesn't touch edges
+            .padding(.vertical, 6)
+            .frame(width: width ?? 150, height: height ?? 50)
             .background(Color(hex: accent))
             .foregroundColor(Color(hex: background))
-            .cornerRadius(8)
-            .padding(.leading, 20)
-            .padding(.trailing, 20)
+            .cornerRadius(20)
             .tint(Color(hex: background))
     }
 }
@@ -72,7 +71,7 @@ struct CustomText: View {
     
     var body: some View {
         Text(text)
-            .font(.system(size: 22, weight: .bold))
+            .font(.system(size: 22, weight: .bold, design: .serif))
             .foregroundColor(Color(hex: color))
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.trailing, 20)
@@ -94,7 +93,7 @@ struct CustomList: View {
             LazyVGrid(columns: columns, spacing: 16) {
                 ForEach(items, id: \.self) { item in
                     Text("• \(item)")
-                        .font(.system(size: 18))
+                        .font(.system(size: 18, design: .serif))
                         .foregroundColor(Color(hex: color))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 20)
@@ -103,7 +102,7 @@ struct CustomList: View {
         }
         else{
             Text("• \(items[0])")
-                .font(.system(size: 18))
+                .font(.system(size: 18, design: .serif))
                 .foregroundColor(Color(hex: color))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 20)
@@ -140,7 +139,7 @@ struct TempLinkText: View {
     var text: String
     var body: some View {
         Text(text)
-            .font(.system(size: 12))
+            .font(.system(size: 12, design: .serif))
             .foregroundColor(Color(hex: "#b5c4b9"))
             .frame(maxWidth:.infinity, alignment: .leading)
     }
@@ -170,7 +169,7 @@ struct CustomWelcome: View {
     var body: some View {
         Text(text)
             .multilineTextAlignment(.center)
-            .font(.system(size: 50, weight: .bold))
+            .font(.system(size: 40, design: .serif))
             .foregroundColor(Color(hex: color))
             .padding(.bottom, 10)
     }
@@ -184,7 +183,7 @@ struct CustomInstructions: View {
         Text(text)
             .fixedSize(horizontal: false, vertical: true)
             .multilineTextAlignment(.center)
-            .font(.system(size: 20, weight: .bold))
+            .font(.system(size: 20, weight: .bold, design: .serif))
             .foregroundColor(Color(hex: color))
             .padding(.bottom, 10)
         .padding(.trailing, 15)
@@ -208,17 +207,18 @@ struct CustomButton: View {
     var text: String
     var background: String
     var accent: String
+    var height: CGFloat?
+    var width: CGFloat?
     var action: () -> Void
     
     var body: some View {
         Button(action: action) {
             Text(text)
-                .padding(.vertical, 10)
-                .padding(.leading, 15)
-                .padding(.trailing,15)
-                .background(Color(hex: background))
-                .foregroundColor(Color(hex: accent))
-                .cornerRadius(10)
+                .frame(width: width ?? 150, height: height ?? 50)
+                .background(Color(hex: accent))
+                .foregroundColor(Color(hex: background))
+                .cornerRadius(20)
+                .font(.system(size: 20, design: .serif))
         }
         .buttonStyle(.plain)
     }

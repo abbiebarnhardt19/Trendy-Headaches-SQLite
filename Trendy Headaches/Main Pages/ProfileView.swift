@@ -30,7 +30,7 @@ struct ProfileView: View {
                 
                 if isEditing {
                     TextField("Name", text: $name)
-                        .textFieldStyle(CustomTextField(background: backgroundColor, accent: accentColor))
+                        .textFieldStyle(CustomTextField(background: backgroundColor, accent: accentColor, height: 60, width: 160))
                 }
                 else {
                     CustomText(text: "Symptoms/Illnesses", color: accentColor)

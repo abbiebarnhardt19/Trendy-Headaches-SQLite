@@ -31,7 +31,7 @@ struct CreateAccountView: View {
                     
                     CustomText(text: "Email", color: "#b5c4b9")
                     TextField("", text: $email)
-                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
+                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9", height: 60, width: 160))
                         .onChange(of: email) {
                             emailCheckTask?.cancel()
                             emailCheckTask = Task {
@@ -48,7 +48,7 @@ struct CreateAccountView: View {
                     
                     CustomText(text: "Password", color: "#b5c4b9")
                     SecureField("", text: $password_one)
-                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
+                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9", height: 60, width: 160))
                     
                     if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
                         CustomWarningText(text: "Password must be at least 8 characters, contain uppercase, lowercase, number, and special character.")
@@ -56,7 +56,7 @@ struct CreateAccountView: View {
                     
                     CustomText(text: "Confirm Password", color: "#b5c4b9")
                     SecureField("", text: $password_two)
-                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
+                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9", height: 60, width: 160))
                     
                     if !password_two.isEmpty && password_two != password_one {
                         CustomWarningText(text: "Passwords do not match.")
@@ -64,11 +64,11 @@ struct CreateAccountView: View {
                     
                     CustomText(text: "Security Question", color: "#b5c4b9")
                     TextField("", text: $security_question)
-                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
+                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9", height: 60, width: 160))
                     
                     CustomText(text: "Security Question Answer", color: "#b5c4b9")
                     TextField("", text: $security_answer)
-                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9"))
+                        .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9", height: 60, width: 160))
                     
                     CustomNavButton(
                         label: "Continue",
