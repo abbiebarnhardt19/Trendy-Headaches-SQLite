@@ -117,17 +117,19 @@ struct CustomNavButton<Destination: View>: View {
     var destination: Destination
     var background: String
     var accent: String
+    var height: CGFloat?
+    var width: CGFloat?
 
     var body: some View {
         NavigationLink {
             destination
         } label: {
             Text(label)
-                .padding(.horizontal, 40)
-                .padding(.vertical, 10)
+                .frame(width: width ?? 150, height: height ?? 50)
                 .background(Color(hex: accent))
                 .foregroundColor(Color(hex: background))
-                .cornerRadius(10)
+                .cornerRadius(20)
+                .font(.system(size: 20, design: .serif))
         }
         .padding(.top, 10)
         .buttonStyle(.plain)
@@ -290,5 +292,3 @@ struct DropdownMenu: View {
     }
         
 }
-
-

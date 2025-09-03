@@ -9,49 +9,46 @@ import SwiftUI
 
 struct InitialView: View {
     @State private var controlPoints = BlobShape.createPoints(minGrowth: 7, edges: 50)
+    let accent = "#b5c4b9"
+    let background = "#001d00"
     
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background blobs
-//                BlobShape(controlPoints: controlPoints)
-//                    .fill(Color(hex: "#b5c4b9"))
-//                    .frame(width: 500, height: 800)
-//                    .offset(x: -75, y: -500)
-                
                 DiagonalCornerWave(waves: 8, amplitude: 20)
-                    .fill(Color(hex: "#b5c4b9"))
+                    .fill(Color(hex: accent))
                     .frame(width: 350, height: 350)
                     .offset(x:275, y: -50)
                     .rotationEffect(.degrees(270))
                 
                 DiagonalCornerWave(waves: 8, amplitude: 20)
-                    .fill(Color(hex: "#b5c4b9"))
+                    .fill(Color(hex: accent))
                     .frame(width: 350, height: 350)
                     .offset(x:275, y: -50)
                     .rotationEffect(.degrees(90))
 
-                
                 // Foreground content (buttons)
                 VStack(spacing: 20) {
                     Text("Trendy Headaches")
                         .multilineTextAlignment(.center)
                         .font(.system(size: 40, design: .serif))
-                        .foregroundColor(Color(hex: "#b5c4b9"))
+                        .foregroundColor(Color(hex: accent))
                         .padding(.bottom, 10)
                     
                     CustomNavButton(label: "Sign In",
                                     destination: LoginView(),
-                                    background: "#001d00",
-                                    accent: "#b5c4b9")
+                                    background: background,
+                                    accent: accent,
+                                    height: 50,
+                                    width: 150)
                     
                     CustomNavButton(label: "Sign Up",
                                     destination: CreateAccountView(),
-                                    background: "#001d00",
-                                    accent: "#b5c4b9")
+                                    background: background,
+                                    accent: accent)
                 }
             }
-            .CustomView(color: "#001d00")
+            .CustomView(color: background)
             .onAppear {
                 _ = DatabaseManager.shared
             }
