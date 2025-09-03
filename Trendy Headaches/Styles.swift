@@ -71,7 +71,7 @@ struct CustomText: View {
     
     var body: some View {
         Text(text)
-            .font(.system(size: 22, weight: .bold, design: .serif))
+            .font(.system(size: 22, design: .serif))
             .foregroundColor(Color(hex: color))
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.trailing, 20)

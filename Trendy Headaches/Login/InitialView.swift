@@ -33,15 +33,16 @@ struct InitialView: View {
                                     destination: LoginView(),
                                     background: background,
                                     accent: accent,
-                                    height: 60,
-                                    width: 160)
+                                    height: 50,
+                                    width: 180)
+                    .padding(.vertical, 10)
                     
                     CustomNavButton(label: "Sign Up",
                                     destination: CreateAccountView(),
                                     background: background,
                                     accent: accent,
-                                    height: 60,
-                                    width: 160)
+                                    height: 50,
+                                    width: 180)
                 }
             }
             .CustomView(color: background)

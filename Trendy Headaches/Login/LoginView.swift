@@ -34,7 +34,7 @@ struct LoginView: SwiftUI.View {
                         .multilineTextAlignment(.center)
                         .font(.system(size: 50, weight: .bold, design: .serif))
                         .foregroundColor(Color(hex: accent))
-                        .padding(.bottom, 15)
+                        .padding(.bottom, 20)
                     
                     CustomText(text: "Email", color: accent)
                         .padding(.leading, 160)
@@ -62,7 +62,7 @@ struct LoginView: SwiftUI.View {
                         CustomWarningText(text: loginError)
                     }
                     
-                    CustomButton(text: "Log In", background: background, accent: accent, height: 60, width: 160) {
+                    CustomButton(text: "Log In", background: background, accent: accent, height: 50, width: 160) {
                         let result = DatabaseManager.shared.attemptLogin(email: email, password: password)
                         userId = result.userId
                         loginError = result.error
