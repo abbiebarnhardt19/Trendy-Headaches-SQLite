@@ -8,21 +8,29 @@
 import SwiftUI
 
 struct InitialView: View {
-    @State private var controlPoints = BlobShape.createPoints(minGrowth: 7, edges: 30)
+    @State private var controlPoints = BlobShape.createPoints(minGrowth: 7, edges: 50)
     
     var body: some View {
         NavigationStack {
             ZStack {
                 // Background blobs
-                BlobShape(controlPoints: controlPoints)
-                    .fill(Color(hex: "#b5c4b9"))
-                    .frame(width: 500, height: 500)
-                    .offset(x: -100, y: -400)
+//                BlobShape(controlPoints: controlPoints)
+//                    .fill(Color(hex: "#b5c4b9"))
+//                    .frame(width: 500, height: 800)
+//                    .offset(x: -75, y: -500)
                 
-                BlobShape(controlPoints: controlPoints)
+                DiagonalCornerWave(waves: 8, amplitude: 20)
                     .fill(Color(hex: "#b5c4b9"))
-                    .frame(width: 500, height: 500)
-                    .offset(x: 100, y: 400)
+                    .frame(width: 350, height: 350)
+                    .offset(x:275, y: -50)
+                    .rotationEffect(.degrees(270))
+                
+                DiagonalCornerWave(waves: 8, amplitude: 20)
+                    .fill(Color(hex: "#b5c4b9"))
+                    .frame(width: 350, height: 350)
+                    .offset(x:275, y: -50)
+                    .rotationEffect(.degrees(90))
+
                 
                 // Foreground content (buttons)
                 VStack(spacing: 20) {

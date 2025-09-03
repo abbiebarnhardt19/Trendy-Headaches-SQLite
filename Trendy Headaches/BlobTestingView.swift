@@ -191,36 +191,46 @@ struct CornerBlobShape: Shape {
 }
 
 
-struct CornerWaveShape: Shape {
+struct CornerWave: Shape {
+    var waves: Int = 3   // how many waves
+    var amplitude: CGFloat = 80 // how tall the waves go in/out
+    
     func path(in rect: CGRect) -> Path {
         var path = Path()
         
-        // Start in the top-left
+        // Start at top-left
         path.move(to: .zero)
         
-        // Top edge (straight line)
+        // Top edge (straight)
         path.addLine(to: CGPoint(x: rect.maxX, y: 0))
         
-        // Right edge (curvy wave)
-        path.addCurve(
-            to: CGPoint(x: rect.maxX, y: rect.maxY * 0.4),
-            control1: CGPoint(x: rect.maxX, y: rect.maxY * 0.1),
-            control2: CGPoint(x: rect.maxX * 0.5, y: rect.maxY * 0.2)
-        )
+        // Right edge (straight down)
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
         
-        path.addCurve(
-            to: CGPoint(x: rect.maxX * 0.3, y: rect.maxY),
-            control1: CGPoint(x: rect.maxX * 1.2, y: rect.maxY * 0),
-            control2: CGPoint(x: rect.maxX * 0.5, y: rect.maxY * 0.9)
-        )
+        // Draw wavy bottom edge from right to left
+        let waveWidth = rect.width / CGFloat(waves)
+        for i in 0..<waves {
+            let startX = rect.maxX - CGFloat(i) * waveWidth
+            let endX = rect.maxX - CGFloat(i + 1) * waveWidth
+            
+            let midX = (startX + endX) / 2
+            let controlY = rect.maxY + (i % 2 == 0 ? amplitude : -amplitude)
+            
+            path.addQuadCurve(
+                to: CGPoint(x: endX, y: rect.maxY),
+                control: CGPoint(x: midX, y: controlY)
+            )
+        }
         
         // Left edge (straight back up)
-        path.addLine(to: CGPoint(x: 0, y: rect.maxY))
-        path.addLine(to: .zero)
+        path.addLine(to: CGPoint(x: 0, y: 0))
         
+        path.closeSubpath()
         return path
     }
 }
+
+
 
 struct CornerMaskShape: Shape {
     func path(in rect: CGRect) -> Path {
@@ -239,7 +249,69 @@ struct CornerMaskShape: Shape {
         
         return path
     }
+    
+    
 }
+
+struct DiagonalCornerWave: Shape {
+    var waves: Int
+    var amplitude: CGFloat
+    var seed: Int = Int.random(in: 0...10_000)
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let step = rect.width / CGFloat(waves)
+        var rng = SeededGenerator(seed: seed)
+
+        path.move(to: CGPoint(x: 0, y: 0))
+
+        for i in 0..<waves {
+            let startX = CGFloat(i) * step
+            let endX = startX + step
+
+            // Midpoint along the diagonal
+            let midX = (startX + endX) / 2
+            let midY = midX * (rect.height / rect.width)
+
+            // Randomized amplitudes for control points
+            let controlAmp1 = amplitude * CGFloat(Double.random(in: 0.7...1.3, using: &rng))
+            let controlAmp2 = amplitude * CGFloat(Double.random(in: 0.7...1.3, using: &rng))
+
+            let direction: CGFloat = (i % 2 == 0 ? -1 : 1)
+
+            let controlX1 = startX + step * 0.25
+            let controlY1 = midY + direction * controlAmp1
+
+            let controlX2 = startX + step * 0.75
+            let controlY2 = midY + direction * controlAmp2
+
+            path.addCurve(
+                to: CGPoint(x: endX, y: endX * (rect.height / rect.width)),
+                control1: CGPoint(x: controlX1, y: controlY1),
+                control2: CGPoint(x: controlX2, y: controlY2)
+            )
+        }
+
+        path.addLine(to: CGPoint(x: rect.width, y: 0))
+        path.closeSubpath()
+        return path
+    }
+}
+
+
+
+
+// Helper random generator so SwiftUI redraws stay consistent
+struct SeededGenerator: RandomNumberGenerator {
+    private var state: UInt64
+    init(seed: Int) { self.state = UInt64(seed) }
+    mutating func next() -> UInt64 {
+        state = state &* 6364136223846793005 &+ 1
+        return state
+    }
+}
+
+
 
 
 
