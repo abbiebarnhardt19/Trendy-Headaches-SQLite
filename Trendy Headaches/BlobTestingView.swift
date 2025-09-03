@@ -19,22 +19,29 @@ extension CGPoint {
 }
 
 struct BlobTestingView: View {
-    @State private var controlPoints = BlobShape.createPoints(minGrowth: 5, edges: 20)
+    @State private var controlPoints = BlobShape.createPoints(minGrowth: 8, edges: 80)
 
     var body: some View {
-        ZStack {
-            Color.white.ignoresSafeArea() // background
-
+        ZStack(alignment: .topLeading) {
             BlobShape(controlPoints: controlPoints)
-                .fill(Color.purple.opacity(0.5))
-                .overlay(
-                    BlobShape(controlPoints: controlPoints)
-                        .stroke(Color.black, lineWidth: 2)
-                )
-                .frame(width: 400, height: 300)
+                .fill(Color.green.opacity(0.6))
+                .frame(width: 1000, height: 900)
+                .offset(x: -200, y: -550)
+            
+            BlobShape(controlPoints: controlPoints)
+                .fill(Color.green.opacity(0.6))
+                .frame(width: 1000, height: 900)
+                .offset(x: 200, y: 550)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipped()
+        .ignoresSafeArea()
+        
+        
     }
 }
+
+
 
 // MARK: - Shape Logic
 
@@ -70,7 +77,7 @@ struct AnimatableCGPointVector: VectorArithmetic {
 
 
 struct BlobShape: Shape {
-    static let size = CGFloat(300)
+    static let size = CGFloat(1000)
     
     var controlPoints: AnimatableCGPointVector
     
@@ -134,8 +141,107 @@ struct BlobShape: Shape {
 
         return p
     }
+
     
 }
+
+struct CornerBlobShape: Shape {
+    static let size = CGFloat(1000)
+    
+    var controlPoints: AnimatableCGPointVector
+    
+    var animatableData: AnimatableCGPointVector {
+        get { controlPoints }
+        set { controlPoints = newValue }
+    }
+    
+    func path(in rect: CGRect) -> Path {
+        let count = controlPoints.count
+        guard count > 1 else { return Path() }
+        
+        let xScale = rect.width / Self.size
+        let yScale = rect.height / Self.size
+        let scaledPoints = controlPoints.values.map { p in
+            p.scale(x: xScale, y: yScale)
+        }
+        
+        var p = Path()
+        
+        // Start in top-left corner
+        p.move(to: .zero)
+        
+        // Top edge (straight line)
+        p.addLine(to: CGPoint(x: rect.maxX, y: 0))
+        
+        // ---- Right + Bottom edges = wavy like BlobShape ----
+        for i in 0..<count {
+            let p1 = scaledPoints[(i + 1) % count]
+            let p2 = scaledPoints[(i + 2) % count]
+            let midX = (p1.x + p2.x) / 2
+            let midY = (p1.y + p2.y) / 2
+            p.addQuadCurve(to: CGPoint(x: midX, y: midY), control: p1)
+        }
+        
+        // ---- Left edge (straight line back up) ----
+        p.addLine(to: CGPoint(x: 0, y: rect.maxY))
+        p.addLine(to: .zero)
+        
+        return p
+    }
+}
+
+
+struct CornerWaveShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        
+        // Start in the top-left
+        path.move(to: .zero)
+        
+        // Top edge (straight line)
+        path.addLine(to: CGPoint(x: rect.maxX, y: 0))
+        
+        // Right edge (curvy wave)
+        path.addCurve(
+            to: CGPoint(x: rect.maxX, y: rect.maxY * 0.4),
+            control1: CGPoint(x: rect.maxX, y: rect.maxY * 0.1),
+            control2: CGPoint(x: rect.maxX * 0.5, y: rect.maxY * 0.2)
+        )
+        
+        path.addCurve(
+            to: CGPoint(x: rect.maxX * 0.3, y: rect.maxY),
+            control1: CGPoint(x: rect.maxX * 1.2, y: rect.maxY * 0),
+            control2: CGPoint(x: rect.maxX * 0.5, y: rect.maxY * 0.9)
+        )
+        
+        // Left edge (straight back up)
+        path.addLine(to: CGPoint(x: 0, y: rect.maxY))
+        path.addLine(to: .zero)
+        
+        return path
+    }
+}
+
+struct CornerMaskShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        
+        // Start top-left
+        path.move(to: .zero)
+        // Top edge
+        path.addLine(to: CGPoint(x: rect.maxX, y: 0))
+        // Right edge
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        // Bottom edge
+        path.addLine(to: CGPoint(x: 0, y: rect.maxY))
+        // Left edge
+        path.addLine(to: .zero)
+        
+        return path
+    }
+}
+
+
 
 
 #Preview {
