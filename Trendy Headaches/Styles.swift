@@ -59,7 +59,7 @@ struct CustomTextField: TextFieldStyle {
             .frame(width: width ?? 150, height: height ?? 50)
             .background(Color(hex: accent))
             .foregroundColor(Color(hex: background))
-            .cornerRadius(20)
+            .cornerRadius(30)
             .tint(Color(hex: background))
     }
 }
@@ -217,7 +217,7 @@ struct CustomButton: View {
                 .frame(width: width ?? 150, height: height ?? 50)
                 .background(Color(hex: accent))
                 .foregroundColor(Color(hex: background))
-                .cornerRadius(20)
+                .cornerRadius(30)
                 .font(.system(size: 20, design: .serif))
         }
         .buttonStyle(.plain)

@@ -47,22 +47,22 @@ struct LoginView: SwiftUI.View {
                     SecureField("", text: $password)
                         .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 350))
                         
-                    
-                    NavigationLink(destination: ForgotPasswordView1()){
+                    NavigationLink(destination: ForgotPasswordView1()) {
                         Text("Forgot Password?")
-                            .frame(maxWidth: .infinity, alignment: .trailing)
                             .font(.system(size: 18, design: .serif))
                             .foregroundColor(Color(hex: accent))
                             .underline(true, color: Color(hex: accent))
+                            .background(Color.clear) // forces label background transparent
                     }
-                    .padding(.vertical, 10)
-                    .padding(.trailing, 190)
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.leading, 170)
+                    .padding(.vertical, 15)
                     
                     if let loginError = loginError {
                         CustomWarningText(text: loginError)
                     }
                     
-                    CustomButton(text: "Log In", background: background, accent: accent, height: 50, width: 160) {
+                    CustomButton(text: "Log In", background: background, accent: accent, height: 55, width: 180) {
                         let result = DatabaseManager.shared.attemptLogin(email: email, password: password)
                         userId = result.userId
                         loginError = result.error
