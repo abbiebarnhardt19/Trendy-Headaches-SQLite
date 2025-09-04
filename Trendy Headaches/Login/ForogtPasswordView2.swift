@@ -4,6 +4,13 @@
 //
 //  Created by Abigail Barnhardt on 8/28/25.
 //import SwiftUI
+//
+//  ForgotPasswordView2.swift
+//  Trendy Headaches
+//
+//  Created by Abigail Barnhardt on 8/28/25.
+//
+
 import SwiftUI
 
 struct ForgotPasswordView2: View {
@@ -29,13 +36,12 @@ struct ForgotPasswordView2: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                ZStack{
-
-                    // Background blobs (fixed)
+                // Background blobs
+                ZStack {
                     ParametricBlob(points: 18, amplitude: 0.2)
                         .fill(Color(hex: accent))
                         .frame(width: 400, height: 300)
-                        .offset(x: -80, y: 400)   // use offset instead of position
+                        .offset(x: -80, y: 400)
                         .rotationEffect(.degrees(200))
                         .ignoresSafeArea()
                         .allowsHitTesting(false)
@@ -43,58 +49,60 @@ struct ForgotPasswordView2: View {
                     ParametricBlob(points: 20, amplitude: 0.2)
                         .fill(Color(hex: accent))
                         .frame(width: 500, height: 300)
-                        .offset(x: 10, y: 400)   // use offset instead of position
+                        .offset(x: 10, y: 400)
                         .rotationEffect(.degrees(11))
                         .ignoresSafeArea()
                         .allowsHitTesting(false)
-
                 }
                 .ignoresSafeArea(.keyboard)
-
                 
-                // Foreground content
-                VStack(alignment: .leading, spacing: 30) {
-                    // Title pinned top-left
-                    Text("Please answer your security question")
-                        .font(.system(size: 50, design: .serif))
-                        .foregroundColor(Color(hex: accent))
-                        .frame(width: 220, alignment: .leading)
-                        .padding(.leading, 80)
-                    .padding(.top, 10)
+                // Foreground content with safe area adjustment
+                GeometryReader { geo in
+                    VStack(alignment: .leading) {
+                        // Title pinned top-left
+                        Text("Please answer your security question")
+                            .font(.system(size: 47, design: .serif))
+                            .foregroundColor(Color(hex: accent))
+                            .frame(width: 220, alignment: .leading)
+                            .padding(.leading, 80)
+                            .padding(.bottom, 20)
+                            .padding(.top, 30)
                         
-                    
-                    // Question + input + button
-                    VStack() {
-                        CustomText(text: "Test question", color: accent)
-                            .padding(.leading, 60)
-                            .padding(.top, 0)
-                        
-                        SecureField("", text: $enteredAnswer)
-                            .textFieldStyle(
-                                CustomTextField(background: background, accent: accent, height: 60, width: 350))
-                            .autocapitalization(.none)
-                            .disableAutocorrection(true)
-                        
-                        if !enteredAnswer.isEmpty && !isCorrectAnswer {
-                            CustomWarningText(text: "Answers do not match.")
-                                .padding(.leading, 70)
-                        } else {
-                            CustomWarningText(text: " ")
-
+                        // Question + input + button
+                        VStack {
+                            CustomText(text: securityQuestion, color: accent)
+                                .padding(.leading, 60)
+                            
+                            SecureField("", text: $enteredAnswer)
+                                .textFieldStyle(
+                                    CustomTextField(background: background,
+                                                    accent: accent,
+                                                    height: 60,
+                                                    width: 350)
+                                )
+                                .autocapitalization(.none)
+                                .disableAutocorrection(true)
+                            
+                            if !enteredAnswer.isEmpty && !isCorrectAnswer {
+                                CustomWarningText(text: "Answers do not match.")
+                                    .padding(.leading, 70)
+                            } else {
+                                CustomWarningText(text: " ")
+                            }
+                            
+                            CustomNavButton(
+                                label: "Continue",
+                                destination: ForgotPasswordView3(enteredEmail: enteredEmail),
+                                background: background,
+                                accent: accent
+                            )
+                            .disabled(!isCorrectAnswer)
+                            .padding(.bottom, 140)
                         }
-                        
-                        CustomNavButton(
-                            label: "Continue",
-                            destination: ForgotPasswordView3(enteredEmail: enteredEmail),
-                            background: background,
-                            accent: accent
-                        )
-                        .disabled(!isCorrectAnswer)
-                        .padding(.bottom, 130)
-                        
                     }
+                    .padding(.top, geo.safeAreaInsets.top - 44) // ✅ now valid
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 }
-                
             }
             .CustomView(color: background)
             .ignoresSafeArea(.keyboard)
@@ -106,7 +114,6 @@ struct ForgotPasswordView2: View {
             securityAnswerHash = result.hashedAnswer
         }
         .ignoresSafeArea(.keyboard)
-
     }
 }
 

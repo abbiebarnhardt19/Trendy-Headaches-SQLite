@@ -67,13 +67,13 @@ struct ForgotPasswordView1: View {
                     
                     if let exists = emailExists, !exists {
                         CustomWarningText(text: "No account found with this email")
-                            .padding(.leading, 220)
+                            .padding(.leading, 170)
                     }
                     
                     else{
                         CustomWarningText(text: "                                    ")
                             .padding(.leading, 220)
-                        
+
                     }
                     
                     CustomNavButton(
