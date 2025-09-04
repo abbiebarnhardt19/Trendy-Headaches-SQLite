@@ -53,19 +53,21 @@ struct ForgotPasswordView2: View {
 
                 
                 // Foreground content
-                VStack(alignment: .leading, spacing: 40) {
+                VStack(alignment: .leading, spacing: 30) {
                     // Title pinned top-left
                     Text("Please answer your security question")
                         .font(.system(size: 50, design: .serif))
                         .foregroundColor(Color(hex: accent))
                         .frame(width: 220, alignment: .leading)
                         .padding(.leading, 80)
+                    .padding(.top, 10)
                         
                     
                     // Question + input + button
                     VStack() {
                         CustomText(text: "Test question", color: accent)
                             .padding(.leading, 60)
+                            .padding(.top, 0)
                         
                         SecureField("", text: $enteredAnswer)
                             .textFieldStyle(
@@ -78,6 +80,7 @@ struct ForgotPasswordView2: View {
                                 .padding(.leading, 70)
                         } else {
                             CustomWarningText(text: " ")
+
                         }
                         
                         CustomNavButton(
@@ -87,7 +90,7 @@ struct ForgotPasswordView2: View {
                             accent: accent
                         )
                         .disabled(!isCorrectAnswer)
-                        .padding(.bottom, 180)
+                        .padding(.bottom, 150)
                         
                     }
                 }

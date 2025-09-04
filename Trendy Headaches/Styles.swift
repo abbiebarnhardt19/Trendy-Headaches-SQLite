@@ -152,7 +152,7 @@ struct CustomWarningText: View {
     var body: some View {
         Text(text)
             .foregroundColor(.red)
-            .font(.system(size: 14, design: .serif))
+            .font(.system(size: 12, design: .serif))
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 10)
