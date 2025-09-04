@@ -17,17 +17,17 @@ struct ForgotPasswordView1: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                ParametricBlob(points: 20, amplitude: 0.3)
+                SameAmplitudeBlob(waves: 10, amplitude: 20)
                     .fill(Color(hex: accent))
-                    .frame(width: 400, height: 300)
-                    .offset(x:-100, y: 400)
-                    .rotationEffect(.degrees(180))
+                    .frame(width: 700, height: 500)
+                    .offset(x:140, y: -200)
+                    .rotationEffect(.degrees(110))
                 
-                ParametricBlob(points: 20, amplitude: 0.3)
+                SameAmplitudeBlob(waves: 10, amplitude:20)
                     .fill(Color(hex: accent))
-                    .frame(width: 400, height: 300)
-                    .offset(x:-30, y: 400)
-                    .rotationEffect(.degrees(11))
+                    .frame(width: 700, height: 500)
+                    .offset(x:280, y: -120)
+                    .rotationEffect(.degrees(290))
 
                 
                 VStack() {
@@ -72,7 +72,7 @@ struct ForgotPasswordView1: View {
                     
                     CustomNavButton(
                         label: "Continue",
-                        destination: ForgotPasswordView2(enteredEmail: DatabaseManager.normalizedValue(email)), background: background, accent: accent, height: 45, width: 160)
+                        destination: ForgotPasswordView2(enteredEmail: DatabaseManager.normalizedValue(email)), background: background, accent: accent, height: 50, width: 160)
                     .disabled(!(emailExists ?? false))
                     .opacity((emailExists ?? false) ? 1.0 : 0.5)
                     .padding(.top, 10)

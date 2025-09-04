@@ -7,12 +7,16 @@
 import SwiftUI
 
 struct ForgotPasswordView2: View {
-    let enteredEmail: String   // passed from ForgotPasswordView1
+    let enteredEmail: String
+    
     
     @State private var securityQuestion: String = ""
     @State private var securityAnswerHash: String = ""   // stored hashed value
     @State private var enteredAnswer: String = ""
     @State private var userID: Int64? = nil
+    
+    let accent = "#b5c4b9"
+    let background = "#001d00"
     
     // Computed property to check if entered answer is correct
     private var isCorrectAnswer: Bool {
@@ -26,33 +30,73 @@ struct ForgotPasswordView2: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
+            ZStack {
+                Color.clear
+                    .background(
+                        ZStack {
+                            ParametricBlob(points: 18, amplitude: 0.2)
+                                .fill(Color(hex: accent))
+                                .frame(width: 400, height: 300)
+                                .offset(x:-80, y: 400)
+                                .rotationEffect(.degrees(200))
+
+                            ParametricBlob(points: 20, amplitude: 0.2)
+                                .fill(Color(hex: accent))
+                                .frame(width: 500, height: 300)
+                                .offset(x:10, y: 400)
+                                .rotationEffect(.degrees(11))
+                        }
+                        .ignoresSafeArea()
+                    )
                 
-                CustomInstructions(text: "Please answer the following security question to proceed.", color: "#b5c4b9")
-                
-                CustomText(text: securityQuestion, color: "#b5c4b9")
-                
-                SecureField("", text: $enteredAnswer)
-                    .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9", height: 60, width: 160))
-                    .autocapitalization(.none)
-                    .disableAutocorrection(true)
-                
-                if !enteredAnswer.isEmpty && !isCorrectAnswer {
-                    CustomWarningText(text: "Answers do not match.")
+                // Foreground content
+                VStack {
+                    Text("Please answer your security question")
+                        .multilineTextAlignment(.leading)
+                        .font(.system(size: 40, design: .serif))
+                        .foregroundColor(Color(hex: accent))
+                        .frame(maxWidth: 200)
+                    Spacer()
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 
-                CustomNavButton(label: "Continue", destination: ForgotPasswordView3(enteredEmail: enteredEmail), background: "#001d00", accent: "#b5c4b9")
+                VStack {
+                    CustomText(text: "Test Question", color: accent)
+                        .padding(.top, 100)
+                    
+                    SecureField("", text: $enteredAnswer)
+                        .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 350))
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
+                    
+                    if !enteredAnswer.isEmpty && !isCorrectAnswer {
+                        CustomWarningText(text: "Answers do not match.")
+                            .padding(.leading, 20)
+                    }
+                    else{
+                        CustomWarningText(text: "                      ")
+                            .padding(.leading, 20)
+                        
+                    }
+                    
+                    CustomNavButton(
+                        label: "Continue",
+                        destination: ForgotPasswordView3(enteredEmail: enteredEmail),
+                        background: background,
+                        accent: accent
+                    )
                     .disabled(!isCorrectAnswer)
+                    .padding(.top, 10)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
-            .padding()
-            .CustomView(color: "#001d00")
             .onAppear {
-                // directly assign values using the helper in CustomFunctions
                 let result = DatabaseManager.getSecurityQuestionAndAnswer(forEmail: enteredEmail)
                 userID = result.userId
                 securityQuestion = result.question
                 securityAnswerHash = result.hashedAnswer
             }
+            .CustomView(color: background)
         }
     }
 }

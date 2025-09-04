@@ -17,14 +17,14 @@ struct InitialView: View {
                 SameAmplitudeBlob(waves: 10, amplitude: 20)
                     .fill(Color(hex: accent))
                     .frame(width: 700, height: 500)
-                    .offset(x:225, y: -125)
-                    .rotationEffect(.degrees(280))
+                    .offset(x:300, y: -100)
+                    .rotationEffect(.degrees(110))
                 
-                SameAmplitudeBlob(waves: 10, amplitude: 20)
+                SameAmplitudeBlob(waves: 10, amplitude:20)
                     .fill(Color(hex: accent))
                     .frame(width: 700, height: 500)
-                    .offset(x:225, y: -125)
-                    .rotationEffect(.degrees(100))
+                    .offset(x:175, y: -151)
+                    .rotationEffect(.degrees(280))
 
                 VStack() {
                     CustomWelcome(text: "Trendy Headaches", color: accent)

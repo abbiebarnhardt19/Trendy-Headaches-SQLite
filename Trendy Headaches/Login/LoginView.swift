@@ -17,17 +17,17 @@ struct LoginView: SwiftUI.View {
         NavigationStack {
             ZStack {
                 
-                SameAmplitudeBlob(waves: 8, amplitude: 20)
+                ParametricBlob(points: 20, amplitude: 0.3)
                     .fill(Color(hex: accent))
-                    .frame(width: 700, height: 500)
-                    .offset(x:225, y: -201)
-                    .rotationEffect(.degrees(0))
-                
-                SameAmplitudeBlob(waves: 8, amplitude:20)
-                    .fill(Color(hex: accent))
-                    .frame(width: 700, height: 500)
-                    .offset(x:225, y: -201)
+                    .frame(width: 400, height: 300)
+                    .offset(x:-100, y: 400)
                     .rotationEffect(.degrees(180))
+                
+                ParametricBlob(points: 20, amplitude: 0.3)
+                    .fill(Color(hex: accent))
+                    .frame(width: 400, height: 300)
+                    .offset(x:-30, y: 400)
+                    .rotationEffect(.degrees(11))
                 
                 VStack() {
                     Text("Log In")
