@@ -16,6 +16,9 @@ struct ForgotPasswordView3: View {
     @State private var isPasswordUpdated: Bool = false
     @State private var currentPassword: String = ""
     
+    let accent = "#b5c4b9"
+    let background = "#001d00"
+    
     private var passwordResetValid: Bool {
         DatabaseManager.isPasswordResetValid(
             newPassword: password_one,
@@ -23,63 +26,104 @@ struct ForgotPasswordView3: View {
             currentHashedPassword: currentPassword
         )
     }
-    
-//    private func loadCurrentPassword() {
-//        let result = DatabaseManager.getCurrentPassword(forEmail: enteredEmail)
-//        currentPassword = result.currentPassword
-//    }
-//    
-//    private func resetPassword() {
-//        do {
-//            try DatabaseManager.updatePassword(forEmail: enteredEmail, newPassword: password_one)
-//            isPasswordUpdated = true
-//        } catch {
-//            print("Error updating password: \(error.localizedDescription)")
-//        }
-//    }
 
     var body: some View {
         NavigationStack {
-            VStack {
-                CustomText(text: "New Password", color: "#b5c4b9")
-                SecureField("", text: $password_one)
-                    .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9", height: 60, width: 160))
-                    .padding(.bottom, 15)
-                
-                if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
-                    CustomWarningText(text: "Password must be at least 8 characters, contain uppercase, lowercase, number, and special character.")
+            ZStack {
+                ZStack{
+                    
+                    // Background blobs (fixed)
+                    ParametricBlob(points:25, amplitude: 0.15)
+                        .fill(Color(hex: accent))
+                        .frame(width: 400, height: 300)
+                        .offset(x: -0, y: 430)   // use offset instead of position
+                        .rotationEffect(.degrees(335))
+                        .ignoresSafeArea()
+                        .allowsHitTesting(false)
+                    
+                    ParametricBlob(points: 25, amplitude: 0.15)
+                        .fill(Color(hex: accent))
+                        .frame(width: 500, height: 300)
+                        .offset(x: 30, y: 420)   // use offset instead of position
+                        .rotationEffect(.degrees(160))
+                        .ignoresSafeArea()
+                        .allowsHitTesting(false)
+                    
+                }
+                .ignoresSafeArea(.keyboard)
+                VStack(alignment: .trailing, spacing: 30) {
+                    // Title pinned top-left
+                    Text("Last Step")
+                        .font(.system(size: 50, design: .serif))
+                        .foregroundColor(Color(hex: accent))
+                        .frame(width: 100, alignment: .trailing)
+                        .padding(.trailing, 80)
+                        .padding(.top, 10)
+                    
+                    
+                    // Question + input + button
+                    VStack() {
+                        CustomText(text: "New Password", color: accent)
+                            .padding(.leading, 60)
+                            .padding(.top, 40)
+                        
+                        SecureField("", text: $password_one)
+                            .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 350))
+                        
+                        
+                        if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
+                            CustomWarningText(text: "Password must be at least 8 characters, contain uppercase, lowercase, number, and special character.")
+                                .padding(.leading, 20)
+                                .padding(.bottom, 5)
+                        }
+                        
+                        else if !password_one.isEmpty && DatabaseManager.hashString(password_one) == currentPassword {
+                            CustomWarningText(text: "New password must be different from previous password.")
+                                .padding(.leading, 20)
+                                .padding(.bottom, 10)
+                        }
+                        else{
+                            CustomWarningText(text: "                                                                                    ")
+                                .padding(.leading, 20)
+                                .padding(.bottom, 20)
+                        }
+                        
+                        CustomText(text: "Confirm New Password", color: accent)
+                            .padding(.leading, 60)
+                        
+                        SecureField("", text: $password_two)
+                            .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 350))
+                        
+                        if !password_two.isEmpty && password_two != password_one {
+                            CustomWarningText(text: "Passwords do not match.")
+                                .padding(.leading, 20)
+                        }
+                        else{
+                            CustomWarningText(text: " ")
+                        }
+                        
+                        CustomButton(text: "Reset Password", background: background, accent: accent, height: 50, width: 200) {
+                            isPasswordUpdated = DatabaseManager.resetPassword(enteredEmail: enteredEmail, password_one: password_one)
+                        }
+                        .padding(.top, 15)
+                        .padding(.bottom, 150)
+                        .disabled(!passwordResetValid)
+                        .opacity(passwordResetValid ? 1.0 : 0.5)
+                        
+                        // Invisible NavigationLink that triggers when update is successful
+                        .navigationDestination(isPresented: $isPasswordUpdated) {
+                            LoginView()
+                        }
+                        
+                    }
+                    
                 }
                 
-                if !password_one.isEmpty && DatabaseManager.hashString(password_one) == currentPassword {
-                    CustomWarningText(text: "New password must be different from previous password.")
-                }
-                
-                CustomText(text: "Confirm New Password", color: "#b5c4b9")
-                SecureField("", text: $password_two)
-                    .textFieldStyle(CustomTextField(background: "#001d00", accent: "#b5c4b9", height: 60, width: 160))
-                
-                if !password_two.isEmpty && password_two != password_one {
-                    CustomWarningText(text: "Passwords do not match.")
-                }
-                
-                CustomButton(text: "Reset Password", background: "#b5c4b9", accent: "#001d00") {
-                    isPasswordUpdated = DatabaseManager.resetPassword(enteredEmail: enteredEmail, password_one: password_one)
-                }
-                .padding(.top, 15)
-                .disabled(!passwordResetValid)
-                .opacity(passwordResetValid ? 1.0 : 0.5)
-                
-                // Invisible NavigationLink that triggers when update is successful
-                .navigationDestination(isPresented: $isPasswordUpdated) {
-                    LoginView()
-                }
             }
-            .CustomView(color: "#001d00")
+            .CustomView(color: background)
             .onAppear {
-                currentPassword = DatabaseManager.loadCurrentPassword(enteredEmail: enteredEmail)
-            }
+                currentPassword = DatabaseManager.loadCurrentPassword(enteredEmail: enteredEmail)}
         }
-        .CustomView(color: "#001d00")
     }
 }
 

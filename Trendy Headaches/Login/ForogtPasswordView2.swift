@@ -90,7 +90,7 @@ struct ForgotPasswordView2: View {
                             accent: accent
                         )
                         .disabled(!isCorrectAnswer)
-                        .padding(.bottom, 150)
+                        .padding(.bottom, 130)
                         
                     }
                 }

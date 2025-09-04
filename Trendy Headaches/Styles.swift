@@ -154,7 +154,7 @@ struct CustomWarningText: View {
             .foregroundColor(.red)
             .font(.system(size: 12, design: .serif))
             .multilineTextAlignment(.leading)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: 350, alignment: .leading)
             .padding(.top, 10)
             .padding(.horizontal, 15)
     }
