@@ -17,13 +17,13 @@ struct LoginView: SwiftUI.View {
         NavigationStack {
             ZStack {
                 
-                DiagonalCornerWave(waves: 8, amplitude: 20)
+                SameAmplitudeBlob(waves: 8, amplitude: 20)
                     .fill(Color(hex: accent))
                     .frame(width: 700, height: 500)
                     .offset(x:225, y: -201)
                     .rotationEffect(.degrees(0))
                 
-                DiagonalCornerWave(waves: 8, amplitude:20)
+                SameAmplitudeBlob(waves: 8, amplitude:20)
                     .fill(Color(hex: accent))
                     .frame(width: 700, height: 500)
                     .offset(x:225, y: -201)
@@ -58,10 +58,6 @@ struct LoginView: SwiftUI.View {
                     .padding(.leading, 170)
                     .padding(.vertical, 15)
                     
-                    if let loginError = loginError {
-                        CustomWarningText(text: loginError)
-                    }
-                    
                     CustomButton(text: "Log In", background: background, accent: accent, height: 55, width: 180) {
                         let result = DatabaseManager.shared.attemptLogin(email: email, password: password)
                         userId = result.userId
@@ -69,6 +65,12 @@ struct LoginView: SwiftUI.View {
                         isLoggedIn = userId != nil
                     }
                     .padding(.top, 7)
+                    
+                    if let loginError = loginError {
+                        CustomWarningText(text: loginError)
+                            .padding(.leading, 260)
+                            .padding(.top, 15)
+                    }
                 }
                 
                 .onAppear {

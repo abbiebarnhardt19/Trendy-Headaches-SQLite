@@ -14,13 +14,13 @@ struct InitialView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                DiagonalCornerWave(waves: 12, amplitude: 25)
+                SameAmplitudeBlob(waves: 10, amplitude: 20)
                     .fill(Color(hex: accent))
                     .frame(width: 700, height: 500)
                     .offset(x:225, y: -125)
                     .rotationEffect(.degrees(280))
                 
-                DiagonalCornerWave(waves: 12, amplitude: 25)
+                SameAmplitudeBlob(waves: 10, amplitude: 20)
                     .fill(Color(hex: accent))
                     .frame(width: 700, height: 500)
                     .offset(x:225, y: -125)

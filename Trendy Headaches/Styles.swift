@@ -152,13 +152,11 @@ struct CustomWarningText: View {
     var body: some View {
         Text(text)
             .foregroundColor(.red)
-            .font(.footnote)
-            .multilineTextAlignment(.leading) // ensures multi-line text aligns left
-            .frame(maxWidth: .infinity, alignment: .leading) // ensures single-line stays left
-            .padding(.top, 5)
-            .padding(.bottom, 5)
-            .padding(.leading, 15)
-            .padding(.trailing, 15)
+            .font(.system(size: 14, design: .serif))
+            .multilineTextAlignment(.leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, 10)
+            .padding(.horizontal, 15)
     }
 }
 
@@ -299,7 +297,7 @@ extension CGPoint {
     }
 }
 
-struct DiagonalCornerWave: Shape {
+struct SameAmplitudeBlob: Shape {
     var waves: Int
     var amplitude: CGFloat
     var seed: Int = Int.random(in: 0...10_000)
@@ -344,12 +342,52 @@ struct DiagonalCornerWave: Shape {
     }
 }
 
-// Helper random generator so SwiftUI redraws stay consistent
-struct SeededGenerator: RandomNumberGenerator {
-    private var state: UInt64
-    init(seed: Int) { self.state = UInt64(seed) }
-    mutating func next() -> UInt64 {
-        state = state &* 6364136223846793005 &+ 1
-        return state
+struct ParametricBlob: Shape {
+    var points: Int = 20
+    var amplitude: CGFloat = 0.2 // ebb depth
+    
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let radiusX = rect.width / 2   // ellipse horizontal radius
+        let radiusY = rect.height / 2  // ellipse vertical radius
+        
+        var blobPoints: [CGPoint] = []
+        
+        for i in 0..<points {
+            let angle = 2 * CGFloat.pi * CGFloat(i) / CGFloat(points)
+            let offset = sin(CGFloat(i) * 2) * amplitude // ebb control
+            
+            let point = CGPoint(
+                x: center.x + (radiusX * (1 + offset)) * cos(angle),
+                y: center.y + (radiusY * (1 + offset)) * sin(angle)
+            )
+            blobPoints.append(point)
+        }
+        
+        path.move(to: blobPoints.first!)
+        
+        for i in 0..<points {
+            let next = blobPoints[(i + 1) % points]
+            let mid = CGPoint(
+                x: (blobPoints[i].x + next.x) / 2,
+                y: (blobPoints[i].y + next.y) / 2
+            )
+            path.addQuadCurve(to: mid, control: blobPoints[i])
+        }
+        
+        path.closeSubpath()
+        return path
     }
 }
+
+
+    // Reproducible random generator
+    struct SeededGenerator: RandomNumberGenerator {
+        private var state: UInt64
+        init(seed: Int) { self.state = UInt64(seed) }
+        mutating func next() -> UInt64 {
+            state = state &* 6364136223846793005 &+ 1
+            return state
+        }
+    }
