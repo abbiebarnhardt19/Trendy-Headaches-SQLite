@@ -24,19 +24,19 @@ struct ForgotPasswordView3: View {
         )
     }
     
-    private func loadCurrentPassword() {
-        let result = DatabaseManager.getCurrentPassword(forEmail: enteredEmail)
-        currentPassword = result.currentPassword
-    }
-    
-    private func resetPassword() {
-        do {
-            try DatabaseManager.updatePassword(forEmail: enteredEmail, newPassword: password_one)
-            isPasswordUpdated = true
-        } catch {
-            print("Error updating password: \(error.localizedDescription)")
-        }
-    }
+//    private func loadCurrentPassword() {
+//        let result = DatabaseManager.getCurrentPassword(forEmail: enteredEmail)
+//        currentPassword = result.currentPassword
+//    }
+//    
+//    private func resetPassword() {
+//        do {
+//            try DatabaseManager.updatePassword(forEmail: enteredEmail, newPassword: password_one)
+//            isPasswordUpdated = true
+//        } catch {
+//            print("Error updating password: \(error.localizedDescription)")
+//        }
+//    }
 
     var body: some View {
         NavigationStack {
@@ -63,7 +63,7 @@ struct ForgotPasswordView3: View {
                 }
                 
                 CustomButton(text: "Reset Password", background: "#b5c4b9", accent: "#001d00") {
-                    resetPassword()
+                    isPasswordUpdated = DatabaseManager.resetPassword(enteredEmail: enteredEmail, password_one: password_one)
                 }
                 .padding(.top, 15)
                 .disabled(!passwordResetValid)
@@ -76,7 +76,7 @@ struct ForgotPasswordView3: View {
             }
             .CustomView(color: "#001d00")
             .onAppear {
-                loadCurrentPassword()
+                currentPassword = DatabaseManager.loadCurrentPassword(enteredEmail: enteredEmail)
             }
         }
         .CustomView(color: "#001d00")

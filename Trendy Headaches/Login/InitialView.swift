@@ -14,17 +14,17 @@ struct InitialView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                SameAmplitudeBlob(waves: 10, amplitude: 20)
+                SameAmplitudeBlob(waves: 10, amplitude: 20, seed: 4)
                     .fill(Color(hex: accent))
                     .frame(width: 700, height: 500)
-                    .offset(x:300, y: -100)
-                    .rotationEffect(.degrees(110))
+                    .offset(x:320, y: -120)
+                    .rotationEffect(.degrees(120))
                 
-                SameAmplitudeBlob(waves: 10, amplitude:20)
+                SameAmplitudeBlob(waves: 10, amplitude:20, seed: 4)
                     .fill(Color(hex: accent))
                     .frame(width: 700, height: 500)
-                    .offset(x:175, y: -151)
-                    .rotationEffect(.degrees(280))
+                    .offset(x:195, y: -171)
+                    .rotationEffect(.degrees(295))
 
                 VStack() {
                     CustomWelcome(text: "Trendy Headaches", color: accent)

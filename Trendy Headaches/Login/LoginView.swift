@@ -16,17 +16,17 @@ struct LoginView: SwiftUI.View {
     var body: some SwiftUI.View {
         NavigationStack {
             ZStack {
-                
+
                 ParametricBlob(points: 20, amplitude: 0.3)
                     .fill(Color(hex: accent))
                     .frame(width: 400, height: 300)
-                    .offset(x:-100, y: 400)
+                    .offset(x:-100, y: 425)
                     .rotationEffect(.degrees(180))
                 
                 ParametricBlob(points: 20, amplitude: 0.3)
                     .fill(Color(hex: accent))
                     .frame(width: 400, height: 300)
-                    .offset(x:-30, y: 400)
+                    .offset(x:-30, y:425)
                     .rotationEffect(.degrees(11))
                 
                 VStack() {
@@ -34,15 +34,15 @@ struct LoginView: SwiftUI.View {
                         .multilineTextAlignment(.center)
                         .font(.system(size: 50, weight: .bold, design: .serif))
                         .foregroundColor(Color(hex: accent))
-                        .padding(.bottom, 20)
+                        .padding(.bottom, 10)
                     
                     CustomText(text: "Email", color: accent)
-                        .padding(.leading, 160)
+                        .padding(.leading, 20)
                     TextField("", text: $email)
                         .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 350))
                     
                     CustomText(text: "Password", color: accent)
-                        .padding(.leading, 160)
+                        .padding(.leading, 20)
                         .padding(.top, 15)
                     SecureField("", text: $password)
                         .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 350))
@@ -67,9 +67,22 @@ struct LoginView: SwiftUI.View {
                     .padding(.top, 7)
                     
                     if let loginError = loginError {
-                        CustomWarningText(text: loginError)
-                            .padding(.leading, 260)
-                            .padding(.top, 15)
+                        Text(loginError)
+                            .foregroundColor(.red)
+                            .font(.system(size: 14, design: .serif))
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.top, 10)
+                    }
+                    else{
+                        Text("                     ")
+                            .foregroundColor(.red)
+                            .font(.system(size: 14, design: .serif))
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.top, 10)
+                            .padding(.horizontal, 15)
+                        
                     }
                 }
                 

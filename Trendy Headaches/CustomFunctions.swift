@@ -277,7 +277,7 @@ extension DatabaseManager {
             if let id = try loginUser(emailAddress: normalizedEmail, passwordInput: hashedPassword) {
                 return (id, nil)
             } else {
-                return (nil, "Invalid email or password.")
+                return (nil, "Invalid email or password")
             }
         } catch {
             return (nil, "Database error: \(error.localizedDescription)")
@@ -382,5 +382,22 @@ extension DatabaseManager {
         
         return tempList
     }
+    
+    static func loadCurrentPassword(enteredEmail: String) -> String{
+        let result = DatabaseManager.getCurrentPassword(forEmail: enteredEmail)
+        return result.currentPassword
+    }
+    
+    static func resetPassword(enteredEmail: String, password_one: String) -> Bool {
+        do {
+            try DatabaseManager.updatePassword(forEmail: enteredEmail, newPassword: password_one)
+            return true
+        } catch {
+            print("Error updating password: \(error.localizedDescription)")
+            return false
+        }
+    }
 }
+
+
 

@@ -17,13 +17,13 @@ struct ForgotPasswordView1: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                SameAmplitudeBlob(waves: 10, amplitude: 20)
+                SameAmplitudeBlob(waves: 10, amplitude: 20, seed: 4)
                     .fill(Color(hex: accent))
                     .frame(width: 700, height: 500)
                     .offset(x:140, y: -200)
                     .rotationEffect(.degrees(110))
                 
-                SameAmplitudeBlob(waves: 10, amplitude:20)
+                SameAmplitudeBlob(waves: 10, amplitude:20, seed: 4)
                     .fill(Color(hex: accent))
                     .frame(width: 700, height: 500)
                     .offset(x:280, y: -120)
@@ -68,6 +68,12 @@ struct ForgotPasswordView1: View {
                     if let exists = emailExists, !exists {
                         CustomWarningText(text: "No account found with this email")
                             .padding(.leading, 220)
+                    }
+                    
+                    else{
+                        CustomWarningText(text: "                                    ")
+                            .padding(.leading, 220)
+                        
                     }
                     
                     CustomNavButton(
