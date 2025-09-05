@@ -46,6 +46,7 @@ struct ForgotPasswordView3: View {
                         .rotationEffect(.degrees(160))
                         .ignoresSafeArea()
                         .allowsHitTesting(false)
+                    
                 }
                 
                 
@@ -71,7 +72,7 @@ struct ForgotPasswordView3: View {
                             
                             
                             if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
-                                CustomWarningText(text: "Password must be at least 8 characters, contain uppercase, lowercase, number, and special character.")
+                                CustomWarningText(text: "Password must be 8+ characters, including an uppercase, lowercase, number, and symbol.")
                                     .padding(.leading, 20)
                                     .padding(.bottom, 5)
                             }
@@ -114,7 +115,7 @@ struct ForgotPasswordView3: View {
                                 LoginView()
                             }
                         }
-                        .padding(.top, geo.safeAreaInsets.top - 44) // ✅ now valid
+                        .padding(.top, geo.safeAreaInsets.top - 44)
                     }
                 }
                 
@@ -122,6 +123,7 @@ struct ForgotPasswordView3: View {
             .CustomView(color: background)
             .onAppear {
                 currentPassword = DatabaseManager.loadCurrentPassword(enteredEmail: enteredEmail)}
+            
         }
     }
 }

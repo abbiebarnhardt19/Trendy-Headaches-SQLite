@@ -155,8 +155,7 @@ struct CustomWarningText: View {
             .font(.system(size: 12, design: .serif))
             .multilineTextAlignment(.leading)
             .frame(maxWidth: 350, alignment: .leading)
-            .padding(.top, 10)
-            .padding(.horizontal, 15)
+            .padding(.horizontal, 18)
     }
 }
 
@@ -181,7 +180,7 @@ struct CustomInstructions: View {
         Text(text)
             .fixedSize(horizontal: false, vertical: true)
             .multilineTextAlignment(.center)
-            .font(.system(size: 20, weight: .bold, design: .serif))
+            .font(.system(size: 18, design: .serif))
             .foregroundColor(Color(hex: color))
             .padding(.bottom, 10)
         .padding(.trailing, 15)
@@ -217,6 +216,7 @@ struct CustomButton: View {
                 .foregroundColor(Color(hex: background))
                 .cornerRadius(30)
                 .font(.system(size: 20, design: .serif))
+    
         }
         .buttonStyle(.plain)
     }

@@ -18,13 +18,15 @@ struct InitialView: View {
                     .fill(Color(hex: accent))
                     .frame(width: 700, height: 500)
                     .offset(x:320, y: -120)
-                    .rotationEffect(.degrees(120))
+                    .rotationEffect(.degrees(120)) 
                 
                 SameAmplitudeBlob(waves: 10, amplitude:20, seed: 4)
                     .fill(Color(hex: accent))
                     .frame(width: 700, height: 500)
                     .offset(x:195, y: -171)
                     .rotationEffect(.degrees(295))
+
+                
 
                 VStack() {
                     CustomWelcome(text: "Trendy Headaches", color: accent)
@@ -46,6 +48,7 @@ struct InitialView: View {
                 }
             }
             .CustomView(color: background)
+            
             .onAppear {
                 _ = DatabaseManager.shared
             }
