@@ -18,17 +18,11 @@ struct ForgotPasswordView1: View {
         NavigationStack {
             ZStack {
                 Color(hex: background).ignoresSafeArea()
-                SameAmplitudeBlob(waves: 10, amplitude: 20, seed: 4)
-                    .fill(Color(hex: accent))
-                    .frame(width: 700, height: 500)
-                    .offset(x:140, y: -200)
-                    .rotationEffect(.degrees(110))
+                SameAmplitudeBlob(waves: 10, amplitude: 20, accent:accent, x:140, y: -200, rotation: 110)
+
                 
-                SameAmplitudeBlob(waves: 10, amplitude:20, seed: 4)
-                    .fill(Color(hex: accent))
-                    .frame(width: 700, height: 500)
-                    .offset(x:280, y: -120)
-                    .rotationEffect(.degrees(290))
+                SameAmplitudeBlob(waves: 10, amplitude:20, accent:accent, x:280, y: -120, rotation: 290)
+
 
                 
                 VStack() {
@@ -53,7 +47,7 @@ struct ForgotPasswordView1: View {
                         .frame(maxWidth: 350)
                     
                     TextField("", text: $email)
-                        .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 350))
+                        .textFieldStyle(CustomTextField(background: background, accent: accent))
                         .keyboardType(.emailAddress)
                         .onChange(of: email) {
                             emailCheckTask?.cancel()

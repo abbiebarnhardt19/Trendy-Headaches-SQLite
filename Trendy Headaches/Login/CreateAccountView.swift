@@ -31,17 +31,9 @@ struct CreateAccountView: View {
             ZStack(alignment: .top) {
                 Color(hex: background).ignoresSafeArea()
                 
-                SameAmplitudeBlob(waves: 30, amplitude:5, seed: 4)
-                    .fill(Color(hex: accent))
-                    .frame(width: 700, height: 500)
-                    .offset(x:0, y: -340)
-                    .rotationEffect(.degrees(-35))
+                SameAmplitudeBlob(waves: 30, amplitude:5, accent:accent, x:0, y:-340, rotation: -35)
                 
-                SameAmplitudeBlob(waves: 30, amplitude:5, seed: 4)
-                    .fill(Color(hex: accent))
-                    .frame(width: 700, height: 500)
-                    .offset(x:100, y: -500)
-                    .rotationEffect(.degrees(-215))
+                SameAmplitudeBlob(waves: 30, amplitude:5, accent:accent, x:100, y:-500, rotation: -215)
                 
                 GeometryReader { geo in
                     ScrollView(showsIndicators: false) {
@@ -51,10 +43,10 @@ struct CreateAccountView: View {
                             
                             VStack(spacing: 10) {
                                 CustomText(text: "Email", color: accent)
-                                    .padding(.leading, 220)
+                                    .padding(.leading, 170)
                                 
                                 TextField("", text: $email)
-                                    .textFieldStyle(CustomTextField(background: background, accent: accent, height: 50, width: 350))
+                                    .textFieldStyle(CustomTextField(background: background, accent: accent))
                                     .onChange(of: email) {
                                         emailCheckTask?.cancel()
                                         emailCheckTask = Task {
@@ -73,10 +65,10 @@ struct CreateAccountView: View {
                                 }
                                 
                                 CustomText(text: "Password", color: accent)
-                                    .padding(.leading, 220)
+                                    .padding(.leading, 170)
                                 
                                 SecureField("", text: $password_one)
-                                    .textFieldStyle(CustomTextField(background: background, accent: accent, height: 50, width: 350))
+                                    .textFieldStyle(CustomTextField(background: background, accent: accent))
                                 
                                 if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
                                     CustomWarningText(text: "8+ characters, uppercase, lowercase, number, and symbol")
@@ -86,10 +78,10 @@ struct CreateAccountView: View {
                                 }
                                 
                                 CustomText(text: "Confirm Password", color: accent)
-                                    .padding(.leading, 220)
+                                    .padding(.leading, 170)
                                 
                                 SecureField("", text: $password_two)
-                                    .textFieldStyle(CustomTextField(background: background, accent: accent, height: 50, width: 350))
+                                    .textFieldStyle(CustomTextField(background: background, accent: accent))
                                 
                                 if !password_two.isEmpty && password_two != password_one {
                                     CustomWarningText(text: "Passwords do not match.")
@@ -99,17 +91,17 @@ struct CreateAccountView: View {
                                 }
                                 
                                 CustomText(text: "Security Question", color: accent)
-                                    .padding(.leading, 220)
+                                    .padding(.leading, 170)
                                 
                                 TextField("", text: $security_question)
-                                    .textFieldStyle(CustomTextField(background: background, accent: accent, height: 50, width: 350))
+                                    .textFieldStyle(CustomTextField(background: background, accent: accent))
                                     .padding(.bottom, 25)
                                 
                                 CustomText(text: "Security Question Answer", color: accent)
-                                    .padding(.leading, 220)
+                                    .padding(.leading, 170)
                                 
                                 TextField("", text: $security_answer)
-                                    .textFieldStyle(CustomTextField(background: background, accent: accent, height: 50, width: 350))
+                                    .textFieldStyle(CustomTextField(background: background, accent: accent))
                                 
                                 CustomNavButton(
                                     label: "Continue",

@@ -31,33 +31,24 @@ struct LoginView: SwiftUI.View {
                     .rotationEffect(.degrees(11))
                 
                 VStack() {
-                    Text("Log In")
-                        .multilineTextAlignment(.center)
-                        .font(.system(size: 50, weight: .bold, design: .serif))
-                        .foregroundColor(Color(hex: accent))
-                        .padding(.bottom, 10)
+                    CustomWelcome(text:"Log In", color: accent)
                     
                     CustomText(text: "Email", color: accent)
                         .padding(.leading, 20)
+                    
                     TextField("", text: $email)
-                        .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 350))
+                        .textFieldStyle(CustomTextField(background: background, accent: accent))
                     
                     CustomText(text: "Password", color: accent)
                         .padding(.leading, 20)
                         .padding(.top, 15)
+                    
                     SecureField("", text: $password)
-                        .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 350))
-                        
-                    NavigationLink(destination: ForgotPasswordView1()) {
-                        Text("Forgot Password?")
-                            .font(.system(size: 18, design: .serif))
-                            .foregroundColor(Color(hex: accent))
-                            .underline(true, color: Color(hex: accent))
-                            .background(Color.clear) // forces label background transparent
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .padding(.leading, 170)
-                    .padding(.vertical, 15)
+                        .textFieldStyle(CustomTextField(background: background, accent: accent))
+                      
+                    
+                    CustomLink(destination: ForgotPasswordView1(), text: "Forgot Password", accent: accent)
+                        .padding(.leading, 170)
                     
                     CustomButton(text: "Log In", background: background, accent: accent, height: 55, width: 180) {
                         let result = DatabaseManager.shared.attemptLogin(email: email, password: password)

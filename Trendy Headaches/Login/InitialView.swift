@@ -16,19 +16,9 @@ struct InitialView: View {
             ZStack {
                 Color(hex: background).ignoresSafeArea()
                 
-                SameAmplitudeBlob(waves: 10, amplitude: 20, seed: 4)
-                    .fill(Color(hex: accent))
-                    .frame(width: 700, height: 500)
-                    .offset(x:320, y: -120)
-                    .rotationEffect(.degrees(120)) 
+                SameAmplitudeBlob(waves: 10, amplitude: 20, accent:accent, x:-100, y: -120, rotation: 120)
                 
-                SameAmplitudeBlob(waves: 10, amplitude:20, seed: 4)
-                    .fill(Color(hex: accent))
-                    .frame(width: 700, height: 500)
-                    .offset(x:195, y: -171)
-                    .rotationEffect(.degrees(295))
-
-                
+                SameAmplitudeBlob(waves: 10, amplitude:20, accent:accent, x:-0, y: 100, rotation: 295)
 
                 VStack() {
                     CustomWelcome(text: "Trendy Headaches", color: accent)

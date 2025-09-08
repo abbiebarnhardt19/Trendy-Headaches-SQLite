@@ -70,7 +70,7 @@ struct ForgotPasswordView3: View {
                                 .padding(.top, 40)
                             
                             SecureField("", text: $password_one)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 350))
+                                .textFieldStyle(CustomTextField(background: background, accent: accent))
                             
                             
                             if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
@@ -94,7 +94,7 @@ struct ForgotPasswordView3: View {
                                 .padding(.leading, 60)
                             
                             SecureField("", text: $password_two)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 350))
+                                .textFieldStyle(CustomTextField(background: background, accent: accent))
                             
                             if !password_two.isEmpty && password_two != password_one {
                                 CustomWarningText(text: "Passwords do not match.")

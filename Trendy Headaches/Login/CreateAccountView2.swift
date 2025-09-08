@@ -33,19 +33,19 @@ struct CreateAccountView2: View {
                 VStack(spacing: 15) {
                     CustomText(text: "Symptom or Illness", color: accent)
                     TextField("", text: $symptoms)
-                        .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 160))
+                        .textFieldStyle(CustomTextField(background: background, accent: accent, width: 160))
                     
                     CustomText(text: "Preventative Medications", color: accent)
                     TextField("", text: $preventativeMeds)
-                        .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 160))
+                        .textFieldStyle(CustomTextField(background: background, accent: accent, width: 160))
                     
                     CustomText(text: "Emergency Medications", color: accent)
                     TextField("", text: $emergencyMeds)
-                        .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 160))
+                        .textFieldStyle(CustomTextField(background: background, accent: accent, width: 160))
                     
                     CustomText(text: "Triggers", color: accent)
                     TextField("", text: $triggers)
-                        .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 160))
+                        .textFieldStyle(CustomTextField(background: background, accent: accent, width: 160))
                 }
                 
                 CustomButton(text: "Create Account", background: accent, accent: background) {

@@ -75,14 +75,9 @@ struct ForgotPasswordView2: View {
                                 .padding(.leading, 60)
                             
                             SecureField("", text: $enteredAnswer)
-                                .textFieldStyle(
-                                    CustomTextField(background: background,
-                                                    accent: accent,
-                                                    height: 60,
-                                                    width: 350)
-                                )
-                                .autocapitalization(.none)
-                                .disableAutocorrection(true)
+                                .textFieldStyle(CustomTextField(background: background,accent: accent))
+                                    .autocapitalization(.none)
+                                    .disableAutocorrection(true)
                             
                             if !enteredAnswer.isEmpty && !isCorrectAnswer {
                                 CustomWarningText(text: "Answers do not match.")
