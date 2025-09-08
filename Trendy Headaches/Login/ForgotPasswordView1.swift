@@ -17,6 +17,7 @@ struct ForgotPasswordView1: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                Color(hex: background).ignoresSafeArea()
                 SameAmplitudeBlob(waves: 10, amplitude: 20, seed: 4)
                     .fill(Color(hex: accent))
                     .frame(width: 700, height: 500)
@@ -84,7 +85,6 @@ struct ForgotPasswordView1: View {
                     .padding(.top, 10)
                 }
            }
-            .CustomView(color: background)
         }
     }
 }

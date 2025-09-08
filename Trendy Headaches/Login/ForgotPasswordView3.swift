@@ -30,6 +30,8 @@ struct ForgotPasswordView3: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                Color(hex: background).ignoresSafeArea()
+                
                 VStack{
                     ParametricBlob(points:25, amplitude: 0.15)
                         .fill(Color(hex: accent))
@@ -120,7 +122,6 @@ struct ForgotPasswordView3: View {
                 }
                 
             }
-            .CustomView(color: background)
             .onAppear {
                 currentPassword = DatabaseManager.loadCurrentPassword(enteredEmail: enteredEmail)}
             

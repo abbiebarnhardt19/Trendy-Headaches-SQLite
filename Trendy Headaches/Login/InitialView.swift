@@ -14,6 +14,8 @@ struct InitialView: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                Color(hex: background).ignoresSafeArea()
+                
                 SameAmplitudeBlob(waves: 10, amplitude: 20, seed: 4)
                     .fill(Color(hex: accent))
                     .frame(width: 700, height: 500)
@@ -47,7 +49,6 @@ struct InitialView: View {
                                     width: 180)
                 }
             }
-            .CustomView(color: background)
             
             .onAppear {
                 _ = DatabaseManager.shared

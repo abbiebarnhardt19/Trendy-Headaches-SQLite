@@ -127,7 +127,7 @@ struct CustomNavButton<Destination: View>: View {
                 .frame(width: width ?? 150, height: height ?? 50)
                 .background(Color(hex: accent))
                 .foregroundColor(Color(hex: background))
-                .cornerRadius(20)
+                .cornerRadius(30)
                 .font(.system(size: 20, design: .serif))
         }
         .padding(.top, 10)
@@ -188,17 +188,6 @@ struct CustomInstructions: View {
     }
 }
 
-//sets the background color
-//make this so it takes in the string and gets the hex codes from that?
-extension View {
-    func CustomView(color: String) -> some View {
-        self
-            .padding()
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(hex: color))
-    }
-}
-
 //stylied button
 struct CustomButton: View {
     var text: String
@@ -230,31 +219,32 @@ struct DropdownMenu: View {
     @State private var isExpanded = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            
-            // Dropdown label (currently selected option)
+        ZStack(alignment: .top) {
+            // Dropdown label
             Button(action: {
                 withAnimation {
                     isExpanded.toggle()
                 }
             }) {
                 HStack {
-                    Text(selection.isEmpty ? "Select an option" : selection)
-                        .foregroundColor(selection.isEmpty ? Color(hex: accent) : Color(hex: accent))
+                    Text(selection.isEmpty ? "Dark Green" : selection)
+                        .foregroundColor(Color(hex: accent))
                     Spacer()
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .foregroundColor(Color(hex: accent))
                 }
                 .padding()
                 .background(Color(hex: background).opacity(0.2))
-                .cornerRadius(10)
+                .cornerRadius(30)
+                .frame(width: 350, height: 60)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 10)
+                    RoundedRectangle(cornerRadius: 30)
                         .stroke(Color(hex: accent), lineWidth: 2)
                 )
             }
+            .buttonStyle(.plain)
             
-            // Dropdown options
+            // Dropdown options (overlay, doesn’t push down)
             if isExpanded {
                 VStack(spacing: 0) {
                     ForEach(options, id: \.self) { option in
@@ -279,16 +269,14 @@ struct DropdownMenu: View {
                         }
                     }
                 }
-                .background(Color(hex: background))
-                .cornerRadius(10)
-                .shadow(radius: 4)
+                .cornerRadius(30)
                 .transition(.opacity.combined(with: .move(edge: .top)))
-                
+                .frame(width: 350)
+                .offset(y: 65)
             }
+            
         }
-        .padding(.horizontal, 20)
     }
-        
 }
 
 extension CGPoint {

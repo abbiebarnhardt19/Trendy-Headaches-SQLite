@@ -15,10 +15,11 @@ struct LogView: View {
     
     var body: some View {
         VStack {
+            Color(hex: backgroundColor).ignoresSafeArea()
             CustomText(text: "Log", color: accentColor)
         }
         .padding()
-        .CustomView(color: backgroundColor)
+        
     }
 }
 

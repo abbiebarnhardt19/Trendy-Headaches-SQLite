@@ -16,65 +16,76 @@ struct CreateAccountView3: View {
     let options = ["Classic Light", "Light Pink", "Light Yellow", "Classic Dark", "Dark Green","Dark Blue", "Dark Purple", "Custom"]
     
     @State private var color_theme: String = ""
-    @State private var background_color: String = "#001d00"
-    @State private var accent_color: String = "#b5c4b9"
+    @State private var background: String = "#001d00"
+    @State private var accent: String = "#b5c4b9"
+    
+    let foregroundForDifference = Color(
+        red: abs(0 - 0)/255.0,
+        green: abs(29 - 0)/255.0,
+        blue: abs(0 - 0)/255.0
+    )
 
     
     var body: some View {
         NavigationStack {
-            VStack {
-                CustomText(text: "Choose a color theme", color: accent_color)
+            ZStack {
+                Color(hex: background).ignoresSafeArea()
                 
-                DropdownMenu(selection: $color_theme, options: options, background: background_color, accent: accent_color)
-                    .onChange(of: color_theme) {
-                        let colors = DatabaseManager.getThemeColors(theme: color_theme)
-                        background_color = colors.background
-                        accent_color = colors.accent
-                    }.padding(.bottom, 20)
+                SameAmplitudeBlob(waves: 10, amplitude: 20, seed: 4)
+                    .fill(Color(hex: accent))
+                    .frame(width: 700, height: 500)
+                    .offset(x:100, y: -220)
+                    .rotationEffect(.degrees(180))
                 
-                if color_theme == "Custom"{
-                    CustomText(text:"Or, design a custom theme by entering two hex codes", color: accent_color)
-                        .multilineTextAlignment(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    Text("Hint: coolors.co is a great place to find hex code combos!")
-                        .foregroundColor(Color(hex: accent_color))
-                        .font(.system(size: 15))
-                        .multilineTextAlignment(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 20)
-                        .padding(.top, 1)
-                        .padding(.bottom, 10)
-                    
-                    TextField("", text: $background_color)
-                        .textFieldStyle(CustomTextField(background: background_color, accent: accent_color, height: 60, width: 160))
-                    .padding(.bottom, 15)
-                    
-                    TextField("", text: $accent_color)
-                        .textFieldStyle(CustomTextField(background: background_color, accent: accent_color, height: 60, width: 160))
-                    .padding(.bottom, 15)
+                SameAmplitudeBlob(waves: 10, amplitude:20, seed: 4)
+                    .fill(Color(hex: accent))
+                    .frame(width: 700, height: 500)
+                    .offset(x:100, y: -220)
+                    .rotationEffect(.degrees(360))
+                
+                VStack{
 
+                    CustomText(text: "Choose a color theme", color: accent)
+                        .padding(.leading, 155)
+                        .foregroundColor(foregroundForDifference)
+                    
+                    DropdownMenu(selection: $color_theme, options: options, background: background, accent: accent)
+                        .onChange(of: color_theme) {
+                            let colors = DatabaseManager.getThemeColors(theme: color_theme)
+                            background = colors.background
+                            accent = colors.accent
+                        }
+
+                    if color_theme == "Custom"{
+                        CustomText(text:"Or, enter two hex codes to design a theme", color: accent)
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: 390, alignment: .leading)
+                        
+                        HStack{
+                            TextField("", text: background != "#001d00" && accent != "#b5c4b9" ? $background : .constant(""))
+                                .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 160))
+                                .padding(.trailing, 20)
+                                .multilineTextAlignment(.center)
+                                
+                            TextField("", text: background != "#001d00" && accent != "#b5c4b9" ? $accent : .constant(""))
+                                .textFieldStyle(CustomTextField(background: background, accent: accent, height: 60, width: 160))
+                                .multilineTextAlignment(.center)
+                        }
+                    }
+                    
+                    CustomNavButton(label: "Continue",
+                                    destination: CreateAccountView2(
+                                        background: background,
+                                        accent: accent,
+                                        email: email,
+                                        passwordOne: password_one,
+                                        currentSecurityQuestion: security_question,
+                                        currentSecurityAnswer: security_answer
+                                    ), background: background, accent: accent
+                    )
                 }
-        
-                CustomNavButton(label: "Continue",
-                        destination: CreateAccountView2(
-                            background: background_color,
-                            accent: accent_color,
-                            email: email,
-                            passwordOne: password_one,
-                            currentSecurityQuestion: security_question,
-                            currentSecurityAnswer: security_answer
-                        ), background: background_color, accent: accent_color
-
-            )
-                
-                
             }
-            .CustomView(color: background_color)
-
         }
-        .padding()
-        .CustomView(color: background_color)
     }
 }
 

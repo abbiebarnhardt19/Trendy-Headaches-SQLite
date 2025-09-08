@@ -29,22 +29,19 @@ struct CreateAccountView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
-                Color(hex: background).ignoresSafeArea() // background color
+                Color(hex: background).ignoresSafeArea()
                 
-                // Top blob
-                ParametricBlob(points: 75, amplitude: 0.075)
+                SameAmplitudeBlob(waves: 30, amplitude:5, seed: 4)
                     .fill(Color(hex: accent))
-                    .frame(width: 800, height: 300)
-                    .offset(y: -815)
-                    .rotationEffect(.degrees(180))
-                    .ignoresSafeArea(.all)
+                    .frame(width: 700, height: 500)
+                    .offset(x:0, y: -340)
+                    .rotationEffect(.degrees(-35))
                 
-                // Bottom blob
-                ParametricBlob(points: 75, amplitude: 0.075)
+                SameAmplitudeBlob(waves: 30, amplitude:5, seed: 4)
                     .fill(Color(hex: accent))
-                    .frame(width: 800, height: 300)
-                    .offset(y: -1015)
-                    .offset(y: UIScreen.main.bounds.height - 150)
+                    .frame(width: 700, height: 500)
+                    .offset(x:100, y: -500)
+                    .rotationEffect(.degrees(-215))
                 
                 GeometryReader { geo in
                     ScrollView(showsIndicators: false) {
@@ -129,13 +126,16 @@ struct CreateAccountView: View {
                                 )
                                 .disabled(!formIsValid)
                                 .opacity(formIsValid ? 1.0 : 0.5)
-                                .padding(.bottom, 250) // leave space for bottom blob
                             }
+                            .padding(.bottom, 120)
+                            
                         }
                         .frame(minHeight: geo.size.height)
                     }
                 }
+                
             }
+
         }
     }
 }

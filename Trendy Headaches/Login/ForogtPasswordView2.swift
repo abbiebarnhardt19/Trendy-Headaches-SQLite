@@ -36,7 +36,8 @@ struct ForgotPasswordView2: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background blobs
+                Color(hex: background).ignoresSafeArea()
+                
                 ZStack {
                     ParametricBlob(points: 18, amplitude: 0.2)
                         .fill(Color(hex: accent))
@@ -104,7 +105,6 @@ struct ForgotPasswordView2: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 }
             }
-            .CustomView(color: background)
             .ignoresSafeArea(.keyboard)
         }
         .onAppear {

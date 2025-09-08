@@ -19,6 +19,7 @@ struct CreateAccountView2: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
+                Color(hex: background).ignoresSafeArea()
                 VStack(spacing: 10) {
                     Text("Continue Creating Your Account")
                         .multilineTextAlignment(.center)
@@ -75,7 +76,6 @@ struct CreateAccountView2: View {
             }
             .padding()
         }
-        .CustomView(color: background)
         .navigationDestination(isPresented: $accountCreated) {
             LoginView(background: background, accent: accent)
         }

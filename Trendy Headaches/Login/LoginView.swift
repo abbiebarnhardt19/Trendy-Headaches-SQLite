@@ -16,6 +16,7 @@ struct LoginView: SwiftUI.View {
     var body: some SwiftUI.View {
         NavigationStack {
             ZStack {
+                Color(hex: background).ignoresSafeArea()
 
                 ParametricBlob(points: 20, amplitude: 0.3)
                     .fill(Color(hex: accent))
@@ -101,7 +102,6 @@ struct LoginView: SwiftUI.View {
                 }
             }
         }
-        .CustomView(color: background)
     }
 }
 

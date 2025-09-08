@@ -27,6 +27,7 @@ struct ProfileView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
+                Color(hex: backgroundColor).ignoresSafeArea()
                 
                 if isEditing {
                     TextField("Name", text: $name)
@@ -110,7 +111,7 @@ struct ProfileView: View {
             }
         }
         .padding()
-        .CustomView(color: backgroundColor)
+        
     }
 }
 

@@ -15,10 +15,11 @@ struct AnalyticsView: View {
     
     var body: some View {
         VStack {
+            Color(hex: backgroundColor).ignoresSafeArea()
             CustomText(text:"Analytics Page", color: accentColor)
         }
         .padding()
-        .CustomView(color: backgroundColor)
+        
     }
 }
 
