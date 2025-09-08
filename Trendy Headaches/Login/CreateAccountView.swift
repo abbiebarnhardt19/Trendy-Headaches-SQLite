@@ -37,9 +37,8 @@ struct CreateAccountView: View {
                 
                 GeometryReader { geo in
                     ScrollView(showsIndicators: false) {
-                        VStack(spacing: 0) {
-                            CustomWelcome(text: "Create Account", color: accent)
-                                .padding(.top, 0) // close to nav bar
+                        VStack{
+                            CustomWelcome(text: "Create Account", color: accent, alignment: .center, textAlignment: .center, width:350)
                             
                             VStack(spacing: 10) {
                                 CustomText(text: "Email", color: accent)
@@ -113,7 +112,6 @@ struct CreateAccountView: View {
                                     ),
                                     background: background,
                                     accent: accent,
-                                    height: 50,
                                     width: 150
                                 )
                                 .disabled(!formIsValid)

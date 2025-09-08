@@ -59,13 +59,14 @@ struct CustomTextField: TextFieldStyle {
     
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
-            .padding(.horizontal, 20) // ensures text doesn't touch edges
-            .padding(.vertical, 6)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
             .frame(width: width ?? 350, height: 60)
             .background(Color(hex: accent))
             .foregroundColor(Color(hex: background))
             .cornerRadius(30)
             .tint(Color(hex: background))
+        .padding(.bottom, 10)
     }
 }
 
@@ -79,8 +80,7 @@ struct CustomText: View {
             .font(.system(size: 22, design: .serif))
             .foregroundColor(Color(hex: color))
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.trailing, 20)
-            .padding(.leading, 20)
+            .padding(.horizontal, 20)
     }
 }
 
@@ -121,7 +121,6 @@ struct CustomNavButton<Destination: View>: View {
     var destination: Destination
     var background: String
     var accent: String
-    var height: CGFloat?
     var width: CGFloat?
 
     var body: some View {
@@ -129,14 +128,15 @@ struct CustomNavButton<Destination: View>: View {
             destination
         } label: {
             Text(label)
-                .frame(width: width ?? 150, height: height ?? 50)
+                .frame(width: width ?? 180, height: 55)
                 .background(Color(hex: accent))
                 .foregroundColor(Color(hex: background))
                 .cornerRadius(30)
                 .font(.system(size: 20, design: .serif))
+                
         }
-        .padding(.top, 10)
         .buttonStyle(.plain)
+        .padding(.vertical, 7)
     }
 }
 
@@ -155,7 +155,7 @@ struct CustomLink<Destination: View>: View {
                 .underline(true, color: Color(hex: accent))
                 .background(Color.clear)
         }
-        .padding(.top, 10)
+        .padding(.bottom,15)
         .buttonStyle(.plain)
     }
 }
@@ -167,10 +167,11 @@ struct CustomWarningText: View {
     var body: some View {
         Text(text)
             .foregroundColor(.red)
-            .font(.system(size: 12, design: .serif))
-            .multilineTextAlignment(.leading)
-            .frame(maxWidth: 350, alignment: .leading)
+            .font(.system(size: 14, design: .serif))
             .padding(.horizontal, 18)
+            .frame(width: 350)
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
 
@@ -178,12 +179,16 @@ struct CustomWarningText: View {
 struct CustomWelcome: View {
     var text: String
     var color: String
+    var alignment: Alignment
+    var textAlignment: TextAlignment
+    var width: CGFloat
     var body: some View {
         Text(text)
-            .multilineTextAlignment(.center)
-            .font(.system(size: 40, design: .serif))
+            .multilineTextAlignment(textAlignment)
+            .font(.system(size: 50, design: .serif))
             .foregroundColor(Color(hex: color))
-            .padding(.bottom, 10)
+            .padding(.vertical, 15)
+            .frame(width:width, alignment:alignment)
     }
 }
 
@@ -194,12 +199,12 @@ struct CustomInstructions: View {
     var body: some View {
         Text(text)
             .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: 350)
             .multilineTextAlignment(.center)
             .font(.system(size: 18, design: .serif))
             .foregroundColor(Color(hex: color))
-            .padding(.bottom, 10)
-        .padding(.trailing, 15)
-        .padding(.leading, 15)
+        .padding(.horizontal, 15)
+        .padding(.bottom, 17)
     }
 }
 
@@ -223,6 +228,7 @@ struct CustomButton: View {
     
         }
         .buttonStyle(.plain)
+        .padding(.bottom, 10)
     }
 }
 
@@ -293,42 +299,56 @@ struct SameAmplitudeBlob: View {
     }
 }
 
-struct ParametricBlob: Shape {
+
+struct ParametricBlob: View {
     var points: Int = 20
-    var amplitude: CGFloat = 0.2 // ebb depth
+    var amplitude: CGFloat
+    var x: CGFloat
+    var y: CGFloat
+    var rotation: CGFloat
+    var accent: String
     
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
+    var body: some View {
+        let rect = CGRect(x: 0, y: 0, width: 400, height: 300)
         let center = CGPoint(x: rect.midX, y: rect.midY)
-        let radiusX = rect.width / 2   // ellipse horizontal radius
-        let radiusY = rect.height / 2  // ellipse vertical radius
+        let radiusX = rect.width / 2
+        let radiusY = rect.height / 2
         
-        var blobPoints: [CGPoint] = []
-        
-        for i in 0..<points {
-            let angle = 2 * CGFloat.pi * CGFloat(i) / CGFloat(points)
-            let offset = sin(CGFloat(i) * 2) * amplitude // ebb control
+        let blobPath: Path = {
+            var path = Path()
+            var blobPoints: [CGPoint] = []
             
-            let point = CGPoint(
-                x: center.x + (radiusX * (1 + offset)) * cos(angle),
-                y: center.y + (radiusY * (1 + offset)) * sin(angle)
-            )
-            blobPoints.append(point)
-        }
+            for i in 0..<points {
+                let angle = 2 * CGFloat.pi * CGFloat(i) / CGFloat(points)
+                let offset = sin(CGFloat(i) * 2) * amplitude
+                
+                let x = center.x + (radiusX * (1 + offset)) * cos(angle)
+                let y = center.y + (radiusY * (1 + offset)) * sin(angle)
+                blobPoints.append(CGPoint(x: x, y: y))
+            }
+            
+            if let first = blobPoints.first {
+                path.move(to: first)
+            }
+            
+            for i in 0..<points {
+                let next = blobPoints[(i + 1) % points]
+                let midX = (blobPoints[i].x + next.x) / 2
+                let midY = (blobPoints[i].y + next.y) / 2
+                let mid = CGPoint(x: midX, y: midY)
+                
+                path.addQuadCurve(to: mid, control: blobPoints[i])
+            }
+            
+            path.closeSubpath()
+            return path
+        }()
         
-        path.move(to: blobPoints.first!)
-        
-        for i in 0..<points {
-            let next = blobPoints[(i + 1) % points]
-            let mid = CGPoint(
-                x: (blobPoints[i].x + next.x) / 2,
-                y: (blobPoints[i].y + next.y) / 2
-            )
-            path.addQuadCurve(to: mid, control: blobPoints[i])
-        }
-        
-        path.closeSubpath()
-        return path
+        return blobPath
+            .fill(Color(hex: accent))
+            .frame(width: 400, height: 300)
+            .offset(x: x, y: y)
+            .rotationEffect(.degrees(rotation))
     }
 }
 

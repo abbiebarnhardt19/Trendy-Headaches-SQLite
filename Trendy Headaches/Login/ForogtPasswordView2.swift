@@ -3,13 +3,6 @@
 //  Trendy Headaches
 //
 //  Created by Abigail Barnhardt on 8/28/25.
-//import SwiftUI
-//
-//  ForgotPasswordView2.swift
-//  Trendy Headaches
-//
-//  Created by Abigail Barnhardt on 8/28/25.
-//
 
 import SwiftUI
 
@@ -23,6 +16,7 @@ struct ForgotPasswordView2: View {
     
     let accent = "#b5c4b9"
     let background = "#001d00"
+    let leading_padding = CGFloat(20)
     
     private var isCorrectAnswer: Bool {
         guard !enteredAnswer.isEmpty else { return false }
@@ -38,66 +32,38 @@ struct ForgotPasswordView2: View {
             ZStack {
                 Color(hex: background).ignoresSafeArea()
                 
-                ZStack {
-                    ParametricBlob(points: 18, amplitude: 0.2)
-                        .fill(Color(hex: accent))
-                        .frame(width: 400, height: 300)
-                        .offset(x: -80, y: 400)
-                        .rotationEffect(.degrees(200))
-                        .ignoresSafeArea()
-                        .allowsHitTesting(false)
-                    
-                    ParametricBlob(points: 20, amplitude: 0.2)
-                        .fill(Color(hex: accent))
-                        .frame(width: 500, height: 300)
-                        .offset(x: 10, y: 400)
-                        .rotationEffect(.degrees(11))
-                        .ignoresSafeArea()
-                        .allowsHitTesting(false)
-                }
-                .ignoresSafeArea(.keyboard)
+                ParametricBlob(points: 18, amplitude: 0.2, x:-80, y:400, rotation:200, accent:accent)
                 
-                // Foreground content with safe area adjustment
-                GeometryReader { geo in
-                    VStack(alignment: .leading) {
-                        // Title pinned top-left
-                        Text("Please answer your security question")
-                            .font(.system(size: 47, design: .serif))
-                            .foregroundColor(Color(hex: accent))
-                            .frame(width: 220, alignment: .leading)
-                            .padding(.leading, 80)
-                            .padding(.bottom, 20)
-                            .padding(.top, 30)
+                ParametricBlob(points: 20, amplitude: 0.2, x:10, y:400, rotation:11, accent:accent)
+                
+                VStack {
+                    // Title pinned top-left
+                    CustomWelcome(text:"Please answer your security question", color: accent, alignment:.leading, textAlignment: .leading, width:220)
+                        .padding(.trailing, 120)
+                    
+                    // Question + input + button
+                    VStack {
+                        CustomText(text: "test test", color: accent)
+                            .padding(.leading, leading_padding)
                         
-                        // Question + input + button
-                        VStack {
-                            CustomText(text: securityQuestion, color: accent)
-                                .padding(.leading, 60)
-                            
-                            SecureField("", text: $enteredAnswer)
-                                .textFieldStyle(CustomTextField(background: background,accent: accent))
-                                    .autocapitalization(.none)
-                                    .disableAutocorrection(true)
-                            
-                            if !enteredAnswer.isEmpty && !isCorrectAnswer {
-                                CustomWarningText(text: "Answers do not match.")
-                                    .padding(.leading, 70)
-                            } else {
-                                CustomWarningText(text: " ")
-                            }
-                            
-                            CustomNavButton(
-                                label: "Continue",
-                                destination: ForgotPasswordView3(enteredEmail: enteredEmail),
-                                background: background,
-                                accent: accent
-                            )
-                            .disabled(!isCorrectAnswer)
-                            .padding(.bottom, 140)
+                        SecureField("", text: $enteredAnswer)
+                            .textFieldStyle(CustomTextField(background: background,accent: accent))
+                                .autocapitalization(.none)
+                                .disableAutocorrection(true)
+                        
+                        if !enteredAnswer.isEmpty && !isCorrectAnswer {
+                            CustomWarningText(text: "Answers do not match.")
                         }
+                        else {
+                            CustomWarningText(text: " ")
+                        }
+                        
+                        CustomNavButton(
+                            label: "Continue", destination: ForgotPasswordView3(enteredEmail: enteredEmail), background: background, accent: accent
+                        )
+                        .disabled(!isCorrectAnswer)
+                        .padding(.bottom, 170)
                     }
-                    .padding(.top, geo.safeAreaInsets.top - 44) // ✅ now valid
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 }
             }
             .ignoresSafeArea(.keyboard)
