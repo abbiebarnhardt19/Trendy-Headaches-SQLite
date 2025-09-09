@@ -9,6 +9,17 @@ import SwiftUI
 
 @main
 struct Trendy_HeadachesApp: App {
+    init() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground() // makes it transparent
+        appearance.backgroundColor = .clear
+        appearance.shadowColor = .clear // removes the bottom border
+
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        UINavigationBar.appearance().compactAppearance = appearance
+    }
+    
     var body: some Scene {
         WindowGroup {
             //original view created with project

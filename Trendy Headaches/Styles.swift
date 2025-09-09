@@ -60,13 +60,13 @@ struct CustomTextField: TextFieldStyle {
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
             .padding(.horizontal, 20)
-            .padding(.vertical, 10)
-            .frame(width: width ?? 350, height: 60)
+            .padding(.vertical, 5)
+            .frame(width: width ?? 350, height: 55)
             .background(Color(hex: accent))
             .foregroundColor(Color(hex: background))
             .cornerRadius(30)
             .tint(Color(hex: background))
-        .padding(.bottom, 10)
+        .padding(.bottom, 8)
     }
 }
 
@@ -169,7 +169,7 @@ struct CustomWarningText: View {
             .foregroundColor(.red)
             .font(.system(size: 14, design: .serif))
             .padding(.horizontal, 18)
-            .frame(width: 350)
+            .frame(width: 400)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
     }
@@ -187,7 +187,7 @@ struct CustomWelcome: View {
             .multilineTextAlignment(textAlignment)
             .font(.system(size: 50, design: .serif))
             .foregroundColor(Color(hex: color))
-            .padding(.vertical, 15)
+            .padding(.vertical, 10)
             .frame(width:width, alignment:alignment)
     }
 }
@@ -296,6 +296,86 @@ struct SameAmplitudeBlob: View {
             path.closeSubpath()
             return path
         }
+    }
+}
+
+import SwiftUI
+
+struct WavyTopBottomRectangle: View {
+    var waves: Int
+    var amplitude: CGFloat
+    var accent: String
+    var x: CGFloat
+    var y: CGFloat
+    var width: CGFloat
+    var height: CGFloat
+    let seed = 4
+
+    var body: some View {
+        let path: Path = {
+            var path = Path()
+            let step = width / CGFloat(waves)
+            
+            // Precompute amplitudes for top and bottom edges
+            var rng = SeededGenerator(seed: seed)
+            let topAmps = (0..<waves).map { _ in amplitude * CGFloat(Double.random(in: 0.7...1.3, using: &rng)) }
+            let bottomAmps = (0..<waves).map { _ in amplitude * CGFloat(Double.random(in: 0.7...1.3, using: &rng)) }
+
+            // Start at bottom-left
+            path.move(to: CGPoint(x: 0, y: height))
+
+            // Bottom wavy edge
+            for i in 0..<waves {
+                let startX = CGFloat(i) * step
+                let endX = startX + step
+                let direction: CGFloat = (i % 2 == 0 ? 1 : -1)
+
+                let controlX1 = startX + step * 0.25
+                let controlY1 = height + direction * bottomAmps[i]
+
+                let controlX2 = startX + step * 0.75
+                let controlY2 = height + direction * bottomAmps[i]
+
+                path.addCurve(
+                    to: CGPoint(x: endX, y: height),
+                    control1: CGPoint(x: controlX1, y: controlY1),
+                    control2: CGPoint(x: controlX2, y: controlY2)
+                )
+            }
+
+            // Right edge (straight)
+            path.addLine(to: CGPoint(x: width, y: 0))
+
+            // Top wavy edge
+            for i in (0..<waves).reversed() {
+                let startX = CGFloat(i+1) * step
+                let endX = startX - step
+                let direction: CGFloat = (i % 2 == 0 ? 1 : -1)
+
+                let controlX1 = startX - step * 0.25
+                let controlY1 = 0 + direction * topAmps[i]
+
+                let controlX2 = startX - step * 0.75
+                let controlY2 = 0 + direction * topAmps[i]
+
+                path.addCurve(
+                    to: CGPoint(x: endX, y: 0),
+                    control1: CGPoint(x: controlX1, y: controlY1),
+                    control2: CGPoint(x: controlX2, y: controlY2)
+                )
+            }
+
+            // Left edge (straight) back to bottom-left
+            path.addLine(to: CGPoint(x: 0, y: height))
+            path.closeSubpath()
+            
+            return path
+        }()
+
+        return path
+            .fill(Color(hex: accent))
+            .frame(width: width, height: height)
+            .offset(x: x, y: y)
     }
 }
 
