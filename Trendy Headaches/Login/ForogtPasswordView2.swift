@@ -43,7 +43,7 @@ struct ForgotPasswordView2: View {
                     
                     // Question + input + button
                     VStack {
-                        CustomText(text: "test test", color: accent)
+                        CustomText(text: securityQuestion, color: accent)
                             .padding(.leading, leading_padding)
                         
                         SecureField("", text: $enteredAnswer)

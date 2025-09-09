@@ -40,7 +40,7 @@ struct ForgotPasswordView3: View {
                 
                 VStack{
                     CustomWelcome(text:"Last Step", color: accent, alignment: .trailing, textAlignment: .trailing,  width:100)
-                        .padding(.leading, 230)
+                        .padding(.leading, 210)
                         .padding(.bottom, 50)
                     
                     CustomText(text: "New Password", color: accent)
@@ -81,7 +81,7 @@ struct ForgotPasswordView3: View {
                     CustomButton(text: "Reset Password", background: background, accent: accent, height: 50, width: 200) {
                         isPasswordUpdated = DatabaseManager.resetPassword(enteredEmail: enteredEmail, password_one: password_one)
                     }
-                    .padding(.bottom, 150)
+                    .padding(.bottom, 140)
                     .disabled(!passwordResetValid)
                     .opacity(passwordResetValid ? 1.0 : 0.5)
                     
