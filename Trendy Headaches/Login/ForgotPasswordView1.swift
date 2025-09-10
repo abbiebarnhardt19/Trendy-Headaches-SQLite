@@ -26,7 +26,6 @@ struct ForgotPasswordView1: View {
                 //symetrical corner blobs
                 SameAmplitudeBlob(waves: 10, amplitude: 20, accent:accent, x:140, y: -200, rotation: 110)
                 SameAmplitudeBlob(waves: 10, amplitude:20, accent:accent, x:280, y: -120, rotation: 290)
-
                 VStack {
                     //header + instructions
                     CustomWelcome(text:"Forgot your password?", color:accent, textAlignment: .center, width: 300)

@@ -33,60 +33,64 @@ struct ForgotPasswordView2: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack{
                 //set background color
                 Color(hex: background).ignoresSafeArea()
-                
-                //asymetric blobs
-                ParametricBlob(points: 18, amplitude: 0.2, x:-80, y:400, rotation:200, accent:accent)
-                ParametricBlob(points: 20, amplitude: 0.2, x:10, y:400, rotation:11, accent:accent)
-                
-                VStack {
-                    //header text
-                    CustomWelcome(text:"Please answer your security question", color: accent, textAlignment: .leading, width:220)
-                        .padding(.trailing, 120)
-                    
-                    VStack {
-                        //display user's security question based off email
-                        CustomText(text: securityQuestion, color: accent)
-                            .padding(.leading, leading_padding)
+                ScrollView{
+                    ZStack {
+                        //asymetric blobs
+                        ParametricBlob(points: 40, amplitude: 0.075, x:-140, y:270, rotation:210, accent:accent)
+                        ParametricBlob(points: 40, amplitude: 0.075, x:10, y:500, rotation:17, accent:accent)
                         
-                        //enter answer
-                        SecureField("", text: $enteredAnswer)
-                            .textFieldStyle(CustomTextField(background: background,accent: accent))
-                                .autocapitalization(.none)
-                                .disableAutocorrection(true)
-                        
-                        //if they have attempted to answer but it is wrong, display warning
-                        if !enteredAnswer.isEmpty && !isCorrectAnswer {
-                            CustomWarningText(text: "Answers do not match.")
+                        VStack {
+                            //header text
+                            CustomWelcome(text:"Please answer your security question", color: accent, textAlignment: .leading, width:220)
+                                .padding(.trailing, 140)
+                                .padding(.top, 0)
+                            
+                            VStack {
+                                //display user's security question based off email
+                                CustomText(text: securityQuestion, color: accent)
+                                    .padding(.leading, leading_padding)
+                                    .padding(.top, 30)
+                                
+                                //enter answer
+                                SecureField("", text: $enteredAnswer)
+                                    .textFieldStyle(CustomTextField(background: background,accent: accent))
+                                    .autocapitalization(.none)
+                                    .disableAutocorrection(true)
+                                
+                                //if they have attempted to answer but it is wrong, display warning
+                                if !enteredAnswer.isEmpty && !isCorrectAnswer {
+                                    CustomWarningText(text: "Answers do not match.")
+                                }
+                                
+                                //reserve space for warning
+                                else {
+                                    CustomWarningText(text: " ")
+                                }
+                                
+                                //move to next page once anwer is correct, pass email
+                                CustomNavButton(
+                                    label: "Continue", destination: ForgotPasswordView3(enteredEmail: enteredEmail), background: background, accent: accent
+                                )
+                                .disabled(!isCorrectAnswer)
+                            }
                         }
-                        
-                        //reserve space for warning
-                        else {
-                            CustomWarningText(text: " ")
-                        }
-                        
-                        //move to next page once anwer is correct, pass email
-                        CustomNavButton(
-                            label: "Continue", destination: ForgotPasswordView3(enteredEmail: enteredEmail), background: background, accent: accent
-                        )
-                        .disabled(!isCorrectAnswer)
-                        .padding(.bottom, 170)
                     }
                 }
+                //get the user id, security question, and security answer based off the previously entered email on page load
+                .onAppear {
+                    //let result = DatabaseManager.getSecurityQuestionAndAnswer(forEmail: enteredEmail)
+                    userID = DatabaseManager.shared.getUserFromEmail(email: enteredEmail)
+                    securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: userID ?? -1, columnName: "security_question") ?? ""
+                    securityAnswerHash = DatabaseManager.shared.getSingleColumnValue(userId: userID ?? -1, columnName: "security_answer") ?? ""
+                }
             }
-        }
-        //get the user id, security question, and security answer based off the previously entered email on page load
-        .onAppear {
-            //let result = DatabaseManager.getSecurityQuestionAndAnswer(forEmail: enteredEmail)
-            userID = DatabaseManager.shared.getUserFromEmail(email: enteredEmail)
-            securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: userID ?? -1, columnName: "security_question") ?? ""
-            securityAnswerHash = DatabaseManager.shared.getSingleColumnValue(userId: userID ?? -1, columnName: "security_answer") ?? ""
         }
     }
 }
 
 #Preview {
-    ForgotPasswordView2(enteredEmail: "test@example.com")
+    ForgotPasswordView2(enteredEmail: "testtest@test.com")
 }

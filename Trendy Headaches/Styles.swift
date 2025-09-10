@@ -8,9 +8,6 @@
 import SwiftUI
 import Foundation
 
-//dark green: #001d00
-//light green: #b5c4b9
-
 //allow swift to use hex codes
 extension Color {
     init(hex: String) {
@@ -70,7 +67,6 @@ struct CustomTextField: TextFieldStyle {
     }
 }
 
-
 struct CustomText: View {
     var text: String
     var color: String
@@ -114,7 +110,6 @@ struct CustomList: View {
         }
     }
 }
-
 
 struct CustomNavButton<Destination: View>: View {
     var label: String
@@ -160,8 +155,6 @@ struct CustomLink<Destination: View>: View {
     }
 }
 
-
-//under textField text
 struct CustomWarningText: View {
     var text: String
     var body: some View {
@@ -175,7 +168,6 @@ struct CustomWarningText: View {
     }
 }
 
-//main title text
 struct CustomWelcome: View {
     var text: String
     var color: String
@@ -191,7 +183,6 @@ struct CustomWelcome: View {
     }
 }
 
-//text that goes under titletext
 struct CustomInstructions: View {
     var text: String
     var color: String
@@ -207,7 +198,6 @@ struct CustomInstructions: View {
     }
 }
 
-//stylied button
 struct CustomButton: View {
     var text: String
     var background: String
@@ -388,7 +378,7 @@ struct ParametricBlob: View {
     var accent: String
     
     var body: some View {
-        let rect = CGRect(x: 0, y: 0, width: 400, height: 300)
+        let rect = CGRect(x: 0, y: 0, width: 500, height: 600)
         let center = CGPoint(x: rect.midX, y: rect.midY)
         let radiusX = rect.width / 2
         let radiusY = rect.height / 2
@@ -483,6 +473,3 @@ struct CustomDropdown: View {
         .padding(.bottom, 20)
     }
 }
-
-
-
