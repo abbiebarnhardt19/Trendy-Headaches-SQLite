@@ -63,7 +63,7 @@ struct ForgotPasswordView3: View {
                             
                             //same as previous warning, check if the hashed entered value matches the hashed password in the database
                             else if !password_one.isEmpty && DatabaseManager.hashString(password_one) == currentPassword {
-                                CustomWarningText(text: "New password must be different from previous password.")
+                                CustomWarningText(text: "New password must differ from previous password.")
                                     .padding(.bottom, 5)
                             }
                             

@@ -85,19 +85,19 @@ struct CustomList: View {
     var color: String
     
     private let columns = [
-        GridItem(.flexible(), spacing: 16),
-        GridItem(.flexible(), spacing: 16)
+        GridItem(.adaptive(minimum: 150), spacing: 8)
     ]
     
     var body: some View {
         if items.count > 1{
-            LazyVGrid(columns: columns, spacing: 16) {
+            LazyVGrid(columns: columns, spacing: 8) {
                 ForEach(items, id: \.self) { item in
                     Text("• \(item)")
                         .font(.system(size: 18, design: .serif))
                         .foregroundColor(Color(hex: color))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 20)
+                    .padding(.leading, 340)
                 }
             }
         }
@@ -105,7 +105,7 @@ struct CustomList: View {
             Text("• \(items[0])")
                 .font(.system(size: 18, design: .serif))
                 .foregroundColor(Color(hex: color))
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: 350, alignment: .leading)
                 .padding(.horizontal, 20)
         }
     }

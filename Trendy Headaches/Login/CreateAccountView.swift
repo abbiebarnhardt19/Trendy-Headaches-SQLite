@@ -39,13 +39,12 @@ struct CreateAccountView: SwiftUI.View {
                 ScrollView{
                     ZStack{
                         //full width blob
-                        WavyTopBottomRectangle(waves: 20, amplitude:10, accent:accent, x:300, y:-620, width:1000, height: 400)
+                        WavyTopBottomRectangle(waves: 20, amplitude:10, accent:accent, x:300, y:-630, width:1000, height: 400)
                         WavyTopBottomRectangle(waves: 20, amplitude:10, accent:accent, x:300, y:600, width:1000, height: 400)
                     
                         VStack{
                             //header text
                             CustomWelcome(text: "Create Account", color: accent, textAlignment: .center, width:350)
-                                .padding(.top, 5)
                             
                             //email header
                             CustomText(text: "Email", color: accent)
@@ -73,7 +72,7 @@ struct CreateAccountView: SwiftUI.View {
                             //reserve room for warning
                             else {
                                 CustomWarningText(text: "")
-                                    .padding(.bottom, 3)
+                                    .padding(.bottom, 11)
                             }
                             
                             //password one label and textbox
@@ -92,7 +91,7 @@ struct CreateAccountView: SwiftUI.View {
                             //reserve room for warning
                             else {
                                 CustomWarningText(text: "")
-                                    .padding(.bottom, 3)
+                                    .padding(.bottom, 11)
                             }
                             
                             //password two label and textbox
@@ -111,7 +110,7 @@ struct CreateAccountView: SwiftUI.View {
                             //reserve room for warning
                             else {
                                 CustomWarningText(text: "")
-                                    .padding(.bottom, 3)
+                                    .padding(.bottom, 11)
                             }
                             
                             //security question label and textbox
@@ -123,7 +122,7 @@ struct CreateAccountView: SwiftUI.View {
 
                             //for equal spacing
                             CustomWarningText(text:"")
-                                .padding(.bottom, 3)
+                                .padding(.bottom, 11)
                             
                             //security question answer label and textbox
                             CustomText(text: "Security Question Answer", color: accent)
@@ -137,7 +136,7 @@ struct CreateAccountView: SwiftUI.View {
                             CustomNavButton(label: "Continue", destination: CreateAccountView3(email: email, password_one: password_one, security_question: security_question, security_answer: security_answer), background: background, accent: accent, width: 150)
                             .disabled(!formIsValid)
                             .opacity(formIsValid ? 1.0 : 0.5)
-                            .padding(.bottom, 30)
+                            .padding(.bottom, 45)
                         }
                     }
                 }

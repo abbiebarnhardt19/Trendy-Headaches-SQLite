@@ -24,8 +24,8 @@ struct LoginView: SwiftUI.View {
                 Color(hex: background).ignoresSafeArea()
 
                 //asymetrical blobs
-                ParametricBlob(points: 20, amplitude: 0.3, x:-100, y:425, rotation:180, accent: accent)
-                ParametricBlob(points: 20, amplitude: 0.3, x:-30, y:425, rotation:11, accent:accent)
+                ParametricBlob(points: 45, amplitude: 0.075, x:-100, y:425, rotation:195, accent: accent)
+                ParametricBlob(points: 45, amplitude: 0.075, x:-30, y:425, rotation:30, accent:accent)
                 
                 VStack{
                     //header text
