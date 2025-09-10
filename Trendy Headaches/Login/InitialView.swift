@@ -38,7 +38,6 @@ struct InitialView: View {
                 _ = DatabaseManager.shared
             }
         }
-
     }
 }
 

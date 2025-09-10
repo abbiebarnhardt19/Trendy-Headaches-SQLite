@@ -102,7 +102,6 @@ struct CreateAccountView: SwiftUI.View {
                             SecureField("", text: $password_two)
                                 .textFieldStyle(CustomTextField(background: background, accent: accent))
                             
-                            
                             //passwords don't match warning
                             if !password_two.isEmpty && password_two != password_one {
                                 CustomWarningText(text: "Passwords do not match.")

@@ -79,10 +79,10 @@ struct ForgotPasswordView2: View {
         }
         //get the user id, security question, and security answer based off the previously entered email on page load
         .onAppear {
-            let result = DatabaseManager.getSecurityQuestionAndAnswer(forEmail: enteredEmail)
-            userID = result.userId
-            securityQuestion = result.question
-            securityAnswerHash = result.hashedAnswer
+            //let result = DatabaseManager.getSecurityQuestionAndAnswer(forEmail: enteredEmail)
+            userID = DatabaseManager.shared.getUserFromEmail(email: enteredEmail)
+            securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: userID ?? -1, columnName: "security_question") ?? ""
+            securityAnswerHash = DatabaseManager.shared.getSingleColumnValue(userId: userID ?? -1, columnName: "security_answer") ?? ""
         }
     }
 }

@@ -17,20 +17,16 @@ struct ForgotPasswordView3: View {
     @State private var isPasswordUpdated: Bool = false
     @State private var currentPassword: String = ""
     
-    
     //colors and padding
     let accent = "#b5c4b9"
     let background = "#001d00"
     let leading_padding = CGFloat(20)
     
-    
     //check if the new password match, are complex enough, and are not the same as the old password
     private var passwordResetValid: Bool {
-        DatabaseManager.isPasswordResetValid(
-            newPassword: password_one,
-            confirmPassword: password_two,
-            currentHashedPassword: currentPassword
-        )
+        password_one == password_two &&
+        password_one != currentPassword &&
+        DatabaseManager.isPasswordValid(password_one)
     }
 
     var body: some View {
@@ -97,7 +93,7 @@ struct ForgotPasswordView3: View {
                     
                     //reset password in database, disabled until new password is valid
                     CustomButton(text: "Reset Password", background: background, accent: accent, height: 50, width: 200) {
-                        isPasswordUpdated = DatabaseManager.resetPassword(enteredEmail: enteredEmail, password_one: password_one)
+                        isPasswordUpdated = DatabaseManager.resetPassword(forEmail: enteredEmail, newPassword: password_one)
                     }
                     .padding(.bottom, 120)
                     .disabled(!passwordResetValid)
@@ -112,7 +108,9 @@ struct ForgotPasswordView3: View {
             }
             //get the current hashed password from the email
             .onAppear {
-                currentPassword = DatabaseManager.loadCurrentPassword(enteredEmail: enteredEmail)}
+                let currentUser = DatabaseManager.shared.getUserFromEmail(email: enteredEmail)
+                currentPassword = DatabaseManager.shared.getSingleColumnValue(userId: currentUser ?? -1, columnName: "password") ?? ""
+            }
         }
     }
 }

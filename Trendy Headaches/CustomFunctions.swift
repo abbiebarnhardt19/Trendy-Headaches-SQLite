@@ -10,37 +10,7 @@ import Foundation
 import CryptoKit
 
 extension DatabaseManager {
-    
-    // MARK: - User Functions
-    
-    func addSymptom(userId: Int64, symptomName: String) throws -> Int64 {
-        let insert = symptoms.insert(user_id <- userId, symptom_name <- symptomName)
-        return try run(insert)
-    }
-    
-    func addMedication(category: String, medName: String, start: Date, end: Date?) throws -> Int64 {
-        let insert = medications.insert(med_category <- category, med_name <- medName, med_start <- start, med_end <- end)
-        return try run(insert)
-    }
-    
-    func addTrigger(userId: Int64, triggerName: String) throws -> Int64 {
-        let insert = triggers.insert(user_id <- userId, trigger_name <- triggerName)
-        return try run(insert)
-    }
-    
-    func addLog(userId: Int64, dateVal: Date, timeVal: String, severityLvl: Int, symptomId: Int64, medTaken: Bool, medWorked: Bool, symptomDesc: String, note: String) throws -> Int64 {
-        let insert = logs.insert(user_id <- userId, date <- dateVal, time <- timeVal, severity <- severityLvl, symptom_id <- symptomId, med_taken <- medTaken, med_worked <- medWorked, symptom_description <- symptomDesc, notes <- note)
-        return try run(insert)
-    }
-    
-    func loginUser(emailAddress: String, passwordInput: String) throws -> Int64? {
-        if let user = try pluck(users.filter(email == emailAddress && password == passwordInput)) {
-            return user[user_id]
-        } else {
-            return nil
-        }
-    }
-    
+    //get the user ID from the email address
     func getUserFromEmail(email: String) -> Int64? {
         do {
             let emailColumn = SQLite.Expression<String>("email")
@@ -49,11 +19,12 @@ extension DatabaseManager {
                 return row[targetColumn]
             }
         } catch {
-            print("DB error: \(error)")
+            print("Oops! Something went wrong. Please try again later.")
         }
         return nil
     }
     
+    // get a single column value using userID
     func getSingleColumnValue(userId: Int64, columnName: String) -> String? {
         do {
             let idColumn = SQLite.Expression<Int64>("user_id")
@@ -62,11 +33,12 @@ extension DatabaseManager {
                 return row[targetColumn]
             }
         } catch {
-            print("DB error: \(error)")
+            print("Oops! Something went wrong. Please try again later.")
         }
         return nil
     }
     
+    //get all the values for a user from a table where userID is a foriegn key
     func getForeignKeyColumnValues(userId: Int64, tableName: String, columnName: String) -> [String] {
         do {
             let idColumn = SQLite.Expression<Int64>("user_id")
@@ -85,55 +57,36 @@ extension DatabaseManager {
                 row[targetColumn]
             }
         } catch {
-            print("DB error in getForeignKeyColumnValues:", error)
+            print("Oops! Something went wrong. Please try again later.")
             return []
         }
     }
     
-    func emailExists(_ emailAddress: String) throws -> Bool {
+    //check if the email is present in the users table
+    static func doesEmailExist(_ emailAddress: String) -> Bool {
         let cleaned = DatabaseManager.normalizedValue(emailAddress)
-        let query = users.filter(email == cleaned)
-        return try pluck(query) != nil
+        let query = DatabaseManager.shared.users.filter(DatabaseManager.shared.email == cleaned)
+        do {
+            return try DatabaseManager.shared.pluck(query) != nil
+        } catch {
+            print("Oops! Something went wrong. Please try again later.")
+            return false
+        }
     }
     
+    //normalize string and remove whitespace
     static func normalizedValue(_ s: String) -> String {
         s.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
     
-    // MARK: - User Helper Functions (directly in DatabaseManager)
-    
+    //check if password meets complexity requirements
     static func isPasswordValid(_ password: String) -> Bool {
         let passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$"
         return NSPredicate(format: "SELF MATCHES %@", passwordRegex).evaluate(with: password)
     }
     
-    static func doesEmailExist(_ email: String) -> Bool {
-        let cleaned = DatabaseManager.normalizedValue(email)
-        do {
-            return try DatabaseManager.shared.emailExists(cleaned)
-        } catch {
-            print("Database error checking email: \(error)")
-            return false
-        }
-    }
     
-    static func getCurrentPassword(forEmail email: String) -> (userId: Int64?, currentPassword: String) {
-        guard let id = DatabaseManager.shared.getUserFromEmail(email: email) else {
-            return (nil, "")
-        }
-        let currentPassword = DatabaseManager.shared.getSingleColumnValue(userId: id, columnName: "password") ?? ""
-        return (id, currentPassword)
-    }
-    
-    static func getSecurityQuestionAndAnswer(forEmail email: String) -> (userId: Int64?, question: String, hashedAnswer: String) {
-        guard let id = DatabaseManager.shared.getUserFromEmail(email: email) else {
-            return (nil, "", "")
-        }
-        let question = DatabaseManager.shared.getSingleColumnValue(userId: id, columnName: "security_question") ?? ""
-        let hashedAnswer = DatabaseManager.shared.getSingleColumnValue(userId: id, columnName: "security_answer") ?? ""
-        return (id, question, hashedAnswer)
-    }
-    
+    //add user to the database
     static func createUser(
         email: String,
         password: String,
@@ -150,86 +103,93 @@ extension DatabaseManager {
         let hashedPassword = DatabaseManager.hashString(password)
         let hashedSecurityAnswer = DatabaseManager.hashString(DatabaseManager.normalizedValue(securityAnswer))
         
+        // Insert into users table
+        let insertUser = DatabaseManager.shared.users.insert(
+            DatabaseManager.shared.security_question <- securityQuestion,
+            DatabaseManager.shared.security_answer <- hashedSecurityAnswer,
+            DatabaseManager.shared.email <- normalizedEmail,
+            DatabaseManager.shared.password <- hashedPassword,
+            DatabaseManager.shared.background_color <- background,
+            DatabaseManager.shared.accent_color <- accent
+        )
+        
+        //get user ID to use as foriegn key
         let userId: Int64
         do {
-            userId = try DatabaseManager.shared.addUser(
-                security_question_string: securityQuestion,
-                security_answer_string: hashedSecurityAnswer,
-                emailAddress: normalizedEmail,
-                passwordHash: hashedPassword,
-                userBackground: background,
-                userAccent: accent,
-                preventativeMedsCSV: preventativeMeds,
-                emergencyMedsCSV: emergencyMeds,
-                symptomsCSV: symptoms,
-                triggersCSV: triggers
-            )
+            userId = try DatabaseManager.shared.run(insertUser)
         } catch {
-            print("Failed to add user to database: \(error)")
+            print("Oops! Something went wrong. Please try again later.")
             throw error
         }
         
-        // Symptoms
+        // insert into symptoms table
+        //seperate by comma and remove whitespace
         for symptom in symptoms.split(separator: ",").map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) where !symptom.isEmpty {
+            let insertSymptom = DatabaseManager.shared.symptoms.insert(
+                DatabaseManager.shared.user_id <- userId,
+                DatabaseManager.shared.symptom_name <- symptom,
+                DatabaseManager.shared.symptom_start <- Date(),
+                DatabaseManager.shared.symptom_end <- nil
+            )
             do {
-                _ = try DatabaseManager.shared.addSymptom(userId: userId, symptomName: symptom)
+                _ = try DatabaseManager.shared.run(insertSymptom)
             } catch {
-                print("Failed to add symptom '\(symptom)' for user \(userId): \(error)")
+                print("Oops! Something went wrong. Please try again later.")
             }
         }
         
-        // Triggers
+        // insert into triggers table
+        //seperate by comma and remove whitespace
         for trigger in triggers.split(separator: ",").map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) where !trigger.isEmpty {
+            let insertTrigger = DatabaseManager.shared.triggers.insert(
+                DatabaseManager.shared.user_id <- userId,
+                DatabaseManager.shared.trigger_name <- trigger,
+                DatabaseManager.shared.trigger_start <- Date(),
+                DatabaseManager.shared.trigger_end <- nil
+            )
             do {
-                _ = try DatabaseManager.shared.addTrigger(userId: userId, triggerName: trigger)
+                _ = try DatabaseManager.shared.run(insertTrigger)
             } catch {
-                print("Failed to add trigger '\(trigger)' for user \(userId): \(error)")
+                print("Oops! Someting went wrong. Please try again later.")
             }
         }
         
-        // Preventative Medications
+        // insert into prev meds table
+        //seperate by comma and remove whitespace
         for med in preventativeMeds.split(separator: ",").map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) where !med.isEmpty {
+            let insertMed = DatabaseManager.shared.medications.insert(
+                DatabaseManager.shared.user_id <- userId,
+                DatabaseManager.shared.med_category <- "preventative",
+                DatabaseManager.shared.med_name <- med,
+                DatabaseManager.shared.med_start <- Date(),
+                DatabaseManager.shared.med_end <- nil
+            )
             do {
-                _ = try DatabaseManager.shared.addMedication(category: "preventative", medName: med, start: Date(), end: nil)
+                _ = try DatabaseManager.shared.run(insertMed)
             } catch {
-                print("Failed to add preventative medication '\(med)' for user \(userId): \(error)")
+                print("Oops! Something went wrong. Please try again later.")
             }
         }
         
-        // Emergency Medications
+        // insert into emeg meds table
+        //seperate by comma and remove whitespace
         for med in emergencyMeds.split(separator: ",").map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) where !med.isEmpty {
+            let insertMed = DatabaseManager.shared.medications.insert(
+                DatabaseManager.shared.user_id <- userId,
+                DatabaseManager.shared.med_category <- "emergency",
+                DatabaseManager.shared.med_name <- med,
+                DatabaseManager.shared.med_start <- Date(),
+                DatabaseManager.shared.med_end <- nil
+            )
             do {
-                _ = try DatabaseManager.shared.addMedication(category: "emergency", medName: med, start: Date(), end: nil)
+                _ = try DatabaseManager.shared.run(insertMed)
             } catch {
-                print("Failed to add emergency medication '\(med)' for user \(userId): \(error)")
+                print("Oops! Something went wrong. Please try again later.")
             }
         }
     }
-
     
-    static func isPasswordResetValid(newPassword: String, confirmPassword: String, currentHashedPassword: String) -> Bool {
-        guard !newPassword.isEmpty, !confirmPassword.isEmpty else { return false }
-        guard newPassword == confirmPassword else { return false }
-        guard DatabaseManager.hashString(newPassword) != currentHashedPassword else { return false }
-        return isPasswordValid(newPassword)
-    }
-    
-    static func updatePassword(forEmail email: String, newPassword: String) throws {
-        let (userId, currentPassword) = getCurrentPassword(forEmail: email)
-        guard let id = userId else {
-            throw NSError(domain: "PasswordReset", code: 0, userInfo: [NSLocalizedDescriptionKey: "No valid user ID found"])
-        }
-        
-        guard isPasswordResetValid(newPassword: newPassword, confirmPassword: newPassword, currentHashedPassword: currentPassword) else {
-            throw NSError(domain: "PasswordReset", code: 1, userInfo: [NSLocalizedDescriptionKey: "Password does not meet requirements"])
-        }
-        
-        let hashedPassword = DatabaseManager.hashString(newPassword)
-        let user = DatabaseManager.shared.users.filter(DatabaseManager.shared.user_id == id)
-        try _ = DatabaseManager.shared.run(user.update(DatabaseManager.shared.password <- hashedPassword))
-        print("Password successfully updated for user \(id)")
-    }
-    
+    //get info to display on profile page
     func getUserInfo(userId: Int64) -> (email: String, password: String, securityQuestion: String, securityAnswer: String, backgroundColor: String, accentColor: String) {
         let email = getSingleColumnValue(userId: userId, columnName: "email") ?? ""
         let password = getSingleColumnValue(userId: userId, columnName: "password") ?? ""
@@ -240,10 +200,7 @@ extension DatabaseManager {
         return (email, password, securityQuestion, securityAnswer, backgroundColor, accentColor)
     }
 
-    func getTriggers(forUserId userId: Int64) -> [String] {
-        getForeignKeyColumnValues(userId: userId, tableName: "triggers", columnName: "trigger_name")
-    }
-
+    //get the meds, needs special function to split between emergency and preventative
     func getMeds(forUserId userId: Int64, medCategory: String) -> [String] {
         do {
             let idColumn = SQLite.Expression<Int64>("user_id")
@@ -260,36 +217,39 @@ extension DatabaseManager {
                 row[nameColumn]
             }
         } catch {
-            print("DB error in getPreventativeMeds:", error)
+            print("Oops! Something went wrong. Please try again later.")
             return []
         }
     }
-
-    func getSymptoms(forUserId userId: Int64) -> [String] {
-        getForeignKeyColumnValues(userId: userId, tableName: "symptoms", columnName: "symptom_name")
-    }
     
+    //check if there is an email that matches in the database and if the password matches
+    //if there is, return the user ID so it can be passed to the main app
     func attemptLogin(email: String, password: String) -> (userId: Int64?, error: String?) {
         let normalizedEmail = DatabaseManager.normalizedValue(email)
         let hashedPassword = DatabaseManager.hashString(password)
         
         do {
-            if let id = try loginUser(emailAddress: normalizedEmail, passwordInput: hashedPassword) {
-                return (id, nil)
+            // Query for a matching user
+            let query = users.filter(self.email == normalizedEmail && self.password == hashedPassword)
+            
+            if let user = try pluck(query) {
+                return (user[user_id], nil)
             } else {
                 return (nil, "Invalid email or password")
             }
         } catch {
-            return (nil, "Database error: \(error.localizedDescription)")
+            return (nil, "Oops! Something went wrong. Please try again later.")
         }
     }
     
+    //hasing function
     static func hashString(_ input: String) -> String {
         let inputData = Data(input.utf8)
         let hashed = SHA256.hash(data: inputData)
         return hashed.map { String(format: "%02x", $0) }.joined()
     }
     
+    //function to get hex codes from theme name
     static func getThemeColors(theme: String) -> (background: String, accent: String) {
         var selected_background = ""
         var selected_accent = ""
@@ -330,11 +290,12 @@ extension DatabaseManager {
         return (selected_background, selected_accent)
     }
     
+    //function to get theme name from hex codes
     static func getThemeName(selected_background: String, selected_accent: String) -> String{
         var themeName = ""
         
         if selected_background == "#FAF7F7" && selected_accent == "#5E5D5D" {
-            themeName = "Custom Light"
+            themeName = "Classic Light"
         }
         else if selected_background == "#FFCEFF" && selected_accent == "#A4133C"{
             themeName = "Light Pink"
@@ -360,18 +321,7 @@ extension DatabaseManager {
         return themeName
     }
     
-    static func getColors(email: String) -> (background: String, accent: String) {
-        var selected_background = ""
-        var selected_accent = ""
-
-        if let userID = DatabaseManager.shared.getUserFromEmail(email: email) {
-            selected_background = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "background_color") ?? ""
-            selected_accent = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "accent_color") ?? ""
-        }
-
-        return (selected_background, selected_accent)
-    }
-    
+    //delete list duplicates, used for rows that are created from csvs
     static func deleteListDuplicates(list: [String]) -> [String]{
         var tempList = [String]()
         for item in list{
@@ -379,25 +329,26 @@ extension DatabaseManager {
                 tempList.append(item)
             }
         }
-        
         return tempList
     }
     
-    static func loadCurrentPassword(enteredEmail: String) -> String{
-        let result = DatabaseManager.getCurrentPassword(forEmail: enteredEmail)
-        return result.currentPassword
-    }
-    
-    static func resetPassword(enteredEmail: String, password_one: String) -> Bool {
+    //reset password function
+    static func resetPassword(forEmail email: String, newPassword: String) -> Bool {
         do {
-            try DatabaseManager.updatePassword(forEmail: enteredEmail, newPassword: password_one)
+            guard let userID = DatabaseManager.shared.getUserFromEmail(email: email) else {
+                print("Oops! Something went wrong. Please try again later.")
+                return false
+            }
+            
+            let hashedPassword = DatabaseManager.hashString(newPassword)
+            let userFilter = DatabaseManager.shared.users.filter(DatabaseManager.shared.user_id == userID)
+            
+            _ = try DatabaseManager.shared.run(userFilter.update(DatabaseManager.shared.password <- hashedPassword))
             return true
+            
         } catch {
-            print("Error updating password: \(error.localizedDescription)")
+            print("Oops! Something went wrong. Please try again later.")
             return false
         }
     }
 }
-
-
-

@@ -94,10 +94,10 @@ struct ProfileView: View {
                 hasLoadedSymptoms = true
                 
                 // Fetch symptoms from database
-                symptoms = DatabaseManager.shared.getSymptoms(forUserId: userID)
+                symptoms = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
                 symptoms = DatabaseManager.deleteListDuplicates(list: symptoms)
                 
-                triggers = DatabaseManager.shared.getTriggers(forUserId: userID)
+                triggers = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name")
                 triggers = DatabaseManager.deleteListDuplicates(list: triggers)
                 
                 prevMeds = DatabaseManager.shared.getMeds(forUserId: userID, medCategory: "preventative")

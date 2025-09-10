@@ -33,27 +33,26 @@ class DatabaseManager {
     let background_color = SQLite.Expression<String>("background_color")
     let accent_color = SQLite.Expression<String>("accent_color")
     
-    
-    // symptom types
+    // symptoms columns
     let symptom_id = SQLite.Expression<Int64>("symptom_id")
     let symptom_name = SQLite.Expression<String>("symptom_name")
     let symptom_start = SQLite.Expression<Date>("symptom_start")
     let symptom_end = SQLite.Expression<Date?>("symptom_end")
     
-    // medications
+    // medications columns
     let med_id = SQLite.Expression<Int64>("med_id")
     let med_category = SQLite.Expression<String>("med_category")
     let med_name = SQLite.Expression<String>("med_name")
     let med_start = SQLite.Expression<Date>("med_start")
     let med_end = SQLite.Expression<Date?>("med_end")
     
-    // triggers
+    // triggers columns
     let trigger_id = SQLite.Expression<Int64>("trigger_id")
     let trigger_name = SQLite.Expression<String>("trigger_name")
     let trigger_start = SQLite.Expression<Date>("trigger_start")
     let trigger_end = SQLite.Expression<Date?>("trigger_end")
     
-    // logs
+    // log columns
     let log_id = SQLite.Expression<Int64>("log_id")
     let date = SQLite.Expression<Date>("date")
     let time = SQLite.Expression<String>("time")
@@ -69,32 +68,30 @@ class DatabaseManager {
         let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
         let dbPath = "\(path)/headache_tracker.sqlite3"
         
-        // Delete old database if it exists
-        let fileManager = FileManager.default
-        if fileManager.fileExists(atPath: dbPath) {
-            do {
-                try fileManager.removeItem(atPath: dbPath)
-                print("Old database deleted successfully")
-            } catch {
-                print("Failed to delete old database: \(error)")
-           }
-        }
-
+        // Delete old database if it exists (for testing)
+//        let fileManager = FileManager.default
+//        if fileManager.fileExists(atPath: dbPath) {
+//            do {
+//                try fileManager.removeItem(atPath: dbPath)
+//                print("Old database deleted successfully")
+//            } catch {
+//                print("Failed to delete old database: \(error)")
+//           }
+//        }
+        //make the database
         do {
             db = try Connection(dbPath)
             db.foreignKeys = true
-            createTables()  // create fresh tables
-            print("Database created successfully")
+            createTables()
         } catch {
             fatalError("Database connection failed: \(error)")
         }
     }
 
-    
+    //create each tabke with the predefined columns
     private func createTables() {
-        //create each table
         do {
-            // Users
+            // create users columns
             try db.run(users.create(ifNotExists: true) { t in
                 t.column(user_id, primaryKey: .autoincrement)
                 t.column(email, unique: true)
@@ -105,7 +102,7 @@ class DatabaseManager {
                 t.column(accent_color)
             })
             
-            // Symptom_Types
+            // create symptoms columns
             try db.run(symptoms.create(ifNotExists: true) { t in
                 t.column(symptom_id, primaryKey: .autoincrement)
                 t.column(user_id)
@@ -115,7 +112,7 @@ class DatabaseManager {
                 t.foreignKey(user_id, references: users, user_id, delete: .cascade)
             })
             
-            // Medications
+            // create medications columns
             try db.run(medications.create(ifNotExists: true) { t in
                 t.column(med_id, primaryKey: .autoincrement)
                 t.column(med_category)
@@ -126,7 +123,7 @@ class DatabaseManager {
                 t.foreignKey(user_id, references: users, user_id, delete: .cascade)
             })
             
-            // Triggers
+            // create triggers columns
             try db.run(triggers.create(ifNotExists: true) { t in
                 t.column(trigger_id, primaryKey: .autoincrement)
                 t.column(user_id)
@@ -136,7 +133,7 @@ class DatabaseManager {
                 t.foreignKey(user_id, references: users, user_id, delete: .cascade)
             })
             
-            // Logs
+            // create logs columns
             try db.run(logs.create(ifNotExists: true) { t in
                 t.column(log_id, primaryKey: .autoincrement)
                 t.column(user_id)
@@ -157,6 +154,8 @@ class DatabaseManager {
         }
     }
     
+    
+    //add a user to the database
     func addUser(
         security_question_string: String,
         security_answer_string: String,
@@ -172,7 +171,7 @@ class DatabaseManager {
         
         var userId: Int64 = 0
         
-        // 1. Insert into Users
+        // add the user data to the user table
         do {
             let insertUser = users.insert(
                 security_question <- security_question_string,
@@ -182,12 +181,14 @@ class DatabaseManager {
                 background_color <- userBackground,
                 accent_color <- userAccent
             )
+            //save the user id to use as a foriegn key in the other tables
             userId = try db.run(insertUser)
         } catch {
-            throw NSError(domain: "Database Error", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to insert user. Error: \(error)"])
+            throw NSError(domain: "Database Error", code: 1, userInfo: [NSLocalizedDescriptionKey: "Oops! Something went wrong. Please try again later."])
         }
         
-        // 2. Insert Preventative Medications
+        //add preventative meds to the medications table
+        //seperate on commas and remove whitespace
         if let preventative = preventativeMedsCSV, !preventative.isEmpty {
             let medsArray = preventative.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             for med in medsArray where !med.isEmpty {
@@ -201,12 +202,13 @@ class DatabaseManager {
                     )
                     try db.run(insertMed)
                 } catch {
-                    throw NSError(domain: "Database Error", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to insert preventative medication '\(med)'. Error: \(error)"])
+                    throw NSError(domain: "Database Error", code: 2, userInfo: [NSLocalizedDescriptionKey: "Oops! Something went wrong. Please try again later."])
                 }
             }
         }
         
-        // 3. Insert Emergency Medications
+        //add emergency meds to the medications table
+        //seperate on commas and remove whitespace
         if let emergency = emergencyMedsCSV, !emergency.isEmpty {
             let medsArray = emergency.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             for med in medsArray where !med.isEmpty {
@@ -220,12 +222,13 @@ class DatabaseManager {
                     )
                     try db.run(insertMed)
                 } catch {
-                    throw NSError(domain: "Database Error", code: 3, userInfo: [NSLocalizedDescriptionKey: "Failed to insert emergency medication '\(med)'. Error: \(error)"])
+                    throw NSError(domain: "Database Error", code: 3, userInfo: [NSLocalizedDescriptionKey: "Oops! Something went wrong. Please try again later."])
                 }
             }
         }
         
-        // 4. Insert Triggers
+        //add triggers to the triggers table
+        //seperate on commas and remove whitespace
         if let triggersList = triggersCSV, !triggersList.isEmpty {
             let array = triggersList.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             for trig in array where !trig.isEmpty {
@@ -238,12 +241,13 @@ class DatabaseManager {
                     )
                     try db.run(insertTrig)
                 } catch {
-                    throw NSError(domain: "Database Error", code: 4, userInfo: [NSLocalizedDescriptionKey: "Failed to insert trigger '\(trig)'. Error: \(error)"])
+                    throw NSError(domain: "Database Error", code: 4, userInfo: [NSLocalizedDescriptionKey: "Oops! Something went wrong. Please try again later."])
                 }
             }
         }
         
-        // 5. Insert Symptoms
+        //add symptoms to the symptoms table
+        //seperate on commas and remove whitespace
         if let symptomsList = symptomsCSV, !symptomsList.isEmpty {
             let array = symptomsList.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             for symptom in array where !symptom.isEmpty {
@@ -260,35 +264,34 @@ class DatabaseManager {
                 }
             }
         }
-        
+        //return the user ID
         return userId
     }
 
     
-    // MARK: - Database Access Helpers
+    //database access helpers
         
-    // Run an insert/update/delete statement and return last inserted row ID
-    // For Insert statements
+    //insert helper
     func run(_ insert: SQLite.Insert) throws -> Int64 {
         try db.run(insert)
     }
 
-    // For Update statements
+    //update helper
     func run(_ update: SQLite.Update) throws -> Int {
         try db.run(update)
     }
 
-    // For Delete statements
+    //delete helper
     func run(_ delete: SQLite.Delete) throws -> Int {
         try db.run(delete)
     }
 
-    // Pluck a single row
+    //select helped
     func pluck(_ query: SQLite.QueryType) throws -> SQLite.Row? {
         try db.pluck(query)
     }
 
-    // Prepare a query for iteration
+    //prepare helper
     func prepare(_ query: SQLite.QueryType) throws -> AnySequence<SQLite.Row> {
         try db.prepare(query)
     }
