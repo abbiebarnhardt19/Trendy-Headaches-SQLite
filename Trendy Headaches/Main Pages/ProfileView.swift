@@ -91,7 +91,7 @@ struct ProfileView: View {
                             
                             if themeName == "Custom"{
                                 CustomList(items: [backgroundColor, accentColor], color: accentColor)
-                                    .padding(.leading, leading_padding+40)
+                                    .padding(.leading, 35)
                             }
                         }
                         
@@ -133,5 +133,5 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(userID: 0, backgroundColor: "#001d00", accentColor: "#b5c4b9")
+    ProfileView(userID: 1, backgroundColor: "#001d00", accentColor: "#b5c4b9")
 }

@@ -84,32 +84,33 @@ struct CustomList: View {
     var items: [String]
     var color: String
     
+    // Use two flexible columns
     private let columns = [
-        GridItem(.adaptive(minimum: 150), spacing: 8)
+        GridItem(.fixed(200), spacing: 0),
+        GridItem(.fixed(200), spacing: 0)
     ]
     
     var body: some View {
-        if items.count > 1{
-            LazyVGrid(columns: columns, spacing: 8) {
+        if items.count > 1 {
+            LazyVGrid(columns: columns, spacing: 0) {
                 ForEach(items, id: \.self) { item in
                     Text("• \(item)")
                         .font(.system(size: 18, design: .serif))
                         .foregroundColor(Color(hex: color))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
-                    .padding(.leading, 340)
+                        .frame(maxWidth: 350, alignment: .leading)
+                        .padding(.leading, 40)
                 }
             }
-        }
-        else{
-            Text("• \(items[0])")
+        } else if let first = items.first {
+            Text("• \(first)")
                 .font(.system(size: 18, design: .serif))
                 .foregroundColor(Color(hex: color))
                 .frame(maxWidth: 350, alignment: .leading)
-                .padding(.horizontal, 20)
+                .padding(.leading, 30)
         }
     }
 }
+
 
 struct CustomNavButton<Destination: View>: View {
     var label: String
