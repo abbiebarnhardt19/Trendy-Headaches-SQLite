@@ -9,6 +9,8 @@ import SwiftUI
 
 @main
 struct Trendy_HeadachesApp: App {
+    
+    //makes the default nav bar transparent
     init() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground() // makes it transparent

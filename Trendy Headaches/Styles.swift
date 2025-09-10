@@ -179,7 +179,6 @@ struct CustomWarningText: View {
 struct CustomWelcome: View {
     var text: String
     var color: String
-    var alignment: Alignment
     var textAlignment: TextAlignment
     var width: CGFloat
     var body: some View {
@@ -188,7 +187,7 @@ struct CustomWelcome: View {
             .font(.system(size: 50, design: .serif))
             .foregroundColor(Color(hex: color))
             .padding(.vertical, 10)
-            .frame(width:width, alignment:alignment)
+            .frame(width:width)
     }
 }
 
@@ -455,7 +454,9 @@ struct CustomDropdown: View {
                 ForEach(options, id: \.self) { theme in
                     Text(theme)
                 }
+                
             }
+            
         } label: {
             HStack {
                 Text(color_theme)
@@ -478,6 +479,8 @@ struct CustomDropdown: View {
             background = colors.background
             accent = colors.accent
         }
+        .buttonStyle(.plain)
+        .padding(.bottom, 20)
     }
 }
 
