@@ -80,33 +80,44 @@ struct CustomText: View {
     }
 }
 
+struct CustomListHeader: View {
+    var text: String
+    var color: String
+    
+    var body: some View {
+        Text(text)
+            .font(.system(size: 22, weight: .bold, design: .serif))
+            .foregroundColor(Color(hex: color))
+            .frame(maxWidth: 175, alignment: .center)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 20)
+    }
+}
+
 struct CustomList: View {
     var items: [String]
     var color: String
     
-    // Use two flexible columns
-    private let columns = [
-        GridItem(.fixed(200), spacing: 0),
-        GridItem(.fixed(200), spacing: 0)
-    ]
-    
     var body: some View {
         if items.count > 1 {
-            LazyVGrid(columns: columns, spacing: 0) {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 175), spacing: 0)], spacing: 8) {
                 ForEach(items, id: \.self) { item in
                     Text("• \(item)")
                         .font(.system(size: 18, design: .serif))
                         .foregroundColor(Color(hex: color))
-                        .frame(maxWidth: 350, alignment: .leading)
-                        .padding(.leading, 40)
+                        .frame(maxWidth: 175, alignment: .center)
+                        .multilineTextAlignment(.center)
+                    
                 }
             }
         } else if let first = items.first {
             Text("• \(first)")
                 .font(.system(size: 18, design: .serif))
                 .foregroundColor(Color(hex: color))
-                .frame(maxWidth: 350, alignment: .leading)
-                .padding(.leading, 30)
+                .frame(maxWidth: 175, alignment: .center)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.vertical, 3)
         }
     }
 }

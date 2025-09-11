@@ -316,7 +316,7 @@ extension DatabaseManager {
             themeName = "Dark Purple"
         }
         else{
-            themeName = "Custom"
+            themeName = "Custom (\(selected_background) and \(selected_accent))"
         }
         return themeName
     }
