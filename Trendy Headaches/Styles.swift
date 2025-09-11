@@ -508,7 +508,8 @@ struct CustomDropdown: View {
 struct CustomFloatButton: View {
     var accent: String
     var background: String
-    let options = ["Edit Profile", "Notification Settings", "Sign Out", "Delete Account"]
+    var options: [String]
+    var actions: [() -> Void]
     
     // Manually entered offsets
     let xList: [CGFloat] = [-20, -100, -100, -20] // customize per button
@@ -539,6 +540,9 @@ struct CustomFloatButton: View {
                 Button {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                         showMenu = false
+                        if index < actions.count {
+                            actions[index]()  // Call the corresponding action
+                        }
                     }
                 } label: {
                     Text(option)

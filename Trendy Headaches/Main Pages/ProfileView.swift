@@ -21,37 +21,37 @@ struct ProfileView: View {
     @State private var emergencyMeds: [String] = []
     
     @State private var securityQuestion: String = ""
-    @State private var securityAnswer: String = ""
     @State private var themeName: String = ""
+    @State private var logOut = false
     
-    let leading_padding = CGFloat(300)
+    let buttonNames = ["Edit Profile", "Notification Settings", "Sign Out", "Delete Account"]
     
     var body: some View {
-        ZStack{
-            Color(hex: backgroundColor).ignoresSafeArea()
+        NavigationStack {
             ZStack {
-                //full width blob
-                //color symetrical slight wave blobs
-                SameAmplitudeBlob(waves: 10, amplitude: 20, accent:accentColor, x:160, y: -270, rotation: -10)
-                SameAmplitudeBlob(waves: 10, amplitude:20, accent:accentColor, x:170, y: -180, rotation: 175)
+                Color(hex: backgroundColor).ignoresSafeArea()
                 
-                ScrollView{
+                // Decorative blobs
+                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accentColor, x: 160, y: -270, rotation: -10)
+                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accentColor, x: 170, y: -180, rotation: 175)
+                
+                ScrollView {
                     VStack {
-                        
-
-                        
                         if isEditing {
                             TextField("Name", text: $name)
                                 .textFieldStyle(CustomTextField(background: backgroundColor, accent: accentColor, width: 160))
-                        }
-                        else
-                        {
+                            CustomButton(text: "Save", background: backgroundColor, accent: accentColor) {
+                                isEditing = false
+                            }
+                        } else {
                             let screenWidth = UIScreen.main.bounds.width
                             let columnWidth = screenWidth / 2 - 10
                             
-                            HStack (alignment: .top){
+                            HStack(alignment: .top) {
+                                // Left column
                                 VStack {
                                     CustomWelcome(text: "User Profile", color: accentColor, textAlignment: .leading, width: 150)
+                                    
                                     VStack {
                                         CustomListHeader(text: "Symptoms", color: accentColor)
                                         if symptoms.isEmpty {
@@ -69,6 +69,7 @@ struct ProfileView: View {
                                             CustomList(items: triggers, color: accentColor)
                                         }
                                     }
+                                    
                                     VStack {
                                         CustomListHeader(text: "Preventative Meds", color: accentColor)
                                         if prevMeds.isEmpty {
@@ -80,7 +81,8 @@ struct ProfileView: View {
                                 }
                                 .frame(maxWidth: columnWidth)
                                 
-                                VStack (alignment: .center) {
+                                // Right column
+                                VStack(alignment: .center) {
                                     VStack {
                                         CustomListHeader(text: "Emergency Meds", color: accentColor)
                                         if emergencyMeds.isEmpty {
@@ -89,50 +91,65 @@ struct ProfileView: View {
                                             CustomList(items: emergencyMeds, color: accentColor)
                                         }
                                     }
+                                    
                                     VStack {
                                         CustomListHeader(text: "Security Question", color: accentColor)
                                         CustomList(items: [securityQuestion], color: accentColor)
                                     }
+                                    
                                     VStack {
                                         CustomListHeader(text: "Theme", color: accentColor)
                                         CustomList(items: [themeName], color: accentColor)
                                     }
                                     
-                                    CustomFloatButton(accent: accentColor, background: backgroundColor)
-                                        .padding(.trailing, 20)
+                                    // Floating button
+                                    CustomFloatButton(
+                                        accent: accentColor,
+                                        background: backgroundColor,
+                                        options: buttonNames,
+                                        actions: [
+                                            { isEditing = true },      // Edit Profile
+                                            { print("Notification tapped") }, // Notification Settings
+                                            { logOut = true },         // Sign Out
+                                            { print("Delete tapped") } // Delete Account
+                                        ]
+                                    )
+                                    .padding(.trailing, 20)
                                 }
                                 .frame(maxWidth: columnWidth, alignment: .center)
                                 .padding(.top, 95)
                             }
                         }
                     }
-                    
+                    .padding()
                 }
             }
-
-            .onAppear {
-                // Only load once to avoid duplicates
-                guard !hasLoadedSymptoms else { return }
-                hasLoadedSymptoms = true
-                
-                // Fetch symptoms from database
-                symptoms = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
-                symptoms = DatabaseManager.deleteListDuplicates(list: symptoms)
-                
-                triggers = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name")
-                triggers = DatabaseManager.deleteListDuplicates(list: triggers)
-                
-                prevMeds = DatabaseManager.shared.getMeds(forUserId: userID, medCategory: "preventative")
-                prevMeds = DatabaseManager.deleteListDuplicates(list: prevMeds)
-                
-                emergencyMeds = DatabaseManager.shared.getMeds(forUserId: userID, medCategory: "emergency")
-                emergencyMeds = DatabaseManager.deleteListDuplicates(list: emergencyMeds)
-                securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "security_question") ?? "No security question set"
-                
-                themeName = DatabaseManager.getThemeName(selected_background: backgroundColor, selected_accent: accentColor)
+            // ✅ Navigation destination for Sign Out
+            .navigationDestination(isPresented: $logOut) {
+                LoginView()
             }
         }
-        
+        .onAppear {
+            guard !hasLoadedSymptoms else { return }
+            hasLoadedSymptoms = true
+            
+            // Fetch symptoms from database
+            symptoms = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
+            symptoms = DatabaseManager.deleteListDuplicates(list: symptoms)
+            
+            triggers = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name")
+            triggers = DatabaseManager.deleteListDuplicates(list: triggers)
+            
+            prevMeds = DatabaseManager.shared.getMeds(forUserId: userID, medCategory: "preventative")
+            prevMeds = DatabaseManager.deleteListDuplicates(list: prevMeds)
+            
+            emergencyMeds = DatabaseManager.shared.getMeds(forUserId: userID, medCategory: "emergency")
+            emergencyMeds = DatabaseManager.deleteListDuplicates(list: emergencyMeds)
+            
+            securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "security_question") ?? "No security question set"
+            
+            themeName = DatabaseManager.getThemeName(selected_background: backgroundColor, selected_accent: accentColor)
+        }
     }
 }
 
