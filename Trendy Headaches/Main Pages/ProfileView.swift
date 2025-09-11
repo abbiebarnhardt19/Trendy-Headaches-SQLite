@@ -32,16 +32,13 @@ struct ProfileView: View {
             ZStack {
                 //full width blob
                 //color symetrical slight wave blobs
-                SameAmplitudeBlob(waves: 10, amplitude: 20, accent:accentColor, x:140, y: -280, rotation: 0)
-                SameAmplitudeBlob(waves: 10, amplitude:20, accent:accentColor, x:200, y: -250, rotation: 170)
+                SameAmplitudeBlob(waves: 10, amplitude: 20, accent:accentColor, x:160, y: -270, rotation: -10)
+                SameAmplitudeBlob(waves: 10, amplitude:20, accent:accentColor, x:170, y: -180, rotation: 175)
                 
                 ScrollView{
                     VStack {
                         
-                        CustomWelcome(text: "User Profile", color: accentColor, textAlignment: .leading, width: 150)
-                            .padding(.trailing, 160)
-                            .padding(.top, 0)
-                            .padding(.bottom, 20)
+
                         
                         if isEditing {
                             TextField("Name", text: $name)
@@ -54,6 +51,7 @@ struct ProfileView: View {
                             
                             HStack (alignment: .top){
                                 VStack {
+                                    CustomWelcome(text: "User Profile", color: accentColor, textAlignment: .leading, width: 150)
                                     VStack {
                                         CustomListHeader(text: "Symptoms", color: accentColor)
                                         if symptoms.isEmpty {
@@ -99,14 +97,16 @@ struct ProfileView: View {
                                         CustomListHeader(text: "Theme", color: accentColor)
                                         CustomList(items: [themeName], color: accentColor)
                                     }
-
+                                    
+                                    CustomFloatButton(accent: accentColor, background: backgroundColor)
+                                        .padding(.trailing, 20)
                                 }
                                 .frame(maxWidth: columnWidth, alignment: .center)
+                                .padding(.top, 95)
                             }
-                            CustomFloatButton(accent: accentColor, background: backgroundColor)
-                                .position(x: 425, y:0)
                         }
                     }
+                    
                 }
             }
 

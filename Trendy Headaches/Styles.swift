@@ -101,7 +101,7 @@ struct CustomList: View {
     
     var body: some View {
             let screenWidth = UIScreen.main.bounds.width
-            let maxWidth = screenWidth / 2 - 10
+            let maxWidth = screenWidth / 2 - 20
             let columnCount = calculateColumnCount(items: items, maxWidth: maxWidth)
 
             LazyVGrid(
@@ -117,7 +117,7 @@ struct CustomList: View {
                 }
             }
             .frame(width: maxWidth, alignment: .trailing)
-            .padding(.bottom, 20)
+            .padding(.bottom, 15)
     }
     
     private func calculateColumnCount(items: [String], maxWidth: CGFloat) -> Int {
@@ -523,6 +523,7 @@ struct CustomFloatButton: View {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                     showMenu.toggle()
                 }
+                
             } label: {
                 Image(systemName: "line.3.horizontal")
                     .font(.system(size: 40, design: .serif))
@@ -531,6 +532,7 @@ struct CustomFloatButton: View {
                     .foregroundColor(Color(hex: background))
                     .clipShape(Circle())
             }
+            .buttonStyle(.plain)
             
             // Menu buttons using manual x/y lists
             ForEach(Array(options.enumerated()), id: \.offset) { index, option in
@@ -552,8 +554,10 @@ struct CustomFloatButton: View {
                         .opacity(showMenu ? 1 : 0)
                         .scaleEffect(showMenu ? 1 : 0.5)
                 }
+                .buttonStyle(.plain)
                 .offset(x: xList[index], y: yList[index])
             }
         }
+        .frame(height: 200)
     }
 }
