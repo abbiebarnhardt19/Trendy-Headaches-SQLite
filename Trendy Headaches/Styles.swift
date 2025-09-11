@@ -89,6 +89,7 @@ struct CustomListHeader: View {
             .font(.system(size: 22, weight: .bold, design: .serif))
             .foregroundColor(Color(hex: color))
             .frame(maxWidth: 175, alignment: .center)
+            .fixedSize(horizontal: false, vertical: true)
             .multilineTextAlignment(.center)
             .padding(.horizontal, 20)
     }
@@ -98,29 +99,51 @@ struct CustomList: View {
     var items: [String]
     var color: String
     
+    @State private var availableWidth: CGFloat = 0
+    
     var body: some View {
-        if items.count > 1 {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 175), spacing: 0)], spacing: 8) {
+        GeometryReader { geometry in
+            let maxWidth = geometry.size.width
+            let columnCount = calculateColumnCount(items: items, maxWidth: maxWidth)
+            
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: columnCount), spacing: 3) {
                 ForEach(items, id: \.self) { item in
                     Text("• \(item)")
                         .font(.system(size: 18, design: .serif))
                         .foregroundColor(Color(hex: color))
-                        .frame(maxWidth: 175, alignment: .center)
                         .multilineTextAlignment(.center)
-                    
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        
                 }
+                
             }
-        } else if let first = items.first {
-            Text("• \(first)")
-                .font(.system(size: 18, design: .serif))
-                .foregroundColor(Color(hex: color))
-                .frame(maxWidth: 175, alignment: .center)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.vertical, 3)
         }
+        .frame(minHeight: 10)
+        .padding(.bottom, 50)
+    }
+    
+    private func calculateColumnCount(items: [String], maxWidth: CGFloat) -> Int {
+        guard !items.isEmpty else { return 1 }
+        
+        // Approximate character width (serif font, 18pt ~ 9px per character)
+        let charWidth: CGFloat = 12
+        
+        // Calculate approximate widths for each item
+        let itemWidths = items.map { CGFloat($0.count + 2) * charWidth } // +2 for "• "
+        
+        // Try different column counts and pick the one that best fits
+        for columns in stride(from: items.count, through: 1, by: -1) {
+            let columnWidth = maxWidth / CGFloat(columns)
+            if itemWidths.allSatisfy({ $0 <= columnWidth }) {
+                return columns
+            }
+        }
+        return 1
     }
 }
+
+
 
 
 struct CustomNavButton<Destination: View>: View {
@@ -485,3 +508,47 @@ struct CustomDropdown: View {
         .padding(.bottom, 20)
     }
 }
+
+struct CustomFloatButton: View {
+    var accent: String
+    var background: String
+    let options = ["Edit Profile", "Sign Out", "Delete Account"]
+    
+    @State private var showMenu = false
+    
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            Button {
+                withAnimation {
+                    showMenu.toggle()
+                }
+            } label: {
+                Image(systemName: "line.3.horizontal")
+                    .font(.system(size: 40, design: .serif))
+                    .padding(20)
+                    .background(Color(hex: accent))
+                    .foregroundColor(Color(hex: background))
+                    .clipShape(Circle())
+            }
+            
+            if showMenu {
+                VStack(alignment: .trailing, spacing: 8) {
+                    ForEach(options, id: \.self) { option in
+                        Button {
+                            showMenu = false
+                        } label: {
+                            Text(option)
+                                .frame(width: 130, height: 30)
+                                .background(Color(hex: accent))
+                                .foregroundColor(Color(hex: background))
+                                .font(.system(size:16, design: .serif))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+        .padding(.top, 15)
+    }
+}
+
