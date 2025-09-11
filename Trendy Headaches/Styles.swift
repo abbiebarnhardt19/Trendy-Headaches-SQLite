@@ -99,40 +99,33 @@ struct CustomList: View {
     var items: [String]
     var color: String
     
-    @State private var availableWidth: CGFloat = 0
-    
     var body: some View {
-        GeometryReader { geometry in
-            let maxWidth = geometry.size.width
+            let screenWidth = UIScreen.main.bounds.width
+            let maxWidth = screenWidth / 2 - 10
             let columnCount = calculateColumnCount(items: items, maxWidth: maxWidth)
-            
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: columnCount), spacing: 3) {
+
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: columnCount),
+                spacing: 3
+            ) {
                 ForEach(items, id: \.self) { item in
                     Text("• \(item)")
                         .font(.system(size: 18, design: .serif))
                         .foregroundColor(Color(hex: color))
                         .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, alignment: .center)
                         .fixedSize(horizontal: false, vertical: true)
-                        
                 }
-                
             }
-        }
-        .frame(minHeight: 10)
-        .padding(.bottom, 50)
+            .frame(width: maxWidth, alignment: .trailing)
+            .padding(.bottom, 20)
     }
     
     private func calculateColumnCount(items: [String], maxWidth: CGFloat) -> Int {
         guard !items.isEmpty else { return 1 }
         
-        // Approximate character width (serif font, 18pt ~ 9px per character)
         let charWidth: CGFloat = 12
-        
-        // Calculate approximate widths for each item
-        let itemWidths = items.map { CGFloat($0.count + 2) * charWidth } // +2 for "• "
-        
-        // Try different column counts and pick the one that best fits
+        let itemWidths = items.map { CGFloat($0.count + 2) * charWidth }
+
         for columns in stride(from: items.count, through: 1, by: -1) {
             let columnWidth = maxWidth / CGFloat(columns)
             if itemWidths.allSatisfy({ $0 <= columnWidth }) {
@@ -142,6 +135,8 @@ struct CustomList: View {
         return 1
     }
 }
+
+
 
 
 

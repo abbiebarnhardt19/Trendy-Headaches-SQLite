@@ -29,26 +29,31 @@ struct ProfileView: View {
     var body: some View {
         ZStack{
             Color(hex: backgroundColor).ignoresSafeArea()
-                ZStack {
-                    //full width blob
-                    //color symetrical slight wave blobs
-                    SameAmplitudeBlob(waves: 10, amplitude: 20, accent:accentColor, x:140, y: -280, rotation: 0)
-                    SameAmplitudeBlob(waves: 10, amplitude:20, accent:accentColor, x:200, y: -250, rotation: 170)
-                    
-                    ScrollView{
+            ZStack {
+                //full width blob
+                //color symetrical slight wave blobs
+                SameAmplitudeBlob(waves: 10, amplitude: 20, accent:accentColor, x:140, y: -280, rotation: 0)
+                SameAmplitudeBlob(waves: 10, amplitude:20, accent:accentColor, x:200, y: -250, rotation: 170)
+                
+                ScrollView{
+                    VStack {
                         
-                        VStack {
+                        CustomWelcome(text: "User Profile", color: accentColor, textAlignment: .leading, width: 150)
+                            .padding(.trailing, 160)
+                            .padding(.top, 0)
+                            .padding(.bottom, 20)
+                        
+                        if isEditing {
+                            TextField("Name", text: $name)
+                                .textFieldStyle(CustomTextField(background: backgroundColor, accent: accentColor, width: 160))
+                        }
+                        else
+                        {
+                            let screenWidth = UIScreen.main.bounds.width
+                            let columnWidth = screenWidth / 2 - 10
                             
-                            CustomWelcome(text: "User Profile", color: accentColor, textAlignment: .leading, width: 150)
-                                .padding(.trailing, 160)
-                                .padding(.top, 20)
-                                .padding(.bottom, 10)
-                            
-                            if isEditing {
-                                TextField("Name", text: $name)
-                                    .textFieldStyle(CustomTextField(background: backgroundColor, accent: accentColor, width: 160))
-                            } else {
-                                HStack(alignment: .top) {
+                            HStack (alignment: .top){
+                                VStack {
                                     VStack {
                                         CustomListHeader(text: "Symptoms", color: accentColor)
                                         if symptoms.isEmpty {
@@ -57,6 +62,7 @@ struct ProfileView: View {
                                             CustomList(items: symptoms, color: accentColor)
                                         }
                                     }
+                                    
                                     VStack {
                                         CustomListHeader(text: "Triggers", color: accentColor)
                                         if triggers.isEmpty {
@@ -65,11 +71,6 @@ struct ProfileView: View {
                                             CustomList(items: triggers, color: accentColor)
                                         }
                                     }
-                                }
-                                .frame(maxWidth: 375, alignment: .center)
-                                .padding(.bottom, 20)
-                                
-                                HStack(alignment: .top) {
                                     VStack {
                                         CustomListHeader(text: "Preventative Meds", color: accentColor)
                                         if prevMeds.isEmpty {
@@ -78,6 +79,10 @@ struct ProfileView: View {
                                             CustomList(items: prevMeds, color: accentColor)
                                         }
                                     }
+                                }
+                                .frame(maxWidth: columnWidth)
+                                
+                                VStack (alignment: .center) {
                                     VStack {
                                         CustomListHeader(text: "Emergency Meds", color: accentColor)
                                         if emergencyMeds.isEmpty {
@@ -86,32 +91,23 @@ struct ProfileView: View {
                                             CustomList(items: emergencyMeds, color: accentColor)
                                         }
                                     }
-                                }
-                                .frame(maxWidth: 375, alignment: .center)
-                                .padding(.bottom, 20)
-                                
-                                HStack(alignment: .top) {
                                     VStack {
                                         CustomListHeader(text: "Security Question", color: accentColor)
                                         CustomList(items: [securityQuestion], color: accentColor)
                                     }
                                     VStack {
                                         CustomListHeader(text: "Theme", color: accentColor)
-                                            .padding(.bottom, 15)
-                                            .padding(.top, 15)
                                         CustomList(items: [themeName], color: accentColor)
                                     }
+
                                 }
-                                .frame(maxWidth: 375, alignment: .center)
-                                .padding(.bottom, 30)
-                                
-                                CustomFloatButton(accent: accentColor, background: backgroundColor)
-                                    .padding(.leading, 150)
-                                    .padding(.top, 25)
+                                .frame(maxWidth: columnWidth, alignment: .center)
                             }
+                            CustomFloatButton(accent: accentColor, background: backgroundColor)
+                                .position(x: 425, y:0)
                         }
                     }
-
+                }
             }
 
             .onAppear {
@@ -141,5 +137,5 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(userID: 2, backgroundColor: "#001d00", accentColor: "#b5c4b9")
+    ProfileView(userID: 3, backgroundColor: "#001d00", accentColor: "#b5c4b9")
 }
