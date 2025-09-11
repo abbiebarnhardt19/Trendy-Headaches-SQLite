@@ -120,7 +120,7 @@ struct CustomList: View {
             }
         }
         .frame(minHeight: 10)
-        .padding(.bottom, 70)
+        .padding(.bottom, 50)
     }
     
     private func calculateColumnCount(items: [String], maxWidth: CGFloat) -> Int {
@@ -513,14 +513,19 @@ struct CustomDropdown: View {
 struct CustomFloatButton: View {
     var accent: String
     var background: String
-    let options = ["Edit Profile", "Sign Out", "Delete Account"]
+    let options = ["Edit Profile", "Notification Settings", "Sign Out", "Delete Account"]
+    
+    // Manually entered offsets
+    let xList: [CGFloat] = [-20, -100, -100, -20] // customize per button
+    let yList: [CGFloat] = [-90, -40, 10, 60]   // customize per button
     
     @State private var showMenu = false
     
     var body: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack(alignment: .bottomTrailing) {
+            // Main floating button
             Button {
-                withAnimation {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                     showMenu.toggle()
                 }
             } label: {
@@ -531,41 +536,29 @@ struct CustomFloatButton: View {
                     .foregroundColor(Color(hex: background))
                     .clipShape(Circle())
             }
-            .overlay(
-                Group {
-                    if showMenu {
-                        VStack(alignment: .trailing, spacing: 4) {
-                            ForEach(options, id: \.self) { option in
-                                Button {
-                                    withAnimation {
-                                        showMenu = false
-                                    }
-                                } label: {
-                                    Text(option)
-                                        .frame(width: 140, height: 35)
-                                        .background(Color(hex: accent))
-                                        .foregroundColor(Color(hex: background))
-                                        .font(.system(size: 16, design: .serif))
-                                        .cornerRadius(20)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 25)
-                                                .stroke(Color(hex: background), lineWidth: 2)
-                                        )
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .offset(x: -150)
-                        .transition(.asymmetric(
-                            insertion: .move(edge: .trailing).combined(with: .opacity),
-                            removal: .opacity
-                        ))
+            
+            // Menu buttons using manual x/y lists
+            ForEach(Array(options.enumerated()), id: \.offset) { index, option in
+                Button {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                        showMenu = false
                     }
-                },
-                alignment: .leading
-            )
+                } label: {
+                    Text(option)
+                        .frame(width: 180, height: 40)
+                        .background(Color(hex: accent))
+                        .foregroundColor(Color(hex: background))
+                        .font(.system(size: 16, design: .serif))
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 25)
+                                .stroke(Color(hex: background), lineWidth: 2)
+                        )
+                        .opacity(showMenu ? 1 : 0)
+                        .scaleEffect(showMenu ? 1 : 0.5)
+                }
+                .offset(x: xList[index], y: yList[index])
+            }
         }
     }
 }
-
-

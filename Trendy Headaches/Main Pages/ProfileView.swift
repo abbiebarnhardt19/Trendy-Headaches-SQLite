@@ -29,84 +29,89 @@ struct ProfileView: View {
     var body: some View {
         ZStack{
             Color(hex: backgroundColor).ignoresSafeArea()
-            ScrollView {
                 ZStack {
                     //full width blob
                     //color symetrical slight wave blobs
-                    SameAmplitudeBlob(waves: 10, amplitude: 20, accent:accentColor, x:140, y: -200, rotation: 0)
-                    SameAmplitudeBlob(waves: 10, amplitude:20, accent:accentColor, x:230, y: -275, rotation: 170)
-                    CustomFloatButton(accent: accentColor, background: backgroundColor)
-                        .offset(x:150, y:375)
-
-                    VStack(alignment: .center) {
+                    SameAmplitudeBlob(waves: 10, amplitude: 20, accent:accentColor, x:140, y: -280, rotation: 0)
+                    SameAmplitudeBlob(waves: 10, amplitude:20, accent:accentColor, x:200, y: -250, rotation: 170)
+                    
+                    ScrollView{
                         
-                        CustomWelcome(text: "User Profile", color: accentColor, textAlignment: .leading, width: 150)
-                            .padding(.trailing, 160)
-                            .padding(.bottom, 30)
-
-                        if isEditing {
-                            TextField("Name", text: $name)
-                                .textFieldStyle(CustomTextField(background: backgroundColor, accent: accentColor, width: 160))
-                        } else {
-                            HStack(alignment: .top) {
-                                VStack {
-                                    CustomListHeader(text: "Symptoms", color: accentColor)
-                                    if symptoms.isEmpty {
-                                        CustomList(items: ["No current symptoms or triggers entered"], color: accentColor)
-                                    } else {
-                                        CustomList(items: symptoms, color: accentColor)
+                        VStack {
+                            
+                            CustomWelcome(text: "User Profile", color: accentColor, textAlignment: .leading, width: 150)
+                                .padding(.trailing, 160)
+                                .padding(.top, 20)
+                                .padding(.bottom, 10)
+                            
+                            if isEditing {
+                                TextField("Name", text: $name)
+                                    .textFieldStyle(CustomTextField(background: backgroundColor, accent: accentColor, width: 160))
+                            } else {
+                                HStack(alignment: .top) {
+                                    VStack {
+                                        CustomListHeader(text: "Symptoms", color: accentColor)
+                                        if symptoms.isEmpty {
+                                            CustomList(items: ["No current symptoms or triggers entered"], color: accentColor)
+                                        } else {
+                                            CustomList(items: symptoms, color: accentColor)
+                                        }
+                                    }
+                                    VStack {
+                                        CustomListHeader(text: "Triggers", color: accentColor)
+                                        if triggers.isEmpty {
+                                            CustomList(items: ["No current triggers entered"], color: accentColor)
+                                        } else {
+                                            CustomList(items: triggers, color: accentColor)
+                                        }
                                     }
                                 }
-                                VStack {
-                                    CustomListHeader(text: "Triggers", color: accentColor)
-                                    if triggers.isEmpty {
-                                        CustomList(items: ["No current triggers entered"], color: accentColor)
-                                    } else {
-                                        CustomList(items: triggers, color: accentColor)
+                                .frame(maxWidth: 375, alignment: .center)
+                                .padding(.bottom, 20)
+                                
+                                HStack(alignment: .top) {
+                                    VStack {
+                                        CustomListHeader(text: "Preventative Meds", color: accentColor)
+                                        if prevMeds.isEmpty {
+                                            CustomList(items: ["No current preventative meds entered"], color: accentColor)
+                                        } else {
+                                            CustomList(items: prevMeds, color: accentColor)
+                                        }
+                                    }
+                                    VStack {
+                                        CustomListHeader(text: "Emergency Meds", color: accentColor)
+                                        if emergencyMeds.isEmpty {
+                                            CustomList(items: ["No current emergency meds entered"], color: accentColor)
+                                        } else {
+                                            CustomList(items: emergencyMeds, color: accentColor)
+                                        }
                                     }
                                 }
+                                .frame(maxWidth: 375, alignment: .center)
+                                .padding(.bottom, 20)
+                                
+                                HStack(alignment: .top) {
+                                    VStack {
+                                        CustomListHeader(text: "Security Question", color: accentColor)
+                                        CustomList(items: [securityQuestion], color: accentColor)
+                                    }
+                                    VStack {
+                                        CustomListHeader(text: "Theme", color: accentColor)
+                                            .padding(.bottom, 15)
+                                            .padding(.top, 15)
+                                        CustomList(items: [themeName], color: accentColor)
+                                    }
+                                }
+                                .frame(maxWidth: 375, alignment: .center)
+                                .padding(.bottom, 30)
+                                
+                                CustomFloatButton(accent: accentColor, background: backgroundColor)
+                                    .padding(.leading, 150)
+                                    .padding(.top, 25)
                             }
-                            .frame(maxWidth: 375, alignment: .center)
-                            .padding(.bottom, 20)
-
-                            HStack(alignment: .top) {
-                                VStack {
-                                    CustomListHeader(text: "Preventative Meds", color: accentColor)
-                                    if prevMeds.isEmpty {
-                                        CustomList(items: ["No current preventative meds entered"], color: accentColor)
-                                    } else {
-                                        CustomList(items: prevMeds, color: accentColor)
-                                    }
-                                }
-                                VStack {
-                                    CustomListHeader(text: "Emergency Meds", color: accentColor)
-                                    if emergencyMeds.isEmpty {
-                                        CustomList(items: ["No current emergency meds entered"], color: accentColor)
-                                    } else {
-                                        CustomList(items: emergencyMeds, color: accentColor)
-                                    }
-                                }
-                            }
-                            .frame(maxWidth: 375, alignment: .center)
-                            .padding(.bottom, 20)
-
-                            HStack(alignment: .top) {
-                                VStack {
-                                    CustomListHeader(text: "Security Question", color: accentColor)
-                                    CustomList(items: [securityQuestion], color: accentColor)
-                                }
-                                VStack {
-                                    CustomListHeader(text: "Theme", color: accentColor)
-                                        .padding(.bottom, 15)
-                                        .padding(.top, 15)
-                                    CustomList(items: [themeName], color: accentColor)
-                                }
-                            }
-                            .frame(maxWidth: 375, alignment: .center)
-                            .padding(.bottom, 20)
                         }
                     }
-                }
+
             }
 
             .onAppear {
