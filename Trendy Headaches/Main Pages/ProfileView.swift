@@ -32,15 +32,17 @@ struct ProfileView: View {
             ScrollView {
                 ZStack {
                     //full width blob
-                    WavyTopBottomRectangle(waves: 8, amplitude:12, accent:accentColor, x:0, y:-500, width:500, height: 400)
-                    WavyTopBottomRectangle(waves: 8, amplitude:12, accent:accentColor, x:0, y:625, width:500, height: 400)
+                    //color symetrical slight wave blobs
+                    SameAmplitudeBlob(waves: 10, amplitude: 20, accent:accentColor, x:140, y: -200, rotation: 0)
+                    SameAmplitudeBlob(waves: 10, amplitude:20, accent:accentColor, x:230, y: -275, rotation: 170)
                     CustomFloatButton(accent: accentColor, background: backgroundColor)
-                        .offset(x:120, y:350)
+                        .offset(x:150, y:375)
 
                     VStack(alignment: .center) {
                         
-                        CustomWelcome(text: "User Profile", color: accentColor, textAlignment: .center, width: 350)
-                            .padding(.top, 40)
+                        CustomWelcome(text: "User Profile", color: accentColor, textAlignment: .leading, width: 150)
+                            .padding(.trailing, 160)
+                            .padding(.bottom, 30)
 
                         if isEditing {
                             TextField("Name", text: $name)

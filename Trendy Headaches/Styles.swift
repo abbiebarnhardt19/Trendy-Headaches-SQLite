@@ -120,7 +120,7 @@ struct CustomList: View {
             }
         }
         .frame(minHeight: 10)
-        .padding(.bottom, 50)
+        .padding(.bottom, 70)
     }
     
     private func calculateColumnCount(items: [String], maxWidth: CGFloat) -> Int {
@@ -211,6 +211,7 @@ struct CustomWelcome: View {
     var body: some View {
         Text(text)
             .multilineTextAlignment(textAlignment)
+            .fixedSize(horizontal: false, vertical: true)
             .font(.system(size: 50, design: .serif))
             .foregroundColor(Color(hex: color))
             .padding(.vertical, 10)
@@ -530,25 +531,41 @@ struct CustomFloatButton: View {
                     .foregroundColor(Color(hex: background))
                     .clipShape(Circle())
             }
-            
-            if showMenu {
-                VStack(alignment: .trailing, spacing: 8) {
-                    ForEach(options, id: \.self) { option in
-                        Button {
-                            showMenu = false
-                        } label: {
-                            Text(option)
-                                .frame(width: 130, height: 30)
-                                .background(Color(hex: accent))
-                                .foregroundColor(Color(hex: background))
-                                .font(.system(size:16, design: .serif))
+            .overlay(
+                Group {
+                    if showMenu {
+                        VStack(alignment: .trailing, spacing: 4) {
+                            ForEach(options, id: \.self) { option in
+                                Button {
+                                    withAnimation {
+                                        showMenu = false
+                                    }
+                                } label: {
+                                    Text(option)
+                                        .frame(width: 140, height: 35)
+                                        .background(Color(hex: accent))
+                                        .foregroundColor(Color(hex: background))
+                                        .font(.system(size: 16, design: .serif))
+                                        .cornerRadius(20)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 25)
+                                                .stroke(Color(hex: background), lineWidth: 2)
+                                        )
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
-                        .buttonStyle(.plain)
+                        .offset(x: -150)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing).combined(with: .opacity),
+                            removal: .opacity
+                        ))
                     }
-                }
-            }
+                },
+                alignment: .leading
+            )
         }
-        .padding(.top, 15)
     }
 }
+
 
