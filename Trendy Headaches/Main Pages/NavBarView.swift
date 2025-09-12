@@ -7,17 +7,15 @@
 import SwiftUI
 
 struct NavBarView: View {
-    
-    let userID: Int64               // Non-optional now
+    let userID: Int64
     var backgroundColor: String
     var accentColor: String
-    
-    init(userID: Int64, backgroundColor: String = "#001d00", accentColor: String = "#b5c4b9") {
+
+    init(userID: Int64, backgroundColor: String = "#001d00", accentColor: String = "#b5c4b9"){
         self.userID = userID
         self.backgroundColor = backgroundColor
         self.accentColor = accentColor
 
-        // Configure Tab Bar appearance
         let bgUIColor = UIColor(Color(hex: backgroundColor))
         let accentUIColor = UIColor(Color(hex: accentColor))
 
@@ -52,5 +50,9 @@ struct NavBarView: View {
 }
 
 #Preview {
-    NavBarView(userID: 1, backgroundColor: "#001d00", accentColor: "#b5c4b9")
+    NavBarView(
+        userID: 1,
+        backgroundColor: "#001d00",
+        accentColor: "#b5c4b9"
+    )
 }

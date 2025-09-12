@@ -24,18 +24,11 @@ struct ProfileView: View {
     @State private var themeName: String = ""
     @State private var logOut = false
     @State private var showDeleteConfirmation = false
-
+    
     
     let buttonNames = ["Edit Profile", "Notification Settings", "Sign Out", "Delete Account"]
     
     var body: some View {
-            if logOut {
-                // 👇 Replaces the entire navigation stack
-                LoginView()
-                    .transition(.opacity)
-            }
-            else {
-                NavigationStack {
                     ZStack {
                         Color(hex: backgroundColor).ignoresSafeArea()
                         
@@ -119,7 +112,7 @@ struct ProfileView: View {
                                                     { isEditing = true },
                                                     { print("Notification tapped") },
                                                     { logOut = true },
-                                                    { showDeleteConfirmation = true}
+                                                    {showDeleteConfirmation = true}
                                                 ]
                                             )
                                             .padding(.trailing, 20)
@@ -130,39 +123,41 @@ struct ProfileView: View {
                                 }
                             }
                             .padding()
+                        }
                     }
-                    .confirmationDialog("Are you sure you want to delete your account? Your data cannot be recovered once deleted.", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-                        Button("Delete Account", role: .destructive) {
+                    .alert("Are you sure you want to delete your account?", isPresented: $showDeleteConfirmation) {
+                        Button("Delete", role: .destructive) {
                             DatabaseManager.shared.deleteUser(userID: userID)
                             logOut = true
                         }
                         Button("Cancel", role: .cancel) {}
                     }
+                    .fullScreenCover(isPresented: $logOut) {
+                        LoginView()
+                    }
+                    .onAppear {
+                        guard !hasLoadedSymptoms else { return }
+                        hasLoadedSymptoms = true
+                        
+                        // Fetch symptoms from database
+                        symptoms = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
+                        symptoms = DatabaseManager.deleteListDuplicates(list: symptoms)
+                        
+                        triggers = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name")
+                        triggers = DatabaseManager.deleteListDuplicates(list: triggers)
+                        
+                        prevMeds = DatabaseManager.shared.getMeds(forUserId: userID, medCategory: "preventative")
+                        prevMeds = DatabaseManager.deleteListDuplicates(list: prevMeds)
+                        
+                        emergencyMeds = DatabaseManager.shared.getMeds(forUserId: userID, medCategory: "emergency")
+                        emergencyMeds = DatabaseManager.deleteListDuplicates(list: emergencyMeds)
+                        
+                        securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "security_question") ?? "No security question set"
+                        
+                        themeName = DatabaseManager.getThemeName(selected_background: backgroundColor, selected_accent: accentColor)
+                }
+                
 
-                }
-                .onAppear {
-                    guard !hasLoadedSymptoms else { return }
-                    hasLoadedSymptoms = true
-                    
-                    // Fetch symptoms from database
-                    symptoms = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
-                    symptoms = DatabaseManager.deleteListDuplicates(list: symptoms)
-                    
-                    triggers = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name")
-                    triggers = DatabaseManager.deleteListDuplicates(list: triggers)
-                    
-                    prevMeds = DatabaseManager.shared.getMeds(forUserId: userID, medCategory: "preventative")
-                    prevMeds = DatabaseManager.deleteListDuplicates(list: prevMeds)
-                    
-                    emergencyMeds = DatabaseManager.shared.getMeds(forUserId: userID, medCategory: "emergency")
-                    emergencyMeds = DatabaseManager.deleteListDuplicates(list: emergencyMeds)
-                    
-                    securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "security_question") ?? "No security question set"
-                    
-                    themeName = DatabaseManager.getThemeName(selected_background: backgroundColor, selected_accent: accentColor)
-                }
-            }
-        }
     }
 }
 
