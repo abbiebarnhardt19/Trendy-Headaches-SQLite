@@ -351,4 +351,23 @@ extension DatabaseManager {
             return false
         }
     }
+    
+    //delete user function
+    func deleteUser(userID: Int64) {
+            do {
+                let users = Table("users")
+                let id = SQLite.Expression<Int64>("user_id")
+                
+                let deleteQuery = users.filter(id == userID).delete()
+                let deletedCount = try run(deleteQuery)
+                
+                if deletedCount > 0 {
+                    print("Successfully deleted user \(userID)")
+                } else {
+                    print("⚠️ No user found with id \(userID)")
+                }
+            } catch {
+                print("❌ Failed to delete user \(userID): \(error)")
+            }
+        }
 }
