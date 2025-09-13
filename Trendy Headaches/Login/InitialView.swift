@@ -9,37 +9,49 @@ import SwiftUI
 
 struct InitialView: View {
     
-    //set constants
     let accent = "#b5c4b9"
     let background = "#001d00"
     
+    @State private var showPolicy = false
+    @State private var agreedToPolicy = false
+    @State private var navigateToCreateAccount = false
+
     var body: some View {
         NavigationStack {
             ZStack {
-                //set the background color
                 Color(hex: background).ignoresSafeArea()
                 
-                //color symetrical slight wave blobs
-                SameAmplitudeBlob(waves: 10, amplitude: 20, accent:accent, x:140, y: -220, rotation: 120)
-                SameAmplitudeBlob(waves: 10, amplitude:20, accent:accent, x:140, y: -220, rotation: 295)
+                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 140, y: -220, rotation: 120)
+                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 140, y: -220, rotation: 295)
 
-                //seperate the main body
                 VStack {
-                    //header text
-                    CustomWelcome(text: "Trendy Headaches", color: accent, textAlignment: .center,  width: 300)
+                    CustomWelcome(text: "Trendy Headaches", color: accent, textAlignment: .center, width: 300)
                     
-                    //nav buttons
+                    // Sign In button (normal navigation)
                     CustomNavButton(label: "Sign In", destination: LoginView(), background: background, accent: accent)
-                    CustomNavButton(label: "Sign Up", destination: CreateAccountView(), background: background, accent: accent)
+                    
+                    // Sign Up button (intercept tap)
+                    CustomButton(text: "Sign Up", background: background, accent: accent, height: 55, width: 180) {
+                        showPolicy = true
+                    }
                 }
             }
-            //access the database when the screen first loads
             .onAppear {
                 _ = DatabaseManager.shared
+            }
+            .sheet(isPresented: $showPolicy) {
+                PolicySheetView(policyFileName: "DataPolicy", showsAgreeButton: true) {
+                    navigateToCreateAccount = true
+                }
+            }
+            .navigationDestination(isPresented: $navigateToCreateAccount) {
+                CreateAccountView()
             }
         }
     }
 }
+
+
 
 #Preview {
     InitialView()

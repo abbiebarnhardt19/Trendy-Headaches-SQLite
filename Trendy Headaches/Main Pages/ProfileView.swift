@@ -23,10 +23,11 @@ struct ProfileView: View {
     @State private var securityQuestion: String = ""
     @State private var themeName: String = ""
     @State private var logOut = false
+    @State private var showPolicy = false
     @State private var showDeleteConfirmation = false
     
     
-    let buttonNames = ["Edit Profile", "Notification Settings", "Sign Out", "Delete Account"]
+    let buttonNames = ["Edit Profile", "View Data Policy", "Sign Out", "Delete Account"]
     
     var body: some View {
                     ZStack {
@@ -110,12 +111,17 @@ struct ProfileView: View {
                                                 options: buttonNames,
                                                 actions: [
                                                     { isEditing = true },
-                                                    { print("Notification tapped") },
+                                                    { showPolicy = true },
                                                     { logOut = true },
                                                     {showDeleteConfirmation = true}
                                                 ]
                                             )
-                                            .padding(.trailing, 20)
+                                            .sheet(isPresented: $showPolicy) {
+                                                PolicySheetView(
+                                                    policyFileName: "DataPolicy",
+                                                    showsAgreeButton: false // Or true if you want "Agree"
+                                                )
+                                            }
                                         }
                                         .frame(maxWidth: columnWidth, alignment: .center)
                                         .padding(.top, 95)

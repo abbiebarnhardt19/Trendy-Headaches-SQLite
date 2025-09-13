@@ -546,7 +546,7 @@ struct CustomFloatButton: View {
                     }
                 } label: {
                     Text(option)
-                        .frame(width: 180, height: 40)
+                        .frame(width: 160, height: 40)
                         .background(Color(hex: accent))
                         .foregroundColor(Color(hex: background))
                         .font(.system(size: 16, design: .serif))
@@ -565,3 +565,119 @@ struct CustomFloatButton: View {
         .frame(height: 200)
     }
 }
+
+
+struct PolicySheetView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var policyText: String = ""
+    
+    /// The name of the policy file in your bundle (without extension)
+    var policyFileName: String
+    
+    /// Whether to show an "Agree" button
+    var showsAgreeButton: Bool
+    
+    /// Closure to run when "Agree" is tapped
+    var onAgree: (() -> Void)?
+    
+    // Reuse your app colors
+    private let backgroundColor = Color(hex: "#001d00") // dark green
+    private let textColor = Color(hex: "#b5c4b9")
+    private let textHex = "#b5c4b9"
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                CustomWelcome(text: "Data Policy", color: textHex, textAlignment: .center, width: 300)
+                VStack(alignment: .leading, spacing: 10) {
+                    ForEach(policyText.components(separatedBy: "\n"), id: \.self) { line in
+                        let trimmed = line.trimmingCharacters(in: .whitespaces)
+                        
+                        if trimmed.isEmpty {
+                            Spacer().frame(height: 8)
+                        } else if isMajorHeading(trimmed) {
+                            Text(trimmed)
+                                .font(.system(.title2, design: .serif))
+                                .fontWeight(.heavy)
+                                .foregroundColor(textColor)
+                                .padding(.top, 12)
+                        } else if isSubHeading(trimmed) {
+                            Text(trimmed)
+                                .font(.system(.headline, design: .serif))
+                                .fontWeight(.bold)
+                                .foregroundColor(textColor)
+                                .padding(.top, 0)
+                        } else {
+                            Text(trimmed)
+                                .font(.system(.body, design: .serif))
+                                .foregroundColor(textColor)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
+                .padding()
+            }
+            .background(backgroundColor.ignoresSafeArea())
+            .toolbarBackground(backgroundColor, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") {
+                        dismiss()
+                    }
+                    .foregroundColor(textColor)
+                }
+                
+                if showsAgreeButton {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Agree") {
+                            dismiss()
+                            onAgree?()
+                        }
+                        .bold()
+                        .foregroundColor(textColor)
+                    }
+                }
+            }
+            .onAppear {
+                loadPolicyText()
+            }
+        }
+    }
+    
+    // MARK: - Helpers
+    
+    private func loadPolicyText() {
+        if let url = Bundle.main.url(forResource: policyFileName, withExtension: "txt"),
+           let contents = try? String(contentsOf: url, encoding: .utf8) {
+            policyText = contents
+        } else {
+            policyText = "Could not load policy."
+        }
+    }
+    
+    private func isMajorHeading(_ line: String) -> Bool {
+        let normalized = line.trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: ":", with: "")
+        let majorHeadings = [
+            "Introduction",
+            "What Data We Collect",
+            "How We Use Your Data",
+            "How We Store Your Data",
+            "Your Control Over Your Data",
+            "Our Commitment to You"
+        ]
+        return majorHeadings.contains(normalized)
+    }
+    
+    private func isSubHeading(_ line: String) -> Bool {
+        let normalized = line.trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: ":", with: "")
+        let subHeadings = [
+            "Account Data (mandatory)",
+            "Health Data (optional)",
+            "Log Data (Core Functionality)"
+        ]
+        return subHeadings.contains(normalized)
+    }
+}
+
