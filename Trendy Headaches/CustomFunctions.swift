@@ -118,7 +118,7 @@ extension DatabaseManager {
         do {
             userId = try DatabaseManager.shared.run(insertUser)
         } catch {
-            print("Oops! Something went wrong. Please try again later.")
+            print("\(error)")
             throw error
         }
         
@@ -134,7 +134,7 @@ extension DatabaseManager {
             do {
                 _ = try DatabaseManager.shared.run(insertSymptom)
             } catch {
-                print("Oops! Something went wrong. Please try again later.")
+                print("\(error)")
             }
         }
         
@@ -150,7 +150,7 @@ extension DatabaseManager {
             do {
                 _ = try DatabaseManager.shared.run(insertTrigger)
             } catch {
-                print("Oops! Someting went wrong. Please try again later.")
+                print("\(error)")
             }
         }
         
@@ -167,7 +167,7 @@ extension DatabaseManager {
             do {
                 _ = try DatabaseManager.shared.run(insertMed)
             } catch {
-                print("Oops! Something went wrong. Please try again later.")
+                print("\(error)")
             }
         }
         
@@ -184,7 +184,7 @@ extension DatabaseManager {
             do {
                 _ = try DatabaseManager.shared.run(insertMed)
             } catch {
-                print("Oops! Something went wrong. Please try again later.")
+                print("\(error)")
             }
         }
     }
@@ -293,26 +293,28 @@ extension DatabaseManager {
     //function to get theme name from hex codes
     static func getThemeName(selected_background: String, selected_accent: String) -> String{
         var themeName = ""
+        let background = selected_background.uppercased()
+        let accent = selected_accent.uppercased()
         
-        if selected_background == "#FAF7F7" && selected_accent == "#5E5D5D" {
+        if background == "#FAF7F7" && accent == "#5E5D5D" {
             themeName = "Classic Light"
         }
-        else if selected_background == "#FFCEFF" && selected_accent == "#A4133C"{
+        else if background == "#FFCEFF" && accent == "#A4133C"{
             themeName = "Light Pink"
         }
-        else  if selected_background == "#FFFAE5" && selected_accent == "#848383"{
+        else  if background == "#FFFAE5" && accent == "#848383"{
             themeName = "Light Yellow"
         }
-        else if selected_background == "#0A0A0A" && selected_accent == "#CCCCCC" {
+        else if background == "#0A0A0A" && accent == "#CCCCCC" {
             themeName = "Classic Dark"
         }
-        else if selected_background == "#001D00" && selected_accent == "#B5C4B9" {
+        else if background == "#001D00" && accent == "#B5C4B9" {
             themeName = "Dark Green"
         }
-        else if selected_background == "#000814" && selected_accent == "#B6CCFE"{
+        else if background == "#000814" && accent == "#B6CCFE"{
             themeName = "Dark Blue"
         }
-        else if selected_background == "#240046" && selected_accent == "#E7E6FF" {
+        else if background == "#240046" && accent == "#E7E6FF" {
             themeName = "Dark Purple"
         }
         else{

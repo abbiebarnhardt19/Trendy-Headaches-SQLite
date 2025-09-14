@@ -39,10 +39,12 @@ struct InitialView: View {
             .onAppear {
                 _ = DatabaseManager.shared
             }
-            .sheet(isPresented: $showPolicy) {
-                PolicySheetView(policyFileName: "DataPolicy", showsAgreeButton: true) {
-                    navigateToCreateAccount = true
-                }
+            .fullScreenCover(isPresented: $showPolicy) {
+                PolicySheetView(
+                    policyFileName: "DataPolicy",
+                    showsAgreeButton: true,
+                    onAgree: { navigateToCreateAccount = true }
+                )
             }
             .navigationDestination(isPresented: $navigateToCreateAccount) {
                 CreateAccountView()

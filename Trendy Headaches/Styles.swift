@@ -62,7 +62,9 @@ struct CustomTextField: TextFieldStyle {
             .background(Color(hex: accent))
             .foregroundColor(Color(hex: background))
             .cornerRadius(30)
+            .font(.system(size: 22, design: .serif))
             .tint(Color(hex: background))
+            .textContentType(nil)
         .padding(.bottom, 8)
     }
 }
@@ -468,6 +470,10 @@ struct CustomDropdown: View {
     @Binding var background: String
     @Binding var accent: String
     var options: [String]
+    var width: CGFloat
+    var height: CGFloat
+    var cornerRadius: CGFloat
+    var fontSize: CGFloat
     
     var body: some View {
         Menu {
@@ -481,16 +487,16 @@ struct CustomDropdown: View {
         } label: {
             HStack {
                 Text(color_theme)
-                    .font(.system(size: 22, design: .serif))
+                    .font(.system(size: fontSize, design: .serif))
                 Spacer()
                 Image(systemName: "chevron.down")
                     .font(.system(size: 16, weight: .semibold))
                     .padding(.trailing, 20)
             }
-            .padding(.leading, 20)
-            .frame(width: 350, height: 50, alignment: .leading)
+            .padding(.leading, 10)
+            .frame(width: width, height: height, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 30)
+                RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(Color(hex: accent))
             )
             .foregroundColor(Color(hex: background))
@@ -546,10 +552,10 @@ struct CustomFloatButton: View {
                     }
                 } label: {
                     Text(option)
-                        .frame(width: 160, height: 40)
+                        .frame(width: 140, height: 40)
                         .background(Color(hex: accent))
                         .foregroundColor(Color(hex: background))
-                        .font(.system(size: 16, design: .serif))
+                        .font(.system(size: 15, design: .serif))
                         .cornerRadius(20)
                         .overlay(
                             RoundedRectangle(cornerRadius: 25)
@@ -571,17 +577,11 @@ struct PolicySheetView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var policyText: String = ""
     
-    /// The name of the policy file in your bundle (without extension)
     var policyFileName: String
-    
-    /// Whether to show an "Agree" button
     var showsAgreeButton: Bool
-    
-    /// Closure to run when "Agree" is tapped
     var onAgree: (() -> Void)?
     
-    // Reuse your app colors
-    private let backgroundColor = Color(hex: "#001d00") // dark green
+    private let backgroundColor = Color(hex: "#001d00")
     private let textColor = Color(hex: "#b5c4b9")
     private let textHex = "#b5c4b9"
 
@@ -607,6 +607,31 @@ struct PolicySheetView: View {
                                 .fontWeight(.bold)
                                 .foregroundColor(textColor)
                                 .padding(.top, 0)
+                        } else if trimmed.hasPrefix("•") {
+                            // Bullet point handling — indent and keep style consistent
+                            Text(trimmed)
+                                .font(.system(.body, design: .serif))
+                                .foregroundColor(textColor)
+                                .padding(.leading, 20)
+                        } else if trimmed.contains(":") {
+                            // Bold prefix before colon
+                            let parts = trimmed.split(separator: ":", maxSplits: 1)
+                            if parts.count == 2 {
+                                HStack(alignment: .top, spacing: 0) {
+                                    Text(parts[0] + ":")
+                                        .bold()
+                                        .font(.system(.body, design: .serif))
+                                        .foregroundColor(textColor)
+                                    Text(parts[1])
+                                        .font(.system(.body, design: .serif))
+                                        .foregroundColor(textColor)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            } else {
+                                Text(trimmed)
+                                    .font(.system(.body, design: .serif))
+                                    .foregroundColor(textColor)
+                            }
                         } else {
                             Text(trimmed)
                                 .font(.system(.body, design: .serif))
@@ -621,20 +646,26 @@ struct PolicySheetView: View {
             .toolbarBackground(backgroundColor, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
-                        dismiss()
+                    Button(action: { dismiss() }) {
+                        Text("Close")
+                            .frame(maxWidth: .infinity)
+                            .multilineTextAlignment(.center)
+                            .font(.system(size: 20, design: .serif))
+                            .foregroundColor(textColor)
                     }
-                    .foregroundColor(textColor)
+                    .padding(.top, 10)
                 }
-                
+
                 if showsAgreeButton {
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Agree") {
-                            dismiss()
-                            onAgree?()
+                        Button(action: { dismiss(); onAgree?() }) {
+                            Text("Agree")
+                                .frame(maxWidth: .infinity)
+                                .multilineTextAlignment(.center)
+                                .font(.system(size: 20, design: .serif))
+                                .foregroundColor(textColor)
+                                .padding(.top, 10)
                         }
-                        .bold()
-                        .foregroundColor(textColor)
                     }
                 }
             }
@@ -643,8 +674,6 @@ struct PolicySheetView: View {
             }
         }
     }
-    
-    // MARK: - Helpers
     
     private func loadPolicyText() {
         if let url = Bundle.main.url(forResource: policyFileName, withExtension: "txt"),
@@ -681,3 +710,105 @@ struct PolicySheetView: View {
     }
 }
 
+struct CustomEditableListHeader: View {
+    var text: String
+    var color: String
+    
+    var body: some View {
+        Text(text)
+            .font(.system(size: 22, weight: .bold, design: .serif))
+            .foregroundColor(Color(hex: color))
+            .frame(maxWidth: 175, alignment: .center)
+            .fixedSize(horizontal: false, vertical: true)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 5)
+    }
+}
+
+struct EditableList: View {
+    @Binding var items: [String]
+    var title: String
+    var backgroundColor: String
+    var accentColor: String
+    
+    
+    let width = UIScreen.main.bounds.width/2 - 40
+    let rowHeight = CGFloat(60)
+
+    @State private var newItemText = ""
+
+    var body: some View {
+        
+        let extraRow: CGFloat = title.count > 20 ? rowHeight : 10
+        
+        VStack(alignment: .leading, spacing: 0) {
+            CustomEditableListHeader(text: title, color: accentColor)
+                .padding(.bottom, 10)
+
+            VStack(spacing: 4) {
+                ForEach(items.indices, id: \.self) { index in
+                    ZStack(alignment: .trailing) {
+                        TextField("Enter item", text: Binding(
+                            get: { items[index] },
+                            set: { items[index] = $0 }
+                        ))
+                        .padding(.vertical, 8)
+                        .padding(.trailing, 35)
+                        .padding(.leading, 10)
+                        .background(Color(hex: accentColor))
+                        .foregroundColor(Color(hex: backgroundColor))
+                        .cornerRadius(8)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .font(.system(size: 16, design: .serif))
+                        
+                        
+                        Button(action: { items.remove(at: index) }) {
+                            Image(systemName: "minus.circle.fill")
+                                .renderingMode(.template)
+                                .foregroundColor(Color(hex: backgroundColor))
+                                .padding(.trailing, 8)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .frame(height: 40) // optional fixed height
+
+                }
+                // Add new item row
+                HStack {
+                    ZStack(alignment: .trailing) {
+                        TextField("", text: $newItemText, prompt: Text("")
+                            .foregroundColor(Color(hex: backgroundColor))
+                        )
+                        .padding(.vertical, 8)
+                        .padding(.trailing, 35)
+                        .padding(.leading, 10)
+                        .background(Color(hex: accentColor))
+                        .foregroundColor(Color(hex: backgroundColor)) // typed text color
+                        .cornerRadius(8)
+                        
+                        Button(action: addItem) {
+                            Image(systemName: "plus.circle.fill")
+                                .renderingMode(.template)
+                                .foregroundColor(Color(hex: backgroundColor))
+                                .padding(.trailing, 8)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .disabled(newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
+                    }
+                }
+            }
+        }
+        
+        .frame(width: width,
+               height: CGFloat(items.count + 1) * rowHeight + extraRow) // adjusts height dynamically
+        .background(Color(hex: "backgroundColor").opacity(0.0))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func addItem() {
+        let trimmed = newItemText.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }
+        items.append(trimmed)
+        newItemText = ""
+    }
+}

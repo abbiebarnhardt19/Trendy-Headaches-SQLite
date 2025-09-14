@@ -42,7 +42,7 @@ struct CreateAccountView3: View {
                         .padding(.leading, 165)
 
                     //dropdown with theme options
-                    CustomDropdown(color_theme: $color_theme, background: $background, accent: $accent, options: options)
+                    CustomDropdown(color_theme: $color_theme, background: $background, accent: $accent, options: options, width: 350, height:50, cornerRadius: 30, fontSize: 22)
 
                     //if they chose custom, show additional instructions and text boxes
                     if color_theme == "Custom"{
@@ -53,15 +53,17 @@ struct CreateAccountView3: View {
                             .padding(.leading, 20)
                         
                         //side by side text boxes for two hex codes
-                        HStack{
-                            TextField("", text: background != "#001d00" && accent != "#b5c4b9" ? $background : .constant(""))
+                        HStack {
+                            TextField("", text: $background)
                                 .textFieldStyle(CustomTextField(background: background, accent: accent, width: 160))
                                 .padding(.trailing, 20)
                                 .multilineTextAlignment(.center)
-                                
-                            TextField("", text: background != "#001d00" && accent != "#b5c4b9" ? $accent : .constant(""))
+                                .font(.system(size: 18, design: .serif)) // optional, if you want serif font
+
+                            TextField("", text: $accent)
                                 .textFieldStyle(CustomTextField(background: background, accent: accent, width: 160))
                                 .multilineTextAlignment(.center)
+                                .font(.system(size: 18, design: .serif)) // optional, if you want serif font
                         }
                     }
                     

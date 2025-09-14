@@ -9,11 +9,11 @@ import SwiftUI
 struct ProfileView: View {
     
     var userID: Int64
-    var backgroundColor: String
-    var accentColor: String
+    @Binding var backgroundColor: String
+    @Binding var accentColor: String
     
     @State private var name: String = "Abbie"
-    @State private var isEditing = false
+    @State private var isEditing = true
     @State private var symptoms: [String] = []
     @State private var hasLoadedSymptoms: Bool = false
     @State private var triggers: [String] = []
@@ -21,38 +21,128 @@ struct ProfileView: View {
     @State private var emergencyMeds: [String] = []
     
     @State private var securityQuestion: String = ""
+    @State private var securityAnswer: String = ""
     @State private var themeName: String = ""
     @State private var logOut = false
     @State private var showPolicy = false
     @State private var showDeleteConfirmation = false
     
+    @State private var newSymptoms: [String] = []
+    @State private var newTriggers: [String] = []
+    @State private var newPrevMeds: [String] = []
+    @State private var newEmergencyMeds: [String] = []
+    @State private var newSecurityQuestion: String = ""
+    @State private var newSecurityAnswer: String = ""
+    @State private var newThemeName: String = ""
+    @State private var newBackground: String = ""
+    @State private var newAccent: String = ""
     
-    let buttonNames = ["Edit Profile", "View Data Policy", "Sign Out", "Delete Account"]
+    @State private var tempSecurityQuestion: String = ""
+    
+    
+    let options = ["Classic Light", "Light Pink", "Light Yellow", "Classic Dark", "Dark Green","Dark Blue", "Dark Purple", "Custom"]
+    
+    let buttonNames = ["Edit Profile", "Data Policy", "Sign Out", "Delete Account"]
     
     var body: some View {
+        let screenWidth = UIScreen.main.bounds.width
+        let columnWidth = screenWidth / 2 - 10
                     ZStack {
-                        Color(hex: backgroundColor).ignoresSafeArea()
+                        Color(hex: newBackground).ignoresSafeArea()
                         
                         // Decorative blobs
-                        SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accentColor, x: 160, y: -270, rotation: -10)
-                        SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accentColor, x: 170, y: -180, rotation: 175)
+                        SameAmplitudeBlob(waves: 12, amplitude: 20, accent: accentColor, x: 160, y: -270, rotation: -10)
+                            .zIndex(isEditing ? 1 : 0)
+                        SameAmplitudeBlob(waves: 12, amplitude: 20, accent: accentColor, x: 100, y: -270, rotation: 170)
+                            .zIndex(isEditing ? 1 : 0)
                         
                         ScrollView {
                             VStack {
                                 if isEditing {
-                                    TextField("Name", text: $name)
-                                        .textFieldStyle(CustomTextField(background: backgroundColor, accent: accentColor, width: 160))
-                                    CustomButton(text: "Save", background: backgroundColor, accent: accentColor) {
-                                        isEditing = false
-                                    }
-                                } else {
-                                    let screenWidth = UIScreen.main.bounds.width
-                                    let columnWidth = screenWidth / 2 - 10
-                                    
                                     HStack(alignment: .top) {
                                         // Left column
                                         VStack {
                                             CustomWelcome(text: "User Profile", color: accentColor, textAlignment: .leading, width: 150)
+                                            
+                                            EditableList(items: $newSymptoms, title: "Symptoms", backgroundColor: newBackground, accentColor: newAccent)
+                                            
+                                            EditableList(items: $newTriggers, title: "Triggers", backgroundColor: newBackground, accentColor: newAccent)
+                                            
+                                            EditableList(items: $newPrevMeds, title: "Preventative Medications", backgroundColor: newBackground, accentColor: newAccent)
+                                        }
+                                        VStack {
+                                            EditableList(items: $newEmergencyMeds, title: "Emergency Medications", backgroundColor: newBackground, accentColor: newAccent)
+                                            
+                                            CustomListHeader(text: "Security Question", color: accentColor)
+                                            
+                                            TextField("", text: $newSecurityQuestion, axis: .vertical)
+                                                .lineLimit(1...2)
+                                                .frame(width: columnWidth - 30)
+                                                .padding(.vertical, 8)
+                                                .padding(.horizontal,10)
+                                                .background(Color(hex: newAccent))
+                                                .foregroundColor(Color(hex: newAccent))
+                                                .cornerRadius(8)
+                                                .font(.system(size: 16, design: .serif))
+                                            .padding(.bottom, 10)
+                                            
+                                            CustomListHeader(text: "Security Answer", color: accentColor)
+                                            
+                                            
+                                            TextField("", text: $newSecurityAnswer)
+                                                .frame(width: columnWidth - 30)
+                                                .padding(.vertical, 8)
+                                                .padding(.horizontal,10)
+                                                .background(Color(hex: accentColor))
+                                                .foregroundColor(Color(hex: backgroundColor))
+                                                .cornerRadius(8)
+                                                .font(.system(size: 16, design: .serif))
+                                            .padding(.bottom, 10)
+                                            
+                                            CustomListHeader(text: "Color Theme", color: accentColor)
+                                            
+                                            CustomDropdown(color_theme: $newThemeName, background: $backgroundColor, accent: $accentColor, options: options, width: columnWidth-13, height: 38, cornerRadius: 8, fontSize: 16)
+                                            
+                                            if newThemeName == "Custom"{
+                                                //custom instructions
+                                                CustomListHeader(text: "Hex Codes", color: accentColor)
+                                                
+                                                TextField("", text: $newBackground)
+                                                    .frame(width: columnWidth - 30)
+                                                    .padding(.vertical, 8)
+                                                    .padding(.horizontal,10)
+                                                    .background(Color(hex: accentColor))
+                                                    .foregroundColor(Color(hex: backgroundColor))
+                                                    .cornerRadius(8)
+                                                    .font(.system(size: 16, design: .serif))
+                                                .padding(.bottom, 10)
+                                                    
+                                                TextField("", text: $newAccent)
+                                                    .frame(width: columnWidth - 30)
+                                                    .padding(.vertical, 8)
+                                                    .padding(.horizontal,10)
+                                                    .background(Color(hex: accentColor))
+                                                    .foregroundColor(Color(hex: backgroundColor))
+                                                    .cornerRadius(8)
+                                                    .font(.system(size: 16, design: .serif))
+                                                .padding(.bottom, 10)
+                                            }
+                                            
+                                            CustomButton(text: "Save", background: backgroundColor, accent: accentColor) {
+                                                isEditing = false
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    CustomWelcome(text: "User Profile", color: accentColor, textAlignment: .leading, width: 150)
+                                        .padding(.trailing, 170)
+                                        .padding(.bottom, 30)
+
+                                    
+                                    HStack(alignment: .top) {
+                                        
+                                        VStack {
+                                            
                                             
                                             VStack {
                                                 CustomListHeader(text: "Symptoms", color: accentColor)
@@ -116,15 +206,15 @@ struct ProfileView: View {
                                                     {showDeleteConfirmation = true}
                                                 ]
                                             )
-                                            .sheet(isPresented: $showPolicy) {
+                                            .fullScreenCover(isPresented: $showPolicy) {
                                                 PolicySheetView(
                                                     policyFileName: "DataPolicy",
-                                                    showsAgreeButton: false // Or true if you want "Agree"
+                                                    showsAgreeButton: false
                                                 )
                                             }
+
                                         }
                                         .frame(maxWidth: columnWidth, alignment: .center)
-                                        .padding(.top, 95)
                                     }
                                 }
                             }
@@ -160,7 +250,29 @@ struct ProfileView: View {
                         
                         securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "security_question") ?? "No security question set"
                         
+                        securityAnswer = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "security_answer") ?? "No security answer set"
+                        
                         themeName = DatabaseManager.getThemeName(selected_background: backgroundColor, selected_accent: accentColor)
+                        
+                        if themeName.contains("Custom")
+                        {
+                            newThemeName = "Custom"
+                        }
+                        else{
+                            newThemeName = themeName
+                        }
+            
+                        
+                        newSymptoms = symptoms
+                        newTriggers = triggers
+                        newPrevMeds = prevMeds
+                        newEmergencyMeds = emergencyMeds
+                        
+                        tempSecurityQuestion = securityQuestion
+                        newSecurityQuestion = securityQuestion
+                        
+                        newAccent = accentColor
+                        newBackground = backgroundColor
                 }
                 
 
@@ -168,5 +280,5 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(userID: 3, backgroundColor: "#001d00", accentColor: "#b5c4b9")
+    ProfileView(userID: 10, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
 }

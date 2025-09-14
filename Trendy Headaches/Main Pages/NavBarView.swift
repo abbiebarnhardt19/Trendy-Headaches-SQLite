@@ -43,7 +43,7 @@ struct NavBarView: View {
             AnalyticsView(userID: userID, backgroundColor: backgroundColor, accentColor: accentColor)
                 .tabItem { Label("Analytics", systemImage: "chart.bar.xaxis") }
 
-            ProfileView(userID: userID, backgroundColor: backgroundColor, accentColor: accentColor)
+            ProfileView(userID: userID, backgroundColor: .constant(backgroundColor), accentColor: .constant(accentColor))
                 .tabItem { Label("Profile", systemImage: "person.fill") }
         }
     }
