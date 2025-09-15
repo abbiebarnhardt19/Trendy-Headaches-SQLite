@@ -604,7 +604,7 @@ struct EditableList: View {
         VStack(alignment: .leading, spacing: 0) {
 
             VStack(spacing: 6) {
-                ForEach(items.indices, id: \.self) { index in
+                ForEach(items.indices.filter { items[$0] != "None entered" }, id: \.self) { index in
                     ZStack(alignment: .trailing) {
                         TextField("Enter item", text: Binding(
                             get: { items[index] },
@@ -656,9 +656,10 @@ struct EditableList: View {
         }
         
         .frame(width: width,
-               height: CGFloat(items.count + 1) * rowHeight) // adjusts height dynamically
+               height: CGFloat(items.indices.filter{ items[$0] != "None entered" }.count + 1) * rowHeight) // adjusts height dynamically
         .background(Color(hex: "backgroundColor").opacity(0.0))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.bottom, 15)
     }
 
     private func addItem() {
