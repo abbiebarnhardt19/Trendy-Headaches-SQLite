@@ -16,21 +16,12 @@ extension Color {
         Scanner(string: hex).scanHexInt64(&int)
         let a, r, g, b: UInt64
         switch hex.count {
-        case 3: // RGB (12-bit, e.g. #FFF)
-            (a, r, g, b) = (255,
-                            (int >> 8) * 17,
-                            (int >> 4 & 0xF) * 17,
-                            (int & 0xF) * 17)
-        case 6: // RGB (24-bit, e.g. #00FF00)
-            (a, r, g, b) = (255,
-                            int >> 16,
-                            int >> 8 & 0xFF,
-                            int & 0xFF)
-        case 8: // ARGB (32-bit, e.g. #FF00FF00)
-            (a, r, g, b) = (int >> 24,
-                            int >> 16 & 0xFF,
-                            int >> 8 & 0xFF,
-                            int & 0xFF)
+        case 3: // three character hex
+            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+        case 6: //six character hex
+            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        case 8: //eight character hex
+            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
         default:
             (a, r, g, b) = (255, 0, 0, 0)
         }
@@ -43,28 +34,41 @@ extension Color {
     }
 }
 
-struct CustomTextField: TextFieldStyle {
+struct CustomTextField: View {
     let background: String
     let accent: String
-    let width: CGFloat?
+    let placeholder: String
+    @Binding var text: String
+    var width: CGFloat? = 350
+    var height: CGFloat? = 55
+    var cornerRadius: CGFloat? = 30
+    var textSize: CGFloat? = 22
+    var isMultiline: Bool = false
+    var isSecure: Bool = false
     
-    init(background: String, accent: String, width: CGFloat? = nil) {
-        self.background = background
-        self.accent = accent
-        self.width = width
-    }
-    
-    func _body(configuration: TextField<Self._Label>) -> some View {
-        configuration
-            .padding(.horizontal, 20)
-            .padding(.vertical, 5)
-            .frame(width: width ?? 350, height: 55)
-            .background(Color(hex: accent))
-            .foregroundColor(Color(hex: background))
-            .cornerRadius(30)
-            .font(.system(size: 22, design: .serif))
-            .tint(Color(hex: background))
-            .textContentType(nil)
+    var body: some View {
+        Group {
+            if isMultiline {
+                TextField(placeholder, text: $text, axis: .vertical)
+                    .lineLimit(1...2)
+            }
+            else if isSecure{
+                SecureField(placeholder, text: $text)
+            }
+            
+            else {
+                TextField(placeholder, text: $text)
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 5)
+        .frame(width: width ?? 350, height: height ?? (isMultiline ? nil : 55))
+        .background(Color(hex: accent))
+        .foregroundColor(Color(hex: background))
+        .cornerRadius(cornerRadius ?? 30)
+        .font(.system(size: textSize ?? 22, design: .serif))
+        .tint(Color(hex: background))
+        .textContentType(nil)
         .padding(.bottom, 8)
     }
 }
@@ -72,27 +76,19 @@ struct CustomTextField: TextFieldStyle {
 struct CustomText: View {
     var text: String
     var color: String
+    var width: CGFloat?
+    var textAlignment: Alignment? = .leading
+    var multilineAlignment: TextAlignment? = .leading
+    var isBold: Bool = false
+    var textSize: CGFloat? = 22
     
     var body: some View {
         Text(text)
-            .font(.system(size: 22, design: .serif))
+            .font(.system(size: textSize ?? 22, design: .serif))
+            .fontWeight(isBold ? .bold : .regular) 
             .foregroundColor(Color(hex: color))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
-    }
-}
-
-struct CustomListHeader: View {
-    var text: String
-    var color: String
-    
-    var body: some View {
-        Text(text)
-            .font(.system(size: 22, weight: .bold, design: .serif))
-            .foregroundColor(Color(hex: color))
-            .frame(maxWidth: 175, alignment: .center)
-            .fixedSize(horizontal: false, vertical: true)
-            .multilineTextAlignment(.center)
+            .frame(maxWidth: width ?? .infinity, alignment: textAlignment ?? .leading)
+            .multilineTextAlignment(multilineAlignment ?? .center)
             .padding(.horizontal, 20)
     }
 }
@@ -102,46 +98,32 @@ struct CustomList: View {
     var color: String
     
     var body: some View {
-            let screenWidth = UIScreen.main.bounds.width
-            let maxWidth = screenWidth / 2 - 20
-            let columnCount = calculateColumnCount(items: items, maxWidth: maxWidth)
-
-            LazyVGrid(
-                columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: columnCount),
-                spacing: 3
-            ) {
-                ForEach(items, id: \.self) { item in
-                    Text("• \(item)")
-                        .font(.system(size: 18, design: .serif))
-                        .foregroundColor(Color(hex: color))
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-            .frame(width: maxWidth, alignment: .trailing)
-            .padding(.bottom, 15)
-    }
-    
-    private func calculateColumnCount(items: [String], maxWidth: CGFloat) -> Int {
-        guard !items.isEmpty else { return 1 }
+        let maxWidth = UIScreen.main.bounds.width / 2 - 20
         
+        // estimate width per character and find the widest item
         let charWidth: CGFloat = 12
-        let itemWidths = items.map { CGFloat($0.count + 2) * charWidth }
-
-        for columns in stride(from: items.count, through: 1, by: -1) {
-            let columnWidth = maxWidth / CGFloat(columns)
-            if itemWidths.allSatisfy({ $0 <= columnWidth }) {
-                return columns
+        let maxItemWidth = items
+            .map { CGFloat($0.count + 2) * charWidth } // +2 for bullet + padding
+            .max() ?? (charWidth * 3)
+        
+        let columnCount = Int(max(1, maxItemWidth / maxWidth))
+        
+        LazyVGrid(
+            columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: columnCount),
+            spacing: 3
+        ) {
+            ForEach(items, id: \.self) { item in
+                Text("• \(item)")
+                    .font(.system(size: 18, design: .serif))
+                    .foregroundColor(Color(hex: color))
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
-        return 1
+        .frame(width: maxWidth, alignment: .trailing)
+        .padding(.bottom, 15)
     }
 }
-
-
-
-
-
 
 struct CustomNavButton<Destination: View>: View {
     var label: String
@@ -160,7 +142,6 @@ struct CustomNavButton<Destination: View>: View {
                 .foregroundColor(Color(hex: background))
                 .cornerRadius(30)
                 .font(.system(size: 20, design: .serif))
-                
         }
         .buttonStyle(.plain)
         .padding(.vertical, 7)
@@ -200,37 +181,6 @@ struct CustomWarningText: View {
     }
 }
 
-struct CustomWelcome: View {
-    var text: String
-    var color: String
-    var textAlignment: TextAlignment
-    var width: CGFloat
-    var body: some View {
-        Text(text)
-            .multilineTextAlignment(textAlignment)
-            .fixedSize(horizontal: false, vertical: true)
-            .font(.system(size: 50, design: .serif))
-            .foregroundColor(Color(hex: color))
-            .padding(.vertical, 10)
-            .frame(width:width)
-    }
-}
-
-struct CustomInstructions: View {
-    var text: String
-    var color: String
-    var body: some View {
-        Text(text)
-            .fixedSize(horizontal: false, vertical: true)
-            .frame(maxWidth: 350)
-            .multilineTextAlignment(.center)
-            .font(.system(size: 18, design: .serif))
-            .foregroundColor(Color(hex: color))
-        .padding(.horizontal, 15)
-        .padding(.bottom, 17)
-    }
-}
-
 struct CustomButton: View {
     var text: String
     var background: String
@@ -247,7 +197,6 @@ struct CustomButton: View {
                 .foregroundColor(Color(hex: background))
                 .cornerRadius(30)
                 .font(.system(size: 20, design: .serif))
-    
         }
         .buttonStyle(.plain)
         .padding(.bottom, 10)
@@ -267,7 +216,6 @@ struct SameAmplitudeBlob: View {
     var x: CGFloat
     var y: CGFloat
     var rotation: CGFloat
-    
     let seed = 4
 
     var body: some View {
@@ -313,15 +261,12 @@ struct SameAmplitudeBlob: View {
                     control2: CGPoint(x: controlX2, y: controlY2)
                 )
             }
-
             path.addLine(to: CGPoint(x: rect.width, y: 0))
             path.closeSubpath()
             return path
         }
     }
 }
-
-import SwiftUI
 
 struct WavyTopBottomRectangle: View {
     var waves: Int
@@ -338,15 +283,12 @@ struct WavyTopBottomRectangle: View {
             var path = Path()
             let step = width / CGFloat(waves)
             
-            // Precompute amplitudes for top and bottom edges
             var rng = SeededGenerator(seed: seed)
             let topAmps = (0..<waves).map { _ in amplitude * CGFloat(Double.random(in: 0.7...1.3, using: &rng)) }
             let bottomAmps = (0..<waves).map { _ in amplitude * CGFloat(Double.random(in: 0.7...1.3, using: &rng)) }
 
-            // Start at bottom-left
             path.move(to: CGPoint(x: 0, y: height))
 
-            // Bottom wavy edge
             for i in 0..<waves {
                 let startX = CGFloat(i) * step
                 let endX = startX + step
@@ -365,10 +307,8 @@ struct WavyTopBottomRectangle: View {
                 )
             }
 
-            // Right edge (straight)
             path.addLine(to: CGPoint(x: width, y: 0))
 
-            // Top wavy edge
             for i in (0..<waves).reversed() {
                 let startX = CGFloat(i+1) * step
                 let endX = startX - step
@@ -387,7 +327,6 @@ struct WavyTopBottomRectangle: View {
                 )
             }
 
-            // Left edge (straight) back to bottom-left
             path.addLine(to: CGPoint(x: 0, y: height))
             path.closeSubpath()
             
@@ -400,7 +339,6 @@ struct WavyTopBottomRectangle: View {
             .offset(x: x, y: y)
     }
 }
-
 
 struct ParametricBlob: View {
     var points: Int = 20
@@ -454,7 +392,6 @@ struct ParametricBlob: View {
     }
 }
 
-
 // Reproducible random generator
 struct SeededGenerator: RandomNumberGenerator {
     private var state: UInt64
@@ -481,7 +418,6 @@ struct CustomDropdown: View {
                 ForEach(options, id: \.self) { theme in
                     Text(theme)
                 }
-                
             }
             
         } label: {
@@ -517,15 +453,13 @@ struct CustomFloatButton: View {
     var options: [String]
     var actions: [() -> Void]
     
-    // Manually entered offsets
-    let xList: [CGFloat] = [-20, -100, -100, -20] // customize per button
-    let yList: [CGFloat] = [-90, -40, 10, 60]   // customize per button
+    let xList: [CGFloat] = [-20, -100, -100, -20]
+    let yList: [CGFloat] = [-90, -40, 10, 60]
     
     @State private var showMenu = false
     
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            // Main floating button
             Button {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                     showMenu.toggle()
@@ -541,13 +475,12 @@ struct CustomFloatButton: View {
             }
             .buttonStyle(.plain)
             
-            // Menu buttons using manual x/y lists
             ForEach(Array(options.enumerated()), id: \.offset) { index, option in
                 Button {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                         showMenu = false
                         if index < actions.count {
-                            actions[index]()  // Call the corresponding action
+                            actions[index]()
                         }
                     }
                 } label: {
@@ -572,156 +505,86 @@ struct CustomFloatButton: View {
     }
 }
 
+struct PolicyTextView: View {
+    var policyFileName: String
+    var textColor: Color
+    
+    var policyLines: [String] {
+        guard let url = Bundle.main.url(forResource: policyFileName, withExtension: "txt"),
+              let contents = try? String(contentsOf: url, encoding: .utf8) else {
+            return ["Could not load policy."]
+        }
+        
+        let normalized = contents
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+        
+        return normalized.components(separatedBy: "\n")
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(policyLines, id: \.self) { line in
+                if line.starts(with: "##") {
+                    Text(line.replacingOccurrences(of: "##", with: ""))
+                        .font(.headline)
+                        .bold()
+                } else if line.starts(with: "#") {
+                    Text(line.replacingOccurrences(of: "#", with: ""))
+                        .font(.title2)
+                        .bold()
+                } else if line.starts(with: "•") || line.starts(with: "-") {
+                    Text(line)
+                        .font(.body)
+                        .padding(.leading, 20)
+                } else if line.trimmingCharacters(in: .whitespaces).isEmpty {
+                    Spacer().frame(height: 8) // blank line
+                } else {
+                    Text(line)
+                        .font(.body)
+                }
+            }
+        }
+        .foregroundColor(textColor)
+        .padding()
+    }
+}
 
 struct PolicySheetView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var policyText: String = ""
-    
     var policyFileName: String
     var showsAgreeButton: Bool
     var onAgree: (() -> Void)?
-    
+
     private let backgroundColor = Color(hex: "#001d00")
     private let textColor = Color(hex: "#b5c4b9")
     private let textHex = "#b5c4b9"
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                CustomWelcome(text: "Data Policy", color: textHex, textAlignment: .center, width: 300)
-                VStack(alignment: .leading, spacing: 10) {
-                    ForEach(policyText.components(separatedBy: "\n"), id: \.self) { line in
-                        let trimmed = line.trimmingCharacters(in: .whitespaces)
-                        
-                        if trimmed.isEmpty {
-                            Spacer().frame(height: 8)
-                        } else if isMajorHeading(trimmed) {
-                            Text(trimmed)
-                                .font(.system(.title2, design: .serif))
-                                .fontWeight(.heavy)
-                                .foregroundColor(textColor)
-                                .padding(.top, 12)
-                        } else if isSubHeading(trimmed) {
-                            Text(trimmed)
-                                .font(.system(.headline, design: .serif))
-                                .fontWeight(.bold)
-                                .foregroundColor(textColor)
-                                .padding(.top, 0)
-                        } else if trimmed.hasPrefix("•") {
-                            // Bullet point handling — indent and keep style consistent
-                            Text(trimmed)
-                                .font(.system(.body, design: .serif))
-                                .foregroundColor(textColor)
-                                .padding(.leading, 20)
-                        } else if trimmed.contains(":") {
-                            // Bold prefix before colon
-                            let parts = trimmed.split(separator: ":", maxSplits: 1)
-                            if parts.count == 2 {
-                                HStack(alignment: .top, spacing: 0) {
-                                    Text(parts[0] + ":")
-                                        .bold()
-                                        .font(.system(.body, design: .serif))
-                                        .foregroundColor(textColor)
-                                    Text(parts[1])
-                                        .font(.system(.body, design: .serif))
-                                        .foregroundColor(textColor)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
-                            } else {
-                                Text(trimmed)
-                                    .font(.system(.body, design: .serif))
-                                    .foregroundColor(textColor)
-                            }
-                        } else {
-                            Text(trimmed)
-                                .font(.system(.body, design: .serif))
-                                .foregroundColor(textColor)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                    }
-                }
-                .padding()
+            ScrollView(.vertical, showsIndicators: true) {
+                CustomText(
+                    text: "Data Policy",
+                    color: textHex,
+                    width: 300,
+                    textAlignment: .center,
+                    textSize: 50
+                )
+
+                PolicyTextView(policyFileName: policyFileName, textColor: textColor)
             }
             .background(backgroundColor.ignoresSafeArea())
-            .toolbarBackground(backgroundColor, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(action: { dismiss() }) {
-                        Text("Close")
-                            .frame(maxWidth: .infinity)
-                            .multilineTextAlignment(.center)
-                            .font(.system(size: 20, design: .serif))
-                            .foregroundColor(textColor)
-                    }
-                    .padding(.top, 10)
+                    Button("Close") { dismiss() }
                 }
-
-                if showsAgreeButton {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button(action: { dismiss(); onAgree?() }) {
-                            Text("Agree")
-                                .frame(maxWidth: .infinity)
-                                .multilineTextAlignment(.center)
-                                .font(.system(size: 20, design: .serif))
-                                .foregroundColor(textColor)
-                                .padding(.top, 10)
-                        }
-                    }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Agree") { dismiss(); onAgree?() }
+                        .opacity(showsAgreeButton ? 1 : 0)
+                        .disabled(!showsAgreeButton)
                 }
             }
-            .onAppear {
-                loadPolicyText()
-            }
         }
-    }
-    
-    private func loadPolicyText() {
-        if let url = Bundle.main.url(forResource: policyFileName, withExtension: "txt"),
-           let contents = try? String(contentsOf: url, encoding: .utf8) {
-            policyText = contents
-        } else {
-            policyText = "Could not load policy."
-        }
-    }
-    
-    private func isMajorHeading(_ line: String) -> Bool {
-        let normalized = line.trimmingCharacters(in: .whitespacesAndNewlines)
-            .replacingOccurrences(of: ":", with: "")
-        let majorHeadings = [
-            "Introduction",
-            "What Data We Collect",
-            "How We Use Your Data",
-            "How We Store Your Data",
-            "Your Control Over Your Data",
-            "Our Commitment to You"
-        ]
-        return majorHeadings.contains(normalized)
-    }
-    
-    private func isSubHeading(_ line: String) -> Bool {
-        let normalized = line.trimmingCharacters(in: .whitespacesAndNewlines)
-            .replacingOccurrences(of: ":", with: "")
-        let subHeadings = [
-            "Account Data (mandatory)",
-            "Health Data (optional)",
-            "Log Data (Core Functionality)"
-        ]
-        return subHeadings.contains(normalized)
-    }
-}
-
-struct CustomEditableListHeader: View {
-    var text: String
-    var color: String
-    
-    var body: some View {
-        Text(text)
-            .font(.system(size: 22, weight: .bold, design: .serif))
-            .foregroundColor(Color(hex: color))
-            .frame(maxWidth: 175, alignment: .center)
-            .fixedSize(horizontal: false, vertical: true)
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, 5)
     }
 }
 
@@ -731,21 +594,16 @@ struct EditableList: View {
     var backgroundColor: String
     var accentColor: String
     
-    
     let width = UIScreen.main.bounds.width/2 - 40
-    let rowHeight = CGFloat(60)
+    let rowHeight = CGFloat(40)
 
     @State private var newItemText = ""
 
     var body: some View {
         
-        let extraRow: CGFloat = title.count > 20 ? rowHeight : 10
-        
         VStack(alignment: .leading, spacing: 0) {
-            CustomEditableListHeader(text: title, color: accentColor)
-                .padding(.bottom, 10)
 
-            VStack(spacing: 4) {
+            VStack(spacing: 6) {
                 ForEach(items.indices, id: \.self) { index in
                     ZStack(alignment: .trailing) {
                         TextField("Enter item", text: Binding(
@@ -770,8 +628,6 @@ struct EditableList: View {
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
-                    .frame(height: 40) // optional fixed height
-
                 }
                 // Add new item row
                 HStack {
@@ -800,7 +656,7 @@ struct EditableList: View {
         }
         
         .frame(width: width,
-               height: CGFloat(items.count + 1) * rowHeight + extraRow) // adjusts height dynamically
+               height: CGFloat(items.count + 1) * rowHeight) // adjusts height dynamically
         .background(Color(hex: "backgroundColor").opacity(0.0))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }

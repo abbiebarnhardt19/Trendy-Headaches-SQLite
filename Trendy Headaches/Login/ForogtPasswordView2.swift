@@ -44,7 +44,7 @@ struct ForgotPasswordView2: View {
                         
                         VStack {
                             //header text
-                            CustomWelcome(text:"Please answer your security question", color: accent, textAlignment: .leading, width:220)
+                            CustomText(text:"Please answer your security question", color:accent, width:220, textAlignment: .leading, multilineAlignment: .leading, textSize: 50)
                                 .padding(.trailing, 140)
                                 .padding(.top, 0)
                             
@@ -55,8 +55,7 @@ struct ForgotPasswordView2: View {
                                     .padding(.top, 30)
                                 
                                 //enter answer
-                                SecureField("", text: $enteredAnswer)
-                                    .textFieldStyle(CustomTextField(background: background,accent: accent))
+                                CustomTextField(background: background, accent: accent, placeholder:"", text: $enteredAnswer, isSecure: true)
                                     .autocapitalization(.none)
                                     .disableAutocorrection(true)
                                 

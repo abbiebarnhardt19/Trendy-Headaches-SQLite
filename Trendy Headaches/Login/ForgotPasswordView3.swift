@@ -43,7 +43,7 @@ struct ForgotPasswordView3: View {
                         
                         VStack{
                             //header text
-                            CustomWelcome(text:"Last Step", color: accent, textAlignment: .trailing,  width:100)
+                            CustomText(text:"Last Step", color:accent, width:100, textAlignment: .trailing, textSize: 50)
                                 .padding(.leading, 170)
                                 .padding(.bottom, 50)
                             
@@ -51,9 +51,7 @@ struct ForgotPasswordView3: View {
                             CustomText(text: "New Password", color: accent)
                                 .padding(.leading, leading_padding)
                             
-                            SecureField("", text: $password_one)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent))
-                            
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $password_one, isSecure: true)
                             
                             //complexity warning
                             if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
@@ -77,8 +75,7 @@ struct ForgotPasswordView3: View {
                             CustomText(text: "Confirm New Password", color: accent)
                                 .padding(.leading, leading_padding)
                             
-                            SecureField("", text: $password_two)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent))
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $password_two, isSecure: true)
                             
                             //passwords don't match warning
                             if !password_two.isEmpty && password_two != password_one {

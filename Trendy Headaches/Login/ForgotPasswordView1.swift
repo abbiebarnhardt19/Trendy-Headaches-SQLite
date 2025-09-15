@@ -28,12 +28,13 @@ struct ForgotPasswordView1: View {
                 SameAmplitudeBlob(waves: 10, amplitude:20, accent:accent, x:280, y: -120, rotation: 290)
                 VStack {
                     //header + instructions
-                    CustomWelcome(text:"Forgot your password?", color:accent, textAlignment: .center, width: 300)
-                    CustomInstructions(text:"No worries! Enter your email below to start the password reset process.", color: accent)
+                    CustomText(text:"Forgot your password?", color:accent, width:300, textAlignment: .center, textSize: 50)
+                        .padding(.bottom, 20)
+                    CustomText(text:"No worries! Enter your email below to start the password reset process.", color: accent, width: 350, textAlignment: .center, textSize: 18)
+                        .padding(.bottom, 20)
                     
                     //email text box, uses debouncing to check once user stopped typing if email exists
-                    TextField("", text: $email)
-                        .textFieldStyle(CustomTextField(background: background, accent: accent))
+                    CustomTextField(background: background, accent: accent, placeholder:"", text: $email)
                         .keyboardType(.emailAddress)
                         .onChange(of: email) {
                             emailCheckTask?.cancel()

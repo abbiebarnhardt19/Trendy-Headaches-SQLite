@@ -44,15 +44,14 @@ struct CreateAccountView: SwiftUI.View {
                     
                         VStack{
                             //header text
-                            CustomWelcome(text: "Create Account", color: accent, textAlignment: .center, width:350)
+                            CustomText(text: "Create Account", color: accent, width:350, textAlignment: .center, textSize: 50)
                             
                             //email header
                             CustomText(text: "Email", color: accent)
                                 .padding(.leading, leading_padding)
                             
                             //email text box, use debouncing to see if email is available after user stops typing
-                            TextField("", text: $email)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent))
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $email)
                                 .onChange(of: email) {
                                     emailCheckTask?.cancel()
                                     emailCheckTask = Task {
@@ -79,8 +78,7 @@ struct CreateAccountView: SwiftUI.View {
                             CustomText(text: "Password", color: accent)
                                 .padding(.leading, leading_padding)
                             
-                            SecureField("", text: $password_one)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent))
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $password_one, isSecure: true)
                             
                             //complexity warning
                             if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
@@ -98,8 +96,7 @@ struct CreateAccountView: SwiftUI.View {
                             CustomText(text: "Confirm Password", color: accent)
                                 .padding(.leading, leading_padding)
                             
-                            SecureField("", text: $password_two)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent))
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $password_two, isSecure: true)
                             
                             //passwords don't match warning
                             if !password_two.isEmpty && password_two != password_one {
@@ -117,8 +114,7 @@ struct CreateAccountView: SwiftUI.View {
                             CustomText(text: "Security Question", color: accent)
                                 .padding(.leading, leading_padding)
                             
-                            TextField("", text: $security_question)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent))
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $security_question)
 
                             //for equal spacing
                             CustomWarningText(text:"")
@@ -128,8 +124,7 @@ struct CreateAccountView: SwiftUI.View {
                             CustomText(text: "Security Question Answer", color: accent)
                                 .padding(.leading, leading_padding)
                             
-                            TextField("", text: $security_answer)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent))
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $security_answer, isSecure: true)
                             
                             //button to move to create account view 3 (color theme) with the entered information
                             //disabled until form is valid

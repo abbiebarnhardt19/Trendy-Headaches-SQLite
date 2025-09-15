@@ -40,11 +40,11 @@ class DatabaseManager {
     let symptom_end = SQLite.Expression<Date?>("symptom_end")
     
     // medications columns
-    let med_id = SQLite.Expression<Int64>("med_id")
-    let med_category = SQLite.Expression<String>("med_category")
-    let med_name = SQLite.Expression<String>("med_name")
-    let med_start = SQLite.Expression<Date>("med_start")
-    let med_end = SQLite.Expression<Date?>("med_end")
+    let medication_id = SQLite.Expression<Int64>("medication_id")
+    let medication_category = SQLite.Expression<String>("medication_category")
+    let medication_name = SQLite.Expression<String>("medication_name")
+    let medication_start = SQLite.Expression<Date>("medication_start")
+    let medication_end = SQLite.Expression<Date?>("medication_end")
     
     // triggers columns
     let trigger_id = SQLite.Expression<Int64>("trigger_id")
@@ -114,11 +114,11 @@ class DatabaseManager {
             
             // create medications columns
             try db.run(medications.create(ifNotExists: true) { t in
-                t.column(med_id, primaryKey: .autoincrement)
-                t.column(med_category)
-                t.column(med_name)
-                t.column(med_start)
-                t.column(med_end)
+                t.column(medication_id, primaryKey: .autoincrement)
+                t.column(medication_category)
+                t.column(medication_name)
+                t.column(medication_start)
+                t.column(medication_end)
                 t.column(user_id)
                 t.foreignKey(user_id, references: users, user_id, delete: .cascade)
             })
@@ -195,10 +195,10 @@ class DatabaseManager {
                 do {
                     let insertMed = medications.insert(
                         user_id <- userId,
-                        med_category <- "preventative",
-                        med_name <- med,
-                        med_start <- Date(),
-                        med_end <- nil
+                        medication_category <- "preventative",
+                        medication_name <- med,
+                        medication_start <- Date(),
+                        medication_end <- nil
                     )
                     try db.run(insertMed)
                 } catch {
@@ -215,10 +215,10 @@ class DatabaseManager {
                 do {
                     let insertMed = medications.insert(
                         user_id <- userId,
-                        med_category <- "emergency",
-                        med_name <- med,
-                        med_start <- Date(),
-                        med_end <- nil
+                        medication_category <- "emergency",
+                        medication_name <- med,
+                        medication_start <- Date(),
+                        medication_end <- nil
                     )
                     try db.run(insertMed)
                 } catch {

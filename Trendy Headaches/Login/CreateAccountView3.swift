@@ -54,16 +54,10 @@ struct CreateAccountView3: View {
                         
                         //side by side text boxes for two hex codes
                         HStack {
-                            TextField("", text: $background)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent, width: 160))
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $background, width: 160)
                                 .padding(.trailing, 20)
-                                .multilineTextAlignment(.center)
-                                .font(.system(size: 18, design: .serif)) // optional, if you want serif font
-
-                            TextField("", text: $accent)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent, width: 160))
-                                .multilineTextAlignment(.center)
-                                .font(.system(size: 18, design: .serif)) // optional, if you want serif font
+                            
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $accent, width: 160)
                         }
                     }
                     

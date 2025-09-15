@@ -37,37 +37,35 @@ struct CreateAccountView2: View {
                         
                         VStack{
                             //header and instructions
-                            CustomWelcome(text:"One Last Step", color:accent, textAlignment: .center, width:350)
-                            CustomInstructions(text: "These fields are optional and help us provide personalized insights from your data. Add multiple items by separating them with commas.", color: accent)
+                            CustomText(text:"One Last Step", color:accent, width:350, textAlignment: .center, textSize: 50)
+                            
+                            CustomText(text: "These fields are optional and help us provide personalized insights from your data. Add multiple items by separating them with commas.", color: accent, width: 325, textAlignment: .center, multilineAlignment: .center, textSize: 18)
+                                .padding(.bottom, 20)
                             
                             
                             //symptoms label and textbox
                             CustomText(text: "Symptom or Illness", color: accent)
                                 .padding(.leading, leading_padding)
                             
-                            TextField("", text: $symptoms)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent))
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $symptoms)
                             
                             //prev meds label and textbox
                             CustomText(text: "Preventative Medications", color: accent)
                                 .padding(.leading, leading_padding)
                             
-                            TextField("", text: $preventativeMeds)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent))
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $preventativeMeds)
                             
                             //emerg meds label and textbox
                             CustomText(text: "Emergency Medications", color: accent)
                                 .padding(.leading, leading_padding)
                             
-                            TextField("", text: $emergencyMeds)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent))
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $emergencyMeds)
                             
                             //triggers label and textbox
                             CustomText(text: "Triggers", color: accent)
                                 .padding(.leading, leading_padding)
                             
-                            TextField("", text: $triggers)
-                                .textFieldStyle(CustomTextField(background: background, accent: accent))
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $triggers)
                             
                             //on click attempt to add user
                             CustomButton(text: "Submit", background: background, accent: accent) {

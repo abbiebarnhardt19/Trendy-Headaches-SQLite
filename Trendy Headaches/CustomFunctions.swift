@@ -39,19 +39,28 @@ extension DatabaseManager {
     }
     
     //get all the values for a user from a table where userID is a foriegn key
-    func getForeignKeyColumnValues(userId: Int64, tableName: String, columnName: String) -> [String] {
+    func getForeignKeyColumnValues(
+        userId: Int64,
+        tableName: String,
+        columnName: String,
+        filterColumn: String? = nil,
+        filterValue: String? = nil
+    ) -> [String] {
         do {
             let idColumn = SQLite.Expression<Int64>("user_id")
             let targetColumn = SQLite.Expression<String>(columnName)
             let table = Table(tableName)
             
-            // Build the "end" column name dynamically
+            var query = table.filter(idColumn == userId)
+            
             let endColumnName = "\(tableName.lowercased().dropLast())_end"
             let endColumn = SQLite.Expression<String?>(endColumnName)
+            query = query.filter(endColumn == nil)
             
-            let query = table
-                .filter(idColumn == userId)
-                .filter(endColumn == nil)  // only rows where `tablenameend` is NULL
+            if let filterColumn, let filterValue {
+                let extraColumn = SQLite.Expression<String>(filterColumn)
+                query = query.filter(extraColumn == filterValue)
+            }
             
             return try prepare(query).map { row in
                 row[targetColumn]
@@ -61,6 +70,8 @@ extension DatabaseManager {
             return []
         }
     }
+
+
     
     //check if the email is present in the users table
     static func doesEmailExist(_ emailAddress: String) -> Bool {
@@ -159,10 +170,10 @@ extension DatabaseManager {
         for med in preventativeMeds.split(separator: ",").map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) where !med.isEmpty {
             let insertMed = DatabaseManager.shared.medications.insert(
                 DatabaseManager.shared.user_id <- userId,
-                DatabaseManager.shared.med_category <- "preventative",
-                DatabaseManager.shared.med_name <- med,
-                DatabaseManager.shared.med_start <- Date(),
-                DatabaseManager.shared.med_end <- nil
+                DatabaseManager.shared.medication_category <- "preventative",
+                DatabaseManager.shared.medication_name <- med,
+                DatabaseManager.shared.medication_start <- Date(),
+                DatabaseManager.shared.medication_end <- nil
             )
             do {
                 _ = try DatabaseManager.shared.run(insertMed)
@@ -176,10 +187,10 @@ extension DatabaseManager {
         for med in emergencyMeds.split(separator: ",").map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }) where !med.isEmpty {
             let insertMed = DatabaseManager.shared.medications.insert(
                 DatabaseManager.shared.user_id <- userId,
-                DatabaseManager.shared.med_category <- "emergency",
-                DatabaseManager.shared.med_name <- med,
-                DatabaseManager.shared.med_start <- Date(),
-                DatabaseManager.shared.med_end <- nil
+                DatabaseManager.shared.medication_category <- "emergency",
+                DatabaseManager.shared.medication_name <- med,
+                DatabaseManager.shared.medication_start <- Date(),
+                DatabaseManager.shared.medication_end <- nil
             )
             do {
                 _ = try DatabaseManager.shared.run(insertMed)
@@ -204,9 +215,9 @@ extension DatabaseManager {
     func getMeds(forUserId userId: Int64, medCategory: String) -> [String] {
         do {
             let idColumn = SQLite.Expression<Int64>("user_id")
-            let nameColumn = SQLite.Expression<String>("med_name")
-            let categoryColumn = SQLite.Expression<String>("med_category")
-            let endDateColumn = SQLite.Expression<Date?>("med_end")
+            let nameColumn = SQLite.Expression<String>("medication_name")
+            let categoryColumn = SQLite.Expression<String>("medication_category")
+            let endDateColumn = SQLite.Expression<Date?>("medication_end")
             
             return try prepare(
                 medications

@@ -25,7 +25,7 @@ struct InitialView: View {
                 SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 140, y: -220, rotation: 295)
 
                 VStack {
-                    CustomWelcome(text: "Trendy Headaches", color: accent, textAlignment: .center, width: 300)
+                    CustomText(text: "Trendy Headaches", color: accent, width: 300, textAlignment: .center, textSize: 50)
                     
                     // Sign In button (normal navigation)
                     CustomNavButton(label: "Sign In", destination: LoginView(), background: background, accent: accent)

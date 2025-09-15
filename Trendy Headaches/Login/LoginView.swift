@@ -29,24 +29,23 @@ struct LoginView: SwiftUI.View {
                 
                 VStack{
                     //header text
-                    CustomWelcome(text:"Log In", color: accent, textAlignment: .center, width: 200)
+                    CustomText(text: "Log In", color: accent, width: 200, textAlignment: .center, textSize: 50)
+                        .padding(.bottom, 20)
                     
                     //email label and textbox
                     CustomText(text: "Email", color: accent)
                         .padding(.leading, leading_padding)
                     
-                    TextField("", text: $email)
-                        .textFieldStyle(CustomTextField(background: background, accent: accent))
+                    CustomTextField(background: background, accent: accent, placeholder: "", text: $email)
                     
                     //password label and textbox
                     CustomText(text: "Password", color: accent)
                         .padding(.leading, leading_padding)
                     
-                    SecureField("", text: $password)
-                        .textFieldStyle(CustomTextField(background: background, accent: accent))
+                    CustomTextField(background: background, accent: accent, placeholder: "", text: $password, isSecure: true)
                     
                     //link to fogot password page
-                    CustomLink(destination: ForgotPasswordView1(), text: "Forgot Password", accent: accent)
+                    CustomLink(destination: ForgotPasswordView1(), text: "Forgot Password?", accent: accent)
                         .padding(.leading, 170)
                     
                     //login button, on click attempt login. Use result of leogin to get user id, login error, and update isLoggedIn
