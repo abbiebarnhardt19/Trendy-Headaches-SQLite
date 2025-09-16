@@ -13,7 +13,7 @@ struct ProfileView: View {
     @Binding var accentColor: String
     
     // Booleans
-    @State private var isEditing = true
+    @State private var isEditing = false
     @State private var logOut = false
     @State private var showPolicy = false
     @State private var showDeleteConfirmation = false
@@ -89,8 +89,8 @@ struct ProfileView: View {
             Color(hex: newBackground).ignoresSafeArea()
 
             // Decorative blobs
-            SameAmplitudeBlob(waves: 12, amplitude: 20, accent: newAccent, x: 160, y: -290, rotation: -18)
-            SameAmplitudeBlob(waves: 13, amplitude: 15, accent: newAccent, x: 0, y: -205, rotation: 155)
+            SameAmplitudeBlob(waves: 12, amplitude: 20, accent: newAccent, x: 160, y: -340, rotation: -18)
+            SameAmplitudeBlob(waves: 13, amplitude: 15, accent: newAccent, x: 0, y: -375, rotation: 155)
 
             GeometryReader { geo in
                 // Scrollable content
@@ -121,10 +121,6 @@ struct ProfileView: View {
                 .ignoresSafeArea(edges: .bottom)
             }
         }
-
-
-
-
         .alert("Are you sure you want to delete your account?", isPresented: $showDeleteConfirmation) {
             Button("Delete", role: .destructive) {
                 DatabaseManager.shared.deleteUser(userID: userID)
@@ -142,9 +138,9 @@ struct ProfileView: View {
     
     @ViewBuilder
     private func editingView() -> some View {
-        let editColumnWidth = UIScreen.main.bounds.width / 2 - 18
-        let buttonActions = [{ isEditing = true }, { showPolicy = true },
-                             { logOut = true }, { showDeleteConfirmation = true}]
+        let editColumnWidth = UIScreen.main.bounds.width / 2
+//        let buttonActions = [{ isEditing = true }, { showPolicy = true },
+//                             { logOut = true }, { showDeleteConfirmation = true}]
         
         HStack(alignment: .top) {
             Spacer()
@@ -155,13 +151,13 @@ struct ProfileView: View {
                     .padding(.top, 0)
                     .padding(.bottom, 5)
                 
-                CustomText(text: "Symptoms", color: newAccent, width: editColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                CustomText(text: "Symptoms", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
                 EditableList(items: $newSymptoms, title: "Symptoms", backgroundColor: newBackground, accentColor: newAccent)
                 
-                CustomText(text: "Triggers", color: newAccent, width: editColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                CustomText(text: "Triggers", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
                 EditableList(items: $newTriggers, title: "Triggers", backgroundColor: newBackground, accentColor: newAccent)
                 
-                CustomText(text: "Preventative Medications", color: newAccent, width: editColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                CustomText(text: "Preventative Medications", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
                 EditableList(items: $newPrevMeds, title: "Preventative Medications", backgroundColor: newBackground, accentColor: newAccent)
             }
             .frame(maxWidth: editColumnWidth, alignment: .center)
@@ -169,24 +165,24 @@ struct ProfileView: View {
             
             // Right column
             VStack {
-                CustomText(text: "Emergency Medications", color: newAccent, width: editColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                CustomText(text: "Emergency Medications", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
                 EditableList(items: $newEmergencyMeds, title: "Emergency Medications", backgroundColor: newBackground, accentColor: newAccent)
                 
-                CustomText(text: "Security Question", color: newAccent, width: editColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newSecurityQuestion, width: editColumnWidth - 20, height: 55, cornerRadius: 8, textSize: 16, isMultiline: true)
+                CustomText(text: "Security Question", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newSecurityQuestion, width: editColumnWidth - 40, height: 55, cornerRadius: 8, textSize: 16, isMultiline: true)
                     .padding(.bottom, 10)
 
-                CustomText(text: "Security Answer", color: newAccent, width: editColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newSecurityAnswer, width: editColumnWidth - 20, height: 34, cornerRadius: 8, textSize: 16, isSecure: true)
+                CustomText(text: "Security Answer", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newSecurityAnswer, width: editColumnWidth - 40, height: 34, cornerRadius: 8, textSize: 16, isSecure: true)
                     .padding(.bottom, 10)
                 
-                CustomText(text: "Color Theme", color: newAccent, width: editColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                CustomDropdown(color_theme: $newThemeName, background: $newBackground, accent: $newAccent, options: theme_options, width: editColumnWidth-20, height: 38, cornerRadius: 8, fontSize: 16)
+                CustomText(text: "Color Theme", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                CustomDropdown(color_theme: $newThemeName, background: $newBackground, accent: $newAccent, options: theme_options, width: editColumnWidth-40, height: 38, cornerRadius: 8, fontSize: 16)
                 
                 if newThemeName == "Custom" {
-                    CustomText(text: "Hex Codes", color: newAccent, width: editColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newBackground, width: editColumnWidth - 30, height: 38, cornerRadius: 8, textSize: 16)
-                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newAccent, width: editColumnWidth - 30, height: 38, cornerRadius: 8, textSize: 16)
+                    CustomText(text: "Hex Codes", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newBackground, width: editColumnWidth - 50, height: 38, cornerRadius: 8, textSize: 16)
+                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newAccent, width: editColumnWidth - 50, height: 38, cornerRadius: 8, textSize: 16)
                 }
                 
                 CustomButton(text: "Save", background: newBackground, accent: newAccent) {
@@ -210,6 +206,7 @@ struct ProfileView: View {
         
         HStack(alignment: .top) {
             // Left column
+            Spacer()
             VStack {
                 VStack {
                     CustomText(text: "Symptoms", color: newAccent, width: viewColumnWidth - 10, textAlignment: .center, multilineAlignment: .center, isBold: true)
@@ -255,6 +252,7 @@ struct ProfileView: View {
                     }
             }
             .frame(maxWidth: viewColumnWidth, alignment: .center)
+            Spacer()
         }
     }
     
