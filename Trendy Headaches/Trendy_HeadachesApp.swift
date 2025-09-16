@@ -9,6 +9,7 @@ import SwiftUI
 
 @main
 struct Trendy_HeadachesApp: App {
+    @StateObject var themeManager = ThemeManager()
     
     //makes the default nav bar transparent
     init() {
@@ -28,6 +29,7 @@ struct Trendy_HeadachesApp: App {
             //ContentView()
             //
             InitialView()
+                .environmentObject(themeManager)
         }
     }
 }
