@@ -10,49 +10,49 @@ struct NavBarView: View {
     let userID: Int64
     var backgroundColor: String
     var accentColor: String
-
-    init(userID: Int64, backgroundColor: String = "#001d00", accentColor: String = "#b5c4b9"){
-        self.userID = userID
-        self.backgroundColor = backgroundColor
-        self.accentColor = accentColor
-
-        let bgUIColor = UIColor(Color(hex: backgroundColor))
-        let accentUIColor = UIColor(Color(hex: accentColor))
-
-        let appearance = UITabBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = bgUIColor
-
-        appearance.stackedLayoutAppearance.selected.iconColor = accentUIColor
-        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: accentUIColor]
-
-        appearance.stackedLayoutAppearance.normal.iconColor = accentUIColor.withAlphaComponent(0.66)
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: accentUIColor.withAlphaComponent(0.66)]
-
-        UITabBar.appearance().standardAppearance = appearance
-        if #available(iOS 15.0, *) {
-            UITabBar.appearance().scrollEdgeAppearance = appearance
-        }
-    }
+    var width: CGFloat
 
     var body: some View {
-        TabView {
-            LogView(userID: userID, backgroundColor: backgroundColor, accentColor: accentColor)
-                .tabItem { Label("Log", systemImage: "square.and.pencil") }
-
-            AnalyticsView(userID: userID, backgroundColor: backgroundColor, accentColor: accentColor)
-                .tabItem { Label("Analytics", systemImage: "chart.bar.xaxis") }
-
-            ProfileView(userID: userID, backgroundColor: .constant(backgroundColor), accentColor: .constant(accentColor))
-                .tabItem { Label("Profile", systemImage: "person.fill") }
+        ZStack {
+            Color(hex: backgroundColor)
+            HStack {
+                navButton(image: "square.and.pencil", text: "Log") {
+                    // navigate to log
+                }
+                navButton(image: "chart.bar.xaxis", text: "Analytics") {
+                    // navigate to analytics
+                }
+                navButton(image: "person.fill", text: "Profile") {
+                    // navigate to profile
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity) // fill the bar
+            .foregroundColor(Color(hex: accentColor))
         }
+        .frame(maxWidth: width)  // force full width
+        .frame(height: 60)           // fixed height
+        .ignoresSafeArea(edges: .bottom)
+    }
+
+    private func navButton(image: String, text: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 2) {
+                Image(systemName: image)
+                Text(text)
+                    .font(.caption)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .contentShape(Rectangle()) // makes entire space tappable
     }
 }
+
 
 #Preview {
     NavBarView(
         userID: 1,
         backgroundColor: "#001d00",
-        accentColor: "#b5c4b9"
+        accentColor: "#b5c4b9",
+        width: 300
     )
 }

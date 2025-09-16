@@ -618,6 +618,10 @@ struct EditableList: View {
                         .cornerRadius(8)
                         .fixedSize(horizontal: false, vertical: true)
                         .font(.system(size: 16, design: .serif))
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color(hex: backgroundColor))
+                        )
                         
                         
                         Button(action: { items.remove(at: index) }) {
@@ -659,7 +663,7 @@ struct EditableList: View {
                height: CGFloat(items.indices.filter{ items[$0] != "None entered" }.count + 1) * rowHeight) // adjusts height dynamically
         .background(Color(hex: "backgroundColor").opacity(0.0))
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .padding(.bottom, 15)
+        .padding(.bottom, 10)
     }
 
     private func addItem() {
