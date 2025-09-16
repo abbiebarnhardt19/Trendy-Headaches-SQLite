@@ -9,19 +9,42 @@ import SwiftUI
 
 struct AnalyticsView: View {
     
-    var userID: Int64? = nil
+    var userID: Int64
     var backgroundColor: String = ""
     var accentColor: String = ""
     
     var body: some View {
-        VStack {
+        ZStack {
+            // Background color
             Color(hex: backgroundColor).ignoresSafeArea()
-            CustomText(text:"Analytics Page", color: accentColor)
+            
+            // Decorative blobs
+            SameAmplitudeBlob(waves: 12, amplitude: 20, accent: accentColor, x: 160, y: -340, rotation: -18)
+            SameAmplitudeBlob(waves: 13, amplitude: 15, accent: accentColor, x: 0, y: -375, rotation: 155)
+            
+            VStack(spacing: 0) {
+                CustomText(text:"Analytics View", color: accentColor, width:300, textAlignment: .center, multilineAlignment: .center, textSize:75)
+            }
+                
+            .ignoresSafeArea(edges: .bottom)
+                
+            // Nav bar overlay at bottom
+            VStack{
+                Spacer()
+                NavBarView(
+                    userID: userID,
+                    backgroundColor: backgroundColor,
+                    accentColor: accentColor,
+                    width: UIScreen.main.bounds.width
+                )
+                .frame(height: 60)
+                .frame(maxWidth: .infinity, alignment: .center)
+            }
+            .ignoresSafeArea(edges: .bottom)
         }
-        .padding()
-        
     }
 }
+
 
 #Preview {
     AnalyticsView(userID: 1, backgroundColor: "#001d00", accentColor: "#b5c4b9")

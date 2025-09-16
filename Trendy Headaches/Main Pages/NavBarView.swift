@@ -11,19 +11,37 @@ struct NavBarView: View {
     var backgroundColor: String
     var accentColor: String
     var width: CGFloat
-
+    
     var body: some View {
         ZStack {
             Color(hex: backgroundColor)
             HStack {
-                navButton(image: "square.and.pencil", text: "Log") {
-                    // navigate to log
+                NavigationLink(destination: LogView(userID: userID, backgroundColor: backgroundColor, accentColor: accentColor).navigationBarBackButtonHidden(true)) {
+                    VStack(spacing: 2) {
+                        Image(systemName: "square.and.pencil")
+                        Text("Log")
+                            .font(.caption)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                navButton(image: "chart.bar.xaxis", text: "Analytics") {
-                    // navigate to analytics
+                
+                
+                NavigationLink(destination: AnalyticsView(userID: userID, backgroundColor: backgroundColor, accentColor: accentColor).navigationBarBackButtonHidden(true)) {
+                    VStack(spacing: 2) {
+                        Image(systemName: "chart.bar.xaxis")
+                        Text("Analytics")
+                            .font(.caption)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                navButton(image: "person.fill", text: "Profile") {
-                    // navigate to profile
+                
+                NavigationLink(destination: ProfileView(userID: userID, backgroundColor: .constant(backgroundColor), accentColor: .constant(accentColor)).navigationBarBackButtonHidden(true)) {
+                    VStack(spacing: 2) {
+                        Image(systemName: "person.fill")
+                        Text("Profile")
+                            .font(.caption)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity) // fill the bar
@@ -33,20 +51,7 @@ struct NavBarView: View {
         .frame(height: 60)           // fixed height
         .ignoresSafeArea(edges: .bottom)
     }
-
-    private func navButton(image: String, text: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            VStack(spacing: 2) {
-                Image(systemName: image)
-                Text(text)
-                    .font(.caption)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .contentShape(Rectangle()) // makes entire space tappable
-    }
 }
-
 
 #Preview {
     NavBarView(

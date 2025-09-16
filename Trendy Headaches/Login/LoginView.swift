@@ -75,10 +75,8 @@ struct LoginView: SwiftUI.View {
                 //when isLoggedIn is true, move to the main app and pass it the colors based on the email
                 .navigationDestination(isPresented: $isLoggedIn) {
                     if let userId = userId {
-//                        let accentColor = DatabaseManager.shared.getSingleColumnValue(userId: userId, columnName: "accent_color")
-//                        let backgroundColor = DatabaseManager.shared.getSingleColumnValue(userId: userId, columnName: "background_color")
-//                        NavBarView(userID: userId, backgroundColor: backgroundColor ?? background, accentColor: accentColor ?? accent)
                         ProfileView(userID: userId, backgroundColor: .constant(background), accentColor: .constant(accent))
+                            .navigationBarBackButtonHidden(true)
                     } else {
                         // if for whatever reason userID doesn't exist
                         Text("Oops! Something went wrong. Please try again later.")

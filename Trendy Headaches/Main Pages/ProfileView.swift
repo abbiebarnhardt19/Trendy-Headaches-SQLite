@@ -84,55 +84,57 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        ZStack {
-            // Background color
-            Color(hex: newBackground).ignoresSafeArea()
-
-            // Decorative blobs
-            SameAmplitudeBlob(waves: 12, amplitude: 20, accent: newAccent, x: 160, y: -340, rotation: -18)
-            SameAmplitudeBlob(waves: 13, amplitude: 15, accent: newAccent, x: 0, y: -375, rotation: 155)
-
-            GeometryReader { geo in
-                // Scrollable content
-                ScrollView {
-                    VStack(spacing: 0) {
-                        if isEditing {
-                            editingView()
-                        } else {
-                            viewingView()
+        NavigationStack{
+            ZStack {
+                // Background color
+                Color(hex: newBackground).ignoresSafeArea()
+                
+                // Decorative blobs
+                SameAmplitudeBlob(waves: 12, amplitude: 20, accent: newAccent, x: 160, y: -340, rotation: -18)
+                SameAmplitudeBlob(waves: 13, amplitude: 15, accent: newAccent, x: 0, y: -375, rotation: 155)
+                
+                GeometryReader { geo in
+                    // Scrollable content
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            if isEditing {
+                                editingView()
+                            } else {
+                                viewingView()
+                            }
                         }
                     }
+                    
+                    .ignoresSafeArea(edges: .bottom)
+                    
+                    // Nav bar overlay at bottom
+                    VStack (){
+                        Spacer()
+                        NavBarView(
+                            userID: userID,
+                            backgroundColor: backgroundColor,
+                            accentColor: accentColor,
+                            width: UIScreen.main.bounds.width
+                        )
+                        .frame(height: 60)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    }
+                    .ignoresSafeArea(edges: .bottom)
                 }
-
-                .ignoresSafeArea(edges: .bottom)
-
-                // Nav bar overlay at bottom
-                VStack (){
-                    Spacer()
-                    NavBarView(
-                        userID: userID,
-                        backgroundColor: backgroundColor,
-                        accentColor: accentColor,
-                        width: UIScreen.main.bounds.width
-                    )
-                    .frame(height: 60)
-                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+            .alert("Are you sure you want to delete your account?", isPresented: $showDeleteConfirmation) {
+                Button("Delete", role: .destructive) {
+                    DatabaseManager.shared.deleteUser(userID: userID)
+                    logOut = true
                 }
-                .ignoresSafeArea(edges: .bottom)
+                Button("Cancel", role: .cancel) {}
             }
-        }
-        .alert("Are you sure you want to delete your account?", isPresented: $showDeleteConfirmation) {
-            Button("Delete", role: .destructive) {
-                DatabaseManager.shared.deleteUser(userID: userID)
-                logOut = true
+            .fullScreenCover(isPresented: $logOut) {
+                LoginView()
             }
-            Button("Cancel", role: .cancel) {}
-        }
-        .fullScreenCover(isPresented: $logOut) {
-            LoginView()
-        }
-        .onAppear {
-            refreshUserData(refreshColors: true)
+            .onAppear {
+                refreshUserData(refreshColors: true)
+            }
         }
     }
     
