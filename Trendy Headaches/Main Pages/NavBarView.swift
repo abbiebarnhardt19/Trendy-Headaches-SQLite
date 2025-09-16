@@ -16,39 +16,48 @@ struct NavBarView: View {
         ZStack {
             Color(hex: backgroundColor)
             HStack {
-                NavigationLink(destination: LogView(userID: userID, backgroundColor: backgroundColor, accentColor: accentColor).navigationBarBackButtonHidden(true)) {
+                NavigationLink(
+                    destination: LogView(userID: userID, backgroundColor: backgroundColor, accentColor: accentColor)
+                        .navigationBarBackButtonHidden(true)
+                ) {
                     VStack(spacing: 2) {
                         Image(systemName: "square.and.pencil")
-                        Text("Log")
-                            .font(.caption)
+                        CustomText(text: "Log", color: accentColor, textAlignment: .center, multilineAlignment: .center, textSize: 15)
+                            .padding(.bottom, 15)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
+                .buttonStyle(PlainButtonStyle())
+
+                
+                
                 
                 
                 NavigationLink(destination: AnalyticsView(userID: userID, backgroundColor: backgroundColor, accentColor: accentColor).navigationBarBackButtonHidden(true)) {
                     VStack(spacing: 2) {
                         Image(systemName: "chart.bar.xaxis")
-                        Text("Analytics")
-                            .font(.caption)
+                        CustomText(text: "Analytics", color:accentColor, textAlignment: .center, multilineAlignment: .center, textSize: 15)
+                            .padding(.bottom, 15)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
+                .buttonStyle(PlainButtonStyle())
                 
                 NavigationLink(destination: ProfileView(userID: userID, backgroundColor: .constant(backgroundColor), accentColor: .constant(accentColor)).navigationBarBackButtonHidden(true)) {
                     VStack(spacing: 2) {
                         Image(systemName: "person.fill")
-                        Text("Profile")
-                            .font(.caption)
+                        CustomText(text: "Profile", color:accentColor, textAlignment: .center, multilineAlignment: .center, textSize: 15)
+                            .padding(.bottom, 15)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
+                .buttonStyle(PlainButtonStyle())
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity) // fill the bar
             .foregroundColor(Color(hex: accentColor))
         }
         .frame(maxWidth: width)  // force full width
-        .frame(height: 60)           // fixed height
+        .frame(height: 80)           // fixed height
         .ignoresSafeArea(edges: .bottom)
     }
 }
