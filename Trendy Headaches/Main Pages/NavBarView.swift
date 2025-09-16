@@ -4,39 +4,46 @@
 //
 //  Created by Abigail Barnhardt on 8/31/25.
 //
+
 import SwiftUI
 
 struct NavBarView: View {
     let userID: Int64
     @EnvironmentObject var themeManager: ThemeManager
-    @State private var refreshTrigger = false   // 🔹 trigger for TabView refresh
+    @State private var selectedTab: Int = 2
+    @State private var refreshTrigger: Bool = false
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             LogView(userID: userID)
                 .tabItem { Label("Log", systemImage: "square.and.pencil") }
+                .tag(0)
 
             AnalyticsView(userID: userID)
                 .tabItem { Label("Analytics", systemImage: "chart.bar.xaxis") }
+                .tag(1)
 
             ProfileView(userID: userID)
                 .tabItem { Label("Profile", systemImage: "person.fill") }
+                .tag(2)
         }
-        .id(refreshTrigger)   // 🔹 force TabView to reload when trigger changes
-        .onAppear {
-            updateTabBarAppearance()
-        }
+        .id(refreshTrigger) // force redraw
+        .onAppear { updateTabBarAppearance() }
         .onChange(of: themeManager.backgroundColor) { _ in
             updateTabBarAppearance()
-            refreshTrigger.toggle()  // 🔹 force redraw
+            DispatchQueue.main.async {
+                refreshTrigger.toggle() // redraw TabView without losing state
+            }
         }
         .onChange(of: themeManager.accentColor) { _ in
             updateTabBarAppearance()
-            refreshTrigger.toggle()  // 🔹 force redraw
+            DispatchQueue.main.async {
+                refreshTrigger.toggle()
+            }
         }
     }
 
-    func updateTabBarAppearance() {
+    private func updateTabBarAppearance() {
         let bgUIColor = UIColor(Color(hex: themeManager.backgroundColor))
         let accentUIColor = UIColor(Color(hex: themeManager.accentColor))
 
@@ -54,6 +61,7 @@ struct NavBarView: View {
         }
     }
 }
+
 
 #Preview {
     NavBarView(userID: 1)

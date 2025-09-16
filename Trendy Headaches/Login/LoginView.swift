@@ -120,5 +120,3 @@ struct NavBarWrapperView: SwiftUI.View {
         }
     }
 }
-
-

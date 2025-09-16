@@ -138,19 +138,27 @@ struct ProfileView: View {
                                 }
                                 
                                 CustomButton(text: "Save", background: themeManager.backgroundColor, accent: themeManager.accentColor) {
-                                    // Update database first
-                                    DatabaseManager.shared.updateUser(userID: userID, newValue: newSecurityQuestion, column: "security_question")
+                                    // Update security info
+                                    if securityQuestion != newSecurityQuestion {
+                                        DatabaseManager.shared.updateUser(userID: userID, newValue: newSecurityQuestion, column: "security_question")
+                                    }
+                                    
                                     let hashedAnswer = DatabaseManager.hashString(DatabaseManager.normalizedValue(newSecurityAnswer))
-                                    DatabaseManager.shared.updateUser(userID: userID, newValue: hashedAnswer, column: "security_answer")
-
-                                    // Update colors in ThemeManager
-                                    themeManager.backgroundColor = newThemeName == "Custom" ? themeManager.backgroundColor : DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "background_color") ?? themeManager.backgroundColor
-                                    themeManager.accentColor = newThemeName == "Custom" ? themeManager.accentColor : DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "accent_color") ?? themeManager.accentColor
-
-                                    // Refresh local view
-                                    refreshUserData(refreshColors: true)
+                                    if hashedAnswer != securityAnswer {
+                                        DatabaseManager.shared.updateUser(userID: userID, newValue: hashedAnswer, column: "security_answer")
+                                    }
+                                    
+                                    // Update colors in database
+                                    DatabaseManager.shared.updateUser(userID: userID, newValue: themeManager.backgroundColor, column: "background_color")
+                                    DatabaseManager.shared.updateUser(userID: userID, newValue: themeManager.accentColor, column: "accent_color")
+                                    
+                                    // No fetching yet — just update the ThemeManager so NavBar updates instantly
+                                    // themeManager.backgroundColor and accentColor already hold the new values from dropdowns/text fields
+                                    
                                     isEditing = false
                                 }
+
+
 
 
                             }
@@ -212,6 +220,17 @@ struct ProfileView: View {
         .onAppear {
             refreshUserData(refreshColors: true)
         }
+        .onChange(of: newThemeName) {
+            // Fetch the colors for this theme
+            let colors = DatabaseManager.getThemeColors(theme: newThemeName)
+            
+            // Update ThemeManager directly
+            themeManager.backgroundColor = colors.background
+            themeManager.accentColor = colors.accent
+        }
+
+
+
     }
 }
 
