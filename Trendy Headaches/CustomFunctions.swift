@@ -274,7 +274,7 @@ extension DatabaseManager {
             selected_accent = "#A4133C"
         }
         else if theme == "Light Yellow" {
-            selected_background = "FFFAE5"
+            selected_background = "#FFFAE5"
             selected_accent = "#848383"
         }
         else if theme == "Classic Dark" {
@@ -325,7 +325,7 @@ extension DatabaseManager {
         else if background == "#000814" && accent == "#B6CCFE"{
             themeName = "Dark Blue"
         }
-        else if background == "#240046" && accent == "#E7E6FF" {
+        else if background == "#240046" && accent == "#E7C6FF" {
             themeName = "Dark Purple"
         }
         else{
@@ -383,4 +383,24 @@ extension DatabaseManager {
                 print("❌ Failed to delete user \(userID): \(error)")
             }
         }
+    
+    
+    func updateUser(userID: Int64, newValue: String, column: String){
+        do {
+            let users = Table("users")
+            let id = SQLite.Expression<Int64>("user_id")
+            let columnToUpdate = SQLite.Expression<String>(column)
+            
+            let updateQuery = users.filter(id == userID).update(columnToUpdate <- newValue)
+            let updateCount = try DatabaseManager.shared.run(updateQuery)
+            
+            if updateCount > 0 {
+                print("Successfully updated \(column)")
+            } else {
+                print("No user found with id \(userID)")
+            }
+        } catch {
+            print("Failed to delete user \(userID): \(error)")
+        }
+    }
 }

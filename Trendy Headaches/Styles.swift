@@ -429,7 +429,7 @@ struct CustomDropdown: View {
                     .font(.system(size: 16, weight: .semibold))
                     .padding(.trailing, 20)
             }
-            .padding(.leading, 10)
+            .padding(.leading, 20)
             .frame(width: width, height: height, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius)

@@ -44,12 +44,14 @@ struct ForgotPasswordView3: View {
                         VStack{
                             //header text
                             CustomText(text:"Last Step", color:accent, width:100, textAlignment: .trailing, textSize: 50)
-                                .padding(.leading, 170)
-                                .padding(.bottom, 50)
+                                .padding(.leading, 190)
+                                .padding(.bottom, 120)
+                                
                             
                             //password one label and text box
                             CustomText(text: "New Password", color: accent)
                                 .padding(.leading, leading_padding)
+                                
                             
                             CustomTextField(background: background, accent: accent, placeholder: "", text: $password_one, isSecure: true)
                             
