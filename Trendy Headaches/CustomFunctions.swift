@@ -384,23 +384,22 @@ extension DatabaseManager {
             }
         }
     
-    
     func updateUser(userID: Int64, newValue: String, column: String){
-        do {
-            let users = Table("users")
-            let id = SQLite.Expression<Int64>("user_id")
-            let columnToUpdate = SQLite.Expression<String>(column)
-            
-            let updateQuery = users.filter(id == userID).update(columnToUpdate <- newValue)
-            let updateCount = try DatabaseManager.shared.run(updateQuery)
-            
-            if updateCount > 0 {
-                print("Successfully updated \(column)")
-            } else {
-                print("No user found with id \(userID)")
+            do {
+                let users = Table("users")
+                let id = SQLite.Expression<Int64>("user_id")
+                let columnToUpdate = SQLite.Expression<String>(column)
+                
+                let updateQuery = users.filter(id == userID).update(columnToUpdate <- newValue)
+                let updateCount = try DatabaseManager.shared.run(updateQuery)
+                
+                if updateCount > 0 {
+                    print("Successfully updated \(column)")
+                } else {
+                    print("No user found with id \(userID)")
+                }
+            } catch {
+                print("Failed to delete user \(userID): \(error)")
             }
-        } catch {
-            print("Failed to delete user \(userID): \(error)")
         }
-    }
 }

@@ -38,9 +38,8 @@ struct CreateAccountView2: View {
                         VStack{
                             //header and instructions
                             CustomText(text:"One Last Step", color:accent, width:350, textAlignment: .center, textSize: 50)
-                                .padding(.bottom, 15)
                             
-                            CustomText(text: "These fields are optional and help us provide personalized insights from your data. Add multiple items by separating them with commas.", color: accent, width: 350, textAlignment: .center, multilineAlignment: .center, textSize: 18)
+                            CustomText(text: "These fields are optional and help us provide personalized insights from your data. Add multiple items by separating them with commas.", color: accent, width: 325, textAlignment: .center, multilineAlignment: .center, textSize: 18)
                                 .padding(.bottom, 20)
                             
                             
@@ -111,6 +110,6 @@ struct CreateAccountView2: View {
 
 #Preview {
     NavigationStack {
-        CreateAccountView2(background: "FFFFFF", accent: "000000")
+        CreateAccountView2()
     }
 }

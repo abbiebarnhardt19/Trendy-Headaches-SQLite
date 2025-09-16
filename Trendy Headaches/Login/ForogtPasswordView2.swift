@@ -45,14 +45,14 @@ struct ForgotPasswordView2: View {
                         VStack {
                             //header text
                             CustomText(text:"Please answer your security question", color:accent, width:220, textAlignment: .leading, multilineAlignment: .leading, textSize: 50)
-                                .padding(.trailing, 110)
-                                .padding(.top, 40)
+                                .padding(.trailing, 140)
+                                .padding(.top, 0)
                             
                             VStack {
                                 //display user's security question based off email
                                 CustomText(text: securityQuestion, color: accent)
                                     .padding(.leading, leading_padding)
-                                    .padding(.top, 10)
+                                    .padding(.top, 30)
                                 
                                 //enter answer
                                 CustomTextField(background: background, accent: accent, placeholder:"", text: $enteredAnswer, isSecure: true)

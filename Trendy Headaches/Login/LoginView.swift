@@ -2,7 +2,6 @@ import SwiftUI
 import SQLite
 
 struct LoginView: SwiftUI.View {
-    @EnvironmentObject var themeManager: ThemeManager
     
     //page colors
     var background: String = "#001d00"
@@ -73,16 +72,17 @@ struct LoginView: SwiftUI.View {
                     _ = DatabaseManager.shared
                 }
                 
+                //when isLoggedIn is true, move to the main app and pass it the colors based on the email
                 .navigationDestination(isPresented: $isLoggedIn) {
                     if let userId = userId {
-                        NavBarWrapperView(userId: userId)
-                            .environmentObject(themeManager)
+                        let accentColor = DatabaseManager.shared.getSingleColumnValue(userId: userId, columnName: "accent_color")
+                        let backgroundColor = DatabaseManager.shared.getSingleColumnValue(userId: userId, columnName: "background_color")
+                        NavBarView(userID: userId, backgroundColor: backgroundColor ?? background, accentColor: accentColor ?? accent)
                     } else {
+                        // if for whatever reason userID doesn't exist
                         Text("Oops! Something went wrong. Please try again later.")
                     }
                 }
-
-
             }
         }
     }
@@ -91,32 +91,5 @@ struct LoginView: SwiftUI.View {
 #Preview {
     NavigationStack {
         LoginView()
-            .environmentObject(ThemeManager())
-    }
-}
-
-struct NavBarWrapperView: SwiftUI.View {
-    let userId: Int64
-    @EnvironmentObject var themeManager: ThemeManager
-    @State private var isLoaded = false
-
-    var body: some SwiftUI.View {
-        Group {
-            if isLoaded {
-                NavBarView(userID: userId)
-                    .environmentObject(themeManager)
-            } else {
-                Color.clear.onAppear {
-                    // fetch colors from database once
-                    let bgColor = DatabaseManager.shared.getSingleColumnValue(userId: userId, columnName: "background_color") ?? "#001d00"
-                    let accentColor = DatabaseManager.shared.getSingleColumnValue(userId: userId, columnName: "accent_color") ?? "#b5c4b9"
-
-                    themeManager.backgroundColor = bgColor
-                    themeManager.accentColor = accentColor
-
-                    isLoaded = true
-                }
-            }
-        }
     }
 }
