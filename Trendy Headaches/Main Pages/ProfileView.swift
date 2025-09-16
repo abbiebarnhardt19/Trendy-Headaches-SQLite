@@ -13,7 +13,7 @@ struct ProfileView: View {
     @Binding var accentColor: String
     
     // Booleans
-    @State private var isEditing = false
+    @State private var isEditing = true
     @State private var logOut = false
     @State private var showPolicy = false
     @State private var showDeleteConfirmation = false
@@ -141,15 +141,17 @@ struct ProfileView: View {
         let editColumnWidth = UIScreen.main.bounds.width / 2
 //        let buttonActions = [{ isEditing = true }, { showPolicy = true },
 //                             { logOut = true }, { showDeleteConfirmation = true}]
-        
+
         HStack(alignment: .top) {
             Spacer()
             
             // Left column
             VStack(alignment: .center) {
-                CustomText(text: "User Profile", color: newAccent, width: 150, textAlignment: .center, textSize: 47)
+                CustomText(text: "User Profile", color: newAccent, width: 150, textAlignment: .leading, textSize: 50)
+                    .padding(.bottom, 10)
                     .padding(.top, 0)
-                    .padding(.bottom, 5)
+                    .padding(.leading, 5)
+
                 
                 CustomText(text: "Symptoms", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
                 EditableList(items: $newSymptoms, title: "Symptoms", backgroundColor: newBackground, accentColor: newAccent)
@@ -198,16 +200,17 @@ struct ProfileView: View {
     @ViewBuilder
     private func viewingView() -> some View {
         let viewColumnWidth = UIScreen.main.bounds.width / 2
-        
-        CustomText(text: "User Profile", color: newAccent, width: 150, textAlignment: .leading, textSize: 50)
-            .padding(.trailing, 170)
-            .padding(.bottom, 30)
-            .padding(.top, 20)
+
         
         HStack(alignment: .top) {
             // Left column
             Spacer()
             VStack {
+                CustomText(text: "User Profile", color: newAccent, width: 150, textAlignment: .leading, textSize: 50)
+                    .padding(.bottom, 30)
+                    .padding(.top, 0)
+                    .padding(.leading, 5)
+
                 VStack {
                     CustomText(text: "Symptoms", color: newAccent, width: viewColumnWidth - 10, textAlignment: .center, multilineAlignment: .center, isBold: true)
                     CustomList(items: newSymptoms, color: newAccent)
@@ -227,6 +230,8 @@ struct ProfileView: View {
             
             // Right column
             VStack(alignment: .center) {
+                //placeholder
+                
                 VStack {
                     CustomText(text: "Emergency Meds", color: newAccent, width: viewColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
                     CustomList(items: newEmergencyMeds, color: newAccent)
@@ -252,6 +257,7 @@ struct ProfileView: View {
                     }
             }
             .frame(maxWidth: viewColumnWidth, alignment: .center)
+            .padding(.top, 160)
             Spacer()
         }
     }
