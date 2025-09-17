@@ -12,7 +12,6 @@ struct ProfileView: View {
     @Binding var backgroundColor: String
     @Binding var accentColor: String
     
-    
     // Booleans
     @State private var isEditing = true
     @State private var logOut = false
@@ -29,10 +28,6 @@ struct ProfileView: View {
     @State private var themeName: String = ""
 
     // Editing values
-    @State private var newSymptoms: [String] = []
-    @State private var newTriggers: [String] = []
-    @State private var newPrevMeds: [String] = []
-    @State private var newEmergencyMeds: [String] = []
     @State private var newSecurityQuestion: String = ""
     @State private var newSecurityAnswer: String = ""
     @State private var newThemeName: String = ""
@@ -45,45 +40,6 @@ struct ProfileView: View {
     // Floating button names
     let buttonNames = ["Edit Profile", "Data Policy", "Sign Out", "Delete Account"]
     
-    func refreshUserData(refreshColors: Bool) {
-        // Fetch all user values from database
-        let fetchForeignLists: [(table: String, column: String, filterCol: String?, filterVal: String?, assign: ([String]) -> Void, newAssign: ([String]) -> Void)] =
-        [("symptoms", "symptom_name", nil, nil, {symptoms=$0}, {newSymptoms=$0}),
-         ("triggers", "trigger_name", nil, nil, {triggers=$0}, {newTriggers=$0}),
-         ("medications", "medication_name", "medication_category", "preventative", {prevMeds=$0}, {newPrevMeds=$0}),
-         ("medications", "medication_name", "medication_category", "emergency", {emergencyMeds=$0}, {newEmergencyMeds=$0})]
-        
-        fetchForeignLists.forEach { param in
-            var list = DatabaseManager.shared.getForeignKeyColumnValues(
-                userId: userID,
-                tableName: param.table,
-                columnName: param.column,
-                filterColumn: param.filterCol,
-                filterValue: param.filterVal
-            )
-            
-            list = DatabaseManager.deleteListDuplicates(list: list)
-            if list.isEmpty {
-                list.append("None entered")
-            }
-            param.assign(list)
-            param.newAssign(list)
-        }
-        
-        securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "security_question") ?? "None set"
-        securityAnswer = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "security_answer") ?? "None set"
-        newSecurityQuestion = securityQuestion
-        
-        if refreshColors {
-            backgroundColor = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "background_color") ?? "None set"
-            accentColor = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "accent_color") ?? "None set"
-            newAccent = accentColor
-            newBackground = backgroundColor
-            themeName = DatabaseManager.getThemeName(selected_background: newBackground, selected_accent: newAccent)
-            newThemeName = themeName.contains("Custom") ? "Custom" : themeName
-        }
-    }
-    
     var body: some View {
         NavigationStack{
             ZStack {
@@ -94,35 +50,27 @@ struct ProfileView: View {
                 SameAmplitudeBlob(waves: 12, amplitude: 20, accent: newAccent, x: 160, y: -340, rotation: -18)
                 SameAmplitudeBlob(waves: 13, amplitude: 15, accent: newAccent, x: 0, y: -375, rotation: 155)
                 
-                GeometryReader { geo in
-                    // Scrollable content
-                    ScrollView {
-                        VStack(spacing: 0) {
-                            if isEditing {
-                                editingView()
-                            } else {
-                                viewingView()
-                            }
+                // Scrollable content
+                ScrollView {
+                    //set the content based on editing or not
+                    VStack(spacing: 0) {
+                        if isEditing {
+                            editingView()
+                        } else {
+                            viewingView()
                         }
                     }
-                    
-                    .ignoresSafeArea(edges: .bottom)
-                    
-                    // Nav bar overlay at bottom
-                    VStack {
-                        Spacer()
-                        NavBarView(
-                            userID: userID,
-                            backgroundColor: $newBackground,
-                            accentColor: $newAccent,
-                            width: UIScreen.main.bounds.width
-                        )
-                        .frame(height: 60)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    }
-                    .ignoresSafeArea(edges: .bottom)
                 }
-
+                .ignoresSafeArea(edges: .bottom)
+                
+                // Nav bar overlay at bottom
+                VStack {
+                    Spacer()
+                    NavBarView(userID: userID, backgroundColor: $newBackground, accentColor: $newAccent)
+                    .frame(height: 60)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .ignoresSafeArea(edges: .bottom)
             }
             .alert("Are you sure you want to delete your account?", isPresented: $showDeleteConfirmation) {
                 Button("Delete", role: .destructive) {
@@ -135,7 +83,7 @@ struct ProfileView: View {
                 LoginView()
             }
             .onAppear {
-                refreshUserData(refreshColors: true)
+                DatabaseManager.shared.loadData(userID: userID, symptoms: &symptoms, triggers: &triggers, prevMeds: &prevMeds, emergencyMeds: &emergencyMeds, securityQuestion: &securityQuestion, securityAnswer: &securityAnswer, newSecurityQuestion: &newSecurityQuestion, backgroundColor: &backgroundColor, accentColor: &accentColor, newBackground: &newBackground, newAccent: &newAccent, themeName: &themeName, newThemeName: &newThemeName)
             }
         }
     }
@@ -143,8 +91,6 @@ struct ProfileView: View {
     @ViewBuilder
     private func editingView() -> some View {
         let editColumnWidth = UIScreen.main.bounds.width / 2
-//        let buttonActions = [{ isEditing = true }, { showPolicy = true },
-//                             { logOut = true }, { showDeleteConfirmation = true}]
 
         HStack(alignment: .top) {
             Spacer()
@@ -156,15 +102,56 @@ struct ProfileView: View {
                     .padding(.top, 0)
                     .padding(.leading, 5)
 
-                
                 CustomText(text: "Symptoms", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                EditableList(items: $newSymptoms, title: "Symptoms", backgroundColor: newBackground, accentColor: newAccent)
                 
+                EditableList(
+                    items: $symptoms,
+                    title: "Symptoms",
+                    backgroundColor: newBackground,
+                    accentColor: newAccent,
+                    onAdd: { newSymptom in
+                        DatabaseManager.shared.insertItem(table: DatabaseManager.shared.symptoms,
+                            userID: userID, nameColumn: DatabaseManager.shared.symptom_name,
+                            name: newSymptom, startColumn: DatabaseManager.shared.symptom_start,
+                            endColumn: DatabaseManager.shared.symptom_end)},
+                    onEdit: { oldValue, newValue in
+                        DatabaseManager.shared.updateItem(table: DatabaseManager.shared.symptoms, userID: userID,oldValue: oldValue, newValue: newValue,nameColumn: DatabaseManager.shared.symptom_name)},
+                    onDelete: { value in
+                        DatabaseManager.shared.endItem(table: DatabaseManager.shared.symptoms, userID: userID, name: value, nameColumn: DatabaseManager.shared.symptom_name, endColumn: DatabaseManager.shared.symptom_end)})
+  
                 CustomText(text: "Triggers", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                EditableList(items: $newTriggers, title: "Triggers", backgroundColor: newBackground, accentColor: newAccent)
+                
+                EditableList(
+                    items: $triggers,
+                    title: "Triggers",
+                    backgroundColor: newBackground,
+                    accentColor: newAccent,
+                    onAdd: { newTrigger in
+                        DatabaseManager.shared.insertItem(table: DatabaseManager.shared.triggers,
+                            userID: userID, nameColumn: DatabaseManager.shared.trigger_name,
+                            name: newTrigger, startColumn: DatabaseManager.shared.trigger_start,
+                            endColumn: DatabaseManager.shared.trigger_end)},
+                    onEdit: { oldValue, newValue in
+                        DatabaseManager.shared.updateItem(table: DatabaseManager.shared.triggers, userID: userID, oldValue: oldValue, newValue: newValue,nameColumn: DatabaseManager.shared.trigger_name)},
+                    onDelete: { value in
+                        DatabaseManager.shared.endItem(table: DatabaseManager.shared.triggers, userID: userID, name: value, nameColumn: DatabaseManager.shared.trigger_name, endColumn: DatabaseManager.shared.trigger_end)})
                 
                 CustomText(text: "Preventative Medications", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                EditableList(items: $newPrevMeds, title: "Preventative Medications", backgroundColor: newBackground, accentColor: newAccent)
+                
+                EditableList(
+                    items: $prevMeds,
+                    title: "Preventative Medications",
+                    backgroundColor: newBackground,
+                    accentColor: newAccent,
+                    onAdd: { newPrevMed in
+                        DatabaseManager.shared.insertItem(table: DatabaseManager.shared.medications,
+                            userID: userID, nameColumn: DatabaseManager.shared.medication_name,
+                            name: newPrevMed, startColumn: DatabaseManager.shared.medication_start,
+                            endColumn: DatabaseManager.shared.medication_end, medicationCategory: "preventative")},
+                    onEdit: { oldValue, newValue in
+                        DatabaseManager.shared.updateItem(table: DatabaseManager.shared.medications, userID: userID, oldValue: oldValue, newValue: newValue,nameColumn: DatabaseManager.shared.medication_name, medicationCategory: "preventative")},
+                    onDelete: { value in
+                        DatabaseManager.shared.endItem(table: DatabaseManager.shared.medications, userID: userID, name: value, nameColumn: DatabaseManager.shared.medication_name, endColumn: DatabaseManager.shared.medication_end, medicationCategory: "preventative")})
             }
             .frame(maxWidth: editColumnWidth, alignment: .center)
             .padding(.bottom, 50)
@@ -172,7 +159,21 @@ struct ProfileView: View {
             // Right column
             VStack {
                 CustomText(text: "Emergency Medications", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                EditableList(items: $newEmergencyMeds, title: "Emergency Medications", backgroundColor: newBackground, accentColor: newAccent)
+                
+                EditableList(
+                    items: $emergencyMeds,
+                    title: "Emergency Medications",
+                    backgroundColor: newBackground,
+                    accentColor: newAccent,
+                    onAdd: { newPrevMed in
+                        DatabaseManager.shared.insertItem(table: DatabaseManager.shared.medications,
+                            userID: userID, nameColumn: DatabaseManager.shared.medication_name,
+                            name: newPrevMed, startColumn: DatabaseManager.shared.medication_start,
+                            endColumn: DatabaseManager.shared.medication_end, medicationCategory: "emergency")},
+                    onEdit: { oldValue, newValue in
+                        DatabaseManager.shared.updateItem(table: DatabaseManager.shared.medications, userID: userID, oldValue: oldValue, newValue: newValue,nameColumn: DatabaseManager.shared.medication_name, medicationCategory: "emergency")},
+                    onDelete: { value in
+                        DatabaseManager.shared.endItem(table: DatabaseManager.shared.medications, userID: userID, name: value, nameColumn: DatabaseManager.shared.medication_name, endColumn: DatabaseManager.shared.medication_end, medicationCategory: "emergency")})
                 
                 CustomText(text: "Security Question", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
                 CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newSecurityQuestion, width: editColumnWidth - 40, height: 55, cornerRadius: 8, textSize: 16, isMultiline: true)
@@ -217,17 +218,17 @@ struct ProfileView: View {
 
                 VStack {
                     CustomText(text: "Symptoms", color: newAccent, width: viewColumnWidth - 10, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                    CustomList(items: newSymptoms, color: newAccent)
+                    CustomList(items: symptoms, color: newAccent)
                 }
                 
                 VStack {
                     CustomText(text: "Triggers", color: newAccent, width: viewColumnWidth - 10, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                    CustomList(items: newTriggers, color: newAccent)
+                    CustomList(items: triggers, color: newAccent)
                 }
                 
                 VStack {
                     CustomText(text: "Preventative Meds", color: newAccent, width: viewColumnWidth - 10, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                    CustomList(items: newPrevMeds, color: newAccent)
+                    CustomList(items: prevMeds, color: newAccent)
                 }
             }
             .frame(maxWidth: viewColumnWidth)
@@ -238,7 +239,7 @@ struct ProfileView: View {
                 
                 VStack {
                     CustomText(text: "Emergency Meds", color: newAccent, width: viewColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                    CustomList(items: newEmergencyMeds, color: newAccent)
+                    CustomList(items: emergencyMeds, color: newAccent)
                 }
                 
                 VStack {
@@ -290,9 +291,6 @@ struct ProfileView: View {
         }
         
         isEditing = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            refreshUserData(refreshColors: false)
-        }
     }
 }
 

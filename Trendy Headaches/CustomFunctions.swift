@@ -402,4 +402,122 @@ extension DatabaseManager {
                 print("Failed to delete user \(userID): \(error)")
             }
         }
+    
+    
+    func insertItem(table: Table, userID: Int64, nameColumn: SQLite.Expression<String>, name: String, startColumn: SQLite.Expression<Date>, endColumn: SQLite.Expression<Date?>, medicationCategory: String? = nil) {
+        var setters: [Setter] = [
+            user_id <- userID,
+            nameColumn <- name,
+            startColumn <- Date(),
+            endColumn <- nil
+        ]
+        
+        // Always use DatabaseManager.shared.med_category as the column
+        if let category = medicationCategory {
+            setters.append(DatabaseManager.shared.medication_category <- category)
+        }
+        
+        let insert = table.insert(setters)
+        do {
+          _ = try run(insert)
+            print("✅ Inserted \(name)")
+        } catch {
+            print("❌ Failed to insert \(name): \(error)")
+        }
+    }
+
+        
+    func updateItem(
+        table: Table,
+        userID: Int64,
+        oldValue: String,
+        newValue: String,
+        nameColumn: SQLite.Expression<String>,
+        medicationCategory: String? = nil
+    ) {
+        var filter = table.filter(user_id == userID && nameColumn == oldValue)
+        
+        // If a category is provided, filter by it too
+        if let category = medicationCategory {
+            filter = filter.filter(DatabaseManager.shared.medication_category == category)
+        }
+        
+        do {
+            _ = try run(filter.update(nameColumn <- newValue))
+            if let category = medicationCategory {
+                print("✅ Updated \(oldValue) → \(newValue) (\(category))")
+            } else {
+                print("✅ Updated \(oldValue) → \(newValue)")
+            }
+        } catch {
+            print("❌ Failed to update \(oldValue): \(error)")
+        }
+    }
+
+    
+    func endItem(
+        table: Table,
+        userID: Int64,
+        name: String,
+        nameColumn: SQLite.Expression<String>,
+        endColumn: SQLite.Expression<Date?>,
+        medicationCategory: String? = nil
+    ) {
+        var filter = table.filter(user_id == userID && nameColumn == name)
+        
+        // If a category is provided, filter by it too
+        if let category = medicationCategory {
+            filter = filter.filter(DatabaseManager.shared.medication_category == category)
+        }
+        
+        do {
+            _ = try run(filter.update(endColumn <- Date()))
+            if let category = medicationCategory {
+                print("✅ Ended \(name) (\(category)) at \(Date())")
+            } else {
+                print("✅ Ended \(name) at \(Date())")
+            }
+        } catch {
+            print("❌ Failed to end \(name): \(error)")
+        }
+    }
+    
+    func loadData(
+        userID: Int64,
+        symptoms: inout [String],
+        triggers: inout [String],
+        prevMeds: inout [String],
+        emergencyMeds: inout [String],
+        securityQuestion: inout String,
+        securityAnswer: inout String,
+        newSecurityQuestion: inout String,
+        backgroundColor: inout String,
+        accentColor: inout String,
+        newBackground: inout String,
+        newAccent: inout String,
+        themeName: inout String,
+        newThemeName: inout String
+    ) {
+        symptoms = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
+        
+        triggers = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name")
+        
+        prevMeds = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name", filterColumn: "medication_category", filterValue: "preventative")
+        
+        emergencyMeds = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name", filterColumn: "medication_category", filterValue: "emergency")
+        
+        securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "security_question") ?? "None set"
+        securityAnswer = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "security_answer") ?? "None set"
+        newSecurityQuestion = securityQuestion
+        
+        backgroundColor = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "background_color") ?? "None set"
+        
+        accentColor = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "accent_color") ?? "None set"
+        
+        newAccent = accentColor
+        newBackground = backgroundColor
+        
+        themeName = DatabaseManager.getThemeName(selected_background: newBackground, selected_accent: newAccent)
+        newThemeName = themeName.contains("Custom") ? "Custom" : themeName
+    }
 }

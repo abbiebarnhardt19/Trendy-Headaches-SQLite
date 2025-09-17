@@ -588,65 +588,204 @@ struct PolicySheetView: View {
     }
 }
 
+//struct EditableList: View {
+//    @Binding var items: [String]
+//    var title: String
+//    var backgroundColor: String
+//    var accentColor: String
+//    
+//    let width = UIScreen.main.bounds.width/2 - 40
+//    let rowHeight = CGFloat(40)
+//
+//    @State private var newItemText = ""
+//
+//    var body: some View {
+//        
+//        VStack(alignment: .leading, spacing: 0) {
+//
+//            VStack(spacing: 6) {
+//                ForEach(items.indices.filter { items[$0] != "None entered" }, id: \.self) { index in
+//                    ZStack(alignment: .trailing) {
+//                        TextField("Enter item", text: Binding(
+//                            get: { items[index] },
+//                            set: { items[index] = $0 }
+//                        ))
+//                        .padding(.vertical, 8)
+//                        .padding(.trailing, 35)
+//                        .padding(.leading, 10)
+//                        .background(Color(hex: accentColor))
+//                        .foregroundColor(Color(hex: backgroundColor))
+//                        .cornerRadius(8)
+//                        .fixedSize(horizontal: false, vertical: true)
+//                        .font(.system(size: 16, design: .serif))
+//                        .background(
+//                            RoundedRectangle(cornerRadius: 8)
+//                                .fill(Color(hex: backgroundColor))
+//                        )
+//                        
+//                        
+//                        Button(action: { items.remove(at: index) }) {
+//                            Image(systemName: "minus.circle.fill")
+//                                .renderingMode(.template)
+//                                .foregroundColor(Color(hex: backgroundColor))
+//                                .padding(.trailing, 8)
+//                        }
+//                        .buttonStyle(PlainButtonStyle())
+//                    }
+//                }
+//                // Add new item row
+//                HStack {
+//                    ZStack(alignment: .trailing) {
+//                        TextField("", text: $newItemText, prompt: Text("")
+//                            .foregroundColor(Color(hex: backgroundColor))
+//                        )
+//                        .padding(.vertical, 8)
+//                        .padding(.trailing, 35)
+//                        .padding(.leading, 10)
+//                        .background(Color(hex: accentColor))
+//                        .foregroundColor(Color(hex: backgroundColor)) // typed text color
+//                        .cornerRadius(8)
+//                        
+//                        Button(action: addItem) {
+//                            Image(systemName: "plus.circle.fill")
+//                                .renderingMode(.template)
+//                                .foregroundColor(Color(hex: backgroundColor))
+//                                .padding(.trailing, 8)
+//                        }
+//                        .buttonStyle(PlainButtonStyle())
+//                        .disabled(newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
+//                    }
+//                }
+//            }
+//        }
+//        
+//        .frame(width: width,
+//               height: CGFloat(items.indices.filter{ items[$0] != "None entered" }.count + 1) * rowHeight) // adjusts height dynamically
+//        .background(Color(hex: "backgroundColor").opacity(0.0))
+//        .clipShape(RoundedRectangle(cornerRadius: 12))
+//        .padding(.bottom, 10)
+//    }
+//
+//    private func addItem() {
+//        let trimmed = newItemText.trimmingCharacters(in: .whitespaces)
+//        guard !trimmed.isEmpty else { return }
+//        items.append(trimmed)
+//        newItemText = ""
+//    }
+//}
+
 struct EditableList: View {
     @Binding var items: [String]
     var title: String
     var backgroundColor: String
     var accentColor: String
-    
-    let width = UIScreen.main.bounds.width/2 - 40
+
+    var onAdd: (String) -> Void
+    var onEdit: (String, String) -> Void
+    var onDelete: (String) -> Void
+
+    let width = UIScreen.main.bounds.width / 2 - 40
     let rowHeight = CGFloat(40)
 
     @State private var newItemText = ""
+    @State private var editingIndex: Int? = nil
+    @State private var originalValue: String = ""
+    
+    @State private var showDeleteConfirmation = false
+    @State private var itemToDelete: String? = nil
 
     var body: some View {
-        
         VStack(alignment: .leading, spacing: 0) {
-
             VStack(spacing: 6) {
                 ForEach(items.indices.filter { items[$0] != "None entered" }, id: \.self) { index in
                     ZStack(alignment: .trailing) {
-                        TextField("Enter item", text: Binding(
-                            get: { items[index] },
-                            set: { items[index] = $0 }
-                        ))
-                        .padding(.vertical, 8)
-                        .padding(.trailing, 35)
-                        .padding(.leading, 10)
-                        .background(Color(hex: accentColor))
-                        .foregroundColor(Color(hex: backgroundColor))
-                        .cornerRadius(8)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .font(.system(size: 16, design: .serif))
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color(hex: backgroundColor))
-                        )
-                        
-                        
-                        Button(action: { items.remove(at: index) }) {
-                            Image(systemName: "minus.circle.fill")
-                                .renderingMode(.template)
+                        if editingIndex == index {
+                            // Editable text field when editing
+                            TextField("Enter item", text: Binding(
+                                get: { items[index] },
+                                set: { items[index] = $0 }
+                            ))
+                            .padding(.vertical, 8)
+                            .padding(.trailing, 70)
+                            .padding(.leading, 10)
+                            .background(Color(hex: accentColor))
+                            .foregroundColor(Color(hex: backgroundColor))
+                            .cornerRadius(8)
+                            .font(.system(size: 16, design: .serif))
+
+                            HStack(spacing: 4) {
+                                Button(action: {
+                                    let newValue = items[index]
+                                    if newValue != originalValue {
+                                        onEdit(originalValue, newValue)
+                                    }
+                                    editingIndex = nil
+                                }) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(Color(hex: backgroundColor))
+                                }
+                                Button(action: {
+                                    itemToDelete = items[index]
+                                    showDeleteConfirmation = true
+                                }) {
+                                    Image(systemName: "minus.circle.fill")
+                                        .foregroundColor(Color(hex: backgroundColor))
+                                }
+
+                            }
+                            .padding(.trailing, 8)
+
+                        } else {
+                            // View-only mode
+                            Text(items[index])
+                                .padding(.vertical, 8)
+                                .padding(.trailing, 70)
+                                .padding(.leading, 10)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color(hex: accentColor))
                                 .foregroundColor(Color(hex: backgroundColor))
-                                .padding(.trailing, 8)
+                                .cornerRadius(8)
+                                .font(.system(size: 16, design: .serif))
+
+                            HStack(spacing: 4) {
+                                Button(action: {
+                                    originalValue = items[index]
+                                    editingIndex = index
+                                }) {
+                                    Image(systemName: "pencil.circle.fill")
+                                        .foregroundColor(Color(hex: backgroundColor))
+                                }
+                                Button(action: {
+                                    itemToDelete = items[index]
+                                    showDeleteConfirmation = true
+                                }) {
+                                    Image(systemName: "minus.circle.fill")
+                                        .foregroundColor(Color(hex: backgroundColor))
+                                }
+                            }
+                            .padding(.trailing, 8)
                         }
-                        .buttonStyle(PlainButtonStyle())
                     }
                 }
+
                 // Add new item row
                 HStack {
                     ZStack(alignment: .trailing) {
-                        TextField("", text: $newItemText, prompt: Text("")
+                        TextField("New item", text: $newItemText)
+                            .padding(.vertical, 8)
+                            .padding(.trailing, 35)
+                            .padding(.leading, 10)
+                            .background(Color(hex: accentColor))
                             .foregroundColor(Color(hex: backgroundColor))
-                        )
-                        .padding(.vertical, 8)
-                        .padding(.trailing, 35)
-                        .padding(.leading, 10)
-                        .background(Color(hex: accentColor))
-                        .foregroundColor(Color(hex: backgroundColor)) // typed text color
-                        .cornerRadius(8)
-                        
-                        Button(action: addItem) {
+                            .cornerRadius(8)
+
+                        Button(action: {
+                            let trimmed = newItemText.trimmingCharacters(in: .whitespaces)
+                            guard !trimmed.isEmpty else { return }
+                            items.append(trimmed)
+                            onAdd(trimmed)
+                            newItemText = ""
+                        }) {
                             Image(systemName: "plus.circle.fill")
                                 .renderingMode(.template)
                                 .foregroundColor(Color(hex: backgroundColor))
@@ -656,20 +795,27 @@ struct EditableList: View {
                         .disabled(newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
                 }
+
             }
+
         }
-        
+        .alert("Are you sure you want to delete this item?",
+               isPresented: $showDeleteConfirmation,
+               presenting: itemToDelete) { item in
+            Button("Delete", role: .destructive) {
+                onDelete(item)
+                if let index = items.firstIndex(of: item) {
+                    items.remove(at: index)
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: { item in
+            Text("This will mark '\(item)' as inactive.")
+        }
         .frame(width: width,
-               height: CGFloat(items.indices.filter{ items[$0] != "None entered" }.count + 1) * rowHeight) // adjusts height dynamically
-        .background(Color(hex: "backgroundColor").opacity(0.0))
+               height: CGFloat(items.indices.filter { items[$0] != "None entered" }.count + 1) * rowHeight)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .padding(.bottom, 10)
-    }
 
-    private func addItem() {
-        let trimmed = newItemText.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return }
-        items.append(trimmed)
-        newItemText = ""
     }
 }

@@ -10,7 +10,6 @@ struct NavBarView: View {
     let userID: Int64
     @Binding var backgroundColor: String
     @Binding var accentColor: String
-    var width: CGFloat
     
     @Namespace var namespace
     
@@ -58,7 +57,7 @@ struct NavBarView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity) // fill the bar
             .foregroundColor(Color(hex: accentColor))
         }
-        .frame(maxWidth: width)  // force full width
+        .frame(maxWidth: UIScreen.main.bounds.width)  // force full width
         .frame(height: 80)           // fixed height
         .ignoresSafeArea(edges: .bottom)
     }
@@ -68,8 +67,7 @@ struct NavBarView: View {
     NavBarView(
         userID: 1,
         backgroundColor: .constant("#001d00"),
-        accentColor: .constant("#b5c4b9"),
-        width: 300
+        accentColor: .constant("#b5c4b9")
     )
 }
 

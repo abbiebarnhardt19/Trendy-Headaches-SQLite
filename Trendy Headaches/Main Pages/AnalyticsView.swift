@@ -35,8 +35,7 @@ struct AnalyticsView: View {
                 NavBarView(
                     userID: userID,
                     backgroundColor: $backgroundColor,
-                    accentColor: $accentColor,
-                    width: UIScreen.main.bounds.width
+                    accentColor: $accentColor
                 )
                 .frame(height: 60)
                 .frame(maxWidth: .infinity, alignment: .center)
