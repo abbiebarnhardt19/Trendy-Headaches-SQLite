@@ -10,8 +10,8 @@ import SwiftUI
 struct LogView: View {
     
     var userID: Int64
-    var backgroundColor: String = ""
-    var accentColor: String = ""
+    @Binding var backgroundColor: String
+    @Binding var accentColor: String
     
     var body: some View {
         ZStack {
@@ -25,16 +25,16 @@ struct LogView: View {
             VStack(spacing: 0) {
                 CustomText(text:"Log View", color: accentColor, width:200, textAlignment: .center, multilineAlignment: .center, textSize:75)
             }
-                
+            
             .ignoresSafeArea(edges: .bottom)
-                
+            
             // Nav bar overlay at bottom
-            VStack{
+            VStack {
                 Spacer()
                 NavBarView(
                     userID: userID,
-                    backgroundColor: backgroundColor,
-                    accentColor: accentColor,
+                    backgroundColor: $backgroundColor,
+                    accentColor: $accentColor,
                     width: UIScreen.main.bounds.width
                 )
                 .frame(height: 60)
@@ -46,5 +46,5 @@ struct LogView: View {
 }
 
 #Preview {
-    LogView(userID: 1, backgroundColor: "#001d00", accentColor: "#b5c4b9")
+    LogView(userID: 1, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
 }

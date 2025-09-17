@@ -12,6 +12,7 @@ struct ProfileView: View {
     @Binding var backgroundColor: String
     @Binding var accentColor: String
     
+    
     // Booleans
     @State private var isEditing = true
     @State private var logOut = false
@@ -108,12 +109,12 @@ struct ProfileView: View {
                     .ignoresSafeArea(edges: .bottom)
                     
                     // Nav bar overlay at bottom
-                    VStack (){
+                    VStack {
                         Spacer()
                         NavBarView(
                             userID: userID,
-                            backgroundColor: backgroundColor,
-                            accentColor: accentColor,
+                            backgroundColor: $newBackground,
+                            accentColor: $newAccent,
                             width: UIScreen.main.bounds.width
                         )
                         .frame(height: 60)
@@ -121,6 +122,7 @@ struct ProfileView: View {
                     }
                     .ignoresSafeArea(edges: .bottom)
                 }
+
             }
             .alert("Are you sure you want to delete your account?", isPresented: $showDeleteConfirmation) {
                 Button("Delete", role: .destructive) {

@@ -10,8 +10,9 @@ import SwiftUI
 struct AnalyticsView: View {
     
     var userID: Int64
-    var backgroundColor: String = ""
-    var accentColor: String = ""
+    @Binding var backgroundColor: String
+    @Binding var accentColor: String
+    
     
     var body: some View {
         ZStack {
@@ -25,16 +26,16 @@ struct AnalyticsView: View {
             VStack(spacing: 0) {
                 CustomText(text:"Analytics View", color: accentColor, width:300, textAlignment: .center, multilineAlignment: .center, textSize:75)
             }
-                
+            
             .ignoresSafeArea(edges: .bottom)
-                
+            
             // Nav bar overlay at bottom
-            VStack{
+            VStack {
                 Spacer()
                 NavBarView(
                     userID: userID,
-                    backgroundColor: backgroundColor,
-                    accentColor: accentColor,
+                    backgroundColor: $backgroundColor,
+                    accentColor: $accentColor,
                     width: UIScreen.main.bounds.width
                 )
                 .frame(height: 60)
@@ -47,5 +48,5 @@ struct AnalyticsView: View {
 
 
 #Preview {
-    AnalyticsView(userID: 1, backgroundColor: "#001d00", accentColor: "#b5c4b9")
+    AnalyticsView(userID: 1, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
 }
