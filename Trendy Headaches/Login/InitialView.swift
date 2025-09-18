@@ -11,6 +11,7 @@ struct InitialView: View {
     
     let accent = "#b5c4b9"
     let background = "#001d00"
+    let screen_width = UIScreen.main.bounds.width
     
     @State private var showPolicy = false
     @State private var agreedToPolicy = false
@@ -25,7 +26,7 @@ struct InitialView: View {
                 SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 140, y: -220, rotation: 295)
 
                 VStack {
-                    CustomText(text: "Trendy Headaches", color: accent, width: 300, textAlignment: .center, multilineAlignment: .center, textSize: 50)
+                    CustomText(text: "Trendy Headaches", color: accent, width: screen_width-50, textAlignment: .center, multilineAlignment: .center, textSize: 50)
                     
                     // Sign In button (normal navigation)
                     CustomNavButton(label: "Sign In", destination: LoginView(), background: background, accent: accent)

@@ -15,7 +15,7 @@ struct LoginView: SwiftUI.View {
     @State private var userId: Int64? = nil
     
     //used for leading padding so it only needs to be changed in one place
-    let leading_padding = CGFloat(20)
+    let leading_padding = CGFloat(35)
     
     
     

@@ -24,7 +24,8 @@ struct CreateAccountView3: View {
     @State private var accent: String = "#b5c4b9"
     
     //leading padding constant
-    let leading_padding = CGFloat(10)
+    let leading_padding = CGFloat(180)
+    let screen_width = UIScreen.main.bounds.width
     
     var body: some View {
         NavigationStack {
@@ -39,25 +40,23 @@ struct CreateAccountView3: View {
                 VStack{
                     //header
                     CustomText(text: "Choose a color theme", color: accent)
-                        .padding(.leading, 165)
+                        .padding(.leading, leading_padding)
 
                     //dropdown with theme options
-                    CustomDropdown(color_theme: $color_theme, background: $background, accent: $accent, options: options, width: 350, height:50, cornerRadius: 30, fontSize: 22)
+                    CustomDropdown(color_theme: $color_theme, background: $background, accent: $accent, options: options, width: screen_width-50, height:50, cornerRadius: 30, fontSize: 22)
 
                     //if they chose custom, show additional instructions and text boxes
                     if color_theme == "Custom"{
                         //custom instructions
-                        CustomText(text:"Or, enter two hex codes to design a theme", color: accent)
-                            .multilineTextAlignment(.leading)
-                            .frame(maxWidth: 390, alignment: .leading)
-                            .padding(.leading, 20)
+                        CustomText(text:"Or, enter two hex codes to design a theme", color: accent, width: screen_width-50, multilineAlignment: .center)
+                            .padding(.bottom, 10)
                         
                         //side by side text boxes for two hex codes
                         HStack {
-                            CustomTextField(background: background, accent: accent, placeholder: "", text: $background, width: 160)
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $background, width: screen_width/2-40)
                                 .padding(.trailing, 20)
                             
-                            CustomTextField(background: background, accent: accent, placeholder: "", text: $accent, width: 160)
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $accent, width: screen_width/2-40)
                         }
                     }
                     

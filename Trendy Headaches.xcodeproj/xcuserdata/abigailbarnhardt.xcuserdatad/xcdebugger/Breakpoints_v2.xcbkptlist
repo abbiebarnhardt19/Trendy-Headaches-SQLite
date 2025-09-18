@@ -23,22 +23,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "8736444E-1E22-411A-846B-5B2647950B6E"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Trendy Headaches/Styles.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "832"
-            endingLineNumber = "832"
-            landmarkName = "body"
-            landmarkType = "24">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "30F0E2D7-9216-4BFF-89CF-068C08402EC6"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -46,8 +30,8 @@
             filePath = "Trendy Headaches/CustomFunctions.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "492"
-            endingLineNumber = "492"
+            startingLineNumber = "490"
+            endingLineNumber = "490"
             landmarkName = "loadData(userID:symptoms:triggers:prevMeds:emergencyMeds:securityQuestion:securityAnswer:newSecurityQuestion:backgroundColor:accentColor:newBackground:newAccent:themeName:newThemeName:)"
             landmarkType = "7">
          </BreakpointContent>

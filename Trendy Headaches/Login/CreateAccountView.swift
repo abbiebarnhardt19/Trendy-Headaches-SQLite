@@ -15,7 +15,7 @@ struct CreateAccountView: SwiftUI.View {
     //colors and padding
     let accent = "#b5c4b9"
     let background = "#001d00"
-    let leading_padding = CGFloat(310)
+    let leading_padding = CGFloat(UIScreen.main.bounds.width * 0.825)
     
     //check if everything is filled out, email is available, passwords match, and passwords are complex enough
     private var formIsValid: Bool {
@@ -44,7 +44,9 @@ struct CreateAccountView: SwiftUI.View {
                     
                         VStack{
                             //header text
-                            CustomText(text: "Create Account", color: accent, width:350, textAlignment: .center, textSize: 50)
+                            CustomText(text: "Create Account", color: accent, textAlignment: .center, textSize: 50)
+                                .padding(.bottom, 10)
+                                .padding(.top, 20)
                             
                             //email header
                             CustomText(text: "Email", color: accent)

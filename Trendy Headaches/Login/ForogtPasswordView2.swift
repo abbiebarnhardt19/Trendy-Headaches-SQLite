@@ -19,7 +19,8 @@ struct ForgotPasswordView2: View {
     //colors and padding
     let accent = "#b5c4b9"
     let background = "#001d00"
-    let leading_padding = CGFloat(20)
+    let leading_padding = CGFloat(40)
+    let screen_width = UIScreen.main.bounds.width
     
     //check if the answer correct after removing capitals and whitespace. Comapred the hashed normalized value to hashed value in database
     private var isCorrectAnswer: Bool {
@@ -44,9 +45,11 @@ struct ForgotPasswordView2: View {
                         
                         VStack {
                             //header text
-                            CustomText(text:"Please answer your security question", color:accent, width:220, textAlignment: .leading, multilineAlignment: .leading, textSize: 50)
-                                .padding(.trailing, 140)
-                                .padding(.top, 0)
+                            HStack{
+                                CustomText(text:"Please answer your security question", color:accent, width:screen_width/2, textAlignment: .leading, multilineAlignment: .leading, textSize: 50)
+                                    .padding(.leading, leading_padding)
+                                Spacer()
+                            }
                             
                             VStack {
                                 //display user's security question based off email

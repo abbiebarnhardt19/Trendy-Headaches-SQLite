@@ -19,7 +19,9 @@ struct CreateAccountView2: View {
     @State private var accountCreated = false
     
     //leading padding constant
-    let leading_padding = CGFloat(300)
+    let screen_width = UIScreen.main.bounds.width
+    let leading_padding = CGFloat(UIScreen.main.bounds.width * 0.8)
+
     
     var body: some View {
         NavigationStack {
@@ -37,9 +39,10 @@ struct CreateAccountView2: View {
                         
                         VStack{
                             //header and instructions
-                            CustomText(text:"One Last Step", color:accent, width:350, textAlignment: .center, textSize: 50)
+                            CustomText(text:"One Last Step", color:accent, textAlignment: .center, textSize: 50)
+                                .padding(.vertical, 15)
                             
-                            CustomText(text: "These fields are optional and help us provide personalized insights from your data. Add multiple items by separating them with commas.", color: accent, width: 325, textAlignment: .center, multilineAlignment: .center, textSize: 18)
+                            CustomText(text: "These fields are optional and help us provide personalized insights from your data. Add multiple items by separating them with commas.", color: accent, width: screen_width - 30, textAlignment: .center, multilineAlignment: .center, textSize: 18)
                                 .padding(.bottom, 20)
                             
                             

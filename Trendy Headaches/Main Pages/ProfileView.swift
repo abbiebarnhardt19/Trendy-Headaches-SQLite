@@ -13,7 +13,7 @@ struct ProfileView: View {
     @Binding var accentColor: String
     
     // Booleans
-    @State private var isEditing = true
+    @State private var isEditing = false
     @State private var logOut = false
     @State private var showPolicy = false
     @State private var showDeleteConfirmation = false
@@ -39,6 +39,8 @@ struct ProfileView: View {
     
     // Floating button names
     let buttonNames = ["Edit Profile", "Data Policy", "Sign Out", "Delete Account"]
+    
+    let screen_width = UIScreen.main.bounds.width
     
     var body: some View {
         NavigationStack{
@@ -95,7 +97,7 @@ struct ProfileView: View {
     private func editingView() -> some View {
         let editColumnWidth = UIScreen.main.bounds.width / 2
         
-        CustomText(text: "User Profile", color: newAccent, width: 300, textAlignment: .center, textSize: 50)
+        CustomText(text: "User Profile", color: newAccent, textAlignment: .center, textSize: 50)
             .padding(.bottom, 20)
             .padding(.top, 20)
 
@@ -143,12 +145,12 @@ struct ProfileView: View {
                     .padding(.bottom, 10)
                 
                 CustomText(text: "Color Theme", color: newAccent, width: UIScreen.main.bounds.width / 2 - 15, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                CustomDropdown(color_theme: $newThemeName, background: $newBackground, accent: $newAccent, options: theme_options, width: UIScreen.main.bounds.width / 2 - 15, height: 50, cornerRadius: 8, fontSize: 16)
+                CustomDropdown(color_theme: $newThemeName, background: $newBackground, accent: $newAccent, options: theme_options, width: UIScreen.main.bounds.width / 2 - 15, height: 50, cornerRadius: 8, fontSize: 20)
                 
                 if newThemeName == "Custom" {
                     CustomText(text: "Hex Codes", color: newAccent, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newBackground, width: editColumnWidth - 50, height: 38, cornerRadius: 8, textSize: 16)
-                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newAccent, width: editColumnWidth - 50, height: 38, cornerRadius: 8, textSize: 16)
+                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newBackground, width: editColumnWidth - 20, height: 50, cornerRadius: 8, textSize: 20)
+//                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newAccent, width: editColumnWidth - 30, height: 50, cornerRadius: 8, textSize: 16)
                 }
             }
             .frame(maxWidth: editColumnWidth, alignment: .center)
@@ -195,12 +197,16 @@ struct ProfileView: View {
                 CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newSecurityAnswer, width: UIScreen.main.bounds.width / 2 - 15, height: 50, cornerRadius: 8, textSize: 16, isSecure: true)
                     .padding(.bottom, 10)
                 
-
-                
-                CustomButton(text: "Save", background: newBackground, accent: newAccent) {
+                CustomButton(text: "Save", background: newBackground, accent: newAccent,  height: 90, width:90, cornerRadius: 60) {
                     saveProfileChanges()
                 }
-                .padding(.top,40)
+                .padding(.top, 10)
+                
+                
+                if  newThemeName == "Custom" {
+                    CustomText(text: "  ", color: newAccent)
+                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newAccent, width: editColumnWidth - 20, height: 50, cornerRadius: 8, textSize: 20)
+                }
             }
             .padding(.trailing, 10)
             
@@ -212,45 +218,41 @@ struct ProfileView: View {
     @ViewBuilder
     private func viewingView() -> some View {
         let viewColumnWidth = UIScreen.main.bounds.width / 2
-
-        CustomText(text: "User Profile", color: newAccent, width: 300, textAlignment: .center, textSize: 50)
-            .padding(.bottom, 20)
-            .padding(.top, 20)
+        CustomText(text: "User Profile", color: newAccent, textAlignment: .center, textSize: 50)
+            .padding(.bottom, 30)
+            .padding(.top, 30)
         
         HStack(alignment: .top) {
             // Left column
-            Spacer()
             VStack {
 
                 VStack {
-                    CustomText(text: "Symptoms", color: newAccent, width: viewColumnWidth - 10, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                    CustomText(text: "Symptoms", color: newAccent, width: viewColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
                     CustomList(items: symptoms, color: newAccent)
                 }
-                
+         
                 VStack {
-                    CustomText(text: "Triggers", color: newAccent, width: viewColumnWidth - 10, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                    CustomList(items: triggers, color: newAccent)
+                    CustomText(text: "Preventative Meds", color: newAccent, width: viewColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                    CustomList(items: prevMeds, color: newAccent)
                 }
                 
                 VStack {
-                    CustomText(text: "Preventative Meds", color: newAccent, width: viewColumnWidth - 10, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                    CustomList(items: prevMeds, color: newAccent)
+                    CustomText(text: "Security Question", color: newAccent, width: viewColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                    CustomList(items: [newSecurityQuestion], color: newAccent)
                 }
             }
             .frame(maxWidth: viewColumnWidth)
             
             // Right column
             VStack(alignment: .center) {
-                //placeholder
+                VStack {
+                    CustomText(text: "Triggers", color: newAccent, width: viewColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                    CustomList(items: triggers, color: newAccent)
+                }
                 
                 VStack {
                     CustomText(text: "Emergency Meds", color: newAccent, width: viewColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
                     CustomList(items: emergencyMeds, color: newAccent)
-                }
-                
-                VStack {
-                    CustomText(text: "Security Question", color: newAccent, width: viewColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                    CustomList(items: [newSecurityQuestion], color: newAccent)
                 }
                 
                 VStack {
@@ -267,8 +269,7 @@ struct ProfileView: View {
                         PolicySheetView(policyFileName: "DataPolicy", showsAgreeButton: false)
                     }
             }
-            .frame(maxWidth: viewColumnWidth, alignment: .center)
-            Spacer()
+            .frame(maxWidth: viewColumnWidth)
         }
     }
     
@@ -300,5 +301,5 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(userID: 0, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
+    ProfileView(userID: 2, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
 }

@@ -56,8 +56,6 @@ extension DatabaseManager {
             let endColumnName = "\(tableName.lowercased().dropLast())_end"
             let endColumn = SQLite.Expression<String?>(endColumnName)
             
-            let count = DatabaseManager.shared.debugRowCount(for: tableName, userID: userId)
-            
             query = query.filter(endColumn == nil)
             if let filterColumn, let filterValue {
                 let extraColumn = SQLite.Expression<String>(filterColumn)

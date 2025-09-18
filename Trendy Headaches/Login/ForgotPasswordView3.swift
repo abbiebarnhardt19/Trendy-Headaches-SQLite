@@ -20,7 +20,8 @@ struct ForgotPasswordView3: View {
     //colors and padding
     let accent = "#b5c4b9"
     let background = "#001d00"
-    let leading_padding = CGFloat(20)
+    let leading_padding = CGFloat(40)
+    let screen_width = UIScreen.main.bounds.width
     
     //check if the new password match, are complex enough, and are not the same as the old password
     private var passwordResetValid: Bool {
@@ -42,10 +43,15 @@ struct ForgotPasswordView3: View {
                         ParametricBlob(points: 45, amplitude: 0.075, x:25, y:350, rotation:160, accent:accent)
                         
                         VStack{
+                            Spacer()
                             //header text
-                            CustomText(text:"Last Step", color:accent, width:100, textAlignment: .trailing, textSize: 50)
-                                .padding(.leading, 170)
-                                .padding(.bottom, 50)
+                            HStack{
+                                Spacer()
+                                CustomText(text:"Last Step", color:accent, width:100, textAlignment: .trailing, textSize: 50)
+                                    .padding(.top, 20)
+                                    .padding(.bottom, 90)
+                                    .padding(.trailing, leading_padding)
+                            }
                             
                             //password one label and text box
                             CustomText(text: "New Password", color: accent)
@@ -101,6 +107,7 @@ struct ForgotPasswordView3: View {
                             .navigationDestination(isPresented: $isPasswordUpdated) {
                                 LoginView()
                             }
+                            Spacer()
                         }
                     }
                     //get the current hashed password from the email

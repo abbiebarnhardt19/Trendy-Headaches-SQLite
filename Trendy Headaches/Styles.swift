@@ -62,7 +62,7 @@ struct CustomTextField: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 5)
-        .frame(width: width ?? 350, height: height ?? (isMultiline ? nil : 55))
+        .frame(width: width ?? UIScreen.main.bounds.width-50, height: height ?? (isMultiline ? nil : 55))
         .background(Color(hex: accent))
         .foregroundColor(Color(hex: background))
         .cornerRadius(cornerRadius ?? 30)
@@ -88,6 +88,7 @@ struct CustomText: View {
             .fontWeight(isBold ? .bold : .regular) 
             .foregroundColor(Color(hex: color))
             .frame(maxWidth: width ?? .infinity, alignment: textAlignment ?? .leading)
+            .fixedSize(horizontal: false, vertical: true)
             .multilineTextAlignment(multilineAlignment ?? .center)
     }
 }
@@ -174,7 +175,7 @@ struct CustomWarningText: View {
             .foregroundColor(.red)
             .font(.system(size: 14, design: .serif))
             .padding(.horizontal, 18)
-            .frame(width: 400)
+            .frame(width: UIScreen.main.bounds.width-20)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
     }
@@ -186,6 +187,7 @@ struct CustomButton: View {
     var accent: String
     var height: CGFloat?
     var width: CGFloat?
+    var cornerRadius: CGFloat?
     var action: () -> Void
     
     var body: some View {
@@ -194,7 +196,7 @@ struct CustomButton: View {
                 .frame(width: width ?? 150, height: height ?? 50)
                 .background(Color(hex: accent))
                 .foregroundColor(Color(hex: background))
-                .cornerRadius(30)
+                .cornerRadius(cornerRadius ?? 30)
                 .font(.system(size: 20, design: .serif))
         }
         .buttonStyle(.plain)
@@ -416,6 +418,7 @@ struct CustomDropdown: View {
             Picker(selection: $color_theme, label: EmptyView()) {
                 ForEach(options, id: \.self) { theme in
                     Text(theme)
+                        .padding(.leading, 5)
                 }
             }
             
@@ -423,6 +426,7 @@ struct CustomDropdown: View {
             HStack {
                 Text(color_theme)
                     .font(.system(size: fontSize, design: .serif))
+                    .padding(.leading, 5)
                 Spacer()
                 Image(systemName: "chevron.down")
                     .font(.system(size: 16, weight: .semibold))
@@ -587,91 +591,6 @@ struct PolicySheetView: View {
     }
 }
 
-//struct EditableList: View {
-//    @Binding var items: [String]
-//    var title: String
-//    var backgroundColor: String
-//    var accentColor: String
-//    
-//    let width = UIScreen.main.bounds.width/2 - 40
-//    let rowHeight = CGFloat(40)
-//
-//    @State private var newItemText = ""
-//
-//    var body: some View {
-//        
-//        VStack(alignment: .leading, spacing: 0) {
-//
-//            VStack(spacing: 6) {
-//                ForEach(items.indices.filter { items[$0] != "None entered" }, id: \.self) { index in
-//                    ZStack(alignment: .trailing) {
-//                        TextField("Enter item", text: Binding(
-//                            get: { items[index] },
-//                            set: { items[index] = $0 }
-//                        ))
-//                        .padding(.vertical, 8)
-//                        .padding(.trailing, 35)
-//                        .padding(.leading, 10)
-//                        .background(Color(hex: accentColor))
-//                        .foregroundColor(Color(hex: backgroundColor))
-//                        .cornerRadius(8)
-//                        .fixedSize(horizontal: false, vertical: true)
-//                        .font(.system(size: 16, design: .serif))
-//                        .background(
-//                            RoundedRectangle(cornerRadius: 8)
-//                                .fill(Color(hex: backgroundColor))
-//                        )
-//                        
-//                        
-//                        Button(action: { items.remove(at: index) }) {
-//                            Image(systemName: "minus.circle.fill")
-//                                .renderingMode(.template)
-//                                .foregroundColor(Color(hex: backgroundColor))
-//                                .padding(.trailing, 8)
-//                        }
-//                        .buttonStyle(PlainButtonStyle())
-//                    }
-//                }
-//                // Add new item row
-//                HStack {
-//                    ZStack(alignment: .trailing) {
-//                        TextField("", text: $newItemText, prompt: Text("")
-//                            .foregroundColor(Color(hex: backgroundColor))
-//                        )
-//                        .padding(.vertical, 8)
-//                        .padding(.trailing, 35)
-//                        .padding(.leading, 10)
-//                        .background(Color(hex: accentColor))
-//                        .foregroundColor(Color(hex: backgroundColor)) // typed text color
-//                        .cornerRadius(8)
-//                        
-//                        Button(action: addItem) {
-//                            Image(systemName: "plus.circle.fill")
-//                                .renderingMode(.template)
-//                                .foregroundColor(Color(hex: backgroundColor))
-//                                .padding(.trailing, 8)
-//                        }
-//                        .buttonStyle(PlainButtonStyle())
-//                        .disabled(newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
-//                    }
-//                }
-//            }
-//        }
-//        
-//        .frame(width: width,
-//               height: CGFloat(items.indices.filter{ items[$0] != "None entered" }.count + 1) * rowHeight) // adjusts height dynamically
-//        .background(Color(hex: "backgroundColor").opacity(0.0))
-//        .clipShape(RoundedRectangle(cornerRadius: 12))
-//        .padding(.bottom, 10)
-//    }
-//
-//    private func addItem() {
-//        let trimmed = newItemText.trimmingCharacters(in: .whitespaces)
-//        guard !trimmed.isEmpty else { return }
-//        items.append(trimmed)
-//        newItemText = ""
-//    }
-//}
 
 struct EditableList: View {
     @Binding var items: [String]
@@ -829,6 +748,5 @@ struct EditableList: View {
         .frame(width: width,
                height: CGFloat(items.indices.filter { items[$0] != "None entered" }.count + 1) * rowHeight)
         .padding(.bottom, 5)
-
     }
 }
