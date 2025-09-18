@@ -47,8 +47,10 @@ struct ProfileView: View {
                 Color(hex: newBackground).ignoresSafeArea()
                 
                 // Decorative blobs
-                SameAmplitudeBlob(waves: 12, amplitude: 20, accent: newAccent, x: 160, y: -340, rotation: -18)
-                SameAmplitudeBlob(waves: 13, amplitude: 15, accent: newAccent, x: 0, y: -375, rotation: 155)
+                SameAmplitudeBlob(waves: 15, amplitude: 15, accent: newAccent, x: 100, y: -400, rotation: -35)
+                    .zIndex(1)
+                SameAmplitudeBlob(waves: 15, amplitude: 15, accent: newAccent, x: 265, y: -200, rotation: 145)
+                    .zIndex(1)
                 
                 // Scrollable content
                 ScrollView {
@@ -71,6 +73,7 @@ struct ProfileView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .ignoresSafeArea(edges: .bottom)
+                .zIndex(1)
             }
             .alert("Are you sure you want to delete your account?", isPresented: $showDeleteConfirmation) {
                 Button("Delete", role: .destructive) {
@@ -91,18 +94,16 @@ struct ProfileView: View {
     @ViewBuilder
     private func editingView() -> some View {
         let editColumnWidth = UIScreen.main.bounds.width / 2
+        
+        CustomText(text: "User Profile", color: newAccent, width: 300, textAlignment: .center, textSize: 50)
+            .padding(.bottom, 20)
+            .padding(.top, 20)
 
         HStack(alignment: .top) {
-            Spacer()
-            
             // Left column
             VStack(alignment: .center) {
-                CustomText(text: "User Profile", color: newAccent, width: 150, textAlignment: .leading, textSize: 50)
-                    .padding(.bottom, 10)
-                    .padding(.top, 0)
-                    .padding(.leading, 5)
 
-                CustomText(text: "Symptoms", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                CustomText(text: "Symptoms", color: newAccent, width: UIScreen.main.bounds.width / 2 - 15, textAlignment: .center, multilineAlignment: .center, isBold: true)
                 
                 EditableList(
                     items: $symptoms,
@@ -119,24 +120,8 @@ struct ProfileView: View {
                     onDelete: { value in
                         DatabaseManager.shared.endItem(table: DatabaseManager.shared.symptoms, userID: userID, name: value, nameColumn: DatabaseManager.shared.symptom_name, endColumn: DatabaseManager.shared.symptom_end)})
   
-                CustomText(text: "Triggers", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                
-                EditableList(
-                    items: $triggers,
-                    title: "Triggers",
-                    backgroundColor: newBackground,
-                    accentColor: newAccent,
-                    onAdd: { newTrigger in
-                        DatabaseManager.shared.insertItem(table: DatabaseManager.shared.triggers,
-                            userID: userID, nameColumn: DatabaseManager.shared.trigger_name,
-                            name: newTrigger, startColumn: DatabaseManager.shared.trigger_start,
-                            endColumn: DatabaseManager.shared.trigger_end)},
-                    onEdit: { oldValue, newValue in
-                        DatabaseManager.shared.updateItem(table: DatabaseManager.shared.triggers, userID: userID, oldValue: oldValue, newValue: newValue,nameColumn: DatabaseManager.shared.trigger_name)},
-                    onDelete: { value in
-                        DatabaseManager.shared.endItem(table: DatabaseManager.shared.triggers, userID: userID, name: value, nameColumn: DatabaseManager.shared.trigger_name, endColumn: DatabaseManager.shared.trigger_end)})
-                
-                CustomText(text: "Preventative Medications", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
+
+                CustomText(text: "Preventative Medications", color: newAccent, width: UIScreen.main.bounds.width / 2 - 15, textAlignment: .center, multilineAlignment: .center, isBold: true)
                 
                 EditableList(
                     items: $prevMeds,
@@ -152,69 +137,90 @@ struct ProfileView: View {
                         DatabaseManager.shared.updateItem(table: DatabaseManager.shared.medications, userID: userID, oldValue: oldValue, newValue: newValue,nameColumn: DatabaseManager.shared.medication_name, medicationCategory: "preventative")},
                     onDelete: { value in
                         DatabaseManager.shared.endItem(table: DatabaseManager.shared.medications, userID: userID, name: value, nameColumn: DatabaseManager.shared.medication_name, endColumn: DatabaseManager.shared.medication_end, medicationCategory: "preventative")})
+                
+                CustomText(text: "Security Question", color: newAccent, width: UIScreen.main.bounds.width / 2 - 15, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newSecurityQuestion, width: UIScreen.main.bounds.width / 2 - 15, height: 50, cornerRadius: 8, textSize: 20, isMultiline: true)
+                    .padding(.bottom, 10)
+                
+                CustomText(text: "Color Theme", color: newAccent, width: UIScreen.main.bounds.width / 2 - 15, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                CustomDropdown(color_theme: $newThemeName, background: $newBackground, accent: $newAccent, options: theme_options, width: UIScreen.main.bounds.width / 2 - 15, height: 50, cornerRadius: 8, fontSize: 16)
+                
+                if newThemeName == "Custom" {
+                    CustomText(text: "Hex Codes", color: newAccent, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newBackground, width: editColumnWidth - 50, height: 38, cornerRadius: 8, textSize: 16)
+                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newAccent, width: editColumnWidth - 50, height: 38, cornerRadius: 8, textSize: 16)
+                }
             }
             .frame(maxWidth: editColumnWidth, alignment: .center)
-            .padding(.bottom, 50)
+            .padding(.leading, 10)
             
             // Right column
             VStack {
-                CustomText(text: "Emergency Medications", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                CustomText(text: "Triggers", color: newAccent, width: UIScreen.main.bounds.width / 2 - 15, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                
+                EditableList(
+                    items: $triggers,
+                    title: "Triggers",
+                    backgroundColor: newBackground,
+                    accentColor: newAccent,
+                    onAdd: { newTrigger in
+                        DatabaseManager.shared.insertItem(table: DatabaseManager.shared.triggers,
+                            userID: userID, nameColumn: DatabaseManager.shared.trigger_name,
+                            name: newTrigger, startColumn: DatabaseManager.shared.trigger_start,
+                            endColumn: DatabaseManager.shared.trigger_end)},
+                    onEdit: { oldValue, newValue in
+                        DatabaseManager.shared.updateItem(table: DatabaseManager.shared.triggers, userID: userID, oldValue: oldValue, newValue: newValue,nameColumn: DatabaseManager.shared.trigger_name)},
+                    onDelete: { value in
+                        DatabaseManager.shared.endItem(table: DatabaseManager.shared.triggers, userID: userID, name: value, nameColumn: DatabaseManager.shared.trigger_name, endColumn: DatabaseManager.shared.trigger_end)})
+                CustomText(text: "Emergency Medications", color: newAccent, width: UIScreen.main.bounds.width / 2 - 15, textAlignment: .center, multilineAlignment: .center, isBold: true)
                 
                 EditableList(
                     items: $emergencyMeds,
                     title: "Emergency Medications",
                     backgroundColor: newBackground,
                     accentColor: newAccent,
-                    onAdd: { newPrevMed in
+                    onAdd: { newEmergencyMed in
                         DatabaseManager.shared.insertItem(table: DatabaseManager.shared.medications,
                             userID: userID, nameColumn: DatabaseManager.shared.medication_name,
-                            name: newPrevMed, startColumn: DatabaseManager.shared.medication_start,
+                            name: newEmergencyMed, startColumn: DatabaseManager.shared.medication_start,
                             endColumn: DatabaseManager.shared.medication_end, medicationCategory: "emergency")},
                     onEdit: { oldValue, newValue in
                         DatabaseManager.shared.updateItem(table: DatabaseManager.shared.medications, userID: userID, oldValue: oldValue, newValue: newValue,nameColumn: DatabaseManager.shared.medication_name, medicationCategory: "emergency")},
                     onDelete: { value in
                         DatabaseManager.shared.endItem(table: DatabaseManager.shared.medications, userID: userID, name: value, nameColumn: DatabaseManager.shared.medication_name, endColumn: DatabaseManager.shared.medication_end, medicationCategory: "emergency")})
                 
-                CustomText(text: "Security Question", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newSecurityQuestion, width: editColumnWidth - 40, height: 55, cornerRadius: 8, textSize: 16, isMultiline: true)
-                    .padding(.bottom, 10)
 
-                CustomText(text: "Security Answer", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newSecurityAnswer, width: editColumnWidth - 40, height: 34, cornerRadius: 8, textSize: 16, isSecure: true)
+
+                CustomText(text: "Security Answer", color: newAccent, width: 100, textAlignment: .center, multilineAlignment: .center, isBold: true)
+                CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newSecurityAnswer, width: UIScreen.main.bounds.width / 2 - 15, height: 50, cornerRadius: 8, textSize: 16, isSecure: true)
                     .padding(.bottom, 10)
                 
-                CustomText(text: "Color Theme", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                CustomDropdown(color_theme: $newThemeName, background: $newBackground, accent: $newAccent, options: theme_options, width: editColumnWidth-40, height: 38, cornerRadius: 8, fontSize: 16)
-                
-                if newThemeName == "Custom" {
-                    CustomText(text: "Hex Codes", color: newAccent, width: editColumnWidth - 40, textAlignment: .center, multilineAlignment: .center, isBold: true)
-                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newBackground, width: editColumnWidth - 50, height: 38, cornerRadius: 8, textSize: 16)
-                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newAccent, width: editColumnWidth - 50, height: 38, cornerRadius: 8, textSize: 16)
-                }
+
                 
                 CustomButton(text: "Save", background: newBackground, accent: newAccent) {
                     saveProfileChanges()
                 }
+                .padding(.top,40)
             }
-            .padding(.top, 80)
+            .padding(.trailing, 10)
             
-            Spacer()
         }
+        .frame(width: UIScreen.main.bounds.width, alignment: .center)
+        .padding(.bottom, 120)
     }
     
     @ViewBuilder
     private func viewingView() -> some View {
         let viewColumnWidth = UIScreen.main.bounds.width / 2
 
+        CustomText(text: "User Profile", color: newAccent, width: 300, textAlignment: .center, textSize: 50)
+            .padding(.bottom, 20)
+            .padding(.top, 20)
         
         HStack(alignment: .top) {
             // Left column
             Spacer()
             VStack {
-                CustomText(text: "User Profile", color: newAccent, width: 150, textAlignment: .leading, textSize: 50)
-                    .padding(.bottom, 30)
-                    .padding(.top, 0)
-                    .padding(.leading, 5)
 
                 VStack {
                     CustomText(text: "Symptoms", color: newAccent, width: viewColumnWidth - 10, textAlignment: .center, multilineAlignment: .center, isBold: true)
@@ -262,7 +268,6 @@ struct ProfileView: View {
                     }
             }
             .frame(maxWidth: viewColumnWidth, alignment: .center)
-            .padding(.top, 160)
             Spacer()
         }
     }
@@ -295,5 +300,5 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(userID: 1, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
+    ProfileView(userID: 11, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
 }

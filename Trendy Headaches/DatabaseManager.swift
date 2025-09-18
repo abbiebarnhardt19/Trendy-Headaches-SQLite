@@ -295,5 +295,23 @@ class DatabaseManager {
     func prepare(_ query: SQLite.QueryType) throws -> AnySequence<SQLite.Row> {
         try db.prepare(query)
     }
+    
+
+        
+        func debugRowCount(for tableName: String, userID: Int64) -> Int {
+            do {
+                let table = Table(tableName)
+                let idColumn = SQLite.Expression<Int64>("user_id")
+                let count = try db.scalar(table.filter(idColumn == userID).count)
+                return count
+            } catch {
+                print("DEBUG: Failed to count rows for \(tableName): \(error)")
+                return -1
+            }
+        }
+
+
+
+
 
 }

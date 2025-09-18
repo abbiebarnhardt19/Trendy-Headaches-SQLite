@@ -55,16 +55,27 @@ extension DatabaseManager {
             
             let endColumnName = "\(tableName.lowercased().dropLast())_end"
             let endColumn = SQLite.Expression<String?>(endColumnName)
+            
+            let count = DatabaseManager.shared.debugRowCount(for: "medications", userID: userId)
+            print("DEBUG: medications rows for userID \(userId) = \(count)")
+
+
+        
+            
+            print("endColumnName", endColumnName)
+            
             query = query.filter(endColumn == nil)
+//            if let filterColumn, let filterValue {
+//                let extraColumn = SQLite.Expression<String>(filterColumn)
+//                query = query.filter(extraColumn == filterValue)
+//            }
             
-            if let filterColumn, let filterValue {
-                let extraColumn = SQLite.Expression<String>(filterColumn)
-                query = query.filter(extraColumn == filterValue)
-            }
-            
-            return try prepare(query).map { row in
+            let results = try prepare(query).map { row in
                 row[targetColumn]
             }
+            print("New Query returned: \(results)")
+            return results
+            
         } catch {
             print("Oops! Something went wrong. Please try again later.")
             return []

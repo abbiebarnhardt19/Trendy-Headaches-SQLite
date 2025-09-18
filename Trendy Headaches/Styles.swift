@@ -89,7 +89,6 @@ struct CustomText: View {
             .foregroundColor(Color(hex: color))
             .frame(maxWidth: width ?? .infinity, alignment: textAlignment ?? .leading)
             .multilineTextAlignment(multilineAlignment ?? .center)
-            .padding(.horizontal, 20)
     }
 }
 
@@ -684,8 +683,8 @@ struct EditableList: View {
     var onEdit: (String, String) -> Void
     var onDelete: (String) -> Void
 
-    let width = UIScreen.main.bounds.width / 2 - 40
-    let rowHeight = CGFloat(40)
+    let width = UIScreen.main.bounds.width / 2 - 15
+    let rowHeight = CGFloat(50)
 
     @State private var newItemText = ""
     @State private var editingIndex: Int? = nil
@@ -696,7 +695,7 @@ struct EditableList: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            VStack(spacing: 6) {
+            VStack(spacing: 0) {
                 ForEach(items.indices.filter { items[$0] != "None entered" }, id: \.self) { index in
                     ZStack(alignment: .trailing) {
                         if editingIndex == index {
@@ -705,15 +704,16 @@ struct EditableList: View {
                                 get: { items[index] },
                                 set: { items[index] = $0 }
                             ))
-                            .padding(.vertical, 8)
-                            .padding(.trailing, 70)
+                            .padding(.vertical, 10)
+                            .padding(.trailing, 80)
                             .padding(.leading, 10)
                             .background(Color(hex: accentColor))
                             .foregroundColor(Color(hex: backgroundColor))
                             .cornerRadius(8)
-                            .font(.system(size: 16, design: .serif))
+                            .font(.system(size: 20, design: .serif))
+                            .frame(height: 50)
 
-                            HStack(spacing: 4) {
+                            HStack {
                                 Button(action: {
                                     let newValue = items[index]
                                     if newValue != originalValue {
@@ -723,45 +723,57 @@ struct EditableList: View {
                                 }) {
                                     Image(systemName: "checkmark.circle.fill")
                                         .foregroundColor(Color(hex: backgroundColor))
+                                        .font(.system(size: 28))
+                                    
                                 }
+                                .buttonStyle(PlainButtonStyle())
                                 Button(action: {
                                     itemToDelete = items[index]
                                     showDeleteConfirmation = true
                                 }) {
                                     Image(systemName: "minus.circle.fill")
                                         .foregroundColor(Color(hex: backgroundColor))
+                                        .font(.system(size: 28))
                                 }
+                                .buttonStyle(PlainButtonStyle())
 
                             }
                             .padding(.trailing, 8)
 
+
                         } else {
                             // View-only mode
                             Text(items[index])
-                                .padding(.vertical, 8)
-                                .padding(.trailing, 70)
+                                .padding(.vertical, 10)
+                                .padding(.trailing, 80)
                                 .padding(.leading, 10)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color(hex: accentColor))
                                 .foregroundColor(Color(hex: backgroundColor))
                                 .cornerRadius(8)
-                                .font(.system(size: 16, design: .serif))
+                                .font(.system(size: 20, design: .serif))
+                                .frame(height: 50)
 
-                            HStack(spacing: 4) {
+                            HStack {
                                 Button(action: {
                                     originalValue = items[index]
                                     editingIndex = index
                                 }) {
                                     Image(systemName: "pencil.circle.fill")
                                         .foregroundColor(Color(hex: backgroundColor))
+                                        .font(.system(size: 28))
                                 }
+                                .buttonStyle(PlainButtonStyle())
+                                
                                 Button(action: {
                                     itemToDelete = items[index]
                                     showDeleteConfirmation = true
                                 }) {
                                     Image(systemName: "minus.circle.fill")
                                         .foregroundColor(Color(hex: backgroundColor))
+                                        .font(.system(size: 28))
                                 }
+                                .buttonStyle(PlainButtonStyle())
                             }
                             .padding(.trailing, 8)
                         }
@@ -772,12 +784,15 @@ struct EditableList: View {
                 HStack {
                     ZStack(alignment: .trailing) {
                         TextField("New item", text: $newItemText)
-                            .padding(.vertical, 8)
+                            .padding(.vertical, 10)
                             .padding(.trailing, 35)
                             .padding(.leading, 10)
                             .background(Color(hex: accentColor))
+                            .tint(Color(hex: backgroundColor))
                             .foregroundColor(Color(hex: backgroundColor))
                             .cornerRadius(8)
+                            .font(.system(size: 20, design: .serif))
+                            .frame(height: 50)
 
                         Button(action: {
                             let trimmed = newItemText.trimmingCharacters(in: .whitespaces)
@@ -790,14 +805,13 @@ struct EditableList: View {
                                 .renderingMode(.template)
                                 .foregroundColor(Color(hex: backgroundColor))
                                 .padding(.trailing, 8)
+                                .font(.system(size: 28))
                         }
                         .buttonStyle(PlainButtonStyle())
                         .disabled(newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
                 }
-
             }
-
         }
         .alert("Are you sure you want to delete this item?",
                isPresented: $showDeleteConfirmation,
@@ -814,8 +828,7 @@ struct EditableList: View {
         }
         .frame(width: width,
                height: CGFloat(items.indices.filter { items[$0] != "None entered" }.count + 1) * rowHeight)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .padding(.bottom, 10)
+        .padding(.bottom, 5)
 
     }
 }
