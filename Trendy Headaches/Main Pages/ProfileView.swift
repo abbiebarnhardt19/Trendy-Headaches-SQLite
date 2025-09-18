@@ -300,5 +300,5 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(userID: 11, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
+    ProfileView(userID: 0, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
 }
