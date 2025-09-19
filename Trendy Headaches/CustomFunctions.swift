@@ -502,12 +502,16 @@ extension DatabaseManager {
         newThemeName: inout String
     ) {
         symptoms = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
+        symptoms=DatabaseManager.deleteListDuplicates(list:symptoms)
         
         triggers = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name")
+        triggers=DatabaseManager.deleteListDuplicates(list:triggers)
         
         prevMeds = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name", filterColumn: "medication_category", filterValue: "preventative")
+        prevMeds=DatabaseManager.deleteListDuplicates(list:prevMeds)
         
         emergencyMeds = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name", filterColumn: "medication_category", filterValue: "emergency")
+        emergencyMeds=DatabaseManager.deleteListDuplicates(list:emergencyMeds)
         
         securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "security_question") ?? "None set"
         securityAnswer = DatabaseManager.shared.getSingleColumnValue(userId: userID, columnName: "security_answer") ?? "None set"

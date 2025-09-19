@@ -49,9 +49,9 @@ struct ProfileView: View {
                 Color(hex: newBackground).ignoresSafeArea()
                 
                 // Decorative blobs
-                SameAmplitudeBlob(waves: 15, amplitude: 15, accent: newAccent, x: 100, y: -400, rotation: -35)
+                SameAmplitudeBlob(waves: 15, amplitude: 15, accent: newAccent, x: 100, y: -375, rotation: -35)
                     .zIndex(1)
-                SameAmplitudeBlob(waves: 15, amplitude: 15, accent: newAccent, x: 265, y: -200, rotation: 145)
+                SameAmplitudeBlob(waves: 15, amplitude: 15, accent: newAccent, x: 265, y: -180, rotation: 145)
                     .zIndex(1)
                 
                 // Scrollable content
@@ -99,7 +99,7 @@ struct ProfileView: View {
         
         CustomText(text: "User Profile", color: newAccent, textAlignment: .center, textSize: 50)
             .padding(.bottom, 20)
-            .padding(.top, 20)
+            .padding(.top, 50)
 
         HStack(alignment: .top) {
             // Left column
@@ -150,7 +150,7 @@ struct ProfileView: View {
                 if newThemeName == "Custom" {
                     CustomText(text: "Hex Codes", color: newAccent, textAlignment: .center, multilineAlignment: .center, isBold: true)
                     CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newBackground, width: editColumnWidth - 20, height: 50, cornerRadius: 8, textSize: 20)
-//                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newAccent, width: editColumnWidth - 30, height: 50, cornerRadius: 8, textSize: 16)
+                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newAccent, width: editColumnWidth - 20, height: 50, cornerRadius: 8, textSize: 20)
                 }
             }
             .frame(maxWidth: editColumnWidth, alignment: .center)
@@ -202,11 +202,6 @@ struct ProfileView: View {
                 }
                 .padding(.top, 10)
                 
-                
-                if  newThemeName == "Custom" {
-                    CustomText(text: "  ", color: newAccent)
-                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newAccent, width: editColumnWidth - 20, height: 50, cornerRadius: 8, textSize: 20)
-                }
             }
             .padding(.trailing, 10)
             
@@ -219,23 +214,20 @@ struct ProfileView: View {
     private func viewingView() -> some View {
         let viewColumnWidth = UIScreen.main.bounds.width / 2
         CustomText(text: "User Profile", color: newAccent, textAlignment: .center, textSize: 50)
-            .padding(.bottom, 30)
-            .padding(.top, 30)
+            .padding(.bottom, 40)
+            .padding(.top, 50)
         
         HStack(alignment: .top) {
             // Left column
             VStack {
-
                 VStack {
                     CustomText(text: "Symptoms", color: newAccent, width: viewColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
                     CustomList(items: symptoms, color: newAccent)
                 }
-         
                 VStack {
                     CustomText(text: "Preventative Meds", color: newAccent, width: viewColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
                     CustomList(items: prevMeds, color: newAccent)
                 }
-                
                 VStack {
                     CustomText(text: "Security Question", color: newAccent, width: viewColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
                     CustomList(items: [newSecurityQuestion], color: newAccent)
@@ -244,8 +236,8 @@ struct ProfileView: View {
             .frame(maxWidth: viewColumnWidth)
             
             // Right column
-            VStack(alignment: .center) {
-                VStack {
+            VStack{
+                VStack{
                     CustomText(text: "Triggers", color: newAccent, width: viewColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
                     CustomList(items: triggers, color: newAccent)
                 }
@@ -259,18 +251,22 @@ struct ProfileView: View {
                     CustomText(text: "Color Theme", color: newAccent, width: viewColumnWidth - 20, textAlignment: .center, multilineAlignment: .center, isBold: true)
                     CustomList(items: [themeName], color: newAccent)
                 }
-                
-                // Floating button
-                let buttonActions = [{ isEditing = true }, { showPolicy = true },
-                                     { logOut = true }, { showDeleteConfirmation = true}]
-                
-                CustomFloatButton(accent: newAccent, background: newBackground, options: buttonNames, actions: buttonActions)
-                    .fullScreenCover(isPresented: $showPolicy) {
-                        PolicySheetView(policyFileName: "DataPolicy", showsAgreeButton: false)
-                    }
             }
             .frame(maxWidth: viewColumnWidth)
         }
+        // Floating button
+        HStack{
+            Spacer()
+            let buttonActions = [{ isEditing = true }, { showPolicy = true },
+                                 { logOut = true }, { showDeleteConfirmation = true}]
+            
+            CustomFloatButton(accent: newAccent, background: newBackground, options: buttonNames, actions: buttonActions)
+                .fullScreenCover(isPresented: $showPolicy) {
+                    PolicySheetView(policyFileName: "DataPolicy", showsAgreeButton: false)
+                }
+                .padding(.trailing, 10)
+        }
+        .frame(width: viewColumnWidth*2)
     }
     
     private func saveProfileChanges() {
@@ -301,5 +297,5 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(userID: 2, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
+    ProfileView(userID:1, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
 }

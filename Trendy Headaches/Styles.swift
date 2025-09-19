@@ -107,7 +107,7 @@ struct CustomList: View {
             .max() ?? (charWidth * 3)
         
         let columnCount = Int(max(1, maxItemWidth / maxWidth))
-        
+
         LazyVGrid(
             columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: columnCount),
             spacing: 3
@@ -117,13 +117,15 @@ struct CustomList: View {
                     .font(.system(size: 18, design: .serif))
                     .foregroundColor(Color(hex: color))
                     .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
             }
         }
+        .fixedSize(horizontal: false, vertical: true)
         .frame(width: maxWidth, alignment: .trailing)
         .padding(.bottom, 15)
+        .fixedSize(horizontal: false, vertical: true)
     }
 }
+
 
 struct CustomNavButton<Destination: View>: View {
     var label: String
@@ -702,16 +704,38 @@ struct EditableList: View {
                 // Add new item row
                 HStack {
                     ZStack(alignment: .trailing) {
-                        TextField("New item", text: $newItemText)
-                            .padding(.vertical, 10)
-                            .padding(.trailing, 35)
-                            .padding(.leading, 10)
-                            .background(Color(hex: accentColor))
-                            .tint(Color(hex: backgroundColor))
-                            .foregroundColor(Color(hex: backgroundColor))
-                            .cornerRadius(8)
-                            .font(.system(size: 20, design: .serif))
-                            .frame(height: 50)
+//                        CustomTextField("New item", text: $newItemText)
+//                            .padding(.vertical, 10)
+//                            .padding(.trailing, 35)
+//                            .padding(.leading, 10)
+//                            .background(Color(hex: accentColor))
+//                            .foregroundColor(Color(hex: backgroundColor))
+//                            .cornerRadius(8)
+//                            .font(.system(size: 20, design: .serif))
+//                            .frame(height: 50)
+                        ZStack(alignment: .leading) {
+                            // Placeholder
+                            if newItemText == "" {
+                                Text("New item")
+                                    .foregroundColor(Color(hex: backgroundColor))
+                                    .padding(.leading, 10)
+                                    .padding(.vertical, 10)
+                                    .font(.system(size: 20, design: .serif))
+                            }
+
+                            // TextField
+                            TextField("", text: $newItemText)
+                                .padding(.vertical, 10)
+                                .padding(.leading, 10)
+                                .padding(.trailing, 35)
+                                .background(Color(hex: accentColor))
+                                .foregroundColor(Color(hex: backgroundColor))
+                                .cornerRadius(8)
+                                .font(.system(size: 20, design: .serif))
+                                .frame(height: 50)
+                        }
+
+
 
                         Button(action: {
                             let trimmed = newItemText.trimmingCharacters(in: .whitespaces)
