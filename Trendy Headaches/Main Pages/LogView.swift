@@ -52,16 +52,18 @@ struct LogView: View {
                 HStack{
                     CustomText(text:"Log Symptom", color: accentColor,  width: 250, textAlignment: .leading, multilineAlignment: .leading, textSize:50)
                         .padding(.leading, leading_padding)
+                        .padding(.top, 30)
                     Spacer()
                 }
                 Spacer()
             }
             .ignoresSafeArea(edges: .bottom)
             
-            VStack{
-                CustomText(text: "Date", color: accentColor)
-                    .padding(.leading, leading_padding)
-                CustomTextField(background: backgroundColor, accent: accentColor, placeholder: "", text: $string_date, width: 150)
+            VStack(alignment: .leading){
+                CustomText(text: "Date", color: accentColor, textSize: 28)
+                    .padding(.leading, 10)
+                    
+                CustomTextField(background: backgroundColor, accent: accentColor, placeholder: "", text: $string_date, width: 150, height: 55, textSize: 24)
                     .onChange(of: string_date) {
                         dateCheckTask?.cancel()
                         dateCheckTask = Task {
@@ -78,21 +80,19 @@ struct LogView: View {
                     CustomWarningText(text: "                                 ")
                 }
             }
+            .padding(.leading, leading_padding)
             
             
             
             // Nav bar overlay at bottom
             VStack {
                 Spacer()
-                NavBarView(
-                    userID: userID,
-                    backgroundColor: $backgroundColor,
-                    accentColor: $accentColor
-                )
+                NavBarView(userID: userID, backgroundColor: $backgroundColor, accentColor: $accentColor)
                 .frame(height: 60)
                 .frame(maxWidth: .infinity, alignment: .center)
             }
             .ignoresSafeArea(edges: .bottom)
+            .zIndex(10)
         }
         .onAppear{
            string_date = formatter.string(from: Date())
