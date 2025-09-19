@@ -30,8 +30,8 @@
             filePath = "Trendy Headaches/CustomFunctions.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "490"
-            endingLineNumber = "490"
+            startingLineNumber = "476"
+            endingLineNumber = "476"
             landmarkName = "loadData(userID:symptoms:triggers:prevMeds:emergencyMeds:securityQuestion:securityAnswer:newSecurityQuestion:backgroundColor:accentColor:newBackground:newAccent:themeName:newThemeName:)"
             landmarkType = "7">
          </BreakpointContent>

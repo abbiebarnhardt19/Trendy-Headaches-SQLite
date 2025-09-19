@@ -197,7 +197,7 @@ struct ProfileView: View {
                 CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newSecurityAnswer, width: UIScreen.main.bounds.width / 2 - 15, height: 50, cornerRadius: 8, textSize: 16, isSecure: true)
                     .padding(.bottom, 10)
                 
-                CustomButton(text: "Save", background: newBackground, accent: newAccent,  height: 90, width:90, cornerRadius: 60) {
+                CustomButton(text: "Save", background: newBackground, accent: newAccent,  height: 50, width:UIScreen.main.bounds.width / 2 - 25, cornerRadius: 36, isBold: true, textSize: 25) {
                     saveProfileChanges()
                 }
                 .padding(.top, 10)

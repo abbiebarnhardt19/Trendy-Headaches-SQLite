@@ -190,6 +190,8 @@ struct CustomButton: View {
     var height: CGFloat?
     var width: CGFloat?
     var cornerRadius: CGFloat?
+    var isBold: Bool = false
+    var textSize: CGFloat? = 20
     var action: () -> Void
     
     var body: some View {
@@ -199,7 +201,8 @@ struct CustomButton: View {
                 .background(Color(hex: accent))
                 .foregroundColor(Color(hex: background))
                 .cornerRadius(cornerRadius ?? 30)
-                .font(.system(size: 20, design: .serif))
+                .font(.system(size: textSize ?? 20, design: .serif))
+                .fontWeight(isBold ? .bold : .regular)
         }
         .buttonStyle(.plain)
         .padding(.bottom, 10)
@@ -350,9 +353,11 @@ struct ParametricBlob: View {
     var y: CGFloat
     var rotation: CGFloat
     var accent: String
+    var width: CGFloat? = 500
+    var height: CGFloat? = 600
     
     var body: some View {
-        let rect = CGRect(x: 0, y: 0, width: 500, height: 600)
+        let rect = CGRect(x: 0, y: 0, width: width ?? 500, height: height ?? 600)
         let center = CGPoint(x: rect.midX, y: rect.midY)
         let radiusX = rect.width / 2
         let radiusY = rect.height / 2
@@ -394,6 +399,77 @@ struct ParametricBlob: View {
             .rotationEffect(.degrees(rotation))
     }
 }
+struct RandomBlob: View {
+    var points: Int = 40
+      var width: CGFloat
+      var height: CGFloat
+      var x: CGFloat
+      var y: CGFloat
+      var rotation: CGFloat
+      var accent: String
+      var seed: CGFloat = 42
+
+      var body: some View {
+          let rect = CGRect(x: 0, y: 0, width: width, height: height)
+          let center = CGPoint(x: rect.midX, y: rect.midY)
+          let radiusX = rect.width / 2
+          let radiusY = rect.height / 2
+
+          // deterministic per-point amplitudes
+          let amplitudes: [CGFloat] = (0..<points).map { i in
+              let val = sin(CGFloat(i) * 0.5 + seed) * 0.12
+                      + cos(CGFloat(i) * 0.3 + seed * 0.7) * 0.12
+                      + 1.0
+              return min(max(val, 0.85), 1.15)
+          }
+
+          let blobPath: Path = {
+              var path = Path()
+              var blobPoints: [CGPoint] = []
+
+              for i in 0..<points {
+                  let angle = 2 * .pi * CGFloat(i) / CGFloat(points)
+                  let amp = amplitudes[i]
+                  let px = center.x + radiusX * amp * cos(angle)
+                  let py = center.y + radiusY * amp * sin(angle)
+                  blobPoints.append(CGPoint(x: px, y: py))
+              }
+
+              guard blobPoints.count > 1 else { return path }
+
+              // Start at first point
+              path.move(to: blobPoints[0])
+
+              // Catmull-Rom smoothing through points
+              for i in 0..<blobPoints.count {
+                  let p0 = blobPoints[(i - 1 + points) % points]
+                  let p1 = blobPoints[i]
+                  let p2 = blobPoints[(i + 1) % points]
+                  let p3 = blobPoints[(i + 2) % points]
+
+                  let control1 = CGPoint(
+                      x: p1.x + (p2.x - p0.x) / 6,
+                      y: p1.y + (p2.y - p0.y) / 6
+                  )
+                  let control2 = CGPoint(
+                      x: p2.x - (p3.x - p1.x) / 6,
+                      y: p2.y - (p3.y - p1.y) / 6
+                  )
+
+                  path.addCurve(to: p2, control1: control1, control2: control2)
+              }
+
+              path.closeSubpath()
+              return path
+          }()
+
+          return blobPath
+              .fill(Color(hex: accent))
+              .frame(width: width, height: height)
+              .offset(x: x, y: y)
+              .rotationEffect(.degrees(rotation))
+      }
+  }
 
 // Reproducible random generator
 struct SeededGenerator: RandomNumberGenerator {
@@ -443,7 +519,7 @@ struct CustomDropdown: View {
             .foregroundColor(Color(hex: background))
         }
         .onChange(of: color_theme) {
-            let colors = DatabaseManager.getThemeColors(theme: color_theme)
+            let colors = DatabaseManager.getThemeColors(theme: color_theme, currentBackground: background, currentAccent: accent)
             background = colors.background
             accent = colors.accent
         }
@@ -704,18 +780,9 @@ struct EditableList: View {
                 // Add new item row
                 HStack {
                     ZStack(alignment: .trailing) {
-//                        CustomTextField("New item", text: $newItemText)
-//                            .padding(.vertical, 10)
-//                            .padding(.trailing, 35)
-//                            .padding(.leading, 10)
-//                            .background(Color(hex: accentColor))
-//                            .foregroundColor(Color(hex: backgroundColor))
-//                            .cornerRadius(8)
-//                            .font(.system(size: 20, design: .serif))
-//                            .frame(height: 50)
                         ZStack(alignment: .leading) {
                             // Placeholder
-                            if newItemText == "" {
+                            if newItemText.isEmpty {
                                 Text("New item")
                                     .foregroundColor(Color(hex: backgroundColor))
                                     .padding(.leading, 10)
@@ -723,19 +790,19 @@ struct EditableList: View {
                                     .font(.system(size: 20, design: .serif))
                             }
 
-                            // TextField
+                            // TextField with transparent background
                             TextField("", text: $newItemText)
                                 .padding(.vertical, 10)
                                 .padding(.leading, 10)
                                 .padding(.trailing, 35)
-                                .background(Color(hex: accentColor))
-                                .foregroundColor(Color(hex: backgroundColor))
-                                .cornerRadius(8)
                                 .font(.system(size: 20, design: .serif))
-                                .frame(height: 50)
+                                .foregroundColor(Color(hex: backgroundColor))
+                                .background(Color.clear) // <-- important!
+                                .cornerRadius(8)
                         }
-
-
+                        .background(Color(hex: accentColor)) // <-- apply background here, behind both
+                        .cornerRadius(8)
+                        .frame(height: 50)
 
                         Button(action: {
                             let trimmed = newItemText.trimmingCharacters(in: .whitespaces)

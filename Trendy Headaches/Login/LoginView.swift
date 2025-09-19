@@ -17,8 +17,6 @@ struct LoginView: SwiftUI.View {
     //used for leading padding so it only needs to be changed in one place
     let leading_padding = CGFloat(35)
     
-    
-    
     var body: some SwiftUI.View {
         NavigationStack {
             ZStack {

@@ -264,45 +264,31 @@ extension DatabaseManager {
     }
     
     //function to get hex codes from theme name
-    static func getThemeColors(theme: String) -> (background: String, accent: String) {
-        var selected_background = ""
-        var selected_accent = ""
-        
-        if theme == "Classic Light" {
-            selected_background = "#FAF7F7"
-            selected_accent = "#5E5D5D"
+    static func getThemeColors(theme: String, currentBackground: String, currentAccent: String) -> (background: String, accent: String) {
+        switch theme {
+        case "Classic Light":
+            return ("#FAF7F7", "#5E5D5D")
+        case "Light Pink":
+            return ("#FFCEFF", "#A4133C")
+        case "Light Yellow":
+            return ("#FFFAE5", "#848383")
+        case "Classic Dark":
+            return ("#0A0A0A", "#CCCCCC")
+        case "Dark Green":
+            return ("#001D00", "#B5C4B9")
+        case "Dark Blue":
+            return ("#000814", "#B6CCFE")
+        case "Dark Purple":
+            return ("#240046", "#E7C6FF")
+        case "Custom":
+            // Return whatever the user already has
+            return (currentBackground, currentAccent)
+        default:
+            // Fallback for unknown theme names
+            return (currentBackground, currentAccent)
         }
-        else if theme == "Light Pink" {
-            selected_background = "#FFCEFF"
-            selected_accent = "#A4133C"
-        }
-        else if theme == "Light Yellow" {
-            selected_background = "#FFFAE5"
-            selected_accent = "#848383"
-        }
-        else if theme == "Classic Dark" {
-            selected_background = "#0A0A0A"
-            selected_accent = "#CCCCCC"
-        }
-        else  if theme == "Dark Green" {
-            selected_background = "#001D00"
-            selected_accent = "#B5C4B9"
-        }
-        else if theme == "Dark Blue" {
-            selected_background = "#000814"
-            selected_accent = "#B6CCFE"
-        }
-        else if theme == "Dark Purple" {
-            selected_background = "#240046"
-            selected_accent = "#E7C6FF"
-        }
-        else
-        {
-            selected_background = "#001d00"
-            selected_accent = "#b5c4b9"
-        }
-        return (selected_background, selected_accent)
     }
+
     
     //function to get theme name from hex codes
     static func getThemeName(selected_background: String, selected_accent: String) -> String{

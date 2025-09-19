@@ -32,6 +32,21 @@ struct NavBarView: View {
                 }
                 .buttonStyle(PlainButtonStyle())
                 
+                NavigationLink(
+                    destination: ListView(userID: userID, backgroundColor: $backgroundColor, accentColor: $accentColor)
+                        .navigationBarBackButtonHidden(true)
+                        
+                ) {
+                    VStack(spacing: 2) {
+                        Image(systemName: "list.bullet")
+                        CustomText(text: "List", color: accentColor, textAlignment: .center, multilineAlignment: .center, textSize: 15)
+                            .padding(.bottom, 15)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.top, 3)
+                }
+                .buttonStyle(PlainButtonStyle())
+                
                 
 
                 NavigationLink(destination: AnalyticsView(userID: userID, backgroundColor: $backgroundColor, accentColor: $accentColor).navigationBarBackButtonHidden(true)) {
