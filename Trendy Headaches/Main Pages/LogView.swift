@@ -21,6 +21,11 @@ struct LogView: View {
     @State private var dateFormatCorrect: Bool = true
     @State private var dateValid: Bool = true
     
+    @State var onset: String?
+    @State var onsetOptions: [String] = ["From Wake", "Morning", "Afternoon", "Evening"]
+    
+    @State private var sliderValue: Double = 0.0
+    
     let formatter: DateFormatter = {
         let f = DateFormatter()
         f.dateStyle = .short
@@ -63,7 +68,7 @@ struct LogView: View {
                 CustomText(text: "Date", color: accentColor, textSize: 28)
                     .padding(.leading, 10)
                     
-                CustomTextField(background: backgroundColor, accent: accentColor, placeholder: "", text: $string_date, width: 150, height: 55, textSize: 24)
+                CustomTextField(background: backgroundColor, accent: accentColor, placeholder: "", text: $string_date, width: 150, height: 45, textSize: 20)
                     .onChange(of: string_date) {
                         dateCheckTask?.cancel()
                         dateCheckTask = Task {
@@ -79,6 +84,18 @@ struct LogView: View {
                 else{
                     CustomWarningText(text: "                                 ")
                 }
+                
+                CustomText(text: "Symptom Onset", color: accentColor, textSize: 28)
+                    
+                MultipleChoiceButtonGroup(options: $onsetOptions, selectedOption: $onset, accentColor: accentColor)
+                
+                CustomText(text: "Symptom Severity", color: accentColor, textSize: 28)
+                StepSlider(
+                    value: $sliderValue,
+                    range: 1...10,
+                    step: 1,
+                    accentColor: accentColor
+                )         
             }
             .padding(.leading, leading_padding)
             

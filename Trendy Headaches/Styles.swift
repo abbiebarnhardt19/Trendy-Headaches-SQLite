@@ -841,3 +841,142 @@ struct EditableList: View {
         .padding(.bottom, 5)
     }
 }
+
+
+struct MultipleChoiceButtonGroup: View {
+    @Binding var options: [String]
+    @Binding var selectedOption: String?
+    var accentColor: String
+    
+    var body: some View {
+            let screenWidth = UIScreen.main.bounds.width - 40 // some padding
+            let circleWidth: CGFloat = 20
+            let spacing: CGFloat = 8
+            let charWidth: CGFloat = 12 // rough width per character
+            
+            // estimate total width of each option (circle + text)
+            let estimatedWidths = options.map { option in
+                circleWidth + spacing + CGFloat(option.count) * charWidth
+            }
+            
+            // find the widest item
+            let maxItemWidth = estimatedWidths.max() ?? circleWidth + charWidth * 3
+            
+            // figure out how many items per row
+            let columnCount = max(1, Int(screenWidth / maxItemWidth))
+            
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.flexible(), spacing: spacing), count: columnCount),
+                spacing: 12
+            ) {
+                ForEach(options, id: \.self) { option in
+                    HStack(spacing: 8) {
+                        Circle()
+                            .stroke(Color(hex: accentColor), lineWidth: 2)
+                            .background(
+                                Circle()
+                                    .fill(selectedOption == option ? Color(hex: accentColor) : Color.clear)
+                            )
+                            .frame(width: circleWidth, height: circleWidth)
+                            .onTapGesture {
+                                selectedOption = option
+                            }
+                        
+                        CustomText(text: option, color: accentColor, textSize: 20)
+                            .onTapGesture {
+                                selectedOption = option
+                            }
+                    }
+                    .contentShape(Rectangle())
+                }
+            }
+            .padding(.horizontal, 10)
+            .padding(.bottom, 10)
+        }
+    }
+
+import SwiftUI
+
+struct StepSlider: View {
+    @Binding var value: Double
+    let range: ClosedRange<Double>
+    let step: Double
+    var accentColor: String
+    
+    private var steps: [Double] {
+        stride(from: range.lowerBound, through: range.upperBound, by: step).map { $0 }
+    }
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            GeometryReader { geo in
+                let trackWidth = geo.size.width
+                let extraMargin: CGFloat = 14 // extend the line a bit past the first/last tick
+                let usableWidth = trackWidth - 2 * extraMargin
+                let spacing = usableWidth / CGFloat(steps.count - 1)
+                let index = steps.firstIndex(of: value) ?? 0
+
+                ZStack(alignment: .leading) {
+                    // Base line (extended)
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: usableWidth + 2 * extraMargin, height: 4)
+                        .position(x: trackWidth / 2, y: geo.size.height / 2)
+
+                    // Active track
+                    Rectangle()
+                        .fill(Color(hex: accentColor))
+                        .frame(width: CGFloat(index) * spacing, height: 4)
+                        .position(x: extraMargin + CGFloat(index) * spacing / 2, y: geo.size.height / 2)
+
+                    // Tick marks
+                    ForEach(0..<steps.count, id: \.self) { i in
+                        Rectangle()
+                            .fill(Color(hex: accentColor))
+                            .frame(width: 2, height: 14)
+                            .position(x: extraMargin + CGFloat(i) * spacing, y: geo.size.height / 2)
+                    }
+
+                    // Thumb
+                    Circle()
+                        .fill(Color(hex: accentColor))
+                        .frame(width: 28, height: 28)
+                        .position(
+                            x: extraMargin + CGFloat(index) * spacing,
+                            y: geo.size.height / 2
+                        )
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { gesture in
+                                    let clampedX = min(max(gesture.location.x - extraMargin, 0), usableWidth)
+                                    let nearestIndex = Int(round(clampedX / spacing))
+                                    let safeIndex = min(max(nearestIndex, 0), steps.count - 1)
+                                    value = steps[safeIndex]
+                                }
+                        )
+                }
+            }
+            .frame(height: 30)
+
+
+            
+            // Numbers under each tick
+            HStack(spacing: 0) {
+                ForEach(steps, id: \.self) { stepValue in
+                    CustomText(
+                        text: "\(Int(stepValue))",
+                        color: accentColor,
+                        textAlignment: .center,
+                        multilineAlignment: .center,
+                        textSize: 20
+                    )
+                    .frame(width: 35)
+                }
+            }
+            .padding(.horizontal, 10)
+        }
+        .frame(width: UIScreen.main.bounds.width - 60)
+    }
+}
+
+
