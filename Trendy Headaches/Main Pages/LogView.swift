@@ -27,7 +27,7 @@ struct LogView: View {
     @State var symptom: String?
     @State var symptomOptions: [String] = []
     
-    @State var medTaken: String?
+    @State var medTaken: Bool = false
     @State var medTakenOptions: [String] = ["Yes", "No"]
     
     @State private var sliderValue: Double = 0.0
@@ -52,19 +52,23 @@ struct LogView: View {
     }
     
     var body: some View {
+        var buttonLabel: String {
+            symptomLogViewShown ? "Show Side Effect Log" : "Show Symptom Log"
+        }
+
         ZStack {
             // Background color
             Color(hex: backgroundColor).ignoresSafeArea()
             
-            WavyTopBottomRectangle(waves: 10, amplitude:8, accent:accentColor, x:0, y:-615, width:screenWidth, height: 400)
+            WavyTopBottomRectangle(waves: 10, amplitude:6, accent:accentColor, x:0, y:-615, width:screenWidth, height: 400)
                 .zIndex(0)
-            WavyTopBottomRectangle(waves: 10, amplitude:8, accent:accentColor, x:0, y:525, width:screenWidth, height: 400)
+            WavyTopBottomRectangle(waves:10, amplitude:6, accent:accentColor, x:0, y:525, width:screenWidth, height: 400)
                 .zIndex(0)
             
-            CustomButton(text: "test", background: backgroundColor, accent: accentColor){
-                symptomLogViewShown.toggle()
-            }
-            .zIndex(1)
+//            CustomButton(text: buttonLabel, background: backgroundColor, accent: accentColor){
+//                symptomLogViewShown.toggle()
+//            }
+//            .zIndex(1)
             
             if symptomLogViewShown{
                 symptomLogView()
@@ -95,28 +99,25 @@ struct LogView: View {
         ScrollView{
             VStack {
                 HStack{
-                    CustomText(text:"Log Symptom", color: accentColor,  width: screenWidth, textAlignment: .center, multilineAlignment: .center, textSize:50)
+                    Spacer()
+                    CustomText(text:"Symptom Log", color: accentColor,  width: screenWidth, textAlignment: .center, multilineAlignment: .center, textSize:50)
                         .padding(.bottom, 20)
                         .padding(.leading, 20)
                     Spacer()
                 }
                 
                 VStack{
-                    HStack(alignment: .top) {
-                        VStack(alignment: .center){
+                    HStack{
+                        VStack {
                             CustomText(text: "Date:", color: accentColor, textSize: 28)
-                                .frame(width: 70)
+                                .frame(width: 70, height: 50, alignment: .center)
+                            
                         }
-                        .frame(height:50)
+                        .padding(.bottom, 10)
+
                         
-                        VStack(alignment: .leading, spacing: 4) {
-                            CustomTextField(background: backgroundColor,
-                                            accent: accentColor,
-                                            placeholder: "",
-                                            text: $string_date,
-                                            width: 140,
-                                            height: 50,
-                                            textSize: 22)
+                        VStack(alignment: .center) {
+                            CustomTextField(background: backgroundColor, accent: accentColor, placeholder: "", text: $string_date, width: 140, height: 50,  textSize: 22)
                             .onChange(of: string_date) {
                                 dateCheckTask?.cancel()
                                 dateCheckTask = Task {
@@ -126,15 +127,20 @@ struct LogView: View {
                                     }
                                 }
                             }
-                            
-                            if !dateFormatCorrect {
-                                CustomWarningText(text: "Invalid date format")
-                            } else {
-                                CustomWarningText(text: " ")
-                            }
                         }
-                        .frame(width: screenWidth - 40, alignment: .leading)
+                        VStack{
+                            CustomWarningText(text: dateFormatCorrect ? " " : "Invalid format")
+                                .frame(width:40)
+                                .padding(.leading, 40)
+                            
+                        }
+                        Spacer()
+                        
                     }
+                    .frame(width: screenWidth-40)
+                    .padding(.trailing, leading_padding)
+                    
+                    
                     
                     CustomText(text: "Symptom Onset", color: accentColor, textSize: 28)
                     
@@ -147,10 +153,14 @@ struct LogView: View {
                     CustomText(text: "Symptom Severity", color: accentColor, textSize: 28)
                     StepSlider(value: $sliderValue, range: 1...10, step: 1, accentColor: accentColor, width: screenWidth - 50)
                         .frame(maxWidth: .infinity, alignment: .leading)
+
                     
-                    CustomText(text: " Emergency Med Taken?", color: accentColor, textSize: 28)
-                    MultipleChoiceButtonGroup(options: $medTakenOptions, selectedOption: $medTaken, accentColor: accentColor, columns: 2)
-                    
+                    CustomToggle(text: "Emergency Med Taken?", color: accentColor, isOn: $medTaken)
+                        .padding(.trailing, leading_padding)
+
+
+
+
                     CustomText(text: "Symptom Description", color: accentColor, textSize: 28)
                     CustomTextField(background: backgroundColor, accent:accentColor, placeholder: "", text: $symptom_desc, width: screenWidth-50, height: 50, textSize: 20, isMultiline: true)
                         .padding(.bottom, 10)

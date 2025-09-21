@@ -69,7 +69,7 @@ struct CustomTextField: View {
         .font(.system(size: textSize ?? 22, design: .serif))
         .tint(Color(hex: background))
         .textContentType(nil)
-        .padding(.bottom, 8)
+        .padding(.bottom,  8)
     }
 }
 
@@ -977,6 +977,36 @@ struct StepSlider: View {
         .padding(.bottom, 15)
     }
 }
+
+struct CustomToggle: View {
+    var text: String
+    var color: String
+    @Binding var isOn: Bool
+    var textSize: CGFloat = 28
+
+    var body: some View {
+        Button {
+            isOn.toggle()
+        } label: {
+            HStack {
+                CustomText(text:text, color:color, textSize: textSize)
+                    .fixedSize(horizontal: true, vertical: false)
+                Image(systemName: isOn ? "checkmark.square.fill" : "square")
+                    .resizable()
+                    .frame(width: textSize * 0.9, height: textSize * 0.9)
+                    .foregroundColor(Color(hex: color))
+                    .padding(.leading, 10)
+            Spacer()
+                
+            }
+
+        }
+        .buttonStyle(.plain)
+        .frame(width: UIScreen.main.bounds.width-40)
+        .padding(.trailing, 10)
+    }
+}
+
 
 
 
