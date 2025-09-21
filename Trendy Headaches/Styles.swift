@@ -223,11 +223,13 @@ struct SameAmplitudeBlob: View {
     var y: CGFloat
     var rotation: CGFloat
     let seed = 4
+    var width: CGFloat? = 700
+    var height: CGFloat? = 500
 
     var body: some View {
         BlobShape(waves: waves, amplitude: amplitude, seed: seed)
             .fill(Color(hex: accent))
-            .frame(width: 700, height: 500)
+            .frame(width: width ?? 700, height: height ?? 500)
             .offset(x:x, y:y)
             .rotationEffect(.degrees(rotation))
     }
@@ -847,53 +849,55 @@ struct MultipleChoiceButtonGroup: View {
     @Binding var options: [String]
     @Binding var selectedOption: String?
     var accentColor: String
-    
+    var columns: Int? = nil  // ✅ Optional number of columns
+
     var body: some View {
-            let screenWidth = UIScreen.main.bounds.width - 40 // some padding
-            let circleWidth: CGFloat = 20
-            let spacing: CGFloat = 8
-            let charWidth: CGFloat = 12 // rough width per character
-            
-            // estimate total width of each option (circle + text)
+        let screenWidth = UIScreen.main.bounds.width - 40
+        let circleWidth: CGFloat = 20
+        let spacing: CGFloat = 8
+        let charWidth: CGFloat = 14 // better estimate per character
+
+        // ✅ If no column count is passed, calculate it dynamically
+        let calculatedColumnCount: Int = {
             let estimatedWidths = options.map { option in
                 circleWidth + spacing + CGFloat(option.count) * charWidth
             }
-            
-            // find the widest item
             let maxItemWidth = estimatedWidths.max() ?? circleWidth + charWidth * 3
-            
-            // figure out how many items per row
-            let columnCount = max(1, Int(screenWidth / maxItemWidth))
-            
-            LazyVGrid(
-                columns: Array(repeating: GridItem(.flexible(), spacing: spacing), count: columnCount),
-                spacing: 12
-            ) {
-                ForEach(options, id: \.self) { option in
-                    HStack(spacing: 8) {
-                        Circle()
-                            .stroke(Color(hex: accentColor), lineWidth: 2)
-                            .background(
-                                Circle()
-                                    .fill(selectedOption == option ? Color(hex: accentColor) : Color.clear)
-                            )
-                            .frame(width: circleWidth, height: circleWidth)
-                            .onTapGesture {
-                                selectedOption = option
-                            }
-                        
-                        CustomText(text: option, color: accentColor, textSize: 20)
-                            .onTapGesture {
-                                selectedOption = option
-                            }
-                    }
-                    .contentShape(Rectangle())
+            return max(1, Int(screenWidth / maxItemWidth))
+        }()
+
+        let finalColumnCount = columns ?? calculatedColumnCount
+
+        LazyVGrid(
+            columns: Array(repeating: GridItem(.flexible(), spacing: spacing), count: finalColumnCount),
+            spacing: 12
+        ) {
+            ForEach(options, id: \.self) { option in
+                HStack(spacing: 8) {
+                    Circle()
+                        .stroke(Color(hex: accentColor), lineWidth: 2)
+                        .background(
+                            Circle()
+                                .fill(selectedOption == option ? Color(hex: accentColor) : Color.clear)
+                        )
+                        .frame(width: circleWidth, height: circleWidth)
+                        .onTapGesture {
+                            selectedOption = option
+                        }
+
+                    CustomText(text: option, color: accentColor, textSize: 20)
+                        .onTapGesture {
+                            selectedOption = option
+                        }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
             }
-            .padding(.horizontal, 10)
-            .padding(.bottom, 10)
         }
+        .padding(.horizontal, 10)
+        .padding(.bottom, 10)
     }
+}
 
 import SwiftUI
 
@@ -902,7 +906,8 @@ struct StepSlider: View {
     let range: ClosedRange<Double>
     let step: Double
     var accentColor: String
-    
+    var width: CGFloat // ✅ pass this from parent
+
     private var steps: [Double] {
         stride(from: range.lowerBound, through: range.upperBound, by: step).map { $0 }
     }
@@ -911,25 +916,22 @@ struct StepSlider: View {
         VStack(spacing: 8) {
             GeometryReader { geo in
                 let trackWidth = geo.size.width
-                let extraMargin: CGFloat = 14 // extend the line a bit past the first/last tick
+                let extraMargin: CGFloat = 14
                 let usableWidth = trackWidth - 2 * extraMargin
                 let spacing = usableWidth / CGFloat(steps.count - 1)
                 let index = steps.firstIndex(of: value) ?? 0
 
                 ZStack(alignment: .leading) {
-                    // Base line (extended)
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
                         .frame(width: usableWidth + 2 * extraMargin, height: 4)
                         .position(x: trackWidth / 2, y: geo.size.height / 2)
 
-                    // Active track
                     Rectangle()
                         .fill(Color(hex: accentColor))
                         .frame(width: CGFloat(index) * spacing, height: 4)
                         .position(x: extraMargin + CGFloat(index) * spacing / 2, y: geo.size.height / 2)
 
-                    // Tick marks
                     ForEach(0..<steps.count, id: \.self) { i in
                         Rectangle()
                             .fill(Color(hex: accentColor))
@@ -937,7 +939,6 @@ struct StepSlider: View {
                             .position(x: extraMargin + CGFloat(i) * spacing, y: geo.size.height / 2)
                     }
 
-                    // Thumb
                     Circle()
                         .fill(Color(hex: accentColor))
                         .frame(width: 28, height: 28)
@@ -958,9 +959,6 @@ struct StepSlider: View {
             }
             .frame(height: 30)
 
-
-            
-            // Numbers under each tick
             HStack(spacing: 0) {
                 ForEach(steps, id: \.self) { stepValue in
                     CustomText(
@@ -975,8 +973,10 @@ struct StepSlider: View {
             }
             .padding(.horizontal, 10)
         }
-        .frame(width: UIScreen.main.bounds.width - 60)
+        .frame(width: width) // ✅ use parent width
+        .padding(.bottom, 15)
     }
 }
+
 
 

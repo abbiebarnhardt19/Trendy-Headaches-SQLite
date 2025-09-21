@@ -14,7 +14,7 @@ struct LogView: View {
     @Binding var backgroundColor: String
     @Binding var accentColor: String
     
-    let leading_padding = CGFloat(30)
+    let leading_padding = CGFloat(70)
     @State private var string_date: String = ""
     @State private var date_date: Date = Date()
     @State private var dateCheckTask: Task<Void, Never>? = nil
@@ -24,7 +24,21 @@ struct LogView: View {
     @State var onset: String?
     @State var onsetOptions: [String] = ["From Wake", "Morning", "Afternoon", "Evening"]
     
+    @State var symptom: String?
+    @State var symptomOptions: [String] = []
+    
+    @State var medTaken: String?
+    @State var medTakenOptions: [String] = ["Yes", "No"]
+    
     @State private var sliderValue: Double = 0.0
+    
+    @State private var symptom_desc: String = ""
+    @State private var notes: String = ""
+    
+    @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
+    
+    @State private var symptomLogViewShown = true
+    @State private var toggleText = ""
     
     let formatter: DateFormatter = {
         let f = DateFormatter()
@@ -33,91 +47,134 @@ struct LogView: View {
     }()
     
     func isDateInValidFormat(_ input: String) -> Bool {
-        // Matches:
-        //  - 1–2 digits, separator, 1–2 digits, separator, 2 OR 4 digits
-        //  - separator can be "-" or "/"
         let pattern = #"^\d{1,2}[-/]\d{1,2}[-/](\d{2}|\d{4})$"#
         return input.range(of: pattern, options: .regularExpression) != nil
     }
-
-
-
+    
     var body: some View {
-        
-        
         ZStack {
             // Background color
             Color(hex: backgroundColor).ignoresSafeArea()
             
-            // Decorative blobs
-            RandomBlob(points: 85, width:350, height:350, x:270, y:340, rotation:60, accent:accentColor)
-            RandomBlob(points: 85, width:350, height:270, x:280, y:350, rotation:240, accent:accentColor)
+            WavyTopBottomRectangle(waves: 10, amplitude:8, accent:accentColor, x:0, y:-615, width:screenWidth, height: 400)
+                .zIndex(0)
+            WavyTopBottomRectangle(waves: 10, amplitude:8, accent:accentColor, x:0, y:525, width:screenWidth, height: 400)
+                .zIndex(0)
             
-            VStack {
-                HStack{
-                    CustomText(text:"Log Symptom", color: accentColor,  width: 250, textAlignment: .leading, multilineAlignment: .leading, textSize:50)
-                        .padding(.leading, leading_padding)
-                        .padding(.top, 30)
-                    Spacer()
-                }
-                Spacer()
+            CustomButton(text: "test", background: backgroundColor, accent: accentColor){
+                symptomLogViewShown.toggle()
             }
-            .ignoresSafeArea(edges: .bottom)
+            .zIndex(1)
             
-            VStack(alignment: .leading){
-                CustomText(text: "Date", color: accentColor, textSize: 28)
-                    .padding(.leading, 10)
-                    
-                CustomTextField(background: backgroundColor, accent: accentColor, placeholder: "", text: $string_date, width: 150, height: 45, textSize: 20)
-                    .onChange(of: string_date) {
-                        dateCheckTask?.cancel()
-                        dateCheckTask = Task {
-                            try? await Task.sleep(nanoseconds: 500_000_000)
-                            if !Task.isCancelled {
-                                dateFormatCorrect = isDateInValidFormat(string_date)
-                            }
-                        }
-                    }
-                if !dateFormatCorrect {
-                    CustomWarningText(text: "Invalid date format")
-                }
-                else{
-                    CustomWarningText(text: "                                 ")
-                }
-                
-                CustomText(text: "Symptom Onset", color: accentColor, textSize: 28)
-                    
-                MultipleChoiceButtonGroup(options: $onsetOptions, selectedOption: $onset, accentColor: accentColor)
-                
-                CustomText(text: "Symptom Severity", color: accentColor, textSize: 28)
-                StepSlider(
-                    value: $sliderValue,
-                    range: 1...10,
-                    step: 1,
-                    accentColor: accentColor
-                )         
+            if symptomLogViewShown{
+                symptomLogView()
             }
-            .padding(.leading, leading_padding)
-            
-            
-            
+            else{
+                sideEffectLogView()
+            }
+
             // Nav bar overlay at bottom
             VStack {
                 Spacer()
                 NavBarView(userID: userID, backgroundColor: $backgroundColor, accentColor: $accentColor)
-                .frame(height: 60)
-                .frame(maxWidth: .infinity, alignment: .center)
+                    .frame(height: 60)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
+            .zIndex(1)
             .ignoresSafeArea(edges: .bottom)
-            .zIndex(10)
         }
         .onAppear{
-           string_date = formatter.string(from: Date())
+            string_date = formatter.string(from: Date())
             date_date = formatter.date(from: string_date) ?? Date()
+            
+            symptomOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
         }
+    }
+    @ViewBuilder
+    private func symptomLogView() -> some View {
+        ScrollView{
+            VStack {
+                HStack{
+                    CustomText(text:"Log Symptom", color: accentColor,  width: screenWidth, textAlignment: .center, multilineAlignment: .center, textSize:50)
+                        .padding(.bottom, 20)
+                        .padding(.leading, 20)
+                    Spacer()
+                }
+                
+                VStack{
+                    HStack(alignment: .top) {
+                        VStack(alignment: .center){
+                            CustomText(text: "Date:", color: accentColor, textSize: 28)
+                                .frame(width: 70)
+                        }
+                        .frame(height:50)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            CustomTextField(background: backgroundColor,
+                                            accent: accentColor,
+                                            placeholder: "",
+                                            text: $string_date,
+                                            width: 140,
+                                            height: 50,
+                                            textSize: 22)
+                            .onChange(of: string_date) {
+                                dateCheckTask?.cancel()
+                                dateCheckTask = Task {
+                                    try? await Task.sleep(nanoseconds: 500_000_000)
+                                    if !Task.isCancelled {
+                                        dateFormatCorrect = isDateInValidFormat(string_date)
+                                    }
+                                }
+                            }
+                            
+                            if !dateFormatCorrect {
+                                CustomWarningText(text: "Invalid date format")
+                            } else {
+                                CustomWarningText(text: " ")
+                            }
+                        }
+                        .frame(width: screenWidth - 40, alignment: .leading)
+                    }
+                    
+                    CustomText(text: "Symptom Onset", color: accentColor, textSize: 28)
+                    
+                    MultipleChoiceButtonGroup(options: $onsetOptions, selectedOption: $onset, accentColor: accentColor)
+                    
+                    CustomText(text: "Symptom", color: accentColor, textSize: 28)
+                    
+                    MultipleChoiceButtonGroup(options: $symptomOptions, selectedOption: $symptom, accentColor: accentColor)
+                    
+                    CustomText(text: "Symptom Severity", color: accentColor, textSize: 28)
+                    StepSlider(value: $sliderValue, range: 1...10, step: 1, accentColor: accentColor, width: screenWidth - 50)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    CustomText(text: " Emergency Med Taken?", color: accentColor, textSize: 28)
+                    MultipleChoiceButtonGroup(options: $medTakenOptions, selectedOption: $medTaken, accentColor: accentColor, columns: 2)
+                    
+                    CustomText(text: "Symptom Description", color: accentColor, textSize: 28)
+                    CustomTextField(background: backgroundColor, accent:accentColor, placeholder: "", text: $symptom_desc, width: screenWidth-50, height: 50, textSize: 20, isMultiline: true)
+                        .padding(.bottom, 10)
+                        .padding(.trailing, leading_padding + 20)
+                    
+                    CustomText(text: " Notes", color: accentColor, textSize: 28)
+                    CustomTextField(background: backgroundColor, accent:accentColor, placeholder: "", text: $notes, width: screenWidth-50, height: 50, textSize: 20, isMultiline: true)
+                        .padding(.bottom, 10)
+                        .padding(.trailing, leading_padding + 20)
+                }
+                .padding(.leading, leading_padding)
+                .padding(.bottom, 150)
+            }
+            
+        }
+    }
+    @ViewBuilder
+    private func sideEffectLogView() -> some View {
+        CustomText(text: "test", color: accentColor)
     }
 }
 
+
+
 #Preview {
-    LogView(userID: 1, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
+    LogView(userID: 2, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
 }
