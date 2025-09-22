@@ -71,8 +71,6 @@ struct ProfileView: View {
                 VStack {
                     Spacer()
                     NavBarView(userID: userID, background: $newBackground, accent: $newAccent)
-                    .frame(height: 60)
-                    .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .ignoresSafeArea(edges: .bottom)
                 .zIndex(1)
@@ -97,7 +95,7 @@ struct ProfileView: View {
     private func editingView() -> some View {
         let editColumnWidth = UIScreen.main.bounds.width / 2
         
-        CustomText(text: "User Profile", color: newAccent, textAlignment: .center, textSize: 50)
+        CustomText(text: "User Profile", color: newAccent, textAlignment: .center, textSize: 45)
             .padding(.bottom, 20)
             .padding(.top, 50)
 
@@ -213,7 +211,7 @@ struct ProfileView: View {
     @ViewBuilder
     private func viewingView() -> some View {
         let viewColumnWidth = UIScreen.main.bounds.width / 2
-        CustomText(text: "User Profile", color: newAccent, textAlignment: .center, textSize: 50)
+        CustomText(text: "User Profile", color: newAccent, textAlignment: .center, textSize: 45)
             .padding(.bottom, 40)
             .padding(.top, 50)
         

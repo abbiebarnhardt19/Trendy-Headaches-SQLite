@@ -9,39 +9,30 @@ import SwiftUI
 import Foundation
 
 struct LogView: View {
-    
     var userID: Int64
     @Binding var background: String
     @Binding var accent: String
     
-    let leading_padding = CGFloat(20)
+    let leading_padding = CGFloat(40)
     @State private var string_date: String = ""
     @State private var date_date: Date = Date()
     @State private var dateCheckTask: Task<Void, Never>? = nil
     @State private var dateFormatCorrect: Bool = true
     @State private var dateValid: Bool = true
-    
     @State var onset: String?
     @State var onsetOptions: [String] = ["From Wake", "Morning", "Afternoon", "Evening"]
-    
     @State var symptom: String?
     @State var symptomOptions: [String] = []
-    
     @State var medTaken: Bool = false
     @State var medTakenOptions: [String] = ["Yes", "No"]
-    
     @State private var sliderValue: Double = 0.0
-    
     @State private var symptom_desc: String = ""
     @State private var notes: String = ""
-    
     @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
-    
-    @State private var symptomLogViewShown = true
     @State private var toggleText = ""
-    
     @State private var triggerOptions : [String] = []
     @State private var selectedTriggers: Set<String> = []
+    @State private var symptomLogViewShown = true
     
     let formatter: DateFormatter = {
         let f = DateFormatter()
@@ -55,8 +46,8 @@ struct LogView: View {
     }
     
     var body: some View {
-        var buttonLabel: String {
-            symptomLogViewShown ? "Show Side Effect Log" : "Show Symptom Log"
+        var header: String {
+            symptomLogViewShown ?  "Symptom Log":"Side Effect Log"
         }
 
         ZStack {
@@ -69,9 +60,25 @@ struct LogView: View {
                 .zIndex(0)
             
             ScrollView{
-                CustomText(text:"Symptom Log", color: accent,  width: screenWidth, textAlignment: .leading, textSize:50)
-                    .padding(.vertical, 15)
+                HStack {
+                    CustomText(
+                        text: header,
+                        color: accent,
+                        textAlignment: .center,
+                        textSize: 45
+                    )
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+                    
+                    CustomToggle(color: accent, feature: $symptomLogViewShown)
+                        .padding(.trailing, leading_padding)
+                        .padding(.top, 7)
+                }
+                .frame(width: screenWidth)
+                .padding(.top, 20)
                 
+                
+
                 if symptomLogViewShown{
                     symptomLogView()
                 }
@@ -85,8 +92,6 @@ struct LogView: View {
             VStack {
                 Spacer()
                 NavBarView(userID: userID, background: $background, accent: $accent)
-                    .frame(height: 60)
-                    .frame(maxWidth: .infinity, alignment: .center)
             }
             .zIndex(1)
             .ignoresSafeArea(edges: .bottom)

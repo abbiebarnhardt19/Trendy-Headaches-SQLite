@@ -1174,3 +1174,29 @@ struct FlexibleWrapCheckboxLayout<Data: RandomAccessCollection, Content: View>: 
     }
 }
 
+
+struct CustomToggle: View {
+    var color: String
+    @Binding var feature: Bool
+    
+    var body: some View {
+        HStack {
+            Spacer()
+            RoundedRectangle(cornerRadius: 16)
+                .fill(feature ? Color(hex: color) : Color(hex: color))
+                .frame(width: 50, height: 32)
+                .overlay(
+                    Circle()
+                        .fill(Color.white)
+                        .padding(3)
+                        .offset(x: feature ? 10 : -10)
+                )
+                .onTapGesture {
+                    feature.toggle()
+                }
+        }
+        .frame(width:50)
+    }
+}
+
+

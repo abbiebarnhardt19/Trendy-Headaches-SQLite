@@ -26,9 +26,9 @@ struct NavBarView: View {
                     VStack(spacing: 2) {
                         Image(systemName: "square.and.pencil")
                         CustomText(text: "Log", color: accent, textAlignment: .center, multilineAlignment: .center, textSize: 15)
-                            .padding(.bottom, 15)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.leading, 15)
                 }
                 .buttonStyle(PlainButtonStyle())
                 
@@ -40,7 +40,6 @@ struct NavBarView: View {
                     VStack(spacing: 2) {
                         Image(systemName: "list.bullet")
                         CustomText(text: "List", color: accent, textAlignment: .center, multilineAlignment: .center, textSize: 15)
-                            .padding(.bottom, 15)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(.top, 3)
@@ -53,7 +52,6 @@ struct NavBarView: View {
                     VStack(spacing: 2) {
                         Image(systemName: "chart.bar.xaxis")
                         CustomText(text: "Analytics", color:accent, textAlignment: .center, multilineAlignment: .center, textSize: 15)
-                            .padding(.bottom, 15)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
@@ -63,17 +61,17 @@ struct NavBarView: View {
                     VStack(spacing: 2) {
                         Image(systemName: "person.fill")
                         CustomText(text: "Profile", color:accent, textAlignment: .center, multilineAlignment: .center, textSize: 15)
-                            .padding(.bottom, 15)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.trailing, 15)
                 }
                 .buttonStyle(PlainButtonStyle())
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity) // fill the bar
+            .frame(maxWidth: .infinity, maxHeight: .infinity) 
             .foregroundColor(Color(hex: accent))
         }
-        .frame(maxWidth: UIScreen.main.bounds.width)  // force full width
-        .frame(height: 80)           // fixed height
+        .frame(maxWidth: UIScreen.main.bounds.width)
+        .frame(height: 70)
         .ignoresSafeArea(edges: .bottom)
     }
 }
