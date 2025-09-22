@@ -1007,6 +1007,83 @@ struct CustomToggle: View {
     }
 }
 
+import SwiftUI
+
+struct MultipleChoiceCheckboxGroup: View {
+    @Binding var options: [String]
+    @Binding var selectedOptions: Set<String>  // ✅ Multiple selections
+    var accentColor: String
+    var backgroundColor: String   // ✅ Added so checkmark can match background
+    var columns: Int? = nil       // Optional number of columns
+
+    var body: some View {
+        let screenWidth = UIScreen.main.bounds.width - 40
+        let boxSize: CGFloat = 22
+        let spacing: CGFloat = 8
+        let charWidth: CGFloat = 14
+
+        // Dynamically calculate number of columns
+        let calculatedColumnCount: Int = {
+            let estimatedWidths = options.map { option in
+                boxSize + spacing + CGFloat(option.count) * charWidth
+            }
+            let maxItemWidth = estimatedWidths.max() ?? boxSize + charWidth * 3
+            return max(1, Int(screenWidth / maxItemWidth))
+        }()
+
+        let finalColumnCount = columns ?? calculatedColumnCount
+
+        LazyVGrid(
+            columns: Array(repeating: GridItem(.flexible(), spacing: spacing), count: finalColumnCount),
+            spacing: 12
+        ) {
+            ForEach(options, id: \.self) { option in
+                HStack(spacing: 8) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(selectedOptions.contains(option) ? Color(hex: accentColor) : Color.clear)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke(Color(hex: accentColor), lineWidth: 2)
+                            )
+                            .frame(width: boxSize, height: boxSize)
+
+                        if selectedOptions.contains(option) {
+                            Image(systemName: "checkmark")
+                                .foregroundColor(Color(hex: backgroundColor)) // ✅ Matches your background
+                                .font(.system(size: boxSize * 0.7, weight: .bold))
+                        }
+                    }
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.15)) {
+                            toggleSelection(option)
+                        }
+                    }
+
+                    CustomText(text: option, color: accentColor, textSize: 20)
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.15)) {
+                                toggleSelection(option)
+                            }
+                        }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.bottom, 10)
+    }
+
+    private func toggleSelection(_ option: String) {
+        if selectedOptions.contains(option) {
+            selectedOptions.remove(option)
+        } else {
+            selectedOptions.insert(option)
+        }
+    }
+}
+
 
 
 

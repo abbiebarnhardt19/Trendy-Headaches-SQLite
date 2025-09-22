@@ -40,6 +40,9 @@ struct LogView: View {
     @State private var symptomLogViewShown = true
     @State private var toggleText = ""
     
+    @State private var triggerOptions = ["Option 1", "Option 2", "Option 3"]
+    @State private var selectedTriggers: Set<String> = []
+    
     let formatter: DateFormatter = {
         let f = DateFormatter()
         f.dateStyle = .short
@@ -158,7 +161,13 @@ struct LogView: View {
                     CustomToggle(text: "Emergency Med Taken?", color: accentColor, isOn: $medTaken)
                         .padding(.trailing, leading_padding)
 
-
+                    CustomText(text: "Triggers", color: accentColor, textSize: 28)
+                    MultipleChoiceCheckboxGroup(
+                        options: $triggerOptions,
+                        selectedOptions: $selectedTriggers,
+                        accentColor: accentColor,
+                        backgroundColor : backgroundColor
+                    )
 
 
                     CustomText(text: "Symptom Description", color: accentColor, textSize: 28)
