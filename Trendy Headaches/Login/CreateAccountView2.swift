@@ -42,7 +42,7 @@ struct CreateAccountView2: View {
                             CustomText(text:"One Last Step", color:accent, textAlignment: .center, textSize: 50)
                                 .padding(.vertical, 15)
                             
-                            CustomText(text: "These fields are optional and help us provide personalized insights from your data. Add multiple items by separating them with commas.", color: accent, width: screen_width - 30, textAlignment: .center, multilineAlignment: .center, textSize: 18)
+                            CustomText(text: "Add multiple items by separating them with commas.", color: accent, width: screen_width - 30, textAlignment: .center, multilineAlignment: .center, textSize: 18)
                                 .padding(.bottom, 20)
                             
                             
@@ -53,13 +53,13 @@ struct CreateAccountView2: View {
                             CustomTextField(background: background, accent: accent, placeholder: "", text: $symptoms)
                             
                             //prev meds label and textbox
-                            CustomText(text: "Preventative Medications", color: accent)
+                            CustomText(text: "Preventative Treatments", color: accent)
                                 .padding(.leading, leading_padding)
                             
                             CustomTextField(background: background, accent: accent, placeholder: "", text: $preventativeMeds)
                             
                             //emerg meds label and textbox
-                            CustomText(text: "Emergency Medications", color: accent)
+                            CustomText(text: "Emergency Treatments", color: accent)
                                 .padding(.leading, leading_padding)
                             
                             CustomTextField(background: background, accent: accent, placeholder: "", text: $emergencyMeds)

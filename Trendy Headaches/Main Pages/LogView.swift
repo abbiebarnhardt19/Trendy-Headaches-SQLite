@@ -40,7 +40,7 @@ struct LogView: View {
     @State private var symptomLogViewShown = true
     @State private var toggleText = ""
     
-    @State private var triggerOptions = ["Option 1", "Option 2", "Option 3"]
+    @State private var triggerOptions : [String] = []
     @State private var selectedTriggers: Set<String> = []
     
     let formatter: DateFormatter = {
@@ -95,6 +95,10 @@ struct LogView: View {
             date_date = formatter.date(from: string_date) ?? Date()
             
             symptomOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
+            
+            triggerOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name")
+            
+            triggerOptions = DatabaseManager.deleteListDuplicates(list: triggerOptions)
         }
     }
     @ViewBuilder
@@ -114,11 +118,9 @@ struct LogView: View {
                         VStack {
                             CustomText(text: "Date:", color: accentColor, textSize: 28)
                                 .frame(width: 70, height: 50, alignment: .center)
-                            
                         }
                         .padding(.bottom, 10)
 
-                        
                         VStack(alignment: .center) {
                             CustomTextField(background: backgroundColor, accent: accentColor, placeholder: "", text: $string_date, width: 140, height: 50,  textSize: 22)
                             .onChange(of: string_date) {
@@ -135,15 +137,11 @@ struct LogView: View {
                             CustomWarningText(text: dateFormatCorrect ? " " : "Invalid format")
                                 .frame(width:40)
                                 .padding(.leading, 40)
-                            
                         }
                         Spacer()
-                        
                     }
                     .frame(width: screenWidth-40)
                     .padding(.trailing, leading_padding)
-                    
-                    
                     
                     CustomText(text: "Symptom Onset", color: accentColor, textSize: 28)
                     
@@ -195,5 +193,5 @@ struct LogView: View {
 
 
 #Preview {
-    LogView(userID: 2, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
+    LogView(userID: 3, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
 }

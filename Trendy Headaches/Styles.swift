@@ -98,7 +98,7 @@ struct CustomList: View {
     var color: String
     
     var body: some View {
-        let maxWidth = UIScreen.main.bounds.width / 2 - 20
+        let maxWidth = UIScreen.main.bounds.width / 2 - 40
         
         // estimate width per character and find the widest item
         let charWidth: CGFloat = 12
@@ -116,7 +116,9 @@ struct CustomList: View {
                 Text("• \(item)")
                     .font(.system(size: 18, design: .serif))
                     .foregroundColor(Color(hex: color))
-                    .multilineTextAlignment(.center)
+                    .lineLimit(1) // ✅ only one line
+                    .truncationMode(.tail) // ✅ add "…" if too long
+                    .frame(maxWidth: .infinity, alignment: .center) // ✅ gives it a width to truncate within
             }
         }
         .fixedSize(horizontal: false, vertical: true)
@@ -125,6 +127,7 @@ struct CustomList: View {
         .fixedSize(horizontal: false, vertical: true)
     }
 }
+
 
 
 struct CustomNavButton<Destination: View>: View {
@@ -845,34 +848,20 @@ struct EditableList: View {
 }
 
 
+import SwiftUI
+
 struct MultipleChoiceButtonGroup: View {
     @Binding var options: [String]
     @Binding var selectedOption: String?
     var accentColor: String
-    var columns: Int? = nil  // ✅ Optional number of columns
-
+    
+    let circleWidth: CGFloat = 20
+    let spacing: CGFloat = 8
+    let charWidth: CGFloat = 14
+    
     var body: some View {
-        let screenWidth = UIScreen.main.bounds.width - 40
-        let circleWidth: CGFloat = 20
-        let spacing: CGFloat = 8
-        let charWidth: CGFloat = 14 // better estimate per character
-
-        // ✅ If no column count is passed, calculate it dynamically
-        let calculatedColumnCount: Int = {
-            let estimatedWidths = options.map { option in
-                circleWidth + spacing + CGFloat(option.count) * charWidth
-            }
-            let maxItemWidth = estimatedWidths.max() ?? circleWidth + charWidth * 3
-            return max(1, Int(screenWidth / maxItemWidth))
-        }()
-
-        let finalColumnCount = columns ?? calculatedColumnCount
-
-        LazyVGrid(
-            columns: Array(repeating: GridItem(.flexible(), spacing: spacing), count: finalColumnCount),
-            spacing: 12
-        ) {
-            ForEach(options, id: \.self) { option in
+        VStack(alignment: .leading, spacing: 0) {
+            FlexibleWrapLayout(items: options, spacing: 12) { option in
                 HStack(spacing: 8) {
                     Circle()
                         .stroke(Color(hex: accentColor), lineWidth: 2)
@@ -884,20 +873,75 @@ struct MultipleChoiceButtonGroup: View {
                         .onTapGesture {
                             selectedOption = option
                         }
-
+                    
                     CustomText(text: option, color: accentColor, textSize: 20)
                         .onTapGesture {
                             selectedOption = option
                         }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.trailing, 8)
                 .contentShape(Rectangle())
             }
         }
         .padding(.horizontal, 10)
-        .padding(.bottom, 10)
+        .padding(.bottom, 10) // ✅ Now it applies below the *whole group* consistently
     }
 }
+
+// MARK: - Flexible Layout
+struct FlexibleWrapLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
+    var items: Data
+    var spacing: CGFloat
+    var content: (Data.Element) -> Content
+
+    init(items: Data, spacing: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
+        self.items = items
+        self.spacing = spacing
+        self.content = content
+    }
+
+    var body: some View {
+        // Use a normal container instead of letting GeometryReader stretch vertically
+        self.generateContent(in: UIScreen.main.bounds.width - 20)
+    }
+
+    private func generateContent(in totalWidth: CGFloat) -> some View {
+        var width: CGFloat = 0
+        var rows: [[Data.Element]] = [[]]
+        
+        for item in items {
+            let itemWidth = estimateWidth(for: item)
+            if width + itemWidth + spacing > totalWidth {
+                rows.append([item])
+                width = itemWidth + spacing
+            } else {
+                rows[rows.count - 1].append(item)
+                width += itemWidth + spacing
+            }
+        }
+        
+        return VStack(alignment: .leading, spacing: spacing) {
+            ForEach(0..<rows.count, id: \.self) { rowIndex in
+                HStack(spacing: spacing) {
+                    ForEach(rows[rowIndex], id: \.self) { item in
+                        content(item)
+                    }
+                }
+            }
+        }
+    }
+
+    private func estimateWidth(for item: Data.Element) -> CGFloat {
+        let textCount = String(describing: item).count
+        return circleWidth + spacing + CGFloat(textCount) * charWidth
+    }
+
+    private let circleWidth: CGFloat = 20
+    private let charWidth: CGFloat = 14
+}
+
+
+
 
 import SwiftUI
 
@@ -1006,38 +1050,21 @@ struct CustomToggle: View {
         .padding(.trailing, 10)
     }
 }
-
 import SwiftUI
 
 struct MultipleChoiceCheckboxGroup: View {
     @Binding var options: [String]
-    @Binding var selectedOptions: Set<String>  // ✅ Multiple selections
+    @Binding var selectedOptions: Set<String> // ✅ multiple selections
     var accentColor: String
-    var backgroundColor: String   // ✅ Added so checkmark can match background
-    var columns: Int? = nil       // Optional number of columns
+    var backgroundColor: String
+
+    let boxSize: CGFloat = 22
+    let spacing: CGFloat = 8
+    let charWidth: CGFloat = 14
 
     var body: some View {
-        let screenWidth = UIScreen.main.bounds.width - 40
-        let boxSize: CGFloat = 22
-        let spacing: CGFloat = 8
-        let charWidth: CGFloat = 14
-
-        // Dynamically calculate number of columns
-        let calculatedColumnCount: Int = {
-            let estimatedWidths = options.map { option in
-                boxSize + spacing + CGFloat(option.count) * charWidth
-            }
-            let maxItemWidth = estimatedWidths.max() ?? boxSize + charWidth * 3
-            return max(1, Int(screenWidth / maxItemWidth))
-        }()
-
-        let finalColumnCount = columns ?? calculatedColumnCount
-
-        LazyVGrid(
-            columns: Array(repeating: GridItem(.flexible(), spacing: spacing), count: finalColumnCount),
-            spacing: 12
-        ) {
-            ForEach(options, id: \.self) { option in
+        VStack(alignment: .leading, spacing: 0) {
+            FlexibleWrapCheckboxLayout(items: options, spacing: 12, boxSize: boxSize, charWidth: charWidth) { option in
                 HStack(spacing: 8) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 4)
@@ -1050,7 +1077,7 @@ struct MultipleChoiceCheckboxGroup: View {
 
                         if selectedOptions.contains(option) {
                             Image(systemName: "checkmark")
-                                .foregroundColor(Color(hex: backgroundColor)) // ✅ Matches your background
+                                .foregroundColor(Color(hex: backgroundColor)) // ✅ checkmark matches background
                                 .font(.system(size: boxSize * 0.7, weight: .bold))
                         }
                     }
@@ -1061,18 +1088,21 @@ struct MultipleChoiceCheckboxGroup: View {
                     }
 
                     CustomText(text: option, color: accentColor, textSize: 20)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: 0.15)) {
                                 toggleSelection(option)
                             }
                         }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.trailing, 25)
+                .fixedSize() // ✅ each item only takes needed width
                 .contentShape(Rectangle())
             }
         }
         .padding(.horizontal, 10)
-        .padding(.bottom, 10)
+        .padding(.bottom, 10) // ✅ padding is below the *whole group*
     }
 
     private func toggleSelection(_ option: String) {
@@ -1084,6 +1114,57 @@ struct MultipleChoiceCheckboxGroup: View {
     }
 }
 
+// MARK: - Flexible Layout
+struct FlexibleWrapCheckboxLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
+    var items: Data
+    var spacing: CGFloat
+    var boxSize: CGFloat
+    var charWidth: CGFloat
+    var content: (Data.Element) -> Content
 
+    init(items: Data, spacing: CGFloat, boxSize: CGFloat, charWidth: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
+        self.items = items
+        self.spacing = spacing
+        self.boxSize = boxSize
+        self.charWidth = charWidth
+        self.content = content
+    }
 
+    var body: some View {
+        generateContent(in: UIScreen.main.bounds.width - 20)
+    }
+
+    private func generateContent(in totalWidth: CGFloat) -> some View {
+        var width: CGFloat = 0
+        var rows: [[Data.Element]] = [[]]
+
+        for item in items {
+            let itemWidth = estimateWidth(for: item)
+            if width + itemWidth + spacing > totalWidth {
+                // start new row
+                rows.append([item])
+                width = itemWidth + spacing
+            } else {
+                rows[rows.count - 1].append(item)
+                width += itemWidth + spacing
+            }
+        }
+
+        return VStack(alignment: .leading, spacing: spacing) {
+            ForEach(0..<rows.count, id: \.self) { rowIndex in
+                HStack(alignment: .center, spacing: spacing) {
+                    ForEach(rows[rowIndex], id: \.self) { item in
+                        content(item)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading) // ✅ left align row, no centering
+            }
+        }
+    }
+
+    private func estimateWidth(for item: Data.Element) -> CGFloat {
+        let textCount = String(describing: item).count
+        return boxSize + 8 + CGFloat(textCount) * charWidth
+    }
+}
 
