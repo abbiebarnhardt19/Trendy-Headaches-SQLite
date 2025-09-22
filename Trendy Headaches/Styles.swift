@@ -852,63 +852,68 @@ import SwiftUI
 
 struct MultipleChoiceButtonGroup: View {
     @Binding var options: [String]
-    @Binding var selectedOption: String?
-    var accentColor: String
-    
+    @Binding var selected: String?
+    var accent: String
+
     let circleWidth: CGFloat = 20
     let spacing: CGFloat = 8
     let charWidth: CGFloat = 14
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            FlexibleWrapLayout(items: options, spacing: 12) { option in
+            FlexibleWrapRadioLayout(items: options, spacing: 12, circleWidth: circleWidth, charWidth: charWidth) { option in
                 HStack(spacing: 8) {
                     Circle()
-                        .stroke(Color(hex: accentColor), lineWidth: 2)
+                        .stroke(Color(hex: accent), lineWidth: 2)
                         .background(
                             Circle()
-                                .fill(selectedOption == option ? Color(hex: accentColor) : Color.clear)
+                                .fill(selected == option ? Color(hex: accent) : Color.clear)
                         )
                         .frame(width: circleWidth, height: circleWidth)
                         .onTapGesture {
-                            selectedOption = option
+                            selected = option
                         }
-                    
-                    CustomText(text: option, color: accentColor, textSize: 20)
+
+                    CustomText(text: option, color: accent, textSize: 20)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                         .onTapGesture {
-                            selectedOption = option
+                            selected = option
                         }
                 }
-                .padding(.trailing, 8)
+                .padding(.trailing, 25)
+                .fixedSize()
                 .contentShape(Rectangle())
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.bottom, 10) // ✅ Now it applies below the *whole group* consistently
+        .padding(.bottom, 10)
     }
 }
 
-// MARK: - Flexible Layout
-struct FlexibleWrapLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
+// MARK: - Flexible Wrap Layout for Radio Buttons
+struct FlexibleWrapRadioLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
     var items: Data
     var spacing: CGFloat
+    var circleWidth: CGFloat
+    var charWidth: CGFloat
     var content: (Data.Element) -> Content
 
-    init(items: Data, spacing: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
+    init(items: Data, spacing: CGFloat, circleWidth: CGFloat, charWidth: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
         self.items = items
         self.spacing = spacing
+        self.circleWidth = circleWidth
+        self.charWidth = charWidth
         self.content = content
     }
 
     var body: some View {
-        // Use a normal container instead of letting GeometryReader stretch vertically
-        self.generateContent(in: UIScreen.main.bounds.width - 20)
+        generateContent(in: UIScreen.main.bounds.width - 20)
     }
 
     private func generateContent(in totalWidth: CGFloat) -> some View {
         var width: CGFloat = 0
         var rows: [[Data.Element]] = [[]]
-        
+
         for item in items {
             let itemWidth = estimateWidth(for: item)
             if width + itemWidth + spacing > totalWidth {
@@ -919,26 +924,25 @@ struct FlexibleWrapLayout<Data: RandomAccessCollection, Content: View>: View whe
                 width += itemWidth + spacing
             }
         }
-        
+
         return VStack(alignment: .leading, spacing: spacing) {
             ForEach(0..<rows.count, id: \.self) { rowIndex in
-                HStack(spacing: spacing) {
+                HStack(alignment: .center, spacing: spacing) {
                     ForEach(rows[rowIndex], id: \.self) { item in
                         content(item)
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading) // ✅ left-align rows
             }
         }
     }
 
     private func estimateWidth(for item: Data.Element) -> CGFloat {
         let textCount = String(describing: item).count
-        return circleWidth + spacing + CGFloat(textCount) * charWidth
+        return circleWidth + 8 + CGFloat(textCount) * charWidth
     }
-
-    private let circleWidth: CGFloat = 20
-    private let charWidth: CGFloat = 14
 }
+
 
 
 
@@ -950,7 +954,7 @@ struct StepSlider: View {
     let range: ClosedRange<Double>
     let step: Double
     var accentColor: String
-    var width: CGFloat // ✅ pass this from parent
+    var width: CGFloat
 
     private var steps: [Double] {
         stride(from: range.lowerBound, through: range.upperBound, by: step).map { $0 }
@@ -967,7 +971,7 @@ struct StepSlider: View {
 
                 ZStack(alignment: .leading) {
                     Rectangle()
-                        .fill(Color.gray.opacity(0.3))
+                        .fill(Color(hex: accentColor).opacity(0.3))
                         .frame(width: usableWidth + 2 * extraMargin, height: 4)
                         .position(x: trackWidth / 2, y: geo.size.height / 2)
 
@@ -1010,34 +1014,36 @@ struct StepSlider: View {
                         color: accentColor,
                         textAlignment: .center,
                         multilineAlignment: .center,
-                        textSize: 20
+                        textSize: 18
                     )
                     .frame(width: 35)
                 }
             }
             .padding(.horizontal, 10)
         }
-        .frame(width: width) // ✅ use parent width
+        .frame(width: width)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.bottom, 15)
     }
+    
 }
 
-struct CustomToggle: View {
+struct CustomSingleCheckbox: View {
     var text: String
     var color: String
     @Binding var isOn: Bool
-    var textSize: CGFloat = 28
+    var textSize: CGFloat = 24
 
     var body: some View {
         Button {
             isOn.toggle()
         } label: {
             HStack {
-                CustomText(text:text, color:color, textSize: textSize)
+                CustomText(text:text, color:color, isBold: true, textSize: textSize)
                     .fixedSize(horizontal: true, vertical: false)
                 Image(systemName: isOn ? "checkmark.square.fill" : "square")
                     .resizable()
-                    .frame(width: textSize * 0.9, height: textSize * 0.9)
+                    .frame(width: textSize , height: textSize)
                     .foregroundColor(Color(hex: color))
                     .padding(.leading, 10)
             Spacer()
@@ -1048,15 +1054,16 @@ struct CustomToggle: View {
         .buttonStyle(.plain)
         .frame(width: UIScreen.main.bounds.width-40)
         .padding(.trailing, 10)
+        .padding(.bottom, 10)
     }
 }
 import SwiftUI
 
 struct MultipleChoiceCheckboxGroup: View {
     @Binding var options: [String]
-    @Binding var selectedOptions: Set<String> // ✅ multiple selections
-    var accentColor: String
-    var backgroundColor: String
+    @Binding var selected: Set<String> // ✅ multiple selections
+    var accent: String
+    var background: String
 
     let boxSize: CGFloat = 22
     let spacing: CGFloat = 8
@@ -1068,16 +1075,16 @@ struct MultipleChoiceCheckboxGroup: View {
                 HStack(spacing: 8) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(selectedOptions.contains(option) ? Color(hex: accentColor) : Color.clear)
+                            .fill(selected.contains(option) ? Color(hex: accent) : Color.clear)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 4)
-                                    .stroke(Color(hex: accentColor), lineWidth: 2)
+                                    .stroke(Color(hex: accent), lineWidth: 2)
                             )
                             .frame(width: boxSize, height: boxSize)
 
-                        if selectedOptions.contains(option) {
+                        if selected.contains(option) {
                             Image(systemName: "checkmark")
-                                .foregroundColor(Color(hex: backgroundColor)) // ✅ checkmark matches background
+                                .foregroundColor(Color(hex: background)) // ✅ checkmark matches background
                                 .font(.system(size: boxSize * 0.7, weight: .bold))
                         }
                     }
@@ -1087,7 +1094,7 @@ struct MultipleChoiceCheckboxGroup: View {
                         }
                     }
 
-                    CustomText(text: option, color: accentColor, textSize: 20)
+                    CustomText(text: option, color: accent, textSize: 20)
                         .lineLimit(1)
                         .truncationMode(.tail)
                         .onTapGesture {
@@ -1101,15 +1108,14 @@ struct MultipleChoiceCheckboxGroup: View {
                 .contentShape(Rectangle())
             }
         }
-        .padding(.horizontal, 10)
         .padding(.bottom, 10) // ✅ padding is below the *whole group*
     }
 
     private func toggleSelection(_ option: String) {
-        if selectedOptions.contains(option) {
-            selectedOptions.remove(option)
+        if selected.contains(option) {
+            selected.remove(option)
         } else {
-            selectedOptions.insert(option)
+            selected.insert(option)
         }
     }
 }
@@ -1157,7 +1163,7 @@ struct FlexibleWrapCheckboxLayout<Data: RandomAccessCollection, Content: View>: 
                         content(item)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading) // ✅ left align row, no centering
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }

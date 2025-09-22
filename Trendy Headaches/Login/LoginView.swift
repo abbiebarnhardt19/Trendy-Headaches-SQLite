@@ -75,7 +75,7 @@ struct LoginView: SwiftUI.View {
                 //when isLoggedIn is true, move to the main app and pass it the colors based on the email
                 .navigationDestination(isPresented: $isLoggedIn) {
                     if let userId = userId {
-                        ProfileView(userID: userId, backgroundColor: .constant(background), accentColor: .constant(accent))
+                        ProfileView(userID: userId, background: .constant(background), accent: .constant(accent))
                             .navigationBarBackButtonHidden(true)
                     } else {
                         // if for whatever reason userID doesn't exist

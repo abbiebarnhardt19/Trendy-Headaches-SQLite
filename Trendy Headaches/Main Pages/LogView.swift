@@ -11,10 +11,10 @@ import Foundation
 struct LogView: View {
     
     var userID: Int64
-    @Binding var backgroundColor: String
-    @Binding var accentColor: String
+    @Binding var background: String
+    @Binding var accent: String
     
-    let leading_padding = CGFloat(70)
+    let leading_padding = CGFloat(20)
     @State private var string_date: String = ""
     @State private var date_date: Date = Date()
     @State private var dateCheckTask: Task<Void, Never>? = nil
@@ -61,29 +61,30 @@ struct LogView: View {
 
         ZStack {
             // Background color
-            Color(hex: backgroundColor).ignoresSafeArea()
+            Color(hex: background).ignoresSafeArea()
             
-            WavyTopBottomRectangle(waves: 10, amplitude:6, accent:accentColor, x:0, y:-615, width:screenWidth, height: 400)
+            WavyTopBottomRectangle(waves: 10, amplitude:6, accent:accent, x:0, y:-580, width:screenWidth, height: 400)
                 .zIndex(0)
-            WavyTopBottomRectangle(waves:10, amplitude:6, accent:accentColor, x:0, y:525, width:screenWidth, height: 400)
+            WavyTopBottomRectangle(waves:10, amplitude:6, accent:accent, x:0, y:525, width:screenWidth, height: 400)
                 .zIndex(0)
             
-//            CustomButton(text: buttonLabel, background: backgroundColor, accent: accentColor){
-//                symptomLogViewShown.toggle()
-//            }
-//            .zIndex(1)
-            
-            if symptomLogViewShown{
-                symptomLogView()
+            ScrollView{
+                CustomText(text:"Symptom Log", color: accent,  width: screenWidth, textAlignment: .leading, textSize:50)
+                    .padding(.vertical, 15)
+                
+                if symptomLogViewShown{
+                    symptomLogView()
+                }
+                else{
+                    sideEffectLogView()
+                }
             }
-            else{
-                sideEffectLogView()
-            }
+            .padding(.leading, leading_padding)
 
             // Nav bar overlay at bottom
             VStack {
                 Spacer()
-                NavBarView(userID: userID, backgroundColor: $backgroundColor, accentColor: $accentColor)
+                NavBarView(userID: userID, background: $background, accent: $accent)
                     .frame(height: 60)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
@@ -103,95 +104,65 @@ struct LogView: View {
     }
     @ViewBuilder
     private func symptomLogView() -> some View {
-        ScrollView{
-            VStack {
-                HStack{
-                    Spacer()
-                    CustomText(text:"Symptom Log", color: accentColor,  width: screenWidth, textAlignment: .center, multilineAlignment: .center, textSize:50)
-                        .padding(.bottom, 20)
-                        .padding(.leading, 20)
-                    Spacer()
+        VStack{
+            HStack{
+                VStack {
+                    CustomText(text: "Date:", color: accent, isBold: true, textSize: 24)
+                        .frame(width: 70, height: 45, alignment: .center)
                 }
                 
-                VStack{
-                    HStack{
-                        VStack {
-                            CustomText(text: "Date:", color: accentColor, textSize: 28)
-                                .frame(width: 70, height: 50, alignment: .center)
-                        }
-                        .padding(.bottom, 10)
-
-                        VStack(alignment: .center) {
-                            CustomTextField(background: backgroundColor, accent: accentColor, placeholder: "", text: $string_date, width: 140, height: 50,  textSize: 22)
-                            .onChange(of: string_date) {
-                                dateCheckTask?.cancel()
-                                dateCheckTask = Task {
-                                    try? await Task.sleep(nanoseconds: 500_000_000)
-                                    if !Task.isCancelled {
-                                        dateFormatCorrect = isDateInValidFormat(string_date)
-                                    }
+                VStack(alignment: .center) {
+                    CustomTextField(background: background, accent: accent, placeholder: "", text: $string_date, width: 140, height: 45,  textSize: 22)
+                        .onChange(of: string_date) {
+                            dateCheckTask?.cancel()
+                            dateCheckTask = Task {
+                                try? await Task.sleep(nanoseconds: 500_000_000)
+                                if !Task.isCancelled {
+                                    dateFormatCorrect = isDateInValidFormat(string_date)
                                 }
                             }
                         }
-                        VStack{
-                            CustomWarningText(text: dateFormatCorrect ? " " : "Invalid format")
-                                .frame(width:40)
-                                .padding(.leading, 40)
-                        }
-                        Spacer()
                     }
-                    .frame(width: screenWidth-40)
-                    .padding(.trailing, leading_padding)
-                    
-                    CustomText(text: "Symptom Onset", color: accentColor, textSize: 28)
-                    
-                    MultipleChoiceButtonGroup(options: $onsetOptions, selectedOption: $onset, accentColor: accentColor)
-                    
-                    CustomText(text: "Symptom", color: accentColor, textSize: 28)
-                    
-                    MultipleChoiceButtonGroup(options: $symptomOptions, selectedOption: $symptom, accentColor: accentColor)
-                    
-                    CustomText(text: "Symptom Severity", color: accentColor, textSize: 28)
-                    StepSlider(value: $sliderValue, range: 1...10, step: 1, accentColor: accentColor, width: screenWidth - 50)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    
-                    CustomToggle(text: "Emergency Med Taken?", color: accentColor, isOn: $medTaken)
-                        .padding(.trailing, leading_padding)
-
-                    CustomText(text: "Triggers", color: accentColor, textSize: 28)
-                    MultipleChoiceCheckboxGroup(
-                        options: $triggerOptions,
-                        selectedOptions: $selectedTriggers,
-                        accentColor: accentColor,
-                        backgroundColor : backgroundColor
-                    )
-
-
-                    CustomText(text: "Symptom Description", color: accentColor, textSize: 28)
-                    CustomTextField(background: backgroundColor, accent:accentColor, placeholder: "", text: $symptom_desc, width: screenWidth-50, height: 50, textSize: 20, isMultiline: true)
-                        .padding(.bottom, 10)
-                        .padding(.trailing, leading_padding + 20)
-                    
-                    CustomText(text: " Notes", color: accentColor, textSize: 28)
-                    CustomTextField(background: backgroundColor, accent:accentColor, placeholder: "", text: $notes, width: screenWidth-50, height: 50, textSize: 20, isMultiline: true)
-                        .padding(.bottom, 10)
-                        .padding(.trailing, leading_padding + 20)
+                    VStack{
+                        CustomWarningText(text: dateFormatCorrect ? " " : "Invalid format")
+                            .frame(width:40, height: 50, alignment: .center)
+                            .padding(.leading, 40)
+                    }
+                    Spacer()
                 }
-                .padding(.leading, leading_padding)
-                .padding(.bottom, 150)
+                
+                CustomText(text: "Symptom Onset", color: accent, isBold: true, textSize: 24)
+                MultipleChoiceButtonGroup(options: $onsetOptions, selected: $onset, accent: accent)
+                
+                CustomText(text: "Symptom", color: accent, isBold: true, textSize: 24)
+                MultipleChoiceButtonGroup(options: $symptomOptions, selected: $symptom, accent: accent)
+                
+                CustomText(text: "Symptom Severity", color: accent, isBold: true, textSize: 24)
+                StepSlider(value: $sliderValue, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
+                
+                CustomSingleCheckbox(text: "Emergency Med Taken?", color: accent, isOn: $medTaken)
+                    .padding(.trailing, leading_padding)
+                
+                CustomText(text: "Triggers", color: accent, isBold: true, textSize: 24)
+                MultipleChoiceCheckboxGroup(options: $triggerOptions, selected: $selectedTriggers, accent: accent, background : background)
+                
+                CustomText(text: "Symptom Description", color: accent, isBold: true, textSize: 24)
+                CustomTextField(background: background, accent:accent, placeholder: "", text: $symptom_desc, width: screenWidth-50, height: 45, textSize: 20, isMultiline: true)
+                    .padding(.trailing, leading_padding + 20)
+                
+                CustomText(text: " Notes", color: accent, isBold: true, textSize: 24)
+                CustomTextField(background: background, accent:accent, placeholder: "", text: $notes, width: screenWidth-50, height: 45, textSize: 20, isMultiline: true)
+                    .padding(.trailing, leading_padding + 20)
             }
-            
-        }
+            .padding(.bottom, 150)
     }
+    
     @ViewBuilder
     private func sideEffectLogView() -> some View {
-        CustomText(text: "test", color: accentColor)
+        CustomText(text: "test", color: accent)
     }
 }
 
-
-
 #Preview {
-    LogView(userID: 3, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
+    LogView(userID: 3, background: .constant("#001d00"), accent: .constant("#b5c4b9"))
 }

@@ -9,8 +9,8 @@ import SwiftUI
 struct ProfileView: View {
     // Passed in values
     var userID: Int64
-    @Binding var backgroundColor: String
-    @Binding var accentColor: String
+    @Binding var background: String
+    @Binding var accent : String
     
     // Booleans
     @State private var isEditing = false
@@ -70,7 +70,7 @@ struct ProfileView: View {
                 // Nav bar overlay at bottom
                 VStack {
                     Spacer()
-                    NavBarView(userID: userID, backgroundColor: $newBackground, accentColor: $newAccent)
+                    NavBarView(userID: userID, background: $newBackground, accent: $newAccent)
                     .frame(height: 60)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
@@ -88,7 +88,7 @@ struct ProfileView: View {
                 LoginView()
             }
             .onAppear {
-                DatabaseManager.shared.loadData(userID: userID, symptoms: &symptoms, triggers: &triggers, prevMeds: &prevMeds, emergencyMeds: &emergencyMeds, securityQuestion: &securityQuestion, securityAnswer: &securityAnswer, newSecurityQuestion: &newSecurityQuestion, backgroundColor: &backgroundColor, accentColor: &accentColor, newBackground: &newBackground, newAccent: &newAccent, themeName: &themeName, newThemeName: &newThemeName)
+                DatabaseManager.shared.loadData(userID: userID, symptoms: &symptoms, triggers: &triggers, prevMeds: &prevMeds, emergencyMeds: &emergencyMeds, securityQuestion: &securityQuestion, securityAnswer: &securityAnswer, newSecurityQuestion: &newSecurityQuestion, backgroundColor: &background, accentColor: &accent, newBackground: &newBackground, newAccent: &newAccent, themeName: &themeName, newThemeName: &newThemeName)
             }
         }
     }
@@ -280,16 +280,16 @@ struct ProfileView: View {
             DatabaseManager.shared.updateUser(userID: userID, newValue: hashedSecurityAnswer, column: "security_answer")
         }
         
-        if backgroundColor != newBackground {
+        if background != newBackground {
             DatabaseManager.shared.updateUser(userID: userID, newValue: newBackground, column: "background_color")
-            backgroundColor = newBackground
+            background = newBackground
             themeName = DatabaseManager.getThemeName(selected_background: newBackground, selected_accent: newAccent)
             newThemeName = themeName.contains("Custom") ? "Custom" : themeName
         }
         
-        if accentColor != newAccent {
+        if accent != newAccent {
             DatabaseManager.shared.updateUser(userID: userID, newValue: newAccent, column: "accent_color")
-            accentColor = newAccent
+            accent = newAccent
         }
         
         isEditing = false
@@ -297,5 +297,5 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(userID:3, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
+    ProfileView(userID:3, background: .constant("#001d00"), accent: .constant("#b5c4b9"))
 }

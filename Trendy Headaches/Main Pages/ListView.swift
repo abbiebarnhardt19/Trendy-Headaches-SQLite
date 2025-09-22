@@ -10,21 +10,21 @@ import SwiftUI
 struct ListView: View {
     
     var userID: Int64
-    @Binding var backgroundColor: String
-    @Binding var accentColor: String
+    @Binding var background: String
+    @Binding var accent: String
     
     
     var body: some View {
         ZStack {
             // Background color
-            Color(hex: backgroundColor).ignoresSafeArea()
+            Color(hex: background).ignoresSafeArea()
             
             // Decorative blobs
-            SameAmplitudeBlob(waves: 12, amplitude: 20, accent: accentColor, x: 160, y: -340, rotation: -18)
-            SameAmplitudeBlob(waves: 13, amplitude: 15, accent: accentColor, x: 0, y: -375, rotation: 155)
+            SameAmplitudeBlob(waves: 12, amplitude: 20, accent: accent, x: 160, y: -340, rotation: -18)
+            SameAmplitudeBlob(waves: 13, amplitude: 15, accent: accent, x: 0, y: -375, rotation: 155)
             
             VStack(spacing: 0) {
-                CustomText(text:"List View", color: accentColor, width:300, textAlignment: .center, multilineAlignment: .center, textSize:75)
+                CustomText(text:"List View", color: accent, width:300, textAlignment: .center, multilineAlignment: .center, textSize:75)
             }
             
             .ignoresSafeArea(edges: .bottom)
@@ -34,8 +34,8 @@ struct ListView: View {
                 Spacer()
                 NavBarView(
                     userID: userID,
-                    backgroundColor: $backgroundColor,
-                    accentColor: $accentColor
+                    background: $background,
+                    accent: $accent
                 )
                 .frame(height: 60)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -47,5 +47,5 @@ struct ListView: View {
 
 
 #Preview {
-    ListView(userID: 1, backgroundColor: .constant("#001d00"), accentColor: .constant("#b5c4b9"))
+    ListView(userID: 1, background: .constant("#001d00"), accent: .constant("#b5c4b9"))
 }
