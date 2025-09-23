@@ -178,7 +178,24 @@ struct LogView: View {
 
                     triggerIDs = DatabaseManager.shared.getIDFromName(tableName: "triggers", names: selectedTriggers , userID: userID)
                 
-                logID = DatabaseManager.shared.createLog(userID: userID, date: date_date, symptom_onset: onset ?? "", symptom: symptomID, severity: severity, med_taken: medTaken, symptom_desc: symptom_desc, notes: notes, submit: date_date)
+                let enteredDate = formatter.date(from: string_date) ?? Date()
+
+                // Use current date/time for submit
+                let currentDateTime = Date()
+
+                // Create log
+                logID = DatabaseManager.shared.createLog(
+                    userID: userID,
+                    date: enteredDate,
+                    symptom_onset: onset ?? "",
+                    symptom: symptomID,
+                    severity: severity,
+                    med_taken: medTaken,
+                    symptom_desc: symptom_desc,
+                    notes: notes,
+                    submit: currentDateTime,  // <-- current timestamp
+                    triggerIDs: triggerIDs
+                )
                 
                 hasSubmitted = true
             })

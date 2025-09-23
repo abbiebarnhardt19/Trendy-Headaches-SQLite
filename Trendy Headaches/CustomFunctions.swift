@@ -589,5 +589,55 @@ extension DatabaseManager {
             return nil
         }
     }
+    
+    struct Log {
+        var id: Int64
+        var userID: Int64
+        var date: Date
+        var symptomOnset: String
+        var symptom: Int64
+        var severity: Int64
+        var medTaken: Bool
+        var medWorked: Bool?
+        var symptomDesc: String
+        var notes: String
+        var submit: Date
+        var triggerIDs: [Int64]
+    }
+
+    
+    func getLog(byID logID: Int64) -> Log? {
+        do {
+            let query = logs.filter(log_id == logID)
+            if let row = try pluck(query) {
+                let triggerQuery = log_triggers.filter(lt_log_id == logID)
+                let triggers = try prepare(triggerQuery).map { $0[lt_trigger_id] }
+                
+                // Return a Log struct, not a tuple
+                return Log(
+                    id: row[log_id],
+                    userID: row[user_id],
+                    date: row[date],
+                    symptomOnset: row[onset_time],
+                    symptom: row[symptom_id],
+                    severity: row[severity],
+                    medTaken: row[med_taken],
+                    medWorked: row[med_worked],
+                    symptomDesc: row[symptom_description],
+                    notes: row[notes],
+                    submit: row[submit_time],
+                    triggerIDs: triggers
+                )
+            } else {
+                print("No log found with ID \(logID)")
+                return nil
+            }
+        } catch {
+            print("Failed to fetch log: \(error)")
+            return nil
+        }
+    }
+
+
 }
 
