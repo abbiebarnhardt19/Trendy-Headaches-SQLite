@@ -34,6 +34,9 @@ struct LogView: View {
     @State private var selectedTriggers: Set<String> = []
     @State private var symptomLogViewShown = true
     
+    @State private var triggerIDs: [Int64] = []
+    @State private var symptomID: Int64?
+    
     let formatter: DateFormatter = {
         let f = DateFormatter()
         f.dateStyle = .short
@@ -76,8 +79,6 @@ struct LogView: View {
                 }
                 .frame(width: screenWidth)
                 .padding(.top, 20)
-                
-                
 
                 if symptomLogViewShown{
                     symptomLogView()
@@ -148,7 +149,7 @@ struct LogView: View {
                 CustomSingleCheckbox(text: "Emergency Med Taken?", color: accent, isOn: $medTaken)
                     .padding(.trailing, leading_padding)
                 
-                CustomText(text: "Triggers", color: accent, isBold: true, textSize: 24)
+                CustomText(text: "Triggers Present", color: accent, isBold: true, textSize: 24)
                 MultipleChoiceCheckboxGroup(options: $triggerOptions, selected: $selectedTriggers, accent: accent, background : background)
                 
                 CustomText(text: "Symptom Description", color: accent, isBold: true, textSize: 24)
@@ -158,8 +159,14 @@ struct LogView: View {
                 CustomText(text: " Notes", color: accent, isBold: true, textSize: 24)
                 CustomTextField(background: background, accent:accent, placeholder: "", text: $notes, width: screenWidth-50, height: 45, textSize: 20, isMultiline: true)
                     .padding(.trailing, leading_padding + 20)
+            
+            CustomButton(text: "Submit", background: background, accent: accent, action: {
+                    print("Submit Log")
+            })
+            .padding(.trailing, leading_padding)
+            .padding(.top, 10)
             }
-            .padding(.bottom, 150)
+            .padding(.bottom, 100)
     }
     
     @ViewBuilder
@@ -169,5 +176,5 @@ struct LogView: View {
 }
 
 #Preview {
-    LogView(userID: 3, background: .constant("#001d00"), accent: .constant("#b5c4b9"))
+    LogView(userID: 1, background: .constant("#001d00"), accent: .constant("#b5c4b9"))
 }

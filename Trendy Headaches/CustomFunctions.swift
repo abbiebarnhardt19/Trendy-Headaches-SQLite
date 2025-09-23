@@ -514,3 +514,58 @@ extension DatabaseManager {
         newThemeName = themeName.contains("Custom") ? "Custom" : themeName
     }
 }
+
+func getIDFromName(name: String, userID: Int64) -> Int64?{
+    return userID
+}
+
+//create log function
+func createLog(
+    userID: Int64,
+    date: Date,
+    symptom_onset: String,
+    symptom: Int64,
+    severity: Int,
+    med_taken: Bool,
+    med_worked: Bool?,
+    symptom_desc: String,
+    notes: String,
+    submit: Date,
+    triggerIDs: [Int64] = []
+) -> Int64? {
+    
+    do {
+        // Insert log row
+        let insert = DatabaseManager.shared.logs.insert(
+            DatabaseManager.shared.user_id <- userID,
+            DatabaseManager.shared.date <- date,
+            DatabaseManager.shared.onset_time <- symptom_onset,
+            DatabaseManager.shared.severity <- severity,
+            DatabaseManager.shared.symptom_id <- symptom,
+            DatabaseManager.shared.med_taken <- med_taken,
+            DatabaseManager.shared.med_worked <- med_worked, // now nullable
+            DatabaseManager.shared.symptom_description <- symptom_desc,
+            DatabaseManager.shared.notes <- notes,
+            DatabaseManager.shared.submit_time <- submit
+        )
+        
+        // Execute insert
+        let logID = try DatabaseManager.shared.run(insert)
+        
+        // If triggers were passed in, associate them in the junction table
+        for trigID in triggerIDs {
+            let linkInsert = DatabaseManager.shared.log_triggers.insert(
+                DatabaseManager.shared.lt_log_id <- logID,
+                DatabaseManager.shared.lt_trigger_id <- trigID
+            )
+            _ = try DatabaseManager.shared.run(linkInsert)
+        }
+        
+        return logID // Return the actual log's primary key
+        
+    } catch {
+        print("Failed to create log: \(error)")
+        return nil
+    }
+}
+

@@ -22,6 +22,8 @@ class DatabaseManager {
     let medications = Table("Medications")
     let triggers = Table("Triggers")
     let logs = Table("Logs")
+    let log_triggers = Table("Log_Triggers")
+
     
     // columns
     // users columns
@@ -55,12 +57,18 @@ class DatabaseManager {
     // log columns
     let log_id = SQLite.Expression<Int64>("log_id")
     let date = SQLite.Expression<Date>("date")
-    let time = SQLite.Expression<String>("time")
+    let onset_time = SQLite.Expression<String>("onset_time")
     let severity = SQLite.Expression<Int>("severity_level")
     let med_taken = SQLite.Expression<Bool>("med_taken")
-    let med_worked = SQLite.Expression<Bool>("med_worked")
+    let med_worked = SQLite.Expression<Bool?>("med_worked")
     let symptom_description = SQLite.Expression<String>("symptom_description")
     let notes = SQLite.Expression<String>("notes")
+    let submit_time = SQLite.Expression<Date>("submit_time")
+
+    //columns for table that handles many to many relationships
+    let lt_log_id = SQLite.Expression<Int64>("log_id")
+    let lt_trigger_id = SQLite.Expression<Int64>("trigger_id")
+
     
     //create database
     private init() {
@@ -69,15 +77,15 @@ class DatabaseManager {
         let dbPath = "\(path)/headache_tracker.sqlite3"
         
         // Delete old database if it exists (for testing)
-//        let fileManager = FileManager.default
-//        if fileManager.fileExists(atPath: dbPath) {
-//            do {
-//                try fileManager.removeItem(atPath: dbPath)
-//                print("Old database deleted successfully")
-//            } catch {
-//                print("Failed to delete old database: \(error)")
-//           }
-//        }
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: dbPath) {
+            do {
+                try fileManager.removeItem(atPath: dbPath)
+                print("Old database deleted successfully")
+            } catch {
+                print("Failed to delete old database: \(error)")
+           }
+        }
         //make the database
         do {
             db = try Connection(dbPath)
@@ -138,16 +146,27 @@ class DatabaseManager {
                 t.column(log_id, primaryKey: .autoincrement)
                 t.column(user_id)
                 t.column(date)
-                t.column(time)
+                t.column(onset_time)
                 t.column(severity)
                 t.column(symptom_id)
                 t.column(med_taken)
                 t.column(med_worked)
                 t.column(symptom_description)
                 t.column(notes)
+                t.column(submit_time)
                 t.foreignKey(user_id, references: users, user_id, delete: .cascade)
                 t.foreignKey(symptom_id, references: symptoms, symptom_id, delete: .setNull)
             })
+            
+            // create log_triggers (junction table for many to many relationship)
+            try db.run(log_triggers.create(ifNotExists: true) { t in
+                t.column(lt_log_id)
+                t.column(lt_trigger_id)
+                t.foreignKey(lt_log_id, references: logs, log_id, delete: .cascade)
+                t.foreignKey(lt_trigger_id, references: triggers, trigger_id, delete: .cascade)
+                t.primaryKey(lt_log_id, lt_trigger_id) // composite primary key
+            })
+
             
         } catch {
             print("Table creation error: \(error)")
