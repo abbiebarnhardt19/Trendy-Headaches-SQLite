@@ -950,13 +950,13 @@ struct FlexibleWrapRadioLayout<Data: RandomAccessCollection, Content: View>: Vie
 import SwiftUI
 
 struct StepSlider: View {
-    @Binding var value: Double
-    let range: ClosedRange<Double>
-    let step: Double
+    @Binding var value: Int64
+    let range: ClosedRange<Int64>
+    let step: Int
     var accentColor: String
     var width: CGFloat
 
-    private var steps: [Double] {
+    private var steps: [Int64] {
         stride(from: range.lowerBound, through: range.upperBound, by: step).map { $0 }
     }
     
@@ -1061,7 +1061,7 @@ import SwiftUI
 
 struct MultipleChoiceCheckboxGroup: View {
     @Binding var options: [String]
-    @Binding var selected: Set<String> // ✅ multiple selections
+    @Binding var selected: [String] // ✅ multiple selections
     var accent: String
     var background: String
 
@@ -1112,10 +1112,10 @@ struct MultipleChoiceCheckboxGroup: View {
     }
 
     private func toggleSelection(_ option: String) {
-        if selected.contains(option) {
-            selected.remove(option)
+        if let index = selected.firstIndex(of: option) {
+            selected.remove(at: index)
         } else {
-            selected.insert(option)
+            selected.append(option)
         }
     }
 }

@@ -65,7 +65,6 @@ extension DatabaseManager {
             let results = try prepare(query).map { row in
                 row[targetColumn]
             }
-            print("New Query returned: \(results)")
             return results
             
         } catch {
@@ -73,8 +72,8 @@ extension DatabaseManager {
             return []
         }
     }
-
-
+    
+    
     
     //check if the email is present in the users table
     static func doesEmailExist(_ emailAddress: String) -> Bool {
@@ -213,7 +212,7 @@ extension DatabaseManager {
         let accentColor = getSingleColumnValue(userId: userId, columnName: "accentColor") ?? ""
         return (email, password, securityQuestion, securityAnswer, backgroundColor, accentColor)
     }
-
+    
     //get the meds, needs special function to split between emergency and preventative
     func getMeds(forUserId userId: Int64, medCategory: String) -> [String] {
         do {
@@ -288,7 +287,7 @@ extension DatabaseManager {
             return (currentBackground, currentAccent)
         }
     }
-
+    
     
     //function to get theme name from hex codes
     static func getThemeName(selected_background: String, selected_accent: String) -> String{
@@ -356,41 +355,41 @@ extension DatabaseManager {
     
     //delete user function
     func deleteUser(userID: Int64) {
-            do {
-                let users = Table("users")
-                let id = SQLite.Expression<Int64>("user_id")
-                
-                let deleteQuery = users.filter(id == userID).delete()
-                let deletedCount = try run(deleteQuery)
-                
-                if deletedCount > 0 {
-                    print("Successfully deleted user \(userID)")
-                } else {
-                    print("⚠️ No user found with id \(userID)")
-                }
-            } catch {
-                print("❌ Failed to delete user \(userID): \(error)")
+        do {
+            let users = Table("users")
+            let id = SQLite.Expression<Int64>("user_id")
+            
+            let deleteQuery = users.filter(id == userID).delete()
+            let deletedCount = try run(deleteQuery)
+            
+            if deletedCount > 0 {
+                print("Successfully deleted user \(userID)")
+            } else {
+                print("⚠️ No user found with id \(userID)")
             }
+        } catch {
+            print("❌ Failed to delete user \(userID): \(error)")
         }
+    }
     
     func updateUser(userID: Int64, newValue: String, column: String){
-            do {
-                let users = Table("users")
-                let id = SQLite.Expression<Int64>("user_id")
-                let columnToUpdate = SQLite.Expression<String>(column)
-                
-                let updateQuery = users.filter(id == userID).update(columnToUpdate <- newValue)
-                let updateCount = try DatabaseManager.shared.run(updateQuery)
-                
-                if updateCount > 0 {
-                    print("Successfully updated \(column)")
-                } else {
-                    print("No user found with id \(userID)")
-                }
-            } catch {
-                print("Failed to delete user \(userID): \(error)")
+        do {
+            let users = Table("users")
+            let id = SQLite.Expression<Int64>("user_id")
+            let columnToUpdate = SQLite.Expression<String>(column)
+            
+            let updateQuery = users.filter(id == userID).update(columnToUpdate <- newValue)
+            let updateCount = try DatabaseManager.shared.run(updateQuery)
+            
+            if updateCount > 0 {
+                print("Successfully updated \(column)")
+            } else {
+                print("No user found with id \(userID)")
             }
+        } catch {
+            print("Failed to delete user \(userID): \(error)")
         }
+    }
     
     
     func insertItem(table: Table, userID: Int64, nameColumn: SQLite.Expression<String>, name: String, startColumn: SQLite.Expression<Date>, endColumn: SQLite.Expression<Date?>, medicationCategory: String? = nil) {
@@ -408,14 +407,14 @@ extension DatabaseManager {
         
         let insert = table.insert(setters)
         do {
-          _ = try run(insert)
+            _ = try run(insert)
             print("✅ Inserted \(name)")
         } catch {
             print("❌ Failed to insert \(name): \(error)")
         }
     }
-
-        
+    
+    
     func updateItem(
         table: Table,
         userID: Int64,
@@ -442,7 +441,7 @@ extension DatabaseManager {
             print("❌ Failed to update \(oldValue): \(error)")
         }
     }
-
+    
     
     func endItem(
         table: Table,
@@ -513,59 +512,82 @@ extension DatabaseManager {
         themeName = DatabaseManager.getThemeName(selected_background: newBackground, selected_accent: newAccent)
         newThemeName = themeName.contains("Custom") ? "Custom" : themeName
     }
-}
-
-func getIDFromName(name: String, userID: Int64) -> Int64?{
-    return userID
-}
-
-//create log function
-func createLog(
-    userID: Int64,
-    date: Date,
-    symptom_onset: String,
-    symptom: Int64,
-    severity: Int,
-    med_taken: Bool,
-    med_worked: Bool?,
-    symptom_desc: String,
-    notes: String,
-    submit: Date,
-    triggerIDs: [Int64] = []
-) -> Int64? {
     
-    do {
-        // Insert log row
-        let insert = DatabaseManager.shared.logs.insert(
-            DatabaseManager.shared.user_id <- userID,
-            DatabaseManager.shared.date <- date,
-            DatabaseManager.shared.onset_time <- symptom_onset,
-            DatabaseManager.shared.severity <- severity,
-            DatabaseManager.shared.symptom_id <- symptom,
-            DatabaseManager.shared.med_taken <- med_taken,
-            DatabaseManager.shared.med_worked <- med_worked, // now nullable
-            DatabaseManager.shared.symptom_description <- symptom_desc,
-            DatabaseManager.shared.notes <- notes,
-            DatabaseManager.shared.submit_time <- submit
-        )
+    func getIDFromName(tableName: String, names: [String], userID: Int64) -> [Int64] {
+        // Convert "symptoms" -> "symptom_name" and "symptom_id"
+        let singular = String(tableName.dropLast())
+        let idColumn = SQLite.Expression<Int64>("\(singular)_id")
+        let nameColumn = SQLite.Expression<String>("\(singular)_name")
+        let userColumn = SQLite.Expression<Int64>("user_id")
+        let table = Table(tableName)
         
-        // Execute insert
-        let logID = try DatabaseManager.shared.run(insert)
+        var ids: [Int64] = []
         
-        // If triggers were passed in, associate them in the junction table
-        for trigID in triggerIDs {
-            let linkInsert = DatabaseManager.shared.log_triggers.insert(
-                DatabaseManager.shared.lt_log_id <- logID,
-                DatabaseManager.shared.lt_trigger_id <- trigID
-            )
-            _ = try DatabaseManager.shared.run(linkInsert)
+        for name in names {
+            let query = table.filter(userColumn == userID && nameColumn == name)
+            do {
+                if let row = try DatabaseManager.shared.pluck(query) {
+                    ids.append(row[idColumn])
+                } else {
+                    print("No row found for '\(name)'")
+                }
+            } catch {
+                print("Error querying \(tableName) for '\(name)': \(error)")
+            }
         }
         
-        return logID // Return the actual log's primary key
+        return ids
+    }
+
+    
+    
+    //create log function
+    func createLog(
+        userID: Int64,
+        date: Date,
+        symptom_onset: String,
+        symptom: Int64,
+        severity: Int64,
+        med_taken: Bool,
+        symptom_desc: String,
+        notes: String,
+        submit: Date,
+        triggerIDs: [Int64] = []
+    ) -> Int64? {
         
-    } catch {
-        print("Failed to create log: \(error)")
-        return nil
+        do {
+            // Insert log row
+            let insert = DatabaseManager.shared.logs.insert(
+                DatabaseManager.shared.user_id <- userID,
+                DatabaseManager.shared.date <- date,
+                DatabaseManager.shared.onset_time <- symptom_onset,
+                DatabaseManager.shared.severity <- severity,
+                DatabaseManager.shared.symptom_id <- symptom,
+                DatabaseManager.shared.med_taken <- med_taken,
+                DatabaseManager.shared.med_worked <- med_worked, // now nullable
+                DatabaseManager.shared.symptom_description <- symptom_desc,
+                DatabaseManager.shared.notes <- notes,
+                DatabaseManager.shared.submit_time <- submit
+            )
+            
+            // Execute insert
+            let logID = try DatabaseManager.shared.run(insert)
+            
+            // If triggers were passed in, associate them in the junction table
+            for trigID in triggerIDs {
+                let linkInsert = DatabaseManager.shared.log_triggers.insert(
+                    DatabaseManager.shared.lt_log_id <- logID,
+                    DatabaseManager.shared.lt_trigger_id <- trigID
+                )
+                _ = try DatabaseManager.shared.run(linkInsert)
+            }
+            
+            return logID // Return the actual log's primary key
+            
+        } catch {
+            print("Failed to create log: \(error)")
+            return nil
+        }
     }
 }
 

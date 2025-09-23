@@ -25,17 +25,19 @@ struct LogView: View {
     @State var symptomOptions: [String] = []
     @State var medTaken: Bool = false
     @State var medTakenOptions: [String] = ["Yes", "No"]
-    @State private var sliderValue: Double = 0.0
+    @State private var severity: Int64 = 0
     @State private var symptom_desc: String = ""
     @State private var notes: String = ""
     @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
     @State private var toggleText = ""
     @State private var triggerOptions : [String] = []
-    @State private var selectedTriggers: Set<String> = []
+    @State private var selectedTriggers: [String] = []
     @State private var symptomLogViewShown = true
     
     @State private var triggerIDs: [Int64] = []
-    @State private var symptomID: Int64?
+    @State private var symptomID: Int64 = 0
+    
+    @State private var logID: Int64? = 0
     
     let formatter: DateFormatter = {
         let f = DateFormatter()
@@ -144,7 +146,7 @@ struct LogView: View {
                 MultipleChoiceButtonGroup(options: $symptomOptions, selected: $symptom, accent: accent)
                 
                 CustomText(text: "Symptom Severity", color: accent, isBold: true, textSize: 24)
-                StepSlider(value: $sliderValue, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
+                StepSlider(value: $severity, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
                 
                 CustomSingleCheckbox(text: "Emergency Med Taken?", color: accent, isOn: $medTaken)
                     .padding(.trailing, leading_padding)
@@ -162,7 +164,15 @@ struct LogView: View {
             
             CustomButton(text: "Submit", background: background, accent: accent, action: {
                     print("Submit Log")
+                symptomID = DatabaseManager.shared
+                    .getIDFromName(tableName: "symptoms", names: [symptom ?? ""], userID: userID)
+                    .first ?? 0
+
+                    triggerIDs = DatabaseManager.shared.getIDFromName(tableName: "triggers", names: selectedTriggers , userID: userID)
+                
+                logID = DatabaseManager.shared.createLog(userID: userID, date: date_date, symptom_onset: onset ?? "", symptom: symptomID, severity: severity, med_taken: medTaken, symptom_desc: symptom_desc, notes: notes, submit: date_date)
             })
+
             .padding(.trailing, leading_padding)
             .padding(.top, 10)
             }

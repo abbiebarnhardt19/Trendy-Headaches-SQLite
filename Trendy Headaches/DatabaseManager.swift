@@ -58,7 +58,7 @@ class DatabaseManager {
     let log_id = SQLite.Expression<Int64>("log_id")
     let date = SQLite.Expression<Date>("date")
     let onset_time = SQLite.Expression<String>("onset_time")
-    let severity = SQLite.Expression<Int>("severity_level")
+    let severity = SQLite.Expression<Int64>("severity_level")
     let med_taken = SQLite.Expression<Bool>("med_taken")
     let med_worked = SQLite.Expression<Bool?>("med_worked")
     let symptom_description = SQLite.Expression<String>("symptom_description")
