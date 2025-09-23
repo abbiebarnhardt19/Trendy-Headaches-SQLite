@@ -39,6 +39,8 @@ struct LogView: View {
     
     @State private var logID: Int64? = 0
     
+    @State private var hasSubmitted: Bool = false
+    
     let formatter: DateFormatter = {
         let f = DateFormatter()
         f.dateStyle = .short
@@ -58,46 +60,52 @@ struct LogView: View {
         ZStack {
             // Background color
             Color(hex: background).ignoresSafeArea()
-            
-            WavyTopBottomRectangle(waves: 10, amplitude:6, accent:accent, x:0, y:-580, width:screenWidth, height: 400)
-                .zIndex(0)
-            WavyTopBottomRectangle(waves:10, amplitude:6, accent:accent, x:0, y:525, width:screenWidth, height: 400)
-                .zIndex(0)
-            
-            ScrollView{
-                HStack {
-                    CustomText(
-                        text: header,
-                        color: accent,
-                        textAlignment: .center,
-                        textSize: 45
-                    )
-                    .lineLimit(1)
-                    .fixedSize(horizontal: true, vertical: false)
+            if hasSubmitted {
+                // Show your list view here
+                ListView(userID: userID, background: background, accent: accent, logID: logID ?? 0)
+            }
+            else{
+                
+                WavyTopBottomRectangle(waves: 10, amplitude:6, accent:accent, x:0, y:-580, width:screenWidth, height: 400)
+                    .zIndex(0)
+                WavyTopBottomRectangle(waves:10, amplitude:6, accent:accent, x:0, y:525, width:screenWidth, height: 400)
+                    .zIndex(0)
+                
+                ScrollView{
+                    HStack {
+                        CustomText(
+                            text: header,
+                            color: accent,
+                            textAlignment: .center,
+                            textSize: 45
+                        )
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                        
+                        CustomToggle(color: accent, feature: $symptomLogViewShown)
+                            .padding(.trailing, leading_padding)
+                            .padding(.top, 7)
+                    }
+                    .frame(width: screenWidth)
+                    .padding(.top, 20)
                     
-                    CustomToggle(color: accent, feature: $symptomLogViewShown)
-                        .padding(.trailing, leading_padding)
-                        .padding(.top, 7)
+                    if symptomLogViewShown{
+                        symptomLogView()
+                    }
+                    else{
+                        sideEffectLogView()
+                    }
                 }
-                .frame(width: screenWidth)
-                .padding(.top, 20)
-
-                if symptomLogViewShown{
-                    symptomLogView()
+                .padding(.leading, leading_padding)
+                
+                // Nav bar overlay at bottom
+                VStack {
+                    Spacer()
+                    NavBarView(userID: userID, background: $background, accent: $accent)
                 }
-                else{
-                    sideEffectLogView()
-                }
+                .zIndex(1)
+                .ignoresSafeArea(edges: .bottom)
             }
-            .padding(.leading, leading_padding)
-
-            // Nav bar overlay at bottom
-            VStack {
-                Spacer()
-                NavBarView(userID: userID, background: $background, accent: $accent)
-            }
-            .zIndex(1)
-            .ignoresSafeArea(edges: .bottom)
         }
         .onAppear{
             string_date = formatter.string(from: Date())
@@ -171,6 +179,8 @@ struct LogView: View {
                     triggerIDs = DatabaseManager.shared.getIDFromName(tableName: "triggers", names: selectedTriggers , userID: userID)
                 
                 logID = DatabaseManager.shared.createLog(userID: userID, date: date_date, symptom_onset: onset ?? "", symptom: symptomID, severity: severity, med_taken: medTaken, symptom_desc: symptom_desc, notes: notes, submit: date_date)
+                
+                hasSubmitted = true
             })
 
             .padding(.trailing, leading_padding)

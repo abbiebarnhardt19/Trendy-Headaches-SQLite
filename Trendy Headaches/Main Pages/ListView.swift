@@ -10,8 +10,9 @@ import SwiftUI
 struct ListView: View {
     
     var userID: Int64
-    @Binding var background: String
-    @Binding var accent: String
+    @State var background: String
+    @State var accent: String
+    @State var logID: Int64
     
     
     var body: some View {
@@ -25,6 +26,7 @@ struct ListView: View {
             
             VStack(spacing: 0) {
                 CustomText(text:"List View", color: accent, width:300, textAlignment: .center, multilineAlignment: .center, textSize:75)
+                
             }
             
             .ignoresSafeArea(edges: .bottom)
@@ -47,5 +49,5 @@ struct ListView: View {
 
 
 #Preview {
-    ListView(userID: 1, background: .constant("#001d00"), accent: .constant("#b5c4b9"))
+    ListView(userID: 1, background: "#001d00", accent: "#b5c4b9", logID: 0)
 }
