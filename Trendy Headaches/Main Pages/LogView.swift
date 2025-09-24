@@ -56,55 +56,56 @@ struct LogView: View {
         var header: String {
             symptomLogViewShown ?  "Symptom Log":"Side Effect Log"
         }
-
-        ZStack {
-            // Background color
-            Color(hex: background).ignoresSafeArea()
-            if hasSubmitted {
-                // Show your list view here
-                ListView(userID: userID, background: background, accent: accent, logID: logID ?? 0)
-            }
-            else{
-                
-                WavyTopBottomRectangle(waves: 10, amplitude:6, accent:accent, x:0, y:-580, width:screenWidth, height: 400)
-                    .zIndex(0)
-                WavyTopBottomRectangle(waves:10, amplitude:6, accent:accent, x:0, y:525, width:screenWidth, height: 400)
-                    .zIndex(0)
-                
-                ScrollView{
-                    HStack {
-                        CustomText(
-                            text: header,
-                            color: accent,
-                            textAlignment: .center,
-                            textSize: 45
-                        )
-                        .lineLimit(1)
-                        .fixedSize(horizontal: true, vertical: false)
-                        
-                        CustomToggle(color: accent, feature: $symptomLogViewShown)
-                            .padding(.trailing, leading_padding)
-                            .padding(.top, 7)
-                    }
-                    .frame(width: screenWidth)
-                    .padding(.top, 20)
+        NavigationStack{
+            ZStack {
+                // Background color
+                Color(hex: background).ignoresSafeArea()
+                if hasSubmitted {
+                    // Show your list view here
+                    ListView(userID: userID, background: $background, accent: $accent, logID: logID ?? 0)
+                }
+                else{
                     
-                    if symptomLogViewShown{
-                        symptomLogView()
+                    WavyTopBottomRectangle(waves: 10, amplitude:6, accent:accent, x:0, y:-580, width:screenWidth, height: 400)
+                        .zIndex(0)
+                    WavyTopBottomRectangle(waves:10, amplitude:6, accent:accent, x:0, y:525, width:screenWidth, height: 400)
+                        .zIndex(0)
+                    
+                    ScrollView{
+                        HStack {
+                            CustomText(
+                                text: header,
+                                color: accent,
+                                textAlignment: .center,
+                                textSize: 45
+                            )
+                            .lineLimit(1)
+                            .fixedSize(horizontal: true, vertical: false)
+                            
+                            CustomToggle(color: accent, feature: $symptomLogViewShown)
+                                .padding(.trailing, leading_padding)
+                                .padding(.top, 7)
+                        }
+                        .frame(width: screenWidth)
+                        .padding(.top, 20)
+                        
+                        if symptomLogViewShown{
+                            symptomLogView()
+                        }
+                        else{
+                            sideEffectLogView()
+                        }
                     }
-                    else{
-                        sideEffectLogView()
+                    .padding(.leading, leading_padding)
+                    
+                    // Nav bar overlay at bottom
+                    VStack {
+                        Spacer()
+                        NavBarView(userID: userID, background: $background, accent: $accent)
                     }
+                    .zIndex(1)
+                    .ignoresSafeArea(edges: .bottom)
                 }
-                .padding(.leading, leading_padding)
-                
-                // Nav bar overlay at bottom
-                VStack {
-                    Spacer()
-                    NavBarView(userID: userID, background: $background, accent: $accent)
-                }
-                .zIndex(1)
-                .ignoresSafeArea(edges: .bottom)
             }
         }
         .onAppear{

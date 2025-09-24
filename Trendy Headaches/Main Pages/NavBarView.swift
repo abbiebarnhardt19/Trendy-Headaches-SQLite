@@ -33,7 +33,7 @@ struct NavBarView: View {
                 .buttonStyle(PlainButtonStyle())
                 
                 NavigationLink(
-                    destination: ListView(userID: userID, background: background, accent: accent, logID: 0)
+                    destination: ListView(userID: userID, background: $background, accent: $accent, logID: 0)
                         .navigationBarBackButtonHidden(true)
                         
                 ) {
