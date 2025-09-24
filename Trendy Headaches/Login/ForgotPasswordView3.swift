@@ -8,112 +8,109 @@
 import SwiftUI
 
 struct ForgotPasswordView3: View {
-    //email from before
+    //  Input
     let enteredEmail: String
-    
-    //editable variables
-    @State private var password_one: String = ""
-    @State private var password_two: String = ""
-    @State private var isPasswordUpdated: Bool = false
-    @State private var currentPassword: String = ""
-    
-    //colors and padding
-    let accent = "#b5c4b9"
-    let background = "#001d00"
-    let leading_padding = CGFloat(40)
-    let screen_width = UIScreen.main.bounds.width
-    
-    //check if the new password match, are complex enough, and are not the same as the old password
+
+    //  State
+    @State private var passwordOne = ""
+    @State private var passwordTwo = ""
+    @State private var isPasswordUpdated = false
+    @State private var currentPassword = ""
+
+    // Theme
+    private let accent = "#b5c4b9"
+    private let background = "#001d00"
+    private let leadingPadding: CGFloat = 40
+    private let screenWidth = UIScreen.main.bounds.width
+
+    //  Validation
     private var passwordResetValid: Bool {
-        password_one == password_two &&
-        password_one != currentPassword &&
-        DatabaseManager.isPasswordValid(password_one)
+        passwordOne == passwordTwo &&
+        passwordOne != currentPassword &&
+        DatabaseManager.isPasswordValid(passwordOne)
     }
 
     var body: some View {
         NavigationStack {
-            ZStack{
-                //set background color
+            ZStack {
                 Color(hex: background).ignoresSafeArea()
-                
-                ScrollView{
+
+                ScrollView {
                     ZStack {
-                        //asymetric blobs
-                        ParametricBlob(points:45, amplitude: 0.075, x:-160, y:440, rotation:335, accent:accent)
-                        ParametricBlob(points: 45, amplitude: 0.075, x:25, y:350, rotation:160, accent:accent)
-                        
-                        VStack{
+                        //  Background Blobs
+                        ParametricBlob(points: 45, amplitude: 0.075, x: -160, y: 440, rotation: 335, accent: accent)
+                        ParametricBlob(points: 45, amplitude: 0.075, x: 25, y: 350, rotation: 160, accent: accent)
+
+                        VStack {
                             Spacer()
-                            //header text
-                            HStack{
+
+                            //  Header
+                            HStack {
                                 Spacer()
-                                CustomText(text:"Last Step", color:accent, width:100, textAlignment: .trailing, textSize: 50)
-                                    .padding(.top, 20)
-                                    .padding(.bottom, 90)
-                                    .padding(.trailing, leading_padding)
+                                CustomText( text: "Last Step", color: accent, width: 100, textAlignment: .trailing, textSize: 50)
+                                .padding(.top, 20)
+                                .padding(.bottom, 90)
+                                .padding(.trailing, leadingPadding)
                             }
-                            
-                            //password one label and text box
+
+                            //  Password 1
                             CustomText(text: "New Password", color: accent)
-                                .padding(.leading, leading_padding)
-                            
-                            CustomTextField(background: background, accent: accent, placeholder: "", text: $password_one, isSecure: true)
-                            
-                            //complexity warning
-                            if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
-                                CustomWarningText(text: "8+ chars: uppercase, lowercase, number, & symbol.")
-                                    .padding(.bottom, 5)
-                            }
-                            
-                            //same as previous warning, check if the hashed entered value matches the hashed password in the database
-                            else if !password_one.isEmpty && DatabaseManager.hashString(password_one) == currentPassword {
-                                CustomWarningText(text: "New password must differ from previous password.")
-                                    .padding(.bottom, 5)
-                            }
-                            
-                            //reserve warning space
-                            else{
+                                .padding(.leading, leadingPadding)
+
+                            CustomTextField(background: background, accent: accent,  placeholder: "",  text: $passwordOne,  isSecure: true )
+
+                            // Password warnings
+                            if !passwordOne.isEmpty {
+                                if !DatabaseManager.isPasswordValid(passwordOne) {
+                                    CustomWarningText(text: "8+ chars: uppercase, lowercase, number, & symbol.")
+                                        .padding(.bottom, 5)
+                                } else if DatabaseManager.hashString(passwordOne) == currentPassword {
+                                    CustomWarningText(text: "New password must differ from previous password.")
+                                        .padding(.bottom, 5)
+                                } else {
+                                    CustomWarningText(text: "")
+                                        .padding(.bottom, 15)
+                                }
+                            } else {
                                 CustomWarningText(text: "")
                                     .padding(.bottom, 15)
                             }
-                            
-                            //password two label and text box
+
+                            //  Password 2
                             CustomText(text: "Confirm New Password", color: accent)
-                                .padding(.leading, leading_padding)
-                            
-                            CustomTextField(background: background, accent: accent, placeholder: "", text: $password_two, isSecure: true)
-                            
-                            //passwords don't match warning
-                            if !password_two.isEmpty && password_two != password_one {
+                                .padding(.leading, leadingPadding)
+
+                            CustomTextField(background: background, accent: accent, placeholder: "", text: $passwordTwo,  isSecure: true )
+
+                            if !passwordTwo.isEmpty && passwordTwo != passwordOne {
                                 CustomWarningText(text: "Passwords do not match.")
                                     .padding(.bottom, 5)
-                            }
-                            
-                            //reserve space for warning
-                            else{
+                            } else {
                                 CustomWarningText(text: " ")
                                     .padding(.bottom, 5)
                             }
-                            
-                            //reset password in database, disabled until new password is valid
-                            CustomButton(text: "Reset Password", background: background, accent: accent, height: 50, width: 200) {
-                                isPasswordUpdated = DatabaseManager.resetPassword(forEmail: enteredEmail, newPassword: password_one)
+
+                            // Reset Button
+                            CustomButton(text: "Reset Password",  background: background, accent: accent, height: 50, width: 200) {
+                                isPasswordUpdated = DatabaseManager.resetPassword(forEmail: enteredEmail, newPassword: passwordOne)
                             }
                             .padding(.bottom, 120)
                             .disabled(!passwordResetValid)
                             .opacity(passwordResetValid ? 1.0 : 0.5)
-                            
-                            //when the password is successfully updated, go to login
                             .navigationDestination(isPresented: $isPasswordUpdated) {
                                 LoginView()
                             }
+
                             Spacer()
                         }
                     }
-                    //get the current hashed password from the email
                     .onAppear {
-                        let currentUser = DatabaseManager.shared.getUserFromEmail(email: enteredEmail)
-                        currentPassword = DatabaseManager.shared.getSingleColumnValue(userId: currentUser ?? -1, columnName: "password") ?? ""
+                        if let currentUser = DatabaseManager.shared.getUserFromEmail(email: enteredEmail) {
+                            currentPassword = DatabaseManager.shared.getSingleColumnValue(
+                                userId: currentUser,
+                                columnName: "password"
+                            ) ?? ""
+                        }
                     }
                 }
             }

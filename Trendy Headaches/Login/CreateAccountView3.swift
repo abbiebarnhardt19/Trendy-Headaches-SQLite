@@ -1,74 +1,68 @@
-//
-//  CreateAccountView3.swift
-//  Trendy Headaches
-//
-//  Created by Abigail Barnhardt on 8/30/25.
-//
-
 import SwiftUI
 
 struct CreateAccountView3: View {
-    
-    //form entries from previous page
+    // Form data from previous pages
     var email: String = ""
-    var password_one: String = ""
-    var security_question: String = ""
-    var security_answer: String = ""
+    var passwordOne: String = ""
+    var securityQuestion: String = ""
+    var securityAnswer: String = ""
     
-    //color theme options
-    let options = ["Classic Light", "Light Pink", "Light Yellow", "Classic Dark", "Dark Green","Dark Blue", "Dark Purple", "Custom"]
+    // Color theme options
+    private let themeOptions = [ "Classic Light", "Light Pink", "Light Yellow", "Classic Dark", "Dark Green", "Dark Blue", "Dark Purple", "Custom" ]
     
-    //editable variables, set to defaults
-    @State private var color_theme: String = "Dark Green"
+    // User-selected theme values
+    @State private var selectedTheme: String = "Dark Green"
     @State private var background: String = "#001d00"
     @State private var accent: String = "#b5c4b9"
     
-    //leading padding constant
-    let leading_padding = CGFloat(180)
-    let screen_width = UIScreen.main.bounds.width
+    // Layout constants
+    private let leadingPadding: CGFloat = 180
+    private let screenWidth = UIScreen.main.bounds.width
     
     var body: some View {
         NavigationStack {
             ZStack {
-                //set background color
+                // Background
                 Color(hex: background).ignoresSafeArea()
                 
-                //corner symmetric blobs
-                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x:100, y: -220, rotation: -180)
-                SameAmplitudeBlob(waves: 10, amplitude:20, accent: accent, x:100, y: -220, rotation: 360)
+                // Decorative blobs
+                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 100, y: -220, rotation: -180)
+                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 100, y: -220, rotation: 360)
                 
-                VStack{
-                    //header
+                VStack(spacing: 20) {
+                    // Header
                     CustomText(text: "Choose a color theme", color: accent)
-                        .padding(.leading, leading_padding)
+                        .padding(.leading, leadingPadding)
 
-                    //dropdown with theme options
-                    CustomDropdown(color_theme: $color_theme, background: $background, accent: $accent, options: options, width: screen_width-50, height:50, cornerRadius: 30, fontSize: 22)
+                    // Theme dropdown
+                    CustomDropdown(color_theme: $selectedTheme, background: $background, accent: $accent, options: themeOptions,  width: screenWidth - 50, height: 50, cornerRadius: 30, fontSize: 22)
 
-                    //if they chose custom, show additional instructions and text boxes
-                    if color_theme == "Custom"{
-                        //custom instructions
-                        CustomText(text:"Or, enter two hex codes to design a theme", color: accent, width: screen_width-50, multilineAlignment: .center)
-                            .padding(.bottom, 10)
+                    // Custom theme input fields
+                    if selectedTheme == "Custom" {
+                        CustomText(text: "Or, enter two hex codes to design a theme", color: accent, width: screenWidth - 50,  multilineAlignment: .center)
+                        .padding(.bottom, 10)
                         
-                        //side by side text boxes for two hex codes
-                        HStack {
-                            CustomTextField(background: background, accent: accent, placeholder: "", text: $background, width: screen_width/2-40)
-                                .padding(.trailing, 20)
+                        HStack(spacing: 20) {
+                            CustomTextField(background: background, accent: accent,  placeholder: "",  text: $background, width: screenWidth / 2 - 40)
                             
-                            CustomTextField(background: background, accent: accent, placeholder: "", text: $accent, width: screen_width/2-40)
+                            CustomTextField(background: background, accent: accent, placeholder: "",  text: $accent,  width: screenWidth / 2 - 40)
                         }
                     }
                     
-                    //button to move to next page with previous form information and new colors
-                    CustomNavButton(label: "Continue", destination: CreateAccountView2(background: background, accent: accent, email: email, passwordOne: password_one, currentSecurityQuestion: security_question, currentSecurityAnswer: security_answer), background: background, accent: accent
-                    )
+                    // Continue button
+                    CustomNavButton(label: "Continue", destination: CreateAccountView2( background: background, accent: accent, email: email, passwordOne: passwordOne, currentSecurityQuestion: securityQuestion,  currentSecurityAnswer: securityAnswer), background: background,  accent: accent)
                 }
+                .padding()
             }
         }
     }
 }
 
 #Preview {
-    CreateAccountView3(email: "testtest", password_one: "password_one", security_question: "security_question", security_answer: "security_answer")
+    CreateAccountView3(
+        email: "test@example.com",
+        passwordOne: "password123",
+        securityQuestion: "Your first pet?",
+        securityAnswer: "Fluffy"
+    )
 }

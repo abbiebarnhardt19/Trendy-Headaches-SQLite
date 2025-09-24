@@ -1,92 +1,90 @@
 //
-//  ForgotPasswordView3.swift
+//  ForgotPasswordView2.swift
 //  Trendy Headaches
 //
 //  Created by Abigail Barnhardt on 8/28/25.
+//
 
 import SwiftUI
 
 struct ForgotPasswordView2: View {
-    //passed through variable
+    // MARK: - Input
     let enteredEmail: String
-    
-    //editable variable
-    @State private var securityQuestion: String = ""
-    @State private var securityAnswerHash: String = ""
-    @State private var enteredAnswer: String = ""
+
+    // MARK: - State
+    @State private var securityQuestion = ""
+    @State private var securityAnswerHash = ""
+    @State private var enteredAnswer = ""
     @State private var userID: Int64? = nil
-    
-    //colors and padding
-    let accent = "#b5c4b9"
-    let background = "#001d00"
-    let leading_padding = CGFloat(40)
-    let screen_width = UIScreen.main.bounds.width
-    
-    //check if the answer correct after removing capitals and whitespace. Comapred the hashed normalized value to hashed value in database
+
+    // MARK: - Theme
+    private let accent = "#b5c4b9"
+    private let background = "#001d00"
+    private let leadingPadding: CGFloat = 30
+    private let screenWidth = UIScreen.main.bounds.width
+
+    // MARK: - Validation
     private var isCorrectAnswer: Bool {
         guard !enteredAnswer.isEmpty else { return false }
         let normalizedInput = DatabaseManager.normalizedValue(
             enteredAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
         )
-        let hashedInput = DatabaseManager.hashString(normalizedInput)
-        return hashedInput == securityAnswerHash
+        return DatabaseManager.hashString(normalizedInput) == securityAnswerHash
     }
-    
+
     var body: some View {
         NavigationStack {
-            ZStack{
-                //set background color
+            ZStack {
                 Color(hex: background).ignoresSafeArea()
-                ScrollView{
+
+                ScrollView {
                     ZStack {
-                        //asymetric blobs
-                        ParametricBlob(points: 40, amplitude: 0.075, x:-140, y:270, rotation:210, accent:accent)
-                        ParametricBlob(points: 40, amplitude: 0.075, x:10, y:500, rotation:17, accent:accent)
-                        
-                        VStack {
-                            //header text
-                            HStack{
-                                CustomText(text:"Please answer your security question", color:accent, width:screen_width/2, textAlignment: .leading, multilineAlignment: .leading, textSize: 50)
-                                    .padding(.leading, leading_padding)
+                        //  Background Blobs
+                        ParametricBlob(points: 40, amplitude: 0.075, x: -140, y: 270, rotation: 210, accent: accent)
+                        ParametricBlob(points: 40, amplitude: 0.075, x: 10, y: 500, rotation: 17, accent: accent)
+
+                        VStack(alignment: .leading, spacing: 20) {
+                            
+                            //  Header
+                            HStack {
+                                CustomText(text: "Please answer your security question", color: accent,  width: screenWidth / 2, textAlignment: .leading, multilineAlignment: .leading, textSize: 50)
+                                .padding(.leading, leadingPadding)
                                 Spacer()
                             }
-                            
-                            VStack {
-                                //display user's security question based off email
-                                CustomText(text: securityQuestion, color: accent)
-                                    .padding(.leading, leading_padding)
-                                    .padding(.top, 30)
-                                
-                                //enter answer
-                                CustomTextField(background: background, accent: accent, placeholder:"", text: $enteredAnswer, isSecure: true)
-                                    .autocapitalization(.none)
-                                    .disableAutocorrection(true)
-                                
-                                //if they have attempted to answer but it is wrong, display warning
-                                if !enteredAnswer.isEmpty && !isCorrectAnswer {
-                                    CustomWarningText(text: "Answers do not match.")
-                                }
-                                
-                                //reserve space for warning
-                                else {
-                                    CustomWarningText(text: " ")
-                                }
-                                
-                                //move to next page once anwer is correct, pass email
-                                CustomNavButton(
-                                    label: "Continue", destination: ForgotPasswordView3(enteredEmail: enteredEmail), background: background, accent: accent
-                                )
-                                .disabled(!isCorrectAnswer)
+
+                            //  Security Question
+                            CustomText(text: securityQuestion, color: accent)
+                                .padding(.leading, leadingPadding)
+                                .padding(.top, 30)
+
+                            // Answer Field
+                            CustomTextField( background: background, accent: accent,  placeholder: "", text: $enteredAnswer, isSecure: true)
+                                .padding(.leading, leadingPadding-10)
+                            .disableAutocorrection(true)
+
+                            //  Warning
+                            if !enteredAnswer.isEmpty && !isCorrectAnswer {
+                                CustomWarningText(text: "Answers do not match.")
+                            } else {
+                                CustomWarningText(text: " ")
                             }
+
+                            //  Continue Button
+                            CustomNavButton( label: "Continue", destination: ForgotPasswordView3(enteredEmail: enteredEmail),  background: background,accent: accent )
+                            .disabled(!isCorrectAnswer)
                         }
                     }
                 }
-                //get the user id, security question, and security answer based off the previously entered email on page load
                 .onAppear {
-                    //let result = DatabaseManager.getSecurityQuestionAndAnswer(forEmail: enteredEmail)
                     userID = DatabaseManager.shared.getUserFromEmail(email: enteredEmail)
-                    securityQuestion = DatabaseManager.shared.getSingleColumnValue(userId: userID ?? -1, columnName: "security_question") ?? ""
-                    securityAnswerHash = DatabaseManager.shared.getSingleColumnValue(userId: userID ?? -1, columnName: "security_answer") ?? ""
+                    securityQuestion = DatabaseManager.shared.getSingleColumnValue(
+                        userId: userID ?? -1,
+                        columnName: "security_question"
+                    ) ?? ""
+                    securityAnswerHash = DatabaseManager.shared.getSingleColumnValue(
+                        userId: userID ?? -1,
+                        columnName: "security_answer"
+                    ) ?? ""
                 }
             }
         }

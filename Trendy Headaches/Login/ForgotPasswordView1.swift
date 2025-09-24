@@ -7,66 +7,59 @@
 import SwiftUI
 
 struct ForgotPasswordView1: View {
-    //editable variables
+    // Editable fields
     @State private var email: String = ""
     @State private var emailExists: Bool? = nil
     @State private var emailCheckTask: Task<Void, Never>? = nil
     
-    
-    //theme colors
-    let accent = "#b5c4b9"
-    let background = "#001d00"
-    let screen_width = UIScreen.main.bounds.width
+    // Theme colors and layout
+    private let accent = "#b5c4b9"
+    private let background = "#001d00"
+    private let screenWidth = UIScreen.main.bounds.width
     
     var body: some View {
         NavigationStack {
             ZStack {
-                //set background color
+                // Background color
                 Color(hex: background).ignoresSafeArea()
                 
-                //symetrical corner blobs
-                SameAmplitudeBlob(waves: 10, amplitude: 20, accent:accent, x:140, y: -200, rotation: 110)
-                SameAmplitudeBlob(waves: 10, amplitude:20, accent:accent, x:280, y: -120, rotation: 290)
-                VStack {
-                    //header + instructions
-                    CustomText(text:"Forgot your password?", color:accent, width: screen_width-50, textAlignment: .center, multilineAlignment: .center, textSize: 50)
-                        .padding(.bottom, 20)
+                // Corner blobs
+                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 140, y: -200, rotation: 110)
+                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 280, y: -120, rotation: 290)
+                
+                VStack(spacing: 20) {
+                    // Header and instructions
+                    CustomText(text: "Forgot your password?", color: accent, width: screenWidth - 50, textAlignment: .center, multilineAlignment: .center,  textSize: 50)
                     
-                    CustomText(text:"No worries! Enter your email below to start the password reset process.", color: accent, width: screen_width-50, textAlignment: .center,  multilineAlignment: .center, textSize: 18)
-                        .padding(.bottom, 20)
+                    CustomText( text: "No worries! Enter your email below to start the password reset process.",  color: accent, width: screenWidth - 50,  textAlignment: .center, multilineAlignment: .center, textSize: 18)
                     
-                    //email text box, uses debouncing to check once user stopped typing if email exists
-                    CustomTextField(background: background, accent: accent, placeholder:"", text: $email)
+                    // Email input with debounced availability check
+                    CustomTextField(background: background, accent: accent, placeholder: "", text: $email)
                         .keyboardType(.emailAddress)
                         .onChange(of: email) {
                             emailCheckTask?.cancel()
                             emailCheckTask = Task {
                                 try? await Task.sleep(nanoseconds: 500_000_000)
                                 if !Task.isCancelled {
-                                    // call the fully qualified static helper
                                     emailExists = DatabaseManager.doesEmailExist(email)
                                 }
                             }
                         }
                     
-                    //if the email does not exist, diplay error
+                    // Warning message
                     if let exists = emailExists, !exists {
                         CustomWarningText(text: "No account found with this email")
-                    }
-                    
-                    //reserve room for error
-                    else{
+                    } else {
                         CustomWarningText(text: " ")
                     }
                     
-                    //button to continue, disabled until email that exists in database is entered. Pass email to next page
-                    CustomNavButton(
-                        label: "Continue",
-                        destination: ForgotPasswordView2(enteredEmail: DatabaseManager.normalizedValue(email)), background: background, accent: accent, width: screen_width/2-20)
+                    // Continue button
+                    CustomNavButton( label: "Continue", destination: ForgotPasswordView2(enteredEmail: DatabaseManager.normalizedValue(email)), background: background, accent: accent,  width: screenWidth / 2 - 20)
                     .disabled(!(emailExists ?? false))
                     .opacity((emailExists ?? false) ? 1.0 : 0.5)
                 }
-           }
+                .padding()
+            }
         }
     }
 }

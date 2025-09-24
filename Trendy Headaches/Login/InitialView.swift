@@ -8,44 +8,45 @@
 import SwiftUI
 
 struct InitialView: View {
-    
-    let accent = "#b5c4b9"
-    let background = "#001d00"
-    let screen_width = UIScreen.main.bounds.width
-    
+    //  Theme
+    private let accent = "#b5c4b9"
+    private let background = "#001d00"
+    private let screenWidth = UIScreen.main.bounds.width
+
+    //  State
     @State private var showPolicy = false
-    @State private var agreedToPolicy = false
     @State private var navigateToCreateAccount = false
 
     var body: some View {
         NavigationStack {
             ZStack {
+                //  Background
                 Color(hex: background).ignoresSafeArea()
-                
                 SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 140, y: -220, rotation: 120)
                 SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 140, y: -220, rotation: 295)
 
-                VStack {
-                    CustomText(text: "Trendy Headaches", color: accent, width: screen_width-50, textAlignment: .center, multilineAlignment: .center, textSize: 50)
-                    
-                    // Sign In button (normal navigation)
-                    CustomNavButton(label: "Sign In", destination: LoginView(), background: background, accent: accent)
-                    
-                    // Sign Up button (intercept tap)
-                    CustomButton(text: "Sign Up", background: background, accent: accent, height: 55, width: 180) {
+                //  Content
+                VStack(spacing: 20) {
+                    CustomText( text: "Trendy Headaches", color: accent, width: screenWidth - 50, textAlignment: .center, multilineAlignment: .center, textSize: 50 )
+
+                    // Sign In Button
+                    CustomNavButton( label: "Sign In", destination: LoginView(), background: background, accent: accent)
+
+                    // Sign Up Button (Shows Policy First)
+                    CustomButton(text: "Sign Up", background: background, accent: accent,  height: 55, width: 180 ) {
                         showPolicy = true
                     }
                 }
             }
+            // Launch database
             .onAppear {
-                _ = DatabaseManager.shared
+                _ = DatabaseManager.shared // Ensures database is initialized
             }
+
+            //  Modals & Navigation
             .fullScreenCover(isPresented: $showPolicy) {
-                PolicySheetView(
-                    policyFileName: "DataPolicy",
-                    showsAgreeButton: true,
-                    onAgree: { navigateToCreateAccount = true }
-                )
+                PolicySheetView(policyFileName: "DataPolicy", showsAgreeButton: true,
+                    onAgree: { navigateToCreateAccount = true })
             }
             .navigationDestination(isPresented: $navigateToCreateAccount) {
                 CreateAccountView()
@@ -53,8 +54,6 @@ struct InitialView: View {
         }
     }
 }
-
-
 
 #Preview {
     InitialView()

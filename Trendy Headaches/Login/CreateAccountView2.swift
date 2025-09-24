@@ -2,7 +2,7 @@ import SwiftUI
 import CryptoKit
 
 struct CreateAccountView2: View {
-    //information from previous pages
+    // Info from previous pages
     var background: String = ""
     var accent: String = ""
     var email: String = ""
@@ -10,7 +10,7 @@ struct CreateAccountView2: View {
     var currentSecurityQuestion: String = ""
     var currentSecurityAnswer: String = ""
     
-    //editable variables for this page
+    // Editable variables for this page
     @State private var symptoms: String = ""
     @State private var preventativeMeds: String = ""
     @State private var emergencyMeds: String = ""
@@ -18,89 +18,51 @@ struct CreateAccountView2: View {
     @State private var errorMessage: String = ""
     @State private var accountCreated = false
     
-    //leading padding constant
-    let screen_width = UIScreen.main.bounds.width
-    let leading_padding = CGFloat(UIScreen.main.bounds.width * 0.8)
-
+    // Layout constants
+    private let screenWidth = UIScreen.main.bounds.width
+    private let leadingPadding = UIScreen.main.bounds.width * 0.8
     
     var body: some View {
         NavigationStack {
-            ZStack{
-                //set background color
+            ZStack {
                 Color(hex: background)
                     .ignoresSafeArea()
-                ScrollView{
-                    
-                    //seperate otherwise the background gets weird
-                    ZStack{
-                        //full width blob
-                        WavyTopBottomRectangle(waves: 20, amplitude:10, accent:accent, x:300, y:-575, width:1000, height: 400)
-                        WavyTopBottomRectangle(waves: 20, amplitude:8, accent:accent, x:300, y:550, width:1000, height: 400)
+                
+                ScrollView {
+                    ZStack {
+                        // Background blobs
+                        WavyTopBottomRectangle(waves: 20, amplitude: 10, accent: accent, x: 300, y: -575, width: 1000, height: 400)
+                        WavyTopBottomRectangle(waves: 20, amplitude: 8, accent: accent, x: 300, y: 550, width: 1000, height: 400)
                         
-                        VStack{
-                            //header and instructions
-                            CustomText(text:"One Last Step", color:accent, textAlignment: .center, textSize: 50)
-                                .padding(.vertical, 15)
+                        VStack(spacing: 15) {
+                            // Header
+                            CustomText(text: "One Last Step", color: accent, textAlignment: .center, textSize: 50)
+                                .padding(.top, 15)
                             
-                            CustomText(text: "Add multiple items by separating them with commas.", color: accent, width: screen_width - 30, textAlignment: .center, multilineAlignment: .center, textSize: 18)
-                                .padding(.bottom, 20)
+                            CustomText(text: "Add multiple items by separating them with commas.", color: accent,  width: screenWidth - 30, textAlignment: .center, multilineAlignment: .center,  textSize: 18)
+                            .padding(.bottom, 20)
                             
+                            // Input fields
+                            Group {
+                                labeledField("Symptom or Illness", text: $symptoms)
+                                labeledField("Preventative Treatments", text: $preventativeMeds)
+                                labeledField("Emergency Treatments", text: $emergencyMeds)
+                                labeledField("Triggers", text: $triggers)
+                            }
                             
-                            //symptoms label and textbox
-                            CustomText(text: "Symptom or Illness", color: accent)
-                                .padding(.leading, leading_padding)
-                            
-                            CustomTextField(background: background, accent: accent, placeholder: "", text: $symptoms)
-                            
-                            //prev meds label and textbox
-                            CustomText(text: "Preventative Treatments", color: accent)
-                                .padding(.leading, leading_padding)
-                            
-                            CustomTextField(background: background, accent: accent, placeholder: "", text: $preventativeMeds)
-                            
-                            //emerg meds label and textbox
-                            CustomText(text: "Emergency Treatments", color: accent)
-                                .padding(.leading, leading_padding)
-                            
-                            CustomTextField(background: background, accent: accent, placeholder: "", text: $emergencyMeds)
-                            
-                            //triggers label and textbox
-                            CustomText(text: "Triggers", color: accent)
-                                .padding(.leading, leading_padding)
-                            
-                            CustomTextField(background: background, accent: accent, placeholder: "", text: $triggers)
-                            
-                            //on click attempt to add user
+                            // Submit button
                             CustomButton(text: "Submit", background: background, accent: accent) {
-                                do {
-                                    try DatabaseManager.createUser(
-                                        email: email,
-                                        password: passwordOne,
-                                        securityQuestion: currentSecurityQuestion,
-                                        securityAnswer: currentSecurityAnswer,
-                                        background: background,
-                                        accent: accent,
-                                        symptoms: symptoms,
-                                        preventativeMeds: preventativeMeds,
-                                        emergencyMeds: emergencyMeds,
-                                        triggers: triggers
-                                    )
-                                    errorMessage = ""
-                                    accountCreated = true
-                                } catch {
-                                    errorMessage = "Failed to create account"
-                                }
+                                createAccount()
                             }
                             .padding(.bottom, 40)
                             
-                            //show error message if it exists
+                            // Error message
                             if !errorMessage.isEmpty {
                                 CustomWarningText(text: errorMessage)
                             }
                         }
                         .padding()
                     }
-                    //once create account is successful, move to login page
                     .navigationDestination(isPresented: $accountCreated) {
                         LoginView(background: background, accent: accent)
                     }
@@ -108,8 +70,26 @@ struct CreateAccountView2: View {
             }
         }
     }
+    
+    @ViewBuilder
+    private func labeledField(_ label: String, text: Binding<String>) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            CustomText(text: label, color: accent)
+                .padding(.leading, leadingPadding)
+            CustomTextField(background: background, accent: accent, placeholder: "", text: text)
+        }
+    }
+    
+    private func createAccount() {
+        do {
+            try DatabaseManager.createUser(email: email, password: passwordOne,  securityQuestion: currentSecurityQuestion,  securityAnswer: currentSecurityAnswer,  background: background, accent: accent, symptoms: symptoms, preventativeMeds: preventativeMeds, emergencyMeds: emergencyMeds, triggers: triggers)
+            errorMessage = ""
+            accountCreated = true
+        } catch {
+            errorMessage = "Failed to create account"
+        }
+    }
 }
-
 
 #Preview {
     NavigationStack {
