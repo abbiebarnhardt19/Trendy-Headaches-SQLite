@@ -207,9 +207,13 @@ struct LogView: View {
     }
     
     private func submitButton(action: @escaping () -> Void) -> some View {
-        CustomButton(text: "Submit", background: background, accent: accent, action: action)
-            .padding(.trailing, leadingPadding)
-            .padding(.top, 10)
+        HStack{
+            Spacer()
+            CustomButton(text: "Submit", background: background, accent: accent, action: action)
+                .padding(.top, 10)
+                .padding(.trailing, leadingPadding)
+            Spacer()
+        }
     }
     
     //Functions
