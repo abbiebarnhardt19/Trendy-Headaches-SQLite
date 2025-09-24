@@ -23,6 +23,7 @@ class DatabaseManager {
     let triggers = Table("Triggers")
     let logs = Table("Logs")
     let log_triggers = Table("Log_Triggers")
+    let side_effects = Table("Side_Effects")
 
     
     // columns
@@ -68,6 +69,11 @@ class DatabaseManager {
     //columns for table that handles many to many relationships
     let lt_log_id = SQLite.Expression<Int64>("log_id")
     let lt_trigger_id = SQLite.Expression<Int64>("trigger_id")
+    
+    let side_effect_id = SQLite.Expression<Int64>("side_effect_id")
+    let side_effect_name = SQLite.Expression<String>("side_effect_name")
+    let side_effect_severity = SQLite.Expression<Int64>("side_effect_severity")
+    let side_effect_date = SQLite.Expression<Date>("date")
 
     
     //create database
@@ -165,6 +171,17 @@ class DatabaseManager {
                 t.foreignKey(lt_log_id, references: logs, log_id, delete: .cascade)
                 t.foreignKey(lt_trigger_id, references: triggers, trigger_id, delete: .cascade)
                 t.primaryKey(lt_log_id, lt_trigger_id) // composite primary key
+            })
+            
+            try db.run(side_effects.create(ifNotExists: true) { t in
+                t.column(side_effect_id, primaryKey: .autoincrement)
+                t.column(user_id)
+                t.column(medication_id)
+                t.column(side_effect_name)
+                t.column(side_effect_severity)
+                t.column(side_effect_date)
+                t.foreignKey(user_id, references: users, user_id, delete: .cascade)
+                t.foreignKey(medication_id, references: medications, medication_id, delete: .cascade)
             })
 
             

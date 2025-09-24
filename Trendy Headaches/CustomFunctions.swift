@@ -637,6 +637,34 @@ extension DatabaseManager {
             return nil
         }
     }
+    
+    func createSideEffectLog(
+        userID: Int64,
+        date: Date,
+        side_effect: String,
+        side_effect_severity: Int64,
+        medication_id: Int64 ) -> Int64? {
+        
+        do {
+            // Insert log row
+            let insert = DatabaseManager.shared.side_effects.insert(
+                DatabaseManager.shared.user_id <- userID,
+                DatabaseManager.shared.side_effect_date <- date,
+                DatabaseManager.shared.side_effect_name <- side_effect,
+                DatabaseManager.shared.side_effect_severity <- side_effect_severity,
+                DatabaseManager.shared.medication_id <- medication_id
+            )
+            
+            // Execute insert
+            let logID = try DatabaseManager.shared.run(insert)
+            
+            return logID // Return the actual log's primary key
+            
+        } catch {
+            print("Failed to create log: \(error)")
+            return nil
+        }
+    }
 
 
 }
