@@ -794,32 +794,96 @@ struct MultipleChoiceButtonGroup: View {
     @Binding var selected: String?
     var accent: String
 
-    private let circleWidth: CGFloat = 20
+    let circleWidth: CGFloat = 20
+    let spacing: CGFloat = 8
+    let charWidth: CGFloat = 14
 
     var body: some View {
-        let columns = [GridItem(.adaptive(minimum: 150), spacing: 12)] // auto-wraps
-
-        LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
-            ForEach(options, id: \.self) { option in
+        VStack(alignment: .leading, spacing: 0) {
+            FlexibleWrapRadioLayout(items: options, spacing: 12, circleWidth: circleWidth, charWidth: charWidth) { option in
                 HStack(spacing: 8) {
                     Circle()
                         .stroke(Color(hex: accent), lineWidth: 2)
-                        .background(Circle().fill(selected == option ? Color(hex: accent) : .clear))
+                        .background(
+                            Circle()
+                                .fill(selected == option ? Color(hex: accent) : Color.clear)
+                        )
                         .frame(width: circleWidth, height: circleWidth)
+                        .onTapGesture {
+                            selected = option
+                        }
 
                     CustomText(text: option, color: accent, textSize: 20)
                         .lineLimit(1)
                         .truncationMode(.tail)
+                        .onTapGesture {
+                            selected = option
+                        }
                 }
-                .contentShape(Rectangle())
-                .onTapGesture { selected = option }
                 .padding(.trailing, 25)
+                .fixedSize()
+                .contentShape(Rectangle())
             }
         }
         .padding(.bottom, 10)
         .padding(.leading, 5)
     }
 }
+
+// MARK: - Flexible Wrap Layout for Radio Buttons
+struct FlexibleWrapRadioLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
+    var items: Data
+    var spacing: CGFloat
+    var circleWidth: CGFloat
+    var charWidth: CGFloat
+    var content: (Data.Element) -> Content
+
+    init(items: Data, spacing: CGFloat, circleWidth: CGFloat, charWidth: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
+        self.items = items
+        self.spacing = spacing
+        self.circleWidth = circleWidth
+        self.charWidth = charWidth
+        self.content = content
+    }
+
+    var body: some View {
+        generateContent(in: UIScreen.main.bounds.width - 20)
+    }
+
+    private func generateContent(in totalWidth: CGFloat) -> some View {
+        var width: CGFloat = 0
+        var rows: [[Data.Element]] = [[]]
+
+        for item in items {
+            let itemWidth = estimateWidth(for: item)
+            if width + itemWidth + spacing > totalWidth {
+                rows.append([item])
+                width = itemWidth + spacing
+            } else {
+                rows[rows.count - 1].append(item)
+                width += itemWidth + spacing
+            }
+        }
+
+        return VStack(alignment: .leading, spacing: spacing) {
+            ForEach(0..<rows.count, id: \.self) { rowIndex in
+                HStack(alignment: .center, spacing: spacing) {
+                    ForEach(rows[rowIndex], id: \.self) { item in
+                        content(item)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading) // ✅ left-align rows
+            }
+        }
+    }
+
+    private func estimateWidth(for item: Data.Element) -> CGFloat {
+        let textCount = String(describing: item).count
+        return circleWidth + 8 + CGFloat(textCount) * charWidth
+    }
+}
+
+
 
 struct StepSlider: View {
     @Binding var value: Int64
@@ -919,48 +983,120 @@ struct CustomSingleCheckbox: View {
 
 struct MultipleChoiceCheckboxGroup: View {
     @Binding var options: [String]
-    @Binding var selected: [String]
+    @Binding var selected: [String] // ✅ multiple selections
     var accent: String
     var background: String
-
-    private let boxSize: CGFloat = 22
-    private let columns = [GridItem(.adaptive(minimum: 120), spacing: 12)]
-
+    
+    let boxSize: CGFloat = 22
+    let spacing: CGFloat = 8
+    let charWidth: CGFloat = 14
+    
     var body: some View {
-        LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
-            ForEach(options, id: \.self) { option in
+        VStack(alignment: .leading, spacing: 0) {
+            FlexibleWrapCheckboxLayout(items: options, spacing: 12, boxSize: boxSize, charWidth: charWidth) { option in
                 HStack(spacing: 8) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(selected.contains(option) ? Color(hex: accent) : .clear)
-                            .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color(hex: accent), lineWidth: 2))
+                            .fill(selected.contains(option) ? Color(hex: accent) : Color.clear)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke(Color(hex: accent), lineWidth: 2)
+                            )
                             .frame(width: boxSize, height: boxSize)
-
+                        
                         if selected.contains(option) {
                             Image(systemName: "checkmark")
-                                .foregroundColor(Color(hex: background))
+                                .foregroundColor(Color(hex: background)) // ✅ checkmark matches background
                                 .font(.system(size: boxSize * 0.7, weight: .bold))
                         }
                     }
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.15)) {
+                            toggleSelection(option)
+                        }
+                    }
+                    
                     CustomText(text: option, color: accent, textSize: 20)
                         .lineLimit(1)
                         .truncationMode(.tail)
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.15)) {
+                                toggleSelection(option)
+                            }
+                        }
                 }
+                .padding(.trailing, 25)
+                .fixedSize() // ✅ each item only takes needed width
                 .contentShape(Rectangle())
-                .onTapGesture {
-                    withAnimation(.easeInOut(duration: 0.15)) {
-                        if let index = selected.firstIndex(of: option) {
-                            selected.remove(at: index)
-                        } else {
-                            selected.append(option)
+            }
+        }
+        .padding(.bottom, 10)
+        .padding(.leading, 5)
+    }
+    
+    private func toggleSelection(_ option: String) {
+        if let index = selected.firstIndex(of: option) {
+            // Option already selected, remove it
+            selected.remove(at: index)
+        } else {
+            // Option not selected, add it
+            selected.append(option)
+        }
+    }
+
+    
+    // MARK: - Flexible Layout
+    struct FlexibleWrapCheckboxLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
+        var items: Data
+        var spacing: CGFloat
+        var boxSize: CGFloat
+        var charWidth: CGFloat
+        var content: (Data.Element) -> Content
+        
+        init(items: Data, spacing: CGFloat, boxSize: CGFloat, charWidth: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
+            self.items = items
+            self.spacing = spacing
+            self.boxSize = boxSize
+            self.charWidth = charWidth
+            self.content = content
+        }
+        
+        var body: some View {
+            generateContent(in: UIScreen.main.bounds.width - 20)
+        }
+        
+        private func generateContent(in totalWidth: CGFloat) -> some View {
+            var width: CGFloat = 0
+            var rows: [[Data.Element]] = [[]]
+            
+            for item in items {
+                let itemWidth = estimateWidth(for: item)
+                if width + itemWidth + spacing > totalWidth {
+                    // start new row
+                    rows.append([item])
+                    width = itemWidth + spacing
+                } else {
+                    rows[rows.count - 1].append(item)
+                    width += itemWidth + spacing
+                }
+            }
+            
+            return VStack(alignment: .leading, spacing: spacing) {
+                ForEach(0..<rows.count, id: \.self) { rowIndex in
+                    HStack(alignment: .center, spacing: spacing) {
+                        ForEach(rows[rowIndex], id: \.self) { item in
+                            content(item)
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
         }
-        .padding(.leading, 5)
-        .padding(.trailing, 25)
-        .padding(.bottom, 10)
+        
+        private func estimateWidth(for item: Data.Element) -> CGFloat {
+            let textCount = String(describing: item).count
+            return boxSize + 8 + CGFloat(textCount) * charWidth
+        }
     }
 }
 

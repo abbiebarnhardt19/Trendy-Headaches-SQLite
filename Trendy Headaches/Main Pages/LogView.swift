@@ -32,7 +32,7 @@ struct LogView: View {
     @State private var toggleText = ""
     @State private var triggerOptions : [String] = []
     @State private var selectedTriggers: [String] = []
-    @State private var symptomLogViewShown = true
+    @State private var symptomLogViewShown = false
     
     @State private var triggerIDs: [Int64] = []
     @State private var symptomID: Int64 = 0
@@ -40,6 +40,12 @@ struct LogView: View {
     @State private var logID: Int64? = 0
     
     @State private var hasSubmitted: Bool = false
+    
+    @State private var side_effect_string_date: String = ""
+    @State private var side_effect_name: String = ""
+    @State private var side_effect_severity: Int64 = 0
+    @State private var side_effect_medication: String = ""
+    @State private var medicationOptions : [String] = []
     
     let formatter: DateFormatter = {
         let f = DateFormatter()
@@ -83,7 +89,7 @@ struct LogView: View {
                                 .padding(.top, 7)
                         }
                         .frame(width: screenWidth)
-                        .padding(.top, 20)
+                        .padding(.top, 30)
                         
                         if symptomLogViewShown{
                             symptomLogView()
@@ -106,6 +112,7 @@ struct LogView: View {
         }
         .onAppear{
             string_date = formatter.string(from: Date())
+            side_effect_string_date = formatter.string(from: Date())
             date_date = formatter.date(from: string_date) ?? Date()
             
             symptomOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
@@ -113,6 +120,8 @@ struct LogView: View {
             triggerOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name")
             
             triggerOptions = DatabaseManager.deleteListDuplicates(list: triggerOptions)
+            
+            medicationOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name")
         }
     }
     @ViewBuilder
@@ -122,6 +131,7 @@ struct LogView: View {
                 VStack {
                     CustomText(text: "Date:", color: accent, isBold: true, textSize: 24)
                         .frame(width: 70, height: 45, alignment: .center)
+                        .padding(.bottom, 10)
                 }
                 
                 VStack(alignment: .center) {
@@ -183,18 +193,7 @@ struct LogView: View {
                 let currentDateTime = Date()
 
                 // Create log
-                logID = DatabaseManager.shared.createLog(
-                    userID: userID,
-                    date: enteredDate,
-                    symptom_onset: onset ?? "",
-                    symptom: symptomID,
-                    severity: severity,
-                    med_taken: medTaken,
-                    symptom_desc: symptom_desc,
-                    notes: notes,
-                    submit: currentDateTime,  // <-- current timestamp
-                    triggerIDs: triggerIDs
-                )
+                logID = DatabaseManager.shared.createLog(userID: userID, date: enteredDate,  symptom_onset: onset ?? "", symptom: symptomID, severity: severity, med_taken: medTaken,  symptom_desc: symptom_desc, notes: notes, submit: currentDateTime, triggerIDs: triggerIDs)
                 
                 hasSubmitted = true
             })
@@ -207,7 +206,55 @@ struct LogView: View {
     
     @ViewBuilder
     private func sideEffectLogView() -> some View {
-        CustomText(text: "test", color: accent)
+        HStack{
+                VStack {
+                    CustomText(text: "Date:", color: accent, isBold: true, textSize: 24)
+                        .frame(width: 70, height: 50, alignment: .center)
+                        .padding(.bottom, 10)
+                }
+                
+                VStack(alignment: .center) {
+                    CustomTextField(background: background, accent: accent, placeholder: "", text: $side_effect_string_date, width: 140, height: 45,  textSize: 22)
+                        .onChange(of: string_date) {
+                            dateCheckTask?.cancel()
+                            dateCheckTask = Task {
+                                try? await Task.sleep(nanoseconds: 500_000_000)
+                                if !Task.isCancelled {
+                                    dateFormatCorrect = isDateInValidFormat(string_date)
+                                }
+                            }
+                        }
+                }
+                
+                VStack{
+                    CustomWarningText(text: dateFormatCorrect ? " " : "Invalid format")
+                        .frame(width:40, height: 50, alignment: .center)
+                        .padding(.leading, 40)
+                }
+                Spacer()
+            }
+            .padding(.leading, 5)
+            .padding(.bottom, 20)
+            
+            CustomText(text: "Side Effect", color: accent, isBold: true, textSize: 24)
+            CustomTextField(background: background, accent:accent, placeholder: "", text: $side_effect_name, width: screenWidth-50, height: 45, textSize: 20, isMultiline: true)
+                .padding(.trailing, leading_padding + 20)
+                .padding(.bottom, 20)
+            
+            CustomText(text: "Side Effect Severity", color: accent, isBold: true, textSize: 24)
+            StepSlider(value: $side_effect_severity, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
+                .padding(.trailing, leading_padding)
+                .padding(.bottom, 20)
+        
+        CustomText(text: "Medication", color: accent, isBold: true, textSize: 24)
+        MultipleChoiceButtonGroup(options: $medicationOptions, selected: $onset, accent: accent)
+            .padding(.bottom, 20)
+            
+            CustomButton(text: "Submit", background: background, accent: accent, action: {
+                print("Submit Log")
+                
+            })
+            .padding(.trailing, leading_padding)
     }
 }
 
