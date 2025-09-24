@@ -67,20 +67,16 @@ struct LogView: View {
                 else{
                     
                     WavyTopBottomRectangle(waves: 10, amplitude:6, accent:accent, x:0, y:-580, width:screenWidth, height: 400)
-                        .zIndex(0)
+                        .zIndex(1)
                     WavyTopBottomRectangle(waves:10, amplitude:6, accent:accent, x:0, y:525, width:screenWidth, height: 400)
-                        .zIndex(0)
+                        .zIndex(1)
                     
                     ScrollView{
                         HStack {
-                            CustomText(
-                                text: header,
-                                color: accent,
-                                textAlignment: .center,
-                                textSize: 45
-                            )
+                            CustomText( text: header, color: accent, textAlignment: .center,  textSize: 43)
                             .lineLimit(1)
                             .fixedSize(horizontal: true, vertical: false)
+                            .padding(.trailing, 10)
                             
                             CustomToggle(color: accent, feature: $symptomLogViewShown)
                                 .padding(.trailing, leading_padding)
@@ -140,6 +136,7 @@ struct LogView: View {
                             }
                         }
                     }
+                
                     VStack{
                         CustomWarningText(text: dateFormatCorrect ? " " : "Invalid format")
                             .frame(width:40, height: 50, alignment: .center)
@@ -156,6 +153,7 @@ struct LogView: View {
                 
                 CustomText(text: "Symptom Severity", color: accent, isBold: true, textSize: 24)
                 StepSlider(value: $severity, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
+                .padding(.trailing, leading_padding)
                 
                 CustomSingleCheckbox(text: "Emergency Med Taken?", color: accent, isOn: $medTaken)
                     .padding(.trailing, leading_padding)

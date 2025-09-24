@@ -116,9 +116,9 @@ struct CustomList: View {
                 Text("• \(item)")
                     .font(.system(size: 18, design: .serif))
                     .foregroundColor(Color(hex: color))
-                    .lineLimit(1) // ✅ only one line
-                    .truncationMode(.tail) // ✅ add "…" if too long
-                    .frame(maxWidth: .infinity, alignment: .center) // ✅ gives it a width to truncate within
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
         }
         .fixedSize(horizontal: false, vertical: true)
@@ -594,40 +594,34 @@ struct CustomFloatButton: View {
 struct PolicyTextView: View {
     var policyFileName: String
     var textColor: Color
-    
-    var policyLines: [String] {
+
+    private var lines: [String] {
         guard let url = Bundle.main.url(forResource: policyFileName, withExtension: "txt"),
               let contents = try? String(contentsOf: url, encoding: .utf8) else {
             return ["Could not load policy."]
         }
-        
-        let normalized = contents
+        return contents
             .replacingOccurrences(of: "\r\n", with: "\n")
             .replacingOccurrences(of: "\r", with: "\n")
-        
-        return normalized.components(separatedBy: "\n")
+            .components(separatedBy: "\n")
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ForEach(policyLines, id: \.self) { line in
-                if line.starts(with: "##") {
-                    Text(line.replacingOccurrences(of: "##", with: ""))
-                        .font(.headline)
-                        .bold()
-                } else if line.starts(with: "#") {
-                    Text(line.replacingOccurrences(of: "#", with: ""))
-                        .font(.title2)
-                        .bold()
-                } else if line.starts(with: "•") || line.starts(with: "-") {
-                    Text(line)
-                        .font(.body)
-                        .padding(.leading, 20)
-                } else if line.trimmingCharacters(in: .whitespaces).isEmpty {
-                    Spacer().frame(height: 8) // blank line
-                } else {
-                    Text(line)
-                        .font(.body)
+            ForEach(lines, id: \.self) { line in
+                Group {
+                    switch true {
+                    case line.starts(with: "##"):
+                        Text(line.replacingOccurrences(of: "##", with: "")).font(.headline).bold()
+                    case line.starts(with: "#"):
+                        Text(line.replacingOccurrences(of: "#", with: "")).font(.title2).bold()
+                    case line.starts(with: "•"), line.starts(with: "-"):
+                        Text(line).font(.body).padding(.leading, 20)
+                    case line.trimmingCharacters(in: .whitespaces).isEmpty:
+                        Spacer().frame(height: 8)
+                    default:
+                        Text(line).font(.body)
+                    }
                 }
             }
         }
@@ -635,6 +629,7 @@ struct PolicyTextView: View {
         .padding()
     }
 }
+
 
 struct PolicySheetView: View {
     @Environment(\.dismiss) private var dismiss
@@ -649,14 +644,7 @@ struct PolicySheetView: View {
     var body: some View {
         NavigationStack {
             ScrollView(.vertical, showsIndicators: true) {
-                CustomText(
-                    text: "Data Policy",
-                    color: textHex,
-                    width: 300,
-                    textAlignment: .center,
-                    textSize: 50
-                )
-
+                CustomText( text: "Data Policy",  color: textHex, width: 300, textAlignment: .center, textSize: 50)
                 PolicyTextView(policyFileName: policyFileName, textColor: textColor)
             }
             .background(backgroundColor.ignoresSafeArea())
@@ -674,170 +662,38 @@ struct PolicySheetView: View {
     }
 }
 
-
 struct EditableList: View {
     @Binding var items: [String]
-    var title: String
-    var backgroundColor: String
-    var accentColor: String
-
+    var title, backgroundColor, accentColor: String
     var onAdd: (String) -> Void
     var onEdit: (String, String) -> Void
     var onDelete: (String) -> Void
 
     let width = UIScreen.main.bounds.width / 2 - 15
-    let rowHeight = CGFloat(50)
+    let rowHeight: CGFloat = 50
 
     @State private var newItemText = ""
     @State private var editingIndex: Int? = nil
-    @State private var originalValue: String = ""
-    
+    @State private var originalValue = ""
     @State private var showDeleteConfirmation = false
     @State private var itemToDelete: String? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            VStack(spacing: 0) {
-                ForEach(items.indices.filter { items[$0] != "None entered" }, id: \.self) { index in
-                    ZStack(alignment: .trailing) {
-                        if editingIndex == index {
-                            // Editable text field when editing
-                            TextField("Enter item", text: Binding(
-                                get: { items[index] },
-                                set: { items[index] = $0 }
-                            ))
-                            .padding(.vertical, 10)
-                            .padding(.trailing, 80)
-                            .padding(.leading, 10)
-                            .background(Color(hex: accentColor))
-                            .foregroundColor(Color(hex: backgroundColor))
-                            .cornerRadius(8)
-                            .font(.system(size: 20, design: .serif))
-                            .frame(height: 50)
-
-                            HStack {
-                                Button(action: {
-                                    let newValue = items[index]
-                                    if newValue != originalValue {
-                                        onEdit(originalValue, newValue)
-                                    }
-                                    editingIndex = nil
-                                }) {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(Color(hex: backgroundColor))
-                                        .font(.system(size: 28))
-                                    
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                                Button(action: {
-                                    itemToDelete = items[index]
-                                    showDeleteConfirmation = true
-                                }) {
-                                    Image(systemName: "minus.circle.fill")
-                                        .foregroundColor(Color(hex: backgroundColor))
-                                        .font(.system(size: 28))
-                                }
-                                .buttonStyle(PlainButtonStyle())
-
-                            }
-                            .padding(.trailing, 8)
-
-
-                        } else {
-                            // View-only mode
-                            Text(items[index])
-                                .padding(.vertical, 10)
-                                .padding(.trailing, 80)
-                                .padding(.leading, 10)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color(hex: accentColor))
-                                .foregroundColor(Color(hex: backgroundColor))
-                                .cornerRadius(8)
-                                .font(.system(size: 20, design: .serif))
-                                .frame(height: 50)
-
-                            HStack {
-                                Button(action: {
-                                    originalValue = items[index]
-                                    editingIndex = index
-                                }) {
-                                    Image(systemName: "pencil.circle.fill")
-                                        .foregroundColor(Color(hex: backgroundColor))
-                                        .font(.system(size: 28))
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                                
-                                Button(action: {
-                                    itemToDelete = items[index]
-                                    showDeleteConfirmation = true
-                                }) {
-                                    Image(systemName: "minus.circle.fill")
-                                        .foregroundColor(Color(hex: backgroundColor))
-                                        .font(.system(size: 28))
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                            }
-                            .padding(.trailing, 8)
-                        }
-                    }
-                }
-
-                // Add new item row
-                HStack {
-                    ZStack(alignment: .trailing) {
-                        ZStack(alignment: .leading) {
-                            // Placeholder
-                            if newItemText.isEmpty {
-                                Text("New item")
-                                    .foregroundColor(Color(hex: backgroundColor))
-                                    .padding(.leading, 10)
-                                    .padding(.vertical, 10)
-                                    .font(.system(size: 20, design: .serif))
-                            }
-
-                            // TextField with transparent background
-                            TextField("", text: $newItemText)
-                                .padding(.vertical, 10)
-                                .padding(.leading, 10)
-                                .padding(.trailing, 35)
-                                .font(.system(size: 20, design: .serif))
-                                .foregroundColor(Color(hex: backgroundColor))
-                                .background(Color.clear) // <-- important!
-                                .cornerRadius(8)
-                        }
-                        .background(Color(hex: accentColor)) // <-- apply background here, behind both
-                        .cornerRadius(8)
-                        .frame(height: 50)
-
-                        Button(action: {
-                            let trimmed = newItemText.trimmingCharacters(in: .whitespaces)
-                            guard !trimmed.isEmpty else { return }
-                            items.append(trimmed)
-                            onAdd(trimmed)
-                            newItemText = ""
-                        }) {
-                            Image(systemName: "plus.circle.fill")
-                                .renderingMode(.template)
-                                .foregroundColor(Color(hex: backgroundColor))
-                                .padding(.trailing, 8)
-                                .font(.system(size: 28))
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .disabled(newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
-                    }
-                }
+        VStack(spacing: 0) {
+            ForEach(items.indices.filter { items[$0] != "None entered" }, id: \.self) { i in
+                itemRow(index: i)
             }
+
+            addNewItemRow
         }
         .alert("Are you sure you want to delete this item?",
                isPresented: $showDeleteConfirmation,
                presenting: itemToDelete) { item in
             Button("Delete", role: .destructive) {
                 onDelete(item)
-                if let index = items.firstIndex(of: item) {
-                    items.remove(at: index)
-                }
+                items.removeAll { $0 == item }
             }
-            Button("Cancel", role: .cancel) { }
+            Button("Cancel", role: .cancel) {}
         } message: { item in
             Text("This will mark '\(item)' as inactive.")
         }
@@ -845,109 +701,125 @@ struct EditableList: View {
                height: CGFloat(items.indices.filter { items[$0] != "None entered" }.count + 1) * rowHeight)
         .padding(.bottom, 5)
     }
+
+    @ViewBuilder
+    private func itemRow(index i: Int) -> some View {
+        let item = items[i]
+        ZStack(alignment: .trailing) {
+            TextField("", text: editingIndex == i ? $items[i] : .constant(item))
+                .padding(.vertical, 10)
+                .padding(.trailing, 90)
+                .padding(.leading, 10)
+                .background(Color(hex: accentColor))
+                .foregroundColor(Color(hex: backgroundColor))
+                .cornerRadius(8)
+                .font(.system(size: 20, design: .serif))
+                .frame(height: rowHeight)
+                .disabled(editingIndex != i ? true : false)
+
+            HStack {
+                if editingIndex == i {
+                    actionButton(systemName: "checkmark.circle.fill") {
+                        if items[i] != originalValue { onEdit(originalValue, items[i]) }
+                        editingIndex = nil
+                    }
+                } else {
+                    actionButton(systemName: "pencil.circle.fill") {
+                        originalValue = items[i]
+                        editingIndex = i
+                    }
+                }
+                actionButton(systemName: "minus.circle.fill") {
+                    itemToDelete = items[i]
+                    showDeleteConfirmation = true
+                }
+            }
+            .padding(.trailing, 8)
+        }
+    }
+
+    private var addNewItemRow: some View {
+        HStack {
+            ZStack(alignment: .trailing) {
+                ZStack(alignment: .leading) {
+                    if newItemText.isEmpty {
+                        CustomText(text: "New item", color: backgroundColor, textSize: 20)
+                            .padding(.leading, 10)
+                            .padding(.vertical, 10)
+                    }
+                    TextField("", text: $newItemText)
+                        .padding(.vertical, 10)
+                        .padding(.leading, 10)
+                        .padding(.trailing, 35)
+                        .font(.system(size: 20, design: .serif))
+                        .foregroundColor(Color(hex: backgroundColor))
+                        .background(Color.clear)
+                        .cornerRadius(8)
+                }
+                .background(Color(hex: accentColor))
+                .cornerRadius(8)
+                .frame(height: rowHeight)
+
+                Button {
+                    let trimmed = newItemText.trimmingCharacters(in: .whitespaces)
+                    guard !trimmed.isEmpty else { return }
+                    items.append(trimmed)
+                    onAdd(trimmed)
+                    newItemText = ""
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundColor(Color(hex: backgroundColor))
+                        .padding(.trailing, 8)
+                        .font(.system(size: 28))
+                }
+                .buttonStyle(.plain)
+                .disabled(newItemText.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+        }
+    }
+
+    private func actionButton(systemName: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .foregroundColor(Color(hex: backgroundColor))
+                .font(.system(size: 28))
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
 }
 
-
-import SwiftUI
 
 struct MultipleChoiceButtonGroup: View {
     @Binding var options: [String]
     @Binding var selected: String?
     var accent: String
 
-    let circleWidth: CGFloat = 20
-    let spacing: CGFloat = 8
-    let charWidth: CGFloat = 14
+    private let circleWidth: CGFloat = 20
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            FlexibleWrapRadioLayout(items: options, spacing: 12, circleWidth: circleWidth, charWidth: charWidth) { option in
+        let columns = [GridItem(.adaptive(minimum: 150), spacing: 12)] // auto-wraps
+
+        LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
+            ForEach(options, id: \.self) { option in
                 HStack(spacing: 8) {
                     Circle()
                         .stroke(Color(hex: accent), lineWidth: 2)
-                        .background(
-                            Circle()
-                                .fill(selected == option ? Color(hex: accent) : Color.clear)
-                        )
+                        .background(Circle().fill(selected == option ? Color(hex: accent) : .clear))
                         .frame(width: circleWidth, height: circleWidth)
-                        .onTapGesture {
-                            selected = option
-                        }
 
                     CustomText(text: option, color: accent, textSize: 20)
                         .lineLimit(1)
                         .truncationMode(.tail)
-                        .onTapGesture {
-                            selected = option
-                        }
                 }
-                .padding(.trailing, 25)
-                .fixedSize()
                 .contentShape(Rectangle())
+                .onTapGesture { selected = option }
+                .padding(.trailing, 25)
             }
         }
         .padding(.bottom, 10)
+        .padding(.leading, 5)
     }
 }
-
-// MARK: - Flexible Wrap Layout for Radio Buttons
-struct FlexibleWrapRadioLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
-    var items: Data
-    var spacing: CGFloat
-    var circleWidth: CGFloat
-    var charWidth: CGFloat
-    var content: (Data.Element) -> Content
-
-    init(items: Data, spacing: CGFloat, circleWidth: CGFloat, charWidth: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
-        self.items = items
-        self.spacing = spacing
-        self.circleWidth = circleWidth
-        self.charWidth = charWidth
-        self.content = content
-    }
-
-    var body: some View {
-        generateContent(in: UIScreen.main.bounds.width - 20)
-    }
-
-    private func generateContent(in totalWidth: CGFloat) -> some View {
-        var width: CGFloat = 0
-        var rows: [[Data.Element]] = [[]]
-
-        for item in items {
-            let itemWidth = estimateWidth(for: item)
-            if width + itemWidth + spacing > totalWidth {
-                rows.append([item])
-                width = itemWidth + spacing
-            } else {
-                rows[rows.count - 1].append(item)
-                width += itemWidth + spacing
-            }
-        }
-
-        return VStack(alignment: .leading, spacing: spacing) {
-            ForEach(0..<rows.count, id: \.self) { rowIndex in
-                HStack(alignment: .center, spacing: spacing) {
-                    ForEach(rows[rowIndex], id: \.self) { item in
-                        content(item)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading) // ✅ left-align rows
-            }
-        }
-    }
-
-    private func estimateWidth(for item: Data.Element) -> CGFloat {
-        let textCount = String(describing: item).count
-        return circleWidth + 8 + CGFloat(textCount) * charWidth
-    }
-}
-
-
-
-
-
-import SwiftUI
 
 struct StepSlider: View {
     @Binding var value: Int64
@@ -964,40 +836,37 @@ struct StepSlider: View {
         VStack(spacing: 8) {
             GeometryReader { geo in
                 let trackWidth = geo.size.width
-                let extraMargin: CGFloat = 14
-                let usableWidth = trackWidth - 2 * extraMargin
+                let margin: CGFloat = 14
+                let usableWidth = trackWidth - 2 * margin
                 let spacing = usableWidth / CGFloat(steps.count - 1)
                 let index = steps.firstIndex(of: value) ?? 0
 
                 ZStack(alignment: .leading) {
                     Rectangle()
                         .fill(Color(hex: accentColor).opacity(0.3))
-                        .frame(width: usableWidth + 2 * extraMargin, height: 4)
+                        .frame(width: usableWidth + 2 * margin, height: 4)
                         .position(x: trackWidth / 2, y: geo.size.height / 2)
 
                     Rectangle()
                         .fill(Color(hex: accentColor))
                         .frame(width: CGFloat(index) * spacing, height: 4)
-                        .position(x: extraMargin + CGFloat(index) * spacing / 2, y: geo.size.height / 2)
+                        .position(x: margin + CGFloat(index) * spacing / 2, y: geo.size.height / 2)
 
                     ForEach(0..<steps.count, id: \.self) { i in
                         Rectangle()
                             .fill(Color(hex: accentColor))
                             .frame(width: 2, height: 14)
-                            .position(x: extraMargin + CGFloat(i) * spacing, y: geo.size.height / 2)
+                            .position(x: margin + CGFloat(i) * spacing, y: geo.size.height / 2)
                     }
 
                     Circle()
                         .fill(Color(hex: accentColor))
                         .frame(width: 28, height: 28)
-                        .position(
-                            x: extraMargin + CGFloat(index) * spacing,
-                            y: geo.size.height / 2
-                        )
+                        .position(x: margin + CGFloat(index) * spacing, y: geo.size.height / 2)
                         .gesture(
                             DragGesture(minimumDistance: 0)
                                 .onChanged { gesture in
-                                    let clampedX = min(max(gesture.location.x - extraMargin, 0), usableWidth)
+                                    let clampedX = min(max(gesture.location.x - margin, 0), usableWidth)
                                     let nearestIndex = Int(round(clampedX / spacing))
                                     let safeIndex = min(max(nearestIndex, 0), steps.count - 1)
                                     value = steps[safeIndex]
@@ -1009,13 +878,7 @@ struct StepSlider: View {
 
             HStack(spacing: 0) {
                 ForEach(steps, id: \.self) { stepValue in
-                    CustomText(
-                        text: "\(Int(stepValue))",
-                        color: accentColor,
-                        textAlignment: .center,
-                        multilineAlignment: .center,
-                        textSize: 18
-                    )
+                    CustomText(text: "\(Int(stepValue))",  color: accentColor, textAlignment: .center,  textSize: 18)
                     .frame(width: 35)
                 }
             }
@@ -1025,7 +888,6 @@ struct StepSlider: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.bottom, 15)
     }
-    
 }
 
 struct CustomSingleCheckbox: View {
@@ -1039,164 +901,83 @@ struct CustomSingleCheckbox: View {
             isOn.toggle()
         } label: {
             HStack {
-                CustomText(text:text, color:color, isBold: true, textSize: textSize)
-                    .fixedSize(horizontal: true, vertical: false)
+                CustomText(text: text, color: color, isBold: true, textSize: textSize)
+                Spacer()
                 Image(systemName: isOn ? "checkmark.square.fill" : "square")
                     .resizable()
-                    .frame(width: textSize , height: textSize)
+                    .frame(width: textSize, height: textSize)
                     .foregroundColor(Color(hex: color))
-                    .padding(.leading, 10)
-            Spacer()
-                
             }
-
+            .padding(.trailing, 30)
+            .padding(.bottom, 10)
         }
         .buttonStyle(.plain)
-        .frame(width: UIScreen.main.bounds.width-40)
-        .padding(.trailing, 10)
-        .padding(.bottom, 10)
+        .frame(maxWidth: .infinity)
     }
 }
-import SwiftUI
+
 
 struct MultipleChoiceCheckboxGroup: View {
     @Binding var options: [String]
-    @Binding var selected: [String] // ✅ multiple selections
+    @Binding var selected: [String]
     var accent: String
     var background: String
 
-    let boxSize: CGFloat = 22
-    let spacing: CGFloat = 8
-    let charWidth: CGFloat = 14
+    private let boxSize: CGFloat = 22
+    private let columns = [GridItem(.adaptive(minimum: 120), spacing: 12)]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            FlexibleWrapCheckboxLayout(items: options, spacing: 12, boxSize: boxSize, charWidth: charWidth) { option in
+        LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
+            ForEach(options, id: \.self) { option in
                 HStack(spacing: 8) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(selected.contains(option) ? Color(hex: accent) : Color.clear)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .stroke(Color(hex: accent), lineWidth: 2)
-                            )
+                            .fill(selected.contains(option) ? Color(hex: accent) : .clear)
+                            .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color(hex: accent), lineWidth: 2))
                             .frame(width: boxSize, height: boxSize)
 
                         if selected.contains(option) {
                             Image(systemName: "checkmark")
-                                .foregroundColor(Color(hex: background)) // ✅ checkmark matches background
+                                .foregroundColor(Color(hex: background))
                                 .font(.system(size: boxSize * 0.7, weight: .bold))
                         }
                     }
-                    .onTapGesture {
-                        withAnimation(.easeInOut(duration: 0.15)) {
-                            toggleSelection(option)
-                        }
-                    }
-
                     CustomText(text: option, color: accent, textSize: 20)
                         .lineLimit(1)
                         .truncationMode(.tail)
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.15)) {
-                                toggleSelection(option)
-                            }
-                        }
                 }
-                .padding(.trailing, 25)
-                .fixedSize() // ✅ each item only takes needed width
                 .contentShape(Rectangle())
-            }
-        }
-        .padding(.bottom, 10) // ✅ padding is below the *whole group*
-    }
-
-    private func toggleSelection(_ option: String) {
-        if let index = selected.firstIndex(of: option) {
-            selected.remove(at: index)
-        } else {
-            selected.append(option)
-        }
-    }
-}
-
-// MARK: - Flexible Layout
-struct FlexibleWrapCheckboxLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
-    var items: Data
-    var spacing: CGFloat
-    var boxSize: CGFloat
-    var charWidth: CGFloat
-    var content: (Data.Element) -> Content
-
-    init(items: Data, spacing: CGFloat, boxSize: CGFloat, charWidth: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
-        self.items = items
-        self.spacing = spacing
-        self.boxSize = boxSize
-        self.charWidth = charWidth
-        self.content = content
-    }
-
-    var body: some View {
-        generateContent(in: UIScreen.main.bounds.width - 20)
-    }
-
-    private func generateContent(in totalWidth: CGFloat) -> some View {
-        var width: CGFloat = 0
-        var rows: [[Data.Element]] = [[]]
-
-        for item in items {
-            let itemWidth = estimateWidth(for: item)
-            if width + itemWidth + spacing > totalWidth {
-                // start new row
-                rows.append([item])
-                width = itemWidth + spacing
-            } else {
-                rows[rows.count - 1].append(item)
-                width += itemWidth + spacing
-            }
-        }
-
-        return VStack(alignment: .leading, spacing: spacing) {
-            ForEach(0..<rows.count, id: \.self) { rowIndex in
-                HStack(alignment: .center, spacing: spacing) {
-                    ForEach(rows[rowIndex], id: \.self) { item in
-                        content(item)
+                .onTapGesture {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        if let index = selected.firstIndex(of: option) {
+                            selected.remove(at: index)
+                        } else {
+                            selected.append(option)
+                        }
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-    }
-
-    private func estimateWidth(for item: Data.Element) -> CGFloat {
-        let textCount = String(describing: item).count
-        return boxSize + 8 + CGFloat(textCount) * charWidth
+        .padding(.leading, 5)
+        .padding(.trailing, 25)
+        .padding(.bottom, 10)
     }
 }
-
 
 struct CustomToggle: View {
     var color: String
     @Binding var feature: Bool
     
     var body: some View {
-        HStack {
-            Spacer()
-            RoundedRectangle(cornerRadius: 16)
-                .fill(feature ? Color(hex: color) : Color(hex: color))
-                .frame(width: 50, height: 32)
-                .overlay(
-                    Circle()
-                        .fill(Color.white)
-                        .padding(3)
-                        .offset(x: feature ? 10 : -10)
-                )
-                .onTapGesture {
-                    feature.toggle()
-                }
-        }
-        .frame(width:50)
+        RoundedRectangle(cornerRadius: 16)
+            .fill(Color(hex: color))
+            .frame(width: 50, height: 32)
+            .overlay(
+                Circle()
+                    .fill(.white)
+                    .padding(3)
+                    .offset(x: feature ? 10 : -10)
+            )
+            .onTapGesture { feature.toggle() }
     }
 }
-
-
