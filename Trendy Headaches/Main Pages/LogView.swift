@@ -126,36 +126,38 @@ struct LogView: View {
     
     //symptom log view
     private var symptomLogView: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            dateField(label: "Date:", text: $stringDate)
-            
-            DatePicker(
-                "Choose Appointment Time",
-                selection: $date,
-                in: ...Date(), // Allows selection from now onwards
-                displayedComponents: [.date, .hourAndMinute]
-            )
-            .datePickerStyle(.graphical) // Displays as a calendar
-            
-            CustomText(text: "Symptom Onset", color: accent, isBold: true, textSize: 24)
-            MultipleChoiceButtonGroup(options: $onsetOptions, selected: $onset, accent: accent)
-            
-            CustomText(text: "Symptom", color: accent, isBold: true, textSize: 24)
-            MultipleChoiceButtonGroup(options: $symptomOptions, selected: $symptom, accent: accent)
-            
-            CustomText(text: "Symptom Severity", color: accent, isBold: true, textSize: 24)
-            StepSlider(value: $severity, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
-            
-            CustomSingleCheckbox(text: "Emergency Med Taken?", color: accent, isOn: $medTaken)
-            
-            CustomText(text: "Triggers Present", color: accent, isBold: true, textSize: 24)
-            MultipleChoiceCheckboxGroup(options: $triggerOptions, selected: $selectedTriggers, accent: accent, background: background)
-            
-            textFieldSection(title: "Symptom Description", text: $symptomDesc)
-            textFieldSection(title: "Notes", text: $notes)
-            
-            submitButton {
-                submitSymptomLog()
+        ZStack{
+            VStack(alignment: .leading, spacing: 16) {
+                dateField(label: "Date:", text: $stringDate)
+                
+                DatePickerTextFieldDropdown(
+                    selectedDate: $date,
+                    textFieldValue: $stringDate,
+                    background: $background,
+                    accent: $accent
+                )
+                .zIndex(1)
+                
+                CustomText(text: "Symptom Onset", color: accent, isBold: true, textSize: 24)
+                MultipleChoiceButtonGroup(options: $onsetOptions, selected: $onset, accent: accent)
+                
+                CustomText(text: "Symptom", color: accent, isBold: true, textSize: 24)
+                MultipleChoiceButtonGroup(options: $symptomOptions, selected: $symptom, accent: accent)
+                
+                CustomText(text: "Symptom Severity", color: accent, isBold: true, textSize: 24)
+                StepSlider(value: $severity, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
+                
+                CustomSingleCheckbox(text: "Emergency Med Taken?", color: accent, isOn: $medTaken)
+                
+                CustomText(text: "Triggers Present", color: accent, isBold: true, textSize: 24)
+                MultipleChoiceCheckboxGroup(options: $triggerOptions, selected: $selectedTriggers, accent: accent, background: background)
+                
+                textFieldSection(title: "Symptom Description", text: $symptomDesc)
+                textFieldSection(title: "Notes", text: $notes)
+                
+                submitButton {
+                    submitSymptomLog()
+                }
             }
         }
         .padding(.bottom, 100)

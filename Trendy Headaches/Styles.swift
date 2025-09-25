@@ -1175,3 +1175,74 @@ struct ColorPickerTextField: View {
     }
 }
 
+
+import SwiftUI
+
+struct DatePickerTextFieldDropdown: View {
+    @Binding var selectedDate: Date
+    @Binding var textFieldValue: String
+    @Binding var background: String
+    @Binding var accent: String
+    
+    @State private var showDatePicker: Bool = false
+    
+    private var formatter: DateFormatter {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        return f
+    }
+    
+    var body: some View {
+        ZStack {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    CustomTextField(
+                        background: background,
+                        accent: accent,
+                        placeholder: "Select a date",
+                        text: $textFieldValue,
+                        width: 200
+                    )
+                    .overlay(
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                withAnimation {
+                                    showDatePicker.toggle()
+                                }
+                            }) {
+                                Image(systemName: "calendar")
+                                    .foregroundColor(Color(hex: background))
+                                    .font(.system(size: 25))
+                                    .padding(.trailing, 20)
+                                    .padding(.bottom, 8)
+                            }
+                        }
+                    )
+                }
+                    if showDatePicker {
+                        VStack {
+                            DatePicker(
+                                "",
+                                selection: $selectedDate,
+                                displayedComponents: .date
+                            )
+                            .datePickerStyle(GraphicalDatePickerStyle())
+                            .labelsHidden()
+                            .background(Color(hex: accent))
+                            .accentColor(Color(hex: background))
+                            .cornerRadius(15)
+                            .padding()
+                            .onChange(of: selectedDate) {
+                                textFieldValue = formatter.string(from: selectedDate)
+                            }
+                        }
+                        .frame(width: 300, height: 300)
+                        .background(Color(hex: background))
+                        .cornerRadius(10)
+                        
+                }
+            }
+        }
+    }
+}
