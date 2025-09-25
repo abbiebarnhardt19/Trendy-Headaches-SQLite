@@ -20,7 +20,7 @@ struct LogView: View {
     
     // Shared State
     @State private var hasSubmitted: Bool = false
-    @State private var symptomLogViewShown = false
+    @State private var symptomLogViewShown = true
     @State private var logID: Int64?
     
     //  Symptom Log variables
@@ -47,6 +47,8 @@ struct LogView: View {
     @State private var medicationOptions: [String] = []
     @State private var selectedMedication: String?
     @State private var medicationID: Int64 = 0
+    
+    @State private var date: Date = Date()
     
     // Date Formatter
     private let formatter: DateFormatter = {
@@ -126,6 +128,14 @@ struct LogView: View {
     private var symptomLogView: some View {
         VStack(alignment: .leading, spacing: 16) {
             dateField(label: "Date:", text: $stringDate)
+            
+            DatePicker(
+                "Choose Appointment Time",
+                selection: $date,
+                in: ...Date(), // Allows selection from now onwards
+                displayedComponents: [.date, .hourAndMinute]
+            )
+            .datePickerStyle(.graphical) // Displays as a calendar
             
             CustomText(text: "Symptom Onset", color: accent, isBold: true, textSize: 24)
             MultipleChoiceButtonGroup(options: $onsetOptions, selected: $onset, accent: accent)
