@@ -77,6 +77,7 @@ struct CreateAccountView2: View {
             CustomText(text: label, color: accent)
                 .padding(.leading, leadingPadding)
             CustomTextField(background: background, accent: accent, placeholder: "", text: text)
+                .padding(.leading, leadingPadding-10)
         }
     }
     

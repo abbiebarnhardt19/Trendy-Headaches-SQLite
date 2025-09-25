@@ -1117,3 +1117,61 @@ struct CustomToggle: View {
             .onTapGesture { feature.toggle() }
     }
 }
+
+struct ColorPickerTextField: View {
+    var accent: String
+    var background: String
+    @Binding var var_to_change: String
+    var placeholder: String = ""
+    var width: CGFloat
+    var cornerRadius: CGFloat? = 30
+    
+    @State private var selectedColor: Color = .white
+    
+    var body: some View {
+        CustomTextField(
+            background: background,
+            accent: accent,
+            placeholder: placeholder,
+            text: $var_to_change,
+            width: width,
+            cornerRadius: cornerRadius ?? 30
+        )
+        .frame(height: 40)
+        .overlay(alignment: .trailing) { // put dropper inside the field
+            ZStack {
+                Image(systemName: "eyedropper")
+                    .foregroundColor(Color(hex: background))
+                    .font(.system(size: 17, weight: .bold))
+                    .padding(.trailing, 15)
+                
+                // Transparent but tappable ColorPicker over the same spot
+                ColorPicker("", selection: $selectedColor, supportsOpacity: false)
+                    .labelsHidden()
+                    .opacity(0.015)
+                    .frame(width: 28, height: 28)
+                    .contentShape(Circle())
+                    .padding(.trailing, 15)
+            }
+            .padding(.bottom, 8)
+        }
+        .onChange(of: selectedColor, initial: false) { oldColor, newColor in
+            var_to_change = colorToHex(newColor)
+        }
+        .onAppear {
+            selectedColor = Color(hex: var_to_change)
+        }
+    }
+    
+    // MARK: - Helpers
+    private func colorToHex(_ color: Color) -> String {
+        let uiColor = UIColor(color)
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        return String(format: "#%02X%02X%02X",
+                      Int(red * 255),
+                      Int(green * 255),
+                      Int(blue * 255))
+    }
+}
+

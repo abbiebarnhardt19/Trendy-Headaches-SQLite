@@ -14,7 +14,7 @@ struct ProfileView: View {
     @Binding var accent: String
     
     //  UI State
-    @State private var isEditing = false
+    @State private var isEditing = true
     @State private var logOut = false
     @State private var showPolicy = false
     @State private var showDeleteConfirmation = false
@@ -122,8 +122,21 @@ struct ProfileView: View {
                 
                 if newThemeName == "Custom" {
                     sectionTitle("Hex Codes", width: columnWidth)
-                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newBackground, width: columnWidth - 20, height: 50, cornerRadius: 8, textSize: 20)
-                    CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newAccent, width: columnWidth - 20, height: 50, cornerRadius: 8, textSize: 20)
+                    ColorPickerTextField(
+                                accent: newAccent,
+                                background: newBackground,
+                                var_to_change: $newBackground,
+                                placeholder: "Enter HEX color",
+                                width: columnWidth-10)
+                    .padding(.vertical, 15)
+
+                    
+                    ColorPickerTextField(
+                                accent: newAccent,
+                                background: newBackground,
+                                var_to_change: $newAccent,
+                                placeholder: "Enter HEX color",
+                                width: columnWidth - 10)
                 }
             }
             .frame(maxWidth: columnWidth)

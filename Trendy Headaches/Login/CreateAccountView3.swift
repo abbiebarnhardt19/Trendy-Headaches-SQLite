@@ -8,13 +8,13 @@ struct CreateAccountView3: View {
     var securityAnswer: String = ""
     
     // Color theme options
-    private let themeOptions = [ "Classic Light", "Light Pink", "Light Yellow", "Classic Dark", "Dark Green", "Dark Blue", "Dark Purple", "Custom" ]
+    private let themeOptions = [ "Classic Light", "Light Pink", "Classic Dark", "Dark Green", "Dark Blue", "Dark Purple", "Custom" ]
     
     // User-selected theme values
     @State private var selectedTheme: String = "Dark Green"
-    @State private var background: String = "#001d00"
-    @State private var accent: String = "#b5c4b9"
-    
+    @State private var background: String = "#001D00"
+    @State private var accent: String = "#B5C4B9"
+    @State private var selectedColor: Color = .blue
     // Layout constants
     private let leadingPadding: CGFloat = 180
     private let screenWidth = UIScreen.main.bounds.width
@@ -42,10 +42,20 @@ struct CreateAccountView3: View {
                         CustomText(text: "Or, enter two hex codes to design a theme", color: accent, width: screenWidth - 50,  multilineAlignment: .center)
                         .padding(.bottom, 10)
                         
-                        HStack(spacing: 20) {
-                            CustomTextField(background: background, accent: accent,  placeholder: "",  text: $background, width: screenWidth / 2 - 40)
+                        HStack (spacing: 20){
+                            ColorPickerTextField(
+                                        accent: accent,
+                                        background: background,
+                                        var_to_change: $background,
+                                        placeholder: "Enter HEX color",
+                                        width: UIScreen.main.bounds.width / 2 - 40)
                             
-                            CustomTextField(background: background, accent: accent, placeholder: "",  text: $accent,  width: screenWidth / 2 - 40)
+                            ColorPickerTextField(
+                                        accent: accent,
+                                        background: background,
+                                        var_to_change: $accent,
+                                        placeholder: "Enter HEX color",
+                                        width: UIScreen.main.bounds.width / 2 - 40)
                         }
                     }
                     

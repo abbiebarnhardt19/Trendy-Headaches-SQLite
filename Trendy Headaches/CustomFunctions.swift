@@ -268,17 +268,15 @@ extension DatabaseManager {
         case "Classic Light":
             return ("#FAF7F7", "#5E5D5D")
         case "Light Pink":
-            return ("#FFCEFF", "#A4133C")
-        case "Light Yellow":
-            return ("#FFFAE5", "#848383")
+            return ("#f3d9dc", "#c78283")
         case "Classic Dark":
             return ("#0A0A0A", "#CCCCCC")
         case "Dark Green":
             return ("#001D00", "#B5C4B9")
         case "Dark Blue":
-            return ("#000814", "#B6CCFE")
+            return ("#0b3954", "#b5c6e0")
         case "Dark Purple":
-            return ("#240046", "#E7C6FF")
+            return ("#291c2d", "#cec5de")
         case "Custom":
             // Return whatever the user already has
             return (currentBackground, currentAccent)
@@ -298,11 +296,8 @@ extension DatabaseManager {
         if background == "#FAF7F7" && accent == "#5E5D5D" {
             themeName = "Classic Light"
         }
-        else if background == "#FFCEFF" && accent == "#A4133C"{
+        else if background == "#f3d9dc" && accent == "#c78283"{
             themeName = "Light Pink"
-        }
-        else  if background == "#FFFAE5" && accent == "#848383"{
-            themeName = "Light Yellow"
         }
         else if background == "#0A0A0A" && accent == "#CCCCCC" {
             themeName = "Classic Dark"
@@ -310,10 +305,10 @@ extension DatabaseManager {
         else if background == "#001D00" && accent == "#B5C4B9" {
             themeName = "Dark Green"
         }
-        else if background == "#000814" && accent == "#B6CCFE"{
+        else if background == "#0b3954" && accent == "#b5c6e0"{
             themeName = "Dark Blue"
         }
-        else if background == "#240046" && accent == "#E7C6FF" {
+        else if background == "#291c2d" && accent == "#cec5de" {
             themeName = "Dark Purple"
         }
         else{
@@ -665,6 +660,7 @@ extension DatabaseManager {
             return nil
         }
     }
+    
 
 
 }

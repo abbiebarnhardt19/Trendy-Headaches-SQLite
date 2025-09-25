@@ -2,13 +2,13 @@
 Welcome to Trendy Headaches! We are so happy that you’ve joined our community. We understand that sharing your health information can be scary, and we believe in transparency. This policy explains what data we collect, why we collect it, and how we keep it safe so you can use our app with confidence.
 
 #What Data We Collect
-##Account Data (mandatory)
+##Account Data
 • Email: Used to uniquely identify your account
 • Password: Used to verify your identity when logging in
 • Security Question and Answer: Used to recover your account if you forget your password
 • App Color Theme: Used to personalize the look of your app
 
-##Health Data (optional)
+##Health Data
 This data is used to customize your log page options, ultimately powering your personalized experience.
 • Symptoms/Illnesses: Conditions or symptoms you choose to log (e.g., “POTS,” “headache,” “nausea”)
 • Preventative Medications: Medications taken regularly to reduce the chance of symptoms
@@ -16,7 +16,7 @@ This data is used to customize your log page options, ultimately powering your p
 • Triggers: Things you believe may contribute to the onset or severity of symptoms (e.g., stress, weather changes)
 • Start/End Dates: The date range for each of the above items
 
-##Log Data (Core Functionality)
+##Log Data
 This is the main data you enter when using the app:
 • Date of event
 • Timeframe of onset

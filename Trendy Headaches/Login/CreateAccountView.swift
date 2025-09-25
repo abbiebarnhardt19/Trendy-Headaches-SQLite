@@ -94,8 +94,7 @@ private extension CreateAccountView {
             if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
                 CustomWarningText(text: "8+ chars: uppercase, lowercase, number, & symbol")
             } else {
-                CustomWarningText(text: "")
-                    .padding(.bottom, 11)
+                CustomWarningText(text: "      ")
             }
         }
     }
@@ -108,8 +107,7 @@ private extension CreateAccountView {
             if !password_two.isEmpty && password_two != password_one {
                 CustomWarningText(text: "Passwords do not match.")
             } else {
-                CustomWarningText(text: "")
-                    .padding(.bottom, 11)
+                CustomWarningText(text: "       ")
             }
         }
     }
@@ -119,7 +117,7 @@ private extension CreateAccountView {
             fieldLabel("Security Question")
             CustomTextField(background: background, accent: accent, placeholder: "", text: $security_question)
             
-            CustomWarningText(text: "") // for spacing
+            CustomWarningText(text: "       ") // for spacing
             
             fieldLabel("Security Question Answer")
             CustomTextField(background: background, accent: accent, placeholder: "", text: $security_answer, isSecure: true)
