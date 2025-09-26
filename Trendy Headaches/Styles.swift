@@ -1195,17 +1195,17 @@ struct DatePickerTextFieldDropdown: View {
                 // TextField with button overlay
                 HStack{
                     CustomText(text: "Date:", color: accent, isBold: true, textSize: 24)
-                        .frame(width: 70, height: 45, alignment: .center)
-                        .padding(.bottom, 7)
+                        .frame(width: 72, height: 45, alignment: .center)
                     
-                    CustomTextField(background: background, accent: accent,  placeholder: " ",  text: $textFieldValue, width: 200, bottomPadding: 0)
+                    CustomTextField(background: background, accent: accent,  placeholder: " ",  text: $textFieldValue, width: 220, bottomPadding: 0)
                 }
                 .overlay(
                     HStack {
                         Spacer()
                         Button(action: {
                             withAnimation { showDatePicker.toggle() }
-                        }) {
+                        })
+                       {
                             Image(systemName: "calendar")
                                 .foregroundColor(Color(hex: background))
                                 .font(.system(size: 25))
@@ -1213,14 +1213,16 @@ struct DatePickerTextFieldDropdown: View {
                         }
                     }
                 )
+                .buttonStyle(PlainButtonStyle())
                 
                 // Calendar dropdown
                 if showDatePicker {
                     DatePicker(" ", selection: $selectedDate, in: ...Date(), displayedComponents: .date )
                     .datePickerStyle(GraphicalDatePickerStyle())
-                    .frame(width: 330, height: 300)
+                    .frame(width: 330, height: 330)
                     .background(Color(hex: accent))
                     .accentColor(Color(hex: background))
+                    .tint(Color(hex: background))
                     .cornerRadius(20)
                     .padding()
                     .padding(.bottom, 25)

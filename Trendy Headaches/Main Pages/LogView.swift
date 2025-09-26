@@ -57,6 +57,15 @@ struct LogView: View {
         return f
     }()
     
+    private var formValid: Bool {
+        if symptomLogViewShown {
+            return symptom != nil && severity > 0
+        } else {
+            return !sideEffectName.isEmpty && sideEffectSeverity > 0 && selectedMedication != nil
+        }
+    }
+
+    
     // Date Formatting Function
 //    private func isDateInValidFormat(_ input: String) -> Bool {
 //        let pattern = #"^\d{1,2}[-/]\d{1,2}[-/](\d{2}|\d{4})$"#
@@ -65,6 +74,7 @@ struct LogView: View {
     
     //  Body
     var body: some View {
+        
         NavigationStack {
             ZStack {
                 Color(hex: background).ignoresSafeArea()
@@ -102,7 +112,7 @@ struct LogView: View {
         Group {
             WavyTopBottomRectangle(waves: 10, amplitude: 6, accent: accent, x: 0, y: -580, width: screenWidth, height: 400)
                 .zIndex(1)
-            WavyTopBottomRectangle(waves: 10, amplitude: 6, accent: accent, x: 0, y: 525, width: screenWidth, height: 400)
+            WavyTopBottomRectangle(waves: 10, amplitude: 6, accent: accent, x: 0, y: 515, width: screenWidth, height: 400)
                 .zIndex(1)
         }
     }
@@ -126,22 +136,22 @@ struct LogView: View {
     
     //symptom log view
     private var symptomLogView: some View {
+        
+        
         ZStack(alignment: .topLeading) {
             VStack(alignment: .leading, spacing: 16) {
                 dateField(label: "Date:", text: $stringDate)
-
-
-                // Spacer view so we have a fixed anchor for overlay
-                Color.clear.frame(height: 0)
+                
+                CustomText(text: "Symptom*", color: accent, isBold: true, textSize: 24)
+                MultipleChoiceButtonGroup(options: $symptomOptions, selected: $symptom, accent: accent)
+                
+                CustomText(text: "Symptom Severity*", color: accent, isBold: true, textSize: 24)
+                StepSlider(value: $severity, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
 
                 CustomText(text: "Symptom Onset", color: accent, isBold: true, textSize: 24)
                 MultipleChoiceButtonGroup(options: $onsetOptions, selected: $onset, accent: accent)
                 
-                CustomText(text: "Symptom", color: accent, isBold: true, textSize: 24)
-                MultipleChoiceButtonGroup(options: $symptomOptions, selected: $symptom, accent: accent)
-                
-                CustomText(text: "Symptom Severity", color: accent, isBold: true, textSize: 24)
-                StepSlider(value: $severity, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
+
                 
                 CustomSingleCheckbox(text: "Emergency Med Taken?", color: accent, isOn: $medTaken)
                 
@@ -154,6 +164,7 @@ struct LogView: View {
                 submitButton {
                     submitSymptomLog()
                 }
+                .disabled(!formValid)
             }
             .padding(.bottom, 100)
         }
@@ -176,6 +187,7 @@ struct LogView: View {
             submitButton {
                 submitSideEffectLog()
             }
+            .disabled(!formValid)
         }
     }
     

@@ -45,13 +45,14 @@ struct NavBarView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding(item.padding ?? EdgeInsets())
                     }
+                    .padding(.bottom, 5)
                     .buttonStyle(.plain)
                 }
             }
             .foregroundColor(Color(hex: accent))
         }
         .frame(maxWidth: UIScreen.main.bounds.width)
-        .frame(height: 70)
+        .frame(height: 80)
         .ignoresSafeArea(edges: .bottom)
     }
 }

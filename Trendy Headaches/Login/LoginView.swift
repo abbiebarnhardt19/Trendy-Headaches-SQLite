@@ -14,7 +14,7 @@ struct LoginView: SwiftUI.View {
     @State private var userId: Int64? = nil
     
     //  Layout
-    private let leadingPadding: CGFloat = 35
+    private let leadingPadding: CGFloat = 25
     
     var body: some SwiftUI.View {
         NavigationStack {
@@ -72,7 +72,7 @@ struct LoginView: SwiftUI.View {
                 //  Navigation
                 .navigationDestination(isPresented: $isLoggedIn) {
                     if let userId = userId {
-                        ProfileView(userID: userId, background: .constant(background),  accent: .constant(accent) )
+                        LogView(userID: userId, background: .constant(background),  accent: .constant(accent) )
                         .navigationBarBackButtonHidden(true)
                     } else {
                         Text("Oops! Something went wrong. Please try again later.")
