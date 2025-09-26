@@ -53,15 +53,15 @@ struct LogView: View {
     // Date Formatter
     private let formatter: DateFormatter = {
         let f = DateFormatter()
-        f.dateStyle = .short
+        f.dateStyle = .medium
         return f
     }()
     
     // Date Formatting Function
-    private func isDateInValidFormat(_ input: String) -> Bool {
-        let pattern = #"^\d{1,2}[-/]\d{1,2}[-/](\d{2}|\d{4})$"#
-        return input.range(of: pattern, options: .regularExpression) != nil
-    }
+//    private func isDateInValidFormat(_ input: String) -> Bool {
+//        let pattern = #"^\d{1,2}[-/]\d{1,2}[-/](\d{2}|\d{4})$"#
+//        return input.range(of: pattern, options: .regularExpression) != nil
+//    }
     
     //  Body
     var body: some View {
@@ -184,18 +184,7 @@ struct LogView: View {
     //date field, which is reused for both views
     private func dateField(label: String, text: Binding<String>) -> some View {
         HStack {
-//            CustomText(text: label, color: accent, isBold: true, textSize: 24)
-//                .frame(width: 70, height: 45, alignment: .center)
-//                .padding(.bottom, 7)
-            
-            DatePickerTextFieldDropdown(
-                selectedDate: $date,
-                textFieldValue: $stringDate,
-                background: $background,
-                accent: $accent
-            )
-            
-            Spacer()
+            DatePickerTextFieldDropdown(selectedDate: $date,  textFieldValue: $stringDate, background: $background, accent: $accent)
         }
     }
     

@@ -45,6 +45,7 @@ struct CustomTextField: View {
     var textSize: CGFloat? = 22
     var isMultiline: Bool = false
     var isSecure: Bool = false
+    var bottomPadding: CGFloat? = 8
     
     var body: some View {
         Group {
@@ -69,7 +70,7 @@ struct CustomTextField: View {
         .font(.system(size: textSize ?? 22, design: .serif))
         .tint(Color(hex: background))
         .textContentType(nil)
-        .padding(.bottom,  8)
+        .padding(.bottom,  bottomPadding ?? 8)
     }
 }
 
@@ -966,7 +967,6 @@ struct CustomSingleCheckbox: View {
         } label: {
             HStack {
                 CustomText(text: text, color: color, isBold: true, textSize: textSize)
-                Spacer()
                 Image(systemName: isOn ? "checkmark.square.fill" : "square")
                     .resizable()
                     .frame(width: textSize, height: textSize)
@@ -976,14 +976,14 @@ struct CustomSingleCheckbox: View {
             .padding(.bottom, 10)
         }
         .buttonStyle(.plain)
-        .frame(maxWidth: .infinity)
+        .frame(width: UIScreen.main.bounds.width - 40)
     }
 }
 
 
 struct MultipleChoiceCheckboxGroup: View {
     @Binding var options: [String]
-    @Binding var selected: [String] // ✅ multiple selections
+    @Binding var selected: [String]
     var accent: String
     var background: String
     
@@ -1006,7 +1006,7 @@ struct MultipleChoiceCheckboxGroup: View {
                         
                         if selected.contains(option) {
                             Image(systemName: "checkmark")
-                                .foregroundColor(Color(hex: background)) // ✅ checkmark matches background
+                                .foregroundColor(Color(hex: background))
                                 .font(.system(size: boxSize * 0.7, weight: .bold))
                         }
                     }
@@ -1026,7 +1026,7 @@ struct MultipleChoiceCheckboxGroup: View {
                         }
                 }
                 .padding(.trailing, 25)
-                .fixedSize() // ✅ each item only takes needed width
+                .fixedSize()
                 .contentShape(Rectangle())
             }
         }
@@ -1198,13 +1198,7 @@ struct DatePickerTextFieldDropdown: View {
                         .frame(width: 70, height: 45, alignment: .center)
                         .padding(.bottom, 7)
                     
-                    CustomTextField(
-                        background: background,
-                        accent: accent,
-                        placeholder: "Select a date",
-                        text: $textFieldValue,
-                        width: 200
-                    )
+                    CustomTextField(background: background, accent: accent,  placeholder: " ",  text: $textFieldValue, width: 200, bottomPadding: 0)
                 }
                 .overlay(
                     HStack {
@@ -1216,19 +1210,13 @@ struct DatePickerTextFieldDropdown: View {
                                 .foregroundColor(Color(hex: background))
                                 .font(.system(size: 25))
                                 .padding(.trailing, 15)
-                                .padding(.bottom, 8)
                         }
                     }
                 )
                 
                 // Calendar dropdown
                 if showDatePicker {
-                    DatePicker(
-                        "",
-                        selection: $selectedDate,
-                        in: ...Date(),
-                        displayedComponents: .date
-                    )
+                    DatePicker(" ", selection: $selectedDate, in: ...Date(), displayedComponents: .date )
                     .datePickerStyle(GraphicalDatePickerStyle())
                     .frame(width: 330, height: 300)
                     .background(Color(hex: accent))
@@ -1245,6 +1233,5 @@ struct DatePickerTextFieldDropdown: View {
                 }
             }
         }
-        
     }
 }
