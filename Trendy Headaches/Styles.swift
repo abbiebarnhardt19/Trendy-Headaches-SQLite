@@ -1230,10 +1230,12 @@ struct DatePickerTextFieldDropdown: View {
                         displayedComponents: .date
                     )
                     .datePickerStyle(GraphicalDatePickerStyle())
+                    .frame(width: 330, height: 300)
                     .background(Color(hex: accent))
                     .accentColor(Color(hex: background))
                     .cornerRadius(20)
                     .padding()
+                    .padding(.bottom, 25)
                     .offset(y: 60) // distance below text field
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .onChange(of: selectedDate) {
@@ -1243,5 +1245,6 @@ struct DatePickerTextFieldDropdown: View {
                 }
             }
         }
+        
     }
 }
