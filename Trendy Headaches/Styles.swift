@@ -1175,9 +1175,6 @@ struct ColorPickerTextField: View {
     }
 }
 
-
-import SwiftUI
-
 struct DatePickerTextFieldDropdown: View {
     @Binding var selectedDate: Date
     @Binding var textFieldValue: String
@@ -1193,9 +1190,14 @@ struct DatePickerTextFieldDropdown: View {
     }
     
     var body: some View {
-        ZStack {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack {
+        VStack(spacing: 0) {
+            ZStack(alignment: .topLeading) {
+                // TextField with button overlay
+                HStack{
+                    CustomText(text: "Date:", color: accent, isBold: true, textSize: 24)
+                        .frame(width: 70, height: 45, alignment: .center)
+                        .padding(.bottom, 7)
+                    
                     CustomTextField(
                         background: background,
                         accent: accent,
@@ -1203,44 +1205,41 @@ struct DatePickerTextFieldDropdown: View {
                         text: $textFieldValue,
                         width: 200
                     )
-                    .overlay(
-                        HStack {
-                            Spacer()
-                            Button(action: {
-                                withAnimation {
-                                    showDatePicker.toggle()
-                                }
-                            }) {
-                                Image(systemName: "calendar")
-                                    .foregroundColor(Color(hex: background))
-                                    .font(.system(size: 25))
-                                    .padding(.trailing, 20)
-                                    .padding(.bottom, 8)
-                            }
-                        }
-                    )
                 }
-                    if showDatePicker {
-                        VStack {
-                            DatePicker(
-                                "",
-                                selection: $selectedDate,
-                                displayedComponents: .date
-                            )
-                            .datePickerStyle(GraphicalDatePickerStyle())
-                            .labelsHidden()
-                            .background(Color(hex: accent))
-                            .accentColor(Color(hex: background))
-                            .cornerRadius(15)
-                            .padding()
-                            .onChange(of: selectedDate) {
-                                textFieldValue = formatter.string(from: selectedDate)
-                            }
+                .overlay(
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            withAnimation { showDatePicker.toggle() }
+                        }) {
+                            Image(systemName: "calendar")
+                                .foregroundColor(Color(hex: background))
+                                .font(.system(size: 25))
+                                .padding(.trailing, 15)
+                                .padding(.bottom, 8)
                         }
-                        .frame(width: 300, height: 300)
-                        .background(Color(hex: background))
-                        .cornerRadius(10)
-                        
+                    }
+                )
+                
+                // Calendar dropdown
+                if showDatePicker {
+                    DatePicker(
+                        "",
+                        selection: $selectedDate,
+                        in: ...Date(),
+                        displayedComponents: .date
+                    )
+                    .datePickerStyle(GraphicalDatePickerStyle())
+                    .background(Color(hex: accent))
+                    .accentColor(Color(hex: background))
+                    .cornerRadius(20)
+                    .padding()
+                    .offset(y: 60) // distance below text field
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .onChange(of: selectedDate) {
+                        textFieldValue = formatter.string(from: selectedDate)
+                        withAnimation { showDatePicker = false }
+                    }
                 }
             }
         }

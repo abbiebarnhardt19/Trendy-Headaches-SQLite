@@ -126,18 +126,14 @@ struct LogView: View {
     
     //symptom log view
     private var symptomLogView: some View {
-        ZStack{
+        ZStack(alignment: .topLeading) {
             VStack(alignment: .leading, spacing: 16) {
                 dateField(label: "Date:", text: $stringDate)
-                
-                DatePickerTextFieldDropdown(
-                    selectedDate: $date,
-                    textFieldValue: $stringDate,
-                    background: $background,
-                    accent: $accent
-                )
-                .zIndex(1)
-                
+
+
+                // Spacer view so we have a fixed anchor for overlay
+                Color.clear.frame(height: 0)
+
                 CustomText(text: "Symptom Onset", color: accent, isBold: true, textSize: 24)
                 MultipleChoiceButtonGroup(options: $onsetOptions, selected: $onset, accent: accent)
                 
@@ -159,9 +155,10 @@ struct LogView: View {
                     submitSymptomLog()
                 }
             }
+            .padding(.bottom, 100)
         }
-        .padding(.bottom, 100)
     }
+
     
     //side effect log
     private var sideEffectLogView: some View {
@@ -187,23 +184,16 @@ struct LogView: View {
     //date field, which is reused for both views
     private func dateField(label: String, text: Binding<String>) -> some View {
         HStack {
-            CustomText(text: label, color: accent, isBold: true, textSize: 24)
-                .frame(width: 70, height: 45, alignment: .center)
+//            CustomText(text: label, color: accent, isBold: true, textSize: 24)
+//                .frame(width: 70, height: 45, alignment: .center)
+//                .padding(.bottom, 7)
             
-            CustomTextField(background: background, accent: accent, placeholder: "", text: text, width: 140, height: 45, textSize: 22)
-                .onChange(of: text.wrappedValue) {
-                    dateCheckTask?.cancel()
-                    dateCheckTask = Task {
-                        try? await Task.sleep(nanoseconds: 500_000_000)
-                        if !Task.isCancelled {
-                            dateFormatCorrect = isDateInValidFormat(text.wrappedValue)
-                        }
-                    }
-                }
-            
-            CustomWarningText(text: dateFormatCorrect ? " " : "Invalid format")
-                .frame(width: 40, height: 50)
-                .padding(.leading, 40)
+            DatePickerTextFieldDropdown(
+                selectedDate: $date,
+                textFieldValue: $stringDate,
+                background: $background,
+                accent: $accent
+            )
             
             Spacer()
         }
