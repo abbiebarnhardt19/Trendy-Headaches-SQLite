@@ -33,6 +33,7 @@ struct LogView: View {
     @State private var symptomOptions: [String] = []
     @State private var severity: Int64 = 0
     @State private var medTaken: Bool = false
+    @State private var medTakenName: String?
     @State private var symptomDesc: String = ""
     @State private var notes: String = ""
     @State private var triggerOptions: [String] = []
@@ -51,8 +52,8 @@ struct LogView: View {
     @State private var date: Date = Date()
     @State private var medWorked: String? = " "
     @State private var medWorkedOptions: [String] = ["Yes", "No"]
-    @State private var oldLogSymptomID: Int64? = 0
-    @State private var oldLogDate: Date? = Date()
+    @State private var oldSymptomName: String = ""
+    @State private var oldLogDate: Date = Date()
     @State private var showEmergencyPopup: Bool = false
     
     // Date Formatter
@@ -64,11 +65,21 @@ struct LogView: View {
     
     private var formValid: Bool {
         if symptomLogViewShown {
-            return symptom != nil && severity > 0
+            // Base condition for symptom log
+            var isValid = symptom != nil && severity > 0
+            
+            // Extra check: if medTaken is true, require medTakenName
+            if medTaken {
+                isValid = isValid && !(medTakenName?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+            }
+            
+            return isValid
         } else {
+            // Side effect log condition
             return !sideEffectName.isEmpty && sideEffectSeverity > 0 && selectedMedication != nil
         }
     }
+
 
     
     // Date Formatting Function
@@ -83,8 +94,11 @@ struct LogView: View {
         NavigationStack {
             ZStack {
                 Color(hex: background).ignoresSafeArea()
-                EmergencyMedPopup(selectedAnswer: $medWorked, options: $medWorkedOptions, accent: accent)
-                    .zIndex(5)
+                
+                if showEmergencyPopup{
+                    EmergencyMedPopup(selectedAnswer: $medWorked, options: $medWorkedOptions, isPresented: $showEmergencyPopup, date: oldLogDate, symptom: oldSymptomName, background: background, accent: accent)
+                        .zIndex(5)
+                }
                 
                 
                 if hasSubmitted {
@@ -115,7 +129,7 @@ struct LogView: View {
             let results = DatabaseManager.shared.emergencyMedPopup(userID: userID)
             if let first = results.first {
                 oldLogDate = first.0
-                oldLogSymptomID = first.1
+                oldSymptomName = first.1
                 showEmergencyPopup = true
             }
         }
@@ -152,8 +166,6 @@ struct LogView: View {
     
     //symptom log view
     private var symptomLogView: some View {
-        
-        
         ZStack(alignment: .topLeading) {
             VStack(alignment: .leading, spacing: 16) {
                 dateField(label: "Date:", text: $stringDate)
@@ -170,6 +182,11 @@ struct LogView: View {
 
                 
                 CustomSingleCheckbox(text: "Emergency Med Taken?", color: accent, isOn: $medTaken)
+                
+                if medTaken{
+                    CustomText(text: "Emergency Med Name*", color: accent, isBold: true, textSize: 24)
+                    MultipleChoiceButtonGroup(options: $medicationOptions, selected: $medTakenName, accent: accent)
+                }
                 
                 CustomText(text: "Triggers Present", color: accent, isBold: true, textSize: 24)
                 MultipleChoiceCheckboxGroup(options: $triggerOptions, selected: $selectedTriggers, accent: accent, background: background)
