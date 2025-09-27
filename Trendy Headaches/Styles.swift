@@ -1237,3 +1237,26 @@ struct DatePickerTextFieldDropdown: View {
         }
     }
 }
+
+struct EmergencyMedPopup: View {
+    @Binding var selectedAnswer: String?
+    @Binding var options:  [String]
+    var accent: String = ""
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Did your emergency med work?")
+                .font(.headline)
+                .multilineTextAlignment(.center)
+            
+            MultipleChoiceButtonGroup(options: $options, selected: $selectedAnswer, accent: accent)
+
+        }
+        .padding()
+        .frame(maxWidth: 300)
+        .background(Color(.systemBackground))
+        .cornerRadius(20)
+        .shadow(radius: 10)
+        .padding()
+    }
+}

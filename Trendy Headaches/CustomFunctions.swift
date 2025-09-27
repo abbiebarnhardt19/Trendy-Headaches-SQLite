@@ -660,7 +660,30 @@ extension DatabaseManager {
             return nil
         }
     }
+    
+    func emergencyMedPopup(userID: Int64) -> [(Date, Int64)] {
+        var results: [(Date, Int64)] = []
+        do {
+            let logs = DatabaseManager.shared.logs
+            let query = logs
+                .filter(DatabaseManager.shared.user_id == userID)
+                .filter(DatabaseManager.shared.med_taken == true)
+                .filter(DatabaseManager.shared.med_worked != true && DatabaseManager.shared.med_worked != false)
 
+            let rows = try DatabaseManager.shared.prepare(query)
 
+            for row in rows {
+                let onsetDate = row[DatabaseManager.shared.date]
+                let symptomID = row[DatabaseManager.shared.symptom_id]
+                results.append((onsetDate, symptomID))
+            }
+
+        } catch {
+            print("Database error: \(error)")
+        }
+
+        return results
+    }
 }
+
 

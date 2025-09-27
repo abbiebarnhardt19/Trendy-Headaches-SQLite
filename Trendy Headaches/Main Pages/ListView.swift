@@ -41,6 +41,8 @@ struct ListView: View {
                             CustomText(text:"Log Date: \(log.date)", color: accent, width: 300)
                             CustomText(text:"Submit Date: \(log.submit)", color: accent, width: 300)
                             CustomText(text:"Triggers: \(log.triggerIDs.map { String($0) }.joined(separator: ", "))", color: accent, width: 300)
+                            CustomText(text:"EmergencyMedTaken: \(log.medTaken)", color: accent, width: 300)
+                            CustomText(text:"EmergencyMedWorked: \(log.medWorked)", color: accent, width: 300)
                         } else {
                             Text("Loading log...")
                                 .foregroundColor(Color(hex: accent))
