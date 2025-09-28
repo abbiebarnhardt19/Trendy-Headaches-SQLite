@@ -544,6 +544,7 @@ extension DatabaseManager {
         symptom: Int64,
         severity: Int64,
         med_taken: Bool,
+        med_taken_id: Int64,
         symptom_desc: String,
         notes: String,
         submit: Date,
@@ -559,6 +560,7 @@ extension DatabaseManager {
                 DatabaseManager.shared.severity <- severity,
                 DatabaseManager.shared.symptom_id <- symptom,
                 DatabaseManager.shared.med_taken <- med_taken,
+                DatabaseManager.shared.medication_id <- med_taken_id,
                 DatabaseManager.shared.med_worked <- med_worked, // now nullable
                 DatabaseManager.shared.symptom_description <- symptom_desc,
                 DatabaseManager.shared.notes <- notes,
@@ -593,6 +595,7 @@ extension DatabaseManager {
         var symptom: Int64
         var severity: Int64
         var medTaken: Bool
+        var medTakenID: Int64?
         var medWorked: Bool?
         var symptomDesc: String
         var notes: String
@@ -617,6 +620,7 @@ extension DatabaseManager {
                     symptom: row[symptom_id],
                     severity: row[severity],
                     medTaken: row[med_taken],
+                    medTakenID: row[medication_id],
                     medWorked: row[med_worked],
                     symptomDesc: row[symptom_description],
                     notes: row[notes],

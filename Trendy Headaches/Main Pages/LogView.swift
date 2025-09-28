@@ -40,6 +40,7 @@ struct LogView: View {
     @State private var selectedTriggers: [String] = []
     @State private var symptomID: Int64 = 0
     @State private var triggerIDs: [Int64] = []
+    @State private var emergencyMedID: Int64 = 0
     
     //  Side Effect Log variables
     @State private var sideEffectDate: String = ""
@@ -273,11 +274,13 @@ struct LogView: View {
         
         triggerIDs = DatabaseManager.shared.getIDFromName(tableName: "triggers", names: selectedTriggers, userID: userID)
         
+        emergencyMedID = DatabaseManager.shared.getIDFromName(tableName: "medications", names: [medTakenName ?? ""], userID: userID).first ?? 0
+        
         //convert the date from string format
         let enteredDate = formatter.date(from: stringDate) ?? Date()
         
         //add log to database
-        logID = DatabaseManager.shared.createLog(userID: userID,  date: enteredDate, symptom_onset: onset ?? "", symptom: symptomID, severity: severity, med_taken: medTaken, symptom_desc: symptomDesc, notes: notes, submit: Date(), triggerIDs: triggerIDs)
+        logID = DatabaseManager.shared.createLog(userID: userID,  date: enteredDate, symptom_onset: onset ?? "", symptom: symptomID, severity: severity, med_taken: medTaken, med_taken_id: emergencyMedID, symptom_desc: symptomDesc, notes: notes, submit: Date(), triggerIDs: triggerIDs)
         
         //change value to change to list view
         hasSubmitted = true
