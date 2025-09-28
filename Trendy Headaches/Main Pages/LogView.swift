@@ -100,7 +100,7 @@ struct LogView: View {
                 Color(hex: background).ignoresSafeArea()
                 
                 if showEmergencyPopup{
-                    EmergencyMedPopup(selectedAnswer: $medWorked,  isPresented: $showEmergencyPopup, currentLogID: $logID, oldLogID: oldLogID, showLogView: $hasSubmitted, background: background, accent: accent)
+                    EmergencyMedPopup(selectedAnswer: $medWorked,  isPresented: $showEmergencyPopup,  oldLogID: oldLogID, background: background, accent: accent)
                         .zIndex(5)
                 }
                 

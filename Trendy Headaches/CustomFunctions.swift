@@ -741,15 +741,10 @@ extension DatabaseManager {
             let log = logs.filter(log_id == logID)
 
             // Use the helper run(_:) for updates
-            let rowsUpdated = try run(log.update(med_worked <- medEffectiveValue))
+            _ = try run(log.update(med_worked <- medEffectiveValue))
 
-            if rowsUpdated > 0 {
-                print("✅ Log \(logID) updated successfully.")
-            } else {
-                print("⚠️ No log found with ID \(logID).")
-            }
         } catch {
-            print("❌ Failed to update log \(logID): \(error)")
+            print(" Failed to update log \(logID): \(error)")
         }
     }
 

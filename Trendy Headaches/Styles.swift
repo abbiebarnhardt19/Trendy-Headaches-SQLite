@@ -1241,9 +1241,7 @@ struct DatePickerTextFieldDropdown: View {
 struct EmergencyMedPopup: View {
     @Binding var selectedAnswer: Bool?
     @Binding var isPresented: Bool
-    @Binding var currentLogID: Int64 //this is here for moving to next page
     var oldLogID: Int64
-    @Binding var showLogView: Bool
     var background: String = ""
     var accent: String = ""
 
@@ -1333,9 +1331,7 @@ struct EmergencyMedPopup: View {
                                     medEffectiveValue: answer
                                 )
                             }
-                            showLogView = true
                             isPresented = false
-                            currentLogID = oldLogID
                         }
                     )
                     .disabled(selectedAnswer == nil)
