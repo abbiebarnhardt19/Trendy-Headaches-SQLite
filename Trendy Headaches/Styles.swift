@@ -1350,4 +1350,96 @@ struct EmergencyMedPopup: View {
     }
 }
 
+struct ScrollableLogTable: View {
+
+    var userID: Int64
+    var background: String
+    var accent: String
+    var width: CGFloat
+    
+    private let logs: [(type: String, symptom: String, date: Date, severity: Int)] = [
+        ("Symptom", "Migraine", Date(), 7),
+        ("Side Effect", "Tension", Date().addingTimeInterval(-86400), 4),
+        ("Symptom", "Cluster", Date().addingTimeInterval(-172800), 9)
+    ]
+    
+    private var dateFormatter: DateFormatter {
+        let f = DateFormatter()
+        f.dateStyle = .short
+        return f
+    }
+    
+    var body: some View {
+        ScrollView([.vertical, .horizontal]) {
+            VStack(alignment: .leading, spacing: 0) {
+                
+                // Table Header
+                HStack {
+                    CustomText(text:"Log Type", color:background, width:120, textAlignment: .center, isBold: true, textSize: 15)
+                        .padding(.vertical, 5)
+                    
+                    Divider()
+                        .frame(width: 1, height: 30) // vertical line
+                        .background(Color(hex:background).opacity(0.5))
+                    
+                    CustomText(text:"Symptom", color:background,  textAlignment: .center,isBold: true,textSize: 15)
+                        .padding(.vertical, 5)
+                    
+                    Divider()
+                        .frame(width: 1, height: 30) // vertical line
+                        .background(Color(hex:background).opacity(0.5))
+                    
+                    CustomText(text:"Date", color:background, width:50, textAlignment: .center,isBold: true,textSize: 15)
+                        .padding(.vertical, 5)
+                    
+                    Divider()
+                        .frame(width: 1, height: 30)
+                        .background(Color(hex:background).opacity(0.5))
+                    
+                    CustomText(text:"Severity", color:background, width:70, textAlignment: .center,  isBold: true, textSize: 15)
+                        .padding(.vertical, 5)
+                }
+                .frame(width:width)
+                .background(Color(hex:accent))
+                
+                Divider()
+                    .frame(width: width,height: 2)
+                    .background(Color(hex:background).opacity(0.5))
+                
+                // Table Rows
+                ForEach(0..<logs.count, id: \.self) { i in
+                    let log = logs[i]
+                    HStack {
+                        CustomText(text:log.type, color: background,   textAlignment: .center, textSize: 14)
+                            .padding(.vertical, 5)
+                        
+                        Divider()
+                            .frame(width: 1, height: 30)
+                            .background(Color(hex:background).opacity(0.5))
+                        
+                        CustomText(text:log.symptom, color:background,  textAlignment: .center, textSize: 14)
+                            .padding(.vertical, 5)
+                        
+                        Divider()
+                            .frame(width: 1, height: 30)
+                            .background(Color(hex:background).opacity(0.5))
+                        
+                        CustomText(text:dateFormatter.string(from: log.date), color:background,  width:50, textAlignment: .center, textSize: 14)
+                            .padding(.vertical, 5)
+                        
+                        Divider()
+                            .frame(width: 1, height: 30)
+                            .background(Color(hex:background).opacity(0.5))
+                        
+                        CustomText(text:"\(log.severity)", color:background,  width:70, textAlignment: .center, textSize: 14)
+                            .padding(.vertical, 5)
+                    }
+                    .background(Color(hex:accent))
+                    Divider()
+                }
+            }
+        }
+    }
+}
+
 

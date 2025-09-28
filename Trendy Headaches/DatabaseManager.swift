@@ -83,15 +83,15 @@ class DatabaseManager {
         let dbPath = "\(path)/headache_tracker.sqlite3"
         
         // Delete old database if it exists (for testing)
-//        let fileManager = FileManager.default
-//        if fileManager.fileExists(atPath: dbPath) {
-//            do {
-//                try fileManager.removeItem(atPath: dbPath)
-//                print("Old database deleted successfully")
-//            } catch {
-//                print("Failed to delete old database: \(error)")
-//           }
-//        }
+//                let fileManager = FileManager.default
+//                if fileManager.fileExists(atPath: dbPath) {
+//                    do {
+//                        try fileManager.removeItem(atPath: dbPath)
+//                        print("Old database deleted successfully")
+//                    } catch {
+//                        print("Failed to delete old database: \(error)")
+//                   }
+//                }
         //make the database
         do {
             db = try Connection(dbPath)

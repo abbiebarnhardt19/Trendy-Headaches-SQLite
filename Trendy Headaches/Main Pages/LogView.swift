@@ -106,7 +106,7 @@ struct LogView: View {
                 
                 
                 if hasSubmitted {
-                    ListView(userID: userID, background: $background, accent: $accent, logID: logID)
+                    ListView(userID: userID, background: $background, accent: $accent)
                 } else {
                     backgroundWaves
                     ScrollView {

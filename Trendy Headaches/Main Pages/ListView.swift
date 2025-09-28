@@ -10,48 +10,37 @@ import SwiftUI
 struct ListView: View {
     
     var userID: Int64
-    @Binding var background: String // ✅ use Binding instead of State
+    @Binding var background: String
     @Binding var accent: String
-    @State var logID: Int64
-    
-    @State private var log: DatabaseManager.Log? = nil
+
+    @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
     
     var body: some View {
-        NavigationStack { // ✅ wrap in NavigationStack for consistent navigation
+        NavigationStack {
             ZStack {
                 Color(hex: background).ignoresSafeArea()
                 
-                    SameAmplitudeBlob(waves: 12, amplitude: 20, accent: accent, x: 160, y: -340, rotation: -18)
-                    SameAmplitudeBlob(waves: 13, amplitude: 15, accent: accent, x: 0, y: -375, rotation: 155)
+                SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 30, y: -375, rotation: 0, width:350, height:150)
+                SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 30, y: -270, rotation: 180, width:350, height:150)
                     
-                    VStack(spacing: 10) {
+                VStack {
+                    HStack{
                         CustomText(
                             text: "List View",
                             color: accent,
-                            width: 300,
-                            textAlignment: .center,
-                            multilineAlignment: .center,
-                            textSize: 75
+                            width:100,
+                            textAlignment: .leading,
+                            multilineAlignment: .leading,
+                            textSize: 43
                         )
-                        
-                        if let log = log {
-                            CustomText(text:"Symptom Onset: \(log.symptomOnset)", color: accent, width: 300)
-                            CustomText(text:"Severity: \(log.severity)", color: accent, width: 300)
-                            CustomText(text:"Notes: \(log.notes)", color: accent, width: 300)
-                            CustomText(text:"Log Date: \(log.date)", color: accent, width: 300)
-                            CustomText(text:"Submit Date: \(log.submit)", color: accent, width: 300)
-                            CustomText(text:"Triggers: \(log.triggerIDs.map { String($0) }.joined(separator: ", "))", color: accent, width: 300)
-                            CustomText(text:"EmergencyMedTaken: \(log.medTaken)", color: accent, width: 300)
-                            CustomText(text:"EmergencyMedTakenID: \(String(describing: log.medTakenID))", color: accent, width: 300)
-                            CustomText(text:"EmergencyMedWorked: \(String(describing: log.medWorked))", color: accent, width: 300)
-                        } else {
-                            Text("Loading log...")
-                                .foregroundColor(Color(hex: accent))
+                        .padding(.leading, 50)
+                        Spacer()
                     }
-                
+                    ScrollableLogTable(userID: userID, background: background, accent: accent, width: screenWidth-50)
+                    
+                    Spacer()
+
                 }
-                
-                // ✅ Nav bar overlay at bottom, just like ProfileView
                 VStack {
                     Spacer()
                     NavBarView(
@@ -61,16 +50,13 @@ struct ListView: View {
                     )
                 }
                 .ignoresSafeArea(edges: .bottom)
-                .zIndex(1) // ✅ force it on top
-            }
-            .onAppear {
-                log = DatabaseManager.shared.getLog(byID: logID)
+                .zIndex(1)
             }
         }
     }
 }
 
 #Preview {
-    ListView(userID: 2, background: .constant("#001d00"), accent: .constant("#b5c4b9"), logID: 1)
+    ListView(userID: 1, background: .constant("#001d00"), accent: .constant("#b5c4b9"))
 }
 

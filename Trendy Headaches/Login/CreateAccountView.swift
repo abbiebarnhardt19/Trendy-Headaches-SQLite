@@ -120,7 +120,7 @@ private extension CreateAccountView {
             CustomWarningText(text: "       ") // for spacing
             
             fieldLabel("Security Question Answer")
-            CustomTextField(background: background, accent: accent, placeholder: "", text: $security_answer, isSecure: true)
+            CustomTextField(background: background, accent: accent, placeholder: "", text: $security_answer)
         }
     }
     

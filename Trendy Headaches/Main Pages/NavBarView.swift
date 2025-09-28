@@ -24,7 +24,7 @@ struct NavBarView: View {
     {
         [NavItem(icon: "square.and.pencil", label: "Log", destination: AnyView(LogView(userID: userID, background: $background, accent: $accent) .navigationBarBackButtonHidden(true)), padding: EdgeInsets(top: 0, leading: 15, bottom: 0, trailing: 0)),
             
-            NavItem( icon: "list.bullet",  label: "List", destination: AnyView( ListView(userID: userID, background: $background, accent: $accent, logID: 0).navigationBarBackButtonHidden(true) ), padding: EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0)),
+            NavItem( icon: "list.bullet",  label: "List", destination: AnyView( ListView(userID: userID, background: $background, accent: $accent).navigationBarBackButtonHidden(true) ), padding: EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0)),
             
             NavItem( icon: "chart.bar.xaxis",  label: "Analytics",  destination: AnyView( AnalyticsView(userID: userID, background: $background, accent: $accent) .navigationBarBackButtonHidden(true) ),padding: nil),
             
