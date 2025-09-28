@@ -84,13 +84,6 @@ struct LogView: View {
         }
     }
 
-
-    
-    // Date Formatting Function
-//    private func isDateInValidFormat(_ input: String) -> Bool {
-//        let pattern = #"^\d{1,2}[-/]\d{1,2}[-/](\d{2}|\d{4})$"#
-//        return input.range(of: pattern, options: .regularExpression) != nil
-//    }
     
     //  Body
     var body: some View {

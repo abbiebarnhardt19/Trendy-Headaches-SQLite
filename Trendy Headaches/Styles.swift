@@ -1350,96 +1350,248 @@ struct EmergencyMedPopup: View {
     }
 }
 
-struct ScrollableLogTable: View {
 
+import SwiftUI
+
+// MARK: - Model
+struct Log: Identifiable {
+    let id = UUID()
+    let type: String
+    let symptom: String
+    let date: Date
+    let severity: Int
+}
+
+// MARK: - Table View
+struct ScrollableLogTable: View {
     var userID: Int64
     var background: String
     var accent: String
     var width: CGFloat
-    
-    private let logs: [(type: String, symptom: String, date: Date, severity: Int)] = [
-        ("Symptom", "Migraine", Date(), 7),
-        ("Side Effect", "Tension", Date().addingTimeInterval(-86400), 4),
-        ("Symptom", "Cluster", Date().addingTimeInterval(-172800), 9)
+
+    @State private var selectedLog: Log? = nil
+    @State private var popupHeight: CGFloat = 100
+
+    private let logs: [Log] = [
+        Log(type: "Symptom", symptom: "Migraine", date: Date(), severity: 7),
+        Log(type: "Side Effect", symptom: "Tension", date: Date().addingTimeInterval(-86400), severity: 4),
+        Log(type: "Symptom", symptom: "Cluster", date: Date().addingTimeInterval(-172800), severity: 9)
     ]
-    
+
     private var dateFormatter: DateFormatter {
         let f = DateFormatter()
         f.dateStyle = .short
         return f
     }
-    
+
     var body: some View {
-        ScrollView([.vertical, .horizontal]) {
-            VStack(alignment: .leading, spacing: 0) {
-                
-                // Table Header
-                HStack {
-                    CustomText(text:"Log Type", color:background, width:120, textAlignment: .center, isBold: true, textSize: 15)
-                        .padding(.vertical, 5)
-                    
-                    Divider()
-                        .frame(width: 1, height: 30) // vertical line
-                        .background(Color(hex:background).opacity(0.5))
-                    
-                    CustomText(text:"Symptom", color:background,  textAlignment: .center,isBold: true,textSize: 15)
-                        .padding(.vertical, 5)
-                    
-                    Divider()
-                        .frame(width: 1, height: 30) // vertical line
-                        .background(Color(hex:background).opacity(0.5))
-                    
-                    CustomText(text:"Date", color:background, width:50, textAlignment: .center,isBold: true,textSize: 15)
-                        .padding(.vertical, 5)
-                    
-                    Divider()
-                        .frame(width: 1, height: 30)
-                        .background(Color(hex:background).opacity(0.5))
-                    
-                    CustomText(text:"Severity", color:background, width:70, textAlignment: .center,  isBold: true, textSize: 15)
-                        .padding(.vertical, 5)
-                }
-                .frame(width:width)
-                .background(Color(hex:accent))
-                
-                Divider()
-                    .frame(width: width,height: 2)
-                    .background(Color(hex:background).opacity(0.5))
-                
-                // Table Rows
-                ForEach(0..<logs.count, id: \.self) { i in
-                    let log = logs[i]
-                    HStack {
-                        CustomText(text:log.type, color: background,   textAlignment: .center, textSize: 14)
-                            .padding(.vertical, 5)
-                        
-                        Divider()
-                            .frame(width: 1, height: 30)
-                            .background(Color(hex:background).opacity(0.5))
-                        
-                        CustomText(text:log.symptom, color:background,  textAlignment: .center, textSize: 14)
-                            .padding(.vertical, 5)
-                        
-                        Divider()
-                            .frame(width: 1, height: 30)
-                            .background(Color(hex:background).opacity(0.5))
-                        
-                        CustomText(text:dateFormatter.string(from: log.date), color:background,  width:50, textAlignment: .center, textSize: 14)
-                            .padding(.vertical, 5)
-                        
-                        Divider()
-                            .frame(width: 1, height: 30)
-                            .background(Color(hex:background).opacity(0.5))
-                        
-                        CustomText(text:"\(log.severity)", color:background,  width:70, textAlignment: .center, textSize: 14)
-                            .padding(.vertical, 5)
+        ScrollView(.vertical, showsIndicators: true) {
+            LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                Section(header: tableHeader) {
+                    ForEach(logs) { log in
+                        HStack(spacing: 0) {
+                            CustomText(text: log.type, color: background, width: 110, textAlignment: .center, textSize: 16)
+                                .padding(.vertical, 5)
+
+                            Divider().frame(width: 1, height: 30)
+                                .background(Color(hex: background).opacity(0.5))
+
+                            CustomText(text: log.symptom, color: background, textAlignment: .center, textSize: 16)
+                                .padding(.vertical, 5)
+
+                            Divider().frame(width: 1, height: 30)
+                                .background(Color(hex: background).opacity(0.5))
+
+                            CustomText(text: dateFormatter.string(from: log.date), color: background, width: 70, textAlignment: .center, textSize: 16)
+                                .padding(.vertical, 5)
+
+                            Divider().frame(width: 1, height: 30)
+                                .background(Color(hex: background).opacity(0.5))
+
+                            CustomText(text: "\(log.severity)", color: background, width: 85, textAlignment: .center, textSize: 16)
+                                .padding(.vertical, 5)
+                        }
+                        .background(Color(hex: accent))
+                        .contentShape(Rectangle()) // make entire row tappable
+                        .onTapGesture {
+                            selectedLog = log
+                        }
+
+                        if log.id != logs.last?.id {
+                            Divider()
+                                .frame(width: width, height: 1)
+                                .background(Color(hex: background).opacity(0.5))
+                        }
                     }
-                    .background(Color(hex:accent))
-                    Divider()
                 }
             }
+            .frame(width: width)
+            .background(Color(hex: accent))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(Color(hex: background).opacity(0.5), lineWidth: 1)
+            )
         }
+        .frame(width: width, height: 300)
+        .sheet(item: $selectedLog) { log in
+            LogDetailPopup(log: log, background: background, accent: accent)
+                .background(
+                    SizeReader { newHeight in
+                        popupHeight = newHeight // use exact measured height
+                    }
+                )
+                .presentationDetents([.height(popupHeight)])
+                .presentationBackground(Color(hex: accent))
+        }
+    }
+
+    private var tableHeader: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                CustomText(text:"Log Type", color:background, width:110, textAlignment: .center, isBold: true, textSize: 18)
+                    .padding(.vertical, 5)
+
+                Divider().frame(width: 1, height: 30)
+                    .background(Color(hex: background).opacity(0.5))
+
+                CustomText(text:"Symptom", color:background, textAlignment: .center, isBold: true, textSize: 18)
+                    .padding(.vertical, 5)
+
+                Divider().frame(width: 1, height: 30)
+                    .background(Color(hex: background).opacity(0.5))
+
+                CustomText(text:"Date", color:background, width:70, textAlignment: .center, isBold: true, textSize: 18)
+                    .padding(.vertical, 5)
+
+                Divider().frame(width: 1, height: 30)
+                    .background(Color(hex: background).opacity(0.5))
+
+                CustomText(text:"Severity", color:background, width:85, textAlignment: .center, isBold: true, textSize: 18)
+                    .padding(.vertical, 5)
+            }
+            .background(Color(hex: accent))
+
+            Divider()
+                .frame(width: width, height: 2)
+                .background(Color(hex: background).opacity(0.5))
+        }
+        .background(Color(hex: accent))
+    }
+}
+// MARK: - Popup View
+struct LogDetailPopup: View {
+    var log: Log
+    var background: String
+    var accent: String
+
+    private var dateFormatter: DateFormatter {
+        let f = DateFormatter()
+        f.dateStyle = .long
+        return f
+    }
+
+    var body: some View {
+        let logType = "Side Effect"
+        VStack(spacing: 20) {
+            // Top Bar with buttons
+            HStack {
+                Button(action: {
+                    // Your + action
+                }) {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 20))
+                        .foregroundColor(Color(hex: accent))
+                        .frame(width: 35, height: 35)
+                        .background(Color(hex: background))
+                        .clipShape(Circle())
+                }
+
+                Spacer()
+
+                Button(action: {
+                    // Your - action
+                }) {
+                    Image(systemName: "minus")
+                        .font(.system(size: 20))
+                        .foregroundColor(Color(hex: accent))
+                        .frame(width: 35, height: 35)
+                        .background(Color(hex: background))
+                        .clipShape(Circle())
+                }
+            }
+            .padding(.horizontal, 15)
+            .padding(.top, 10) // keeps it close to top but with a little breathing room
+
+            // Log Details
+            CustomText(text:"Log Details", color: background, textAlignment: .center, isBold: true, textSize: 36)
+
+            VStack(alignment: .leading, spacing: 10) {
+                if logType == "Symptom"{
+                    HStack{
+                        CustomText(text:"Log Type:", color: background, width:103, isBold: true)
+                        CustomText(text:"Symptom Log", color: background, textAlignment: .leading)
+                    }
+                    HStack{
+                        CustomText(text:"Onset Date: ", color: background, width:127, isBold: true)
+                    }
+                    HStack{
+                        CustomText(text:"Symptom: ", color: background, width:115, isBold: true)
+                    }
+                    HStack{
+                        CustomText(text:"Symptom Severity: ", color: background, width:205, isBold: true)
+                    }
+                    HStack{
+                        CustomText(text:"Symptom Onset: ", color: background, width:183, isBold: true)
+                    }
+                    HStack{
+                        CustomText(text:"Emergency Medication: ", color: background, width:130, isBold: true)
+                    }
+                    HStack{
+                        CustomText(text:"Symptom Description: ", color: background, width:135, isBold: true)
+                    }
+                    HStack{
+                        CustomText(text:"Notes: ", color: background, width:70, isBold: true)
+                    }
+                    //use if so it only shows fields that are filled out
+                }
+                else{
+                    HStack{
+                        CustomText(text:"Log Type:", color: background, width:103, isBold: true)
+                        CustomText(text:"Side Effect Log", color: background)
+                    }
+                    HStack{
+                        CustomText(text:"Onset Date: ", color: background, width:127, isBold: true)
+                    }
+                    HStack{
+                        CustomText(text:"Side Effect: ", color: background, width:125, isBold: true)
+                    }
+                    HStack{
+                        CustomText(text:"Medication: ", color: background, width:130, isBold: true)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background(Color(hex: background).opacity(0.1))
+            .cornerRadius(12)
+        }
+        .background(Color(hex: accent).ignoresSafeArea())
+        .padding()
     }
 }
 
+struct SizeReader: View {
+    var onChange: (CGFloat) -> Void
+    
+    var body: some View {
+        GeometryReader { geo in
+            Color.clear
+                .onAppear { onChange(geo.size.height) }
+                .onChange(of: geo.size.height) {
+                    onChange(geo.size.height)
+                }
+        }
+    }
+}
 
