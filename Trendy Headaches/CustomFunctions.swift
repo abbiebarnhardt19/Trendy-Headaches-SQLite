@@ -665,12 +665,55 @@ extension DatabaseManager {
             }
         }
     
-    func emergencyMedPopup(userID: Int64) -> [(Date, String)] {
-        var results: [(Date, String)] = []
+//    func emergencyMedPopup(userID: Int64) -> [(Date, String, String)] {
+//        var results: [(Date, String, String)] = []
+//        
+//        do {
+//            let logs = DatabaseManager.shared.logs
+//            let symptoms = DatabaseManager.shared.symptoms
+//            var symptomName = ""
+//            var medName = ""
+//            
+//            let query = logs
+//                .filter(DatabaseManager.shared.user_id == userID)
+//                .filter(DatabaseManager.shared.med_taken == true)
+//                .filter(DatabaseManager.shared.med_worked != true && DatabaseManager.shared.med_worked != false)
+//            
+//            let rows = try DatabaseManager.shared.prepare(query)
+//            
+//            for row in rows {
+//                let onsetDate = row[DatabaseManager.shared.date]
+//                let symptomID = row[DatabaseManager.shared.symptom_id]
+//                let medID = row[DatabaseManager.shared.medication_id]
+//                
+//                // Lookup symptom name
+//                let symptomQuery = symptoms.filter(DatabaseManager.shared.symptom_id == symptomID)
+//                if let symptomRow = try DatabaseManager.shared.pluck(symptomQuery) {
+//                    symptomName = symptomRow[DatabaseManager.shared.symptom_name]
+//                }
+//                
+//                let medQuery = medications.filter(DatabaseManager.shared.medication_id == medID)
+//                if let medRow = try DatabaseManager.shared.pluck(medQuery) {
+//                    medName = medRow[DatabaseManager.shared.medication_name]
+//                    
+//                }
+//                print("here")
+//                results.append((onsetDate, symptomName,medName))
+//                print(results)
+//            }
+//            
+//        } catch {
+//            print("Database error: \(error)")
+//        }
+//        
+//        return results
+//    }
+    
+    func emergencyMedPopup(userID: Int64) -> [Int64] {
+        var results: [Int64] = []
         
         do {
             let logs = DatabaseManager.shared.logs
-            let symptoms = DatabaseManager.shared.symptoms
             
             let query = logs
                 .filter(DatabaseManager.shared.user_id == userID)
@@ -680,23 +723,78 @@ extension DatabaseManager {
             let rows = try DatabaseManager.shared.prepare(query)
             
             for row in rows {
-                let onsetDate = row[DatabaseManager.shared.date]
-                let symptomID = row[DatabaseManager.shared.symptom_id]
-                
-                // Lookup symptom name
-                let symptomQuery = symptoms.filter(DatabaseManager.shared.symptom_id == symptomID)
-                if let symptomRow = try DatabaseManager.shared.pluck(symptomQuery) {
-                    let symptomName = symptomRow[DatabaseManager.shared.symptom_name]
-                    results.append((onsetDate, symptomName))
-                }
+                let logID = row[DatabaseManager.shared.log_id] // Get just the log ID
+                results.append(logID)
             }
             
         } catch {
             print("Database error: \(error)")
         }
-        
+        print(results)
         return results
     }
+
+    
+    func updateLog(logID: Int64, medEffectiveValue: Bool) {
+        do {
+            // Build the filter query for the log we want to update
+            let log = logs.filter(log_id == logID)
+
+            // Use the helper run(_:) for updates
+            let rowsUpdated = try run(log.update(med_worked <- medEffectiveValue))
+
+            if rowsUpdated > 0 {
+                print("✅ Log \(logID) updated successfully.")
+            } else {
+                print("⚠️ No log found with ID \(logID).")
+            }
+        } catch {
+            print("❌ Failed to update log \(logID): \(error)")
+        }
+    }
+
+
+    
+    func getLogDetails(logID: Int64) -> (userID: Int64, date: Date, symptomName: String, symptomID: Int64, emergencyMedID: Int64, emergencyMedName: String)? {
+        do {
+            let logs = DatabaseManager.shared.logs
+            let symptoms = DatabaseManager.shared.symptoms
+            let medications = DatabaseManager.shared.medications
+            
+            // Get the log row for the given logID
+            let logQuery = logs.filter(DatabaseManager.shared.log_id == logID)
+            if let logRow = try DatabaseManager.shared.pluck(logQuery) {
+                
+                // Extract base log info
+                let userID = logRow[DatabaseManager.shared.user_id]
+                let date = logRow[DatabaseManager.shared.date]
+                let symptomID = logRow[DatabaseManager.shared.symptom_id]
+                let emergencyMedID = logRow[DatabaseManager.shared.medication_id]
+                
+                // Get symptom name
+                var symptomName = ""
+                let symptomQuery = symptoms.filter(DatabaseManager.shared.symptom_id == symptomID)
+                if let symptomRow = try DatabaseManager.shared.pluck(symptomQuery) {
+                    symptomName = symptomRow[DatabaseManager.shared.symptom_name]
+                }
+                
+                // Get medication name
+                var emergencyMedName = ""
+                let medQuery = medications.filter(DatabaseManager.shared.medication_id == emergencyMedID)
+                if let medRow = try DatabaseManager.shared.pluck(medQuery) {
+                    emergencyMedName = medRow[DatabaseManager.shared.medication_name]
+                }
+                
+                return (userID, date, symptomName, symptomID, emergencyMedID, emergencyMedName)
+            }
+        } catch {
+            print("Database error while fetching log details: \(error)")
+        }
+        
+        return nil
+    }
+
+
 }
 
 

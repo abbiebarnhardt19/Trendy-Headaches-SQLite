@@ -21,7 +21,9 @@ struct LogView: View {
     // Shared State
     @State private var hasSubmitted: Bool = false
     @State private var symptomLogViewShown = true
-    @State private var logID: Int64?
+    @State private var logID: Int64 = 0
+    @State private var showEmergencyPopup: Bool = false
+    @State private var date: Date = Date()
     
     //  Symptom Log variables
     @State private var stringDate: String = ""
@@ -33,6 +35,7 @@ struct LogView: View {
     @State private var symptomOptions: [String] = []
     @State private var severity: Int64 = 0
     @State private var medTaken: Bool = false
+    @State private var emergencyMedOptions: [String] = []
     @State private var medTakenName: String?
     @State private var symptomDesc: String = ""
     @State private var notes: String = ""
@@ -50,12 +53,12 @@ struct LogView: View {
     @State private var selectedMedication: String?
     @State private var medicationID: Int64 = 0
     
-    @State private var date: Date = Date()
-    @State private var medWorked: String? = " "
-    @State private var medWorkedOptions: [String] = ["Yes", "No"]
-    @State private var oldSymptomName: String = ""
-    @State private var oldLogDate: Date = Date()
-    @State private var showEmergencyPopup: Bool = false
+    @State private var medWorked: Bool? = nil
+//    @State private var oldSymptomName: String = ""
+//    @State private var oldLogDate: Date = Date()
+//    @State private var oldMedName: String = ""
+    @State private var oldLogID: Int64 = 0
+    
     
     // Date Formatter
     private let formatter: DateFormatter = {
@@ -97,13 +100,13 @@ struct LogView: View {
                 Color(hex: background).ignoresSafeArea()
                 
                 if showEmergencyPopup{
-                    EmergencyMedPopup(selectedAnswer: $medWorked, options: $medWorkedOptions, isPresented: $showEmergencyPopup, date: oldLogDate, symptom: oldSymptomName, background: background, accent: accent)
+                    EmergencyMedPopup(selectedAnswer: $medWorked,  isPresented: $showEmergencyPopup, currentLogID: $logID, oldLogID: oldLogID, showLogView: $hasSubmitted, background: background, accent: accent)
                         .zIndex(5)
                 }
                 
                 
                 if hasSubmitted {
-                    ListView(userID: userID, background: $background, accent: $accent, logID: logID ?? 0)
+                    ListView(userID: userID, background: $background, accent: $accent, logID: logID)
                 } else {
                     backgroundWaves
                     ScrollView {
@@ -129,8 +132,7 @@ struct LogView: View {
             setupData()
             let results = DatabaseManager.shared.emergencyMedPopup(userID: userID)
             if let first = results.first {
-                oldLogDate = first.0
-                oldSymptomName = first.1
+                oldLogID = first
                 showEmergencyPopup = true
             }
         }
@@ -179,14 +181,12 @@ struct LogView: View {
 
                 CustomText(text: "Symptom Onset", color: accent, isBold: true, textSize: 24)
                 MultipleChoiceButtonGroup(options: $onsetOptions, selected: $onset, accent: accent)
-                
 
-                
                 CustomSingleCheckbox(text: "Emergency Med Taken?", color: accent, isOn: $medTaken)
                 
                 if medTaken{
                     CustomText(text: "Emergency Med Name*", color: accent, isBold: true, textSize: 24)
-                    MultipleChoiceButtonGroup(options: $medicationOptions, selected: $medTakenName, accent: accent)
+                    MultipleChoiceButtonGroup(options: $emergencyMedOptions, selected: $medTakenName, accent: accent)
                 }
                 
                 CustomText(text: "Triggers Present", color: accent, isBold: true, textSize: 24)
@@ -265,6 +265,8 @@ struct LogView: View {
         symptomOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
         triggerOptions = DatabaseManager.deleteListDuplicates(list: DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name"))
         medicationOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name")
+        
+        emergencyMedOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name", filterColumn: "medication_category", filterValue: "emergency")
     }
     
     //function to add the log to the database
@@ -280,7 +282,7 @@ struct LogView: View {
         let enteredDate = formatter.date(from: stringDate) ?? Date()
         
         //add log to database
-        logID = DatabaseManager.shared.createLog(userID: userID,  date: enteredDate, symptom_onset: onset ?? "", symptom: symptomID, severity: severity, med_taken: medTaken, med_taken_id: emergencyMedID, symptom_desc: symptomDesc, notes: notes, submit: Date(), triggerIDs: triggerIDs)
+        logID = DatabaseManager.shared.createLog(userID: userID,  date: enteredDate, symptom_onset: onset ?? "", symptom: symptomID, severity: severity, med_taken: medTaken, med_taken_id: emergencyMedID, symptom_desc: symptomDesc, notes: notes, submit: Date(), triggerIDs: triggerIDs) ?? 0
         
         //change value to change to list view
         hasSubmitted = true
@@ -295,7 +297,7 @@ struct LogView: View {
         let enteredDate = formatter.date(from: sideEffectDate) ?? Date()
         
         //add it to the database
-        logID = DatabaseManager.shared.createSideEffectLog(userID: userID, date: enteredDate, side_effect: sideEffectName, side_effect_severity: sideEffectSeverity, medication_id: medicationID)
+        logID = DatabaseManager.shared.createSideEffectLog(userID: userID, date: enteredDate, side_effect: sideEffectName, side_effect_severity: sideEffectSeverity, medication_id: medicationID) ?? 0 
         
         //change value to navigate to the list page
         hasSubmitted = true

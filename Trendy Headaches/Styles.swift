@@ -1239,68 +1239,119 @@ struct DatePickerTextFieldDropdown: View {
 }
 
 struct EmergencyMedPopup: View {
-    @Binding var selectedAnswer: String?
-    @Binding var options:  [String]
+    @Binding var selectedAnswer: Bool?
     @Binding var isPresented: Bool
-    var date: Date
-    var symptom: String
+    @Binding var currentLogID: Int64 //this is here for moving to next page
+    var oldLogID: Int64
+    @Binding var showLogView: Bool
     var background: String = ""
     var accent: String = ""
-    
-    
+
     private let formatter: DateFormatter = {
         let f = DateFormatter()
-        f.dateFormat = "MMM d" // e.g., "Sep 27"
+        f.dateFormat = "MMM d"
         return f
     }()
-
-
+    
     var body: some View {
-        
         let screenWidth = UIScreen.main.bounds.width
-        ZStack{
-//            ParametricBlob(points: 45, amplitude: 0.055, x:  300, y:200, rotation: 195, accent: background, width:200, height:200)
-//                .zIndex(1)
-            
-            
-            VStack(spacing: 15) {
-                HStack{
-                    Spacer()
-                    Button(action: { isPresented = false})
-                    {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(Color(hex: background))
-                            .font(.system(size: 25))
+        let yesNoOptions = ["Yes", "No"]
+
+        guard let logDetails = DatabaseManager.shared.getLogDetails(logID: oldLogID) else {
+            return AnyView(Text("Log not found"))
+        }
+        
+        let date = logDetails.date
+        let symptomName = logDetails.symptomName
+        let emergencyMedName = logDetails.emergencyMedName
+
+        return AnyView(
+            ZStack {
+                VStack(spacing: 15) {
+                    // Close Button
+                    HStack {
+                        Spacer()
+                        Button(action: { isPresented = false }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(Color(hex: background))
+                                .font(.system(size: 25))
+                        }
+                        .frame(width: 10, height: 10)
+                        .padding(.trailing, 10)
                     }
-                    .frame(width:10, height:10)
-                    .padding(.trailing, 10)
-                }
-                .frame(width:  screenWidth*0.75)
-                
-                CustomText(text:"Did your emergency med help with your \(symptom) on \(formatter.string(from: date))?", color: background, width: screenWidth*0.75,  textAlignment:.center, multilineAlignment: .center, textSize: 20)
+                    .frame(width: screenWidth * 0.75)
+                    
+                    // Title
+                    CustomText(
+                        text: "Did \(emergencyMedName) help with your \(symptomName) on \(formatter.string(from: date))?",
+                        color: background,
+                        width: screenWidth * 0.75,
+                        textAlignment: .center,
+                        multilineAlignment: .center,
+                        textSize: 20
+                    )
                     .padding(.horizontal, 10)
                     .padding(.top, 10)
-                
-                HStack {
-                    Spacer()
-                    VStack { // Wrap the group in a VStack to let it size to content
-                        MultipleChoiceButtonGroup(options: $options, selected: $selectedAnswer, accent: background)
+                    
+                    // Multiple Choice
+                    HStack {
+                        Spacer()
+                        VStack {
+                            MultipleChoiceButtonGroup(
+                                options: .constant(yesNoOptions),
+                                selected: Binding(
+                                    get: {
+                                        if let answer = selectedAnswer {
+                                            return answer ? "Yes" : "No"
+                                        }
+                                        return ""
+                                    },
+                                    set: { newValue in
+                                        selectedAnswer = (newValue == "Yes")
+                                    }
+                                ),
+                                accent: background
+                            )
+                        }
+                        .frame(width: 100)
+                        Spacer()
                     }
-                    .frame(width:100)
-                    Spacer()
+                    
+                    // Submit Button
+                    CustomButton(
+                        text: "Update Log",
+                        background: accent,
+                        accent: background,
+                        height: 40,
+                        width: 150,
+                        isBold: true,
+                        textSize: 16,
+                        action: {
+                            if let answer = selectedAnswer {
+                                DatabaseManager.shared.updateLog(
+                                    logID: oldLogID,
+                                    medEffectiveValue: answer
+                                )
+                            }
+                            showLogView = true
+                            isPresented = false
+                            currentLogID = oldLogID
+                        }
+                    )
+                    .disabled(selectedAnswer == nil)
+                    .opacity(selectedAnswer == nil ? 0.5 : 1)
                 }
-                
-                CustomButton(text: "Update Log", background:accent, accent:background, height:40, width:150, isBold: true, textSize:16, action: {})
-                    .disabled((selectedAnswer ?? "").isEmpty)
-                    .opacity((selectedAnswer ?? "").isEmpty ? 0.5 : 1.0)
-
+                .padding(.vertical, 20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 30)
+                        .stroke(Color(hex: background), lineWidth: 3)
+                )
+                .frame(width: screenWidth * 0.85)
+                .background(Color(hex: accent))
+                .cornerRadius(30)
             }
-            .padding(.vertical, 20)
-            .overlay(RoundedRectangle(cornerRadius: 30)
-                .stroke(Color(hex: background), lineWidth: 3))
-            .frame(width: screenWidth*0.85)
-            .background(Color(hex: accent))
-            .cornerRadius(30)
-        }
+        )
     }
 }
+
+
