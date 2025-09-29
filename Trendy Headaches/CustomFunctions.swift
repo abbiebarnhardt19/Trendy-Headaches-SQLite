@@ -916,7 +916,7 @@ extension DatabaseManager {
                 setters.append(self.medication_id <- newMedicationID)
             }
             
-            if let newMedWorked = medWorked, newMedWorked != row[self.med_taken] {
+            if let newMedWorked = medWorked, newMedWorked != row[self.med_worked] {
                 setters.append(self.med_worked <- newMedWorked)
             }
             
