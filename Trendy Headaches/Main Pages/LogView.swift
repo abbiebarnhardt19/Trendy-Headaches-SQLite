@@ -11,6 +11,8 @@ import Foundation
 struct LogView: View {
     //  Inputs
     var userID: Int64
+    var existingLogID: Int64? = nil
+    var existingLogTable: String? = nil
     @Binding var background: String
     @Binding var accent: String
     
@@ -96,12 +98,14 @@ struct LogView: View {
                     EmergencyMedPopup(selectedAnswer: $medWorked,  isPresented: $showEmergencyPopup,  oldLogID: oldLogID, background: background, accent: accent)
                         .zIndex(5)
                 }
-                
-                
+
                 if hasSubmitted {
                     ListView(userID: userID, background: $background, accent: $accent)
+                   
                 } else {
                     backgroundWaves
+                    CustomText(text: String(existingLogID ?? 0), color:accent)
+                        .padding(.leading, 150)
                     ScrollView {
                         headerSection
                             .padding(.top, 30)
@@ -260,6 +264,14 @@ struct LogView: View {
         medicationOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name")
         
         emergencyMedOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name", filterColumn: "medication_category", filterValue: "emergency")
+        
+        if let existingLogID = existingLogID {
+            if let log = DatabaseManager.shared.getSymptomLog(by: existingLogID){
+               severity = log.severity
+                symptomDesc = log.symptom_description ?? ""
+            }
+           
+        }
     }
     
     //function to add the log to the database

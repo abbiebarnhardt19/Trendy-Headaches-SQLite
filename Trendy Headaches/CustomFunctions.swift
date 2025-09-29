@@ -665,49 +665,49 @@ extension DatabaseManager {
             }
         }
     
-//    func emergencyMedPopup(userID: Int64) -> [(Date, String, String)] {
-//        var results: [(Date, String, String)] = []
-//        
-//        do {
-//            let logs = DatabaseManager.shared.logs
-//            let symptoms = DatabaseManager.shared.symptoms
-//            var symptomName = ""
-//            var medName = ""
-//            
-//            let query = logs
-//                .filter(DatabaseManager.shared.user_id == userID)
-//                .filter(DatabaseManager.shared.med_taken == true)
-//                .filter(DatabaseManager.shared.med_worked != true && DatabaseManager.shared.med_worked != false)
-//            
-//            let rows = try DatabaseManager.shared.prepare(query)
-//            
-//            for row in rows {
-//                let onsetDate = row[DatabaseManager.shared.date]
-//                let symptomID = row[DatabaseManager.shared.symptom_id]
-//                let medID = row[DatabaseManager.shared.medication_id]
-//                
-//                // Lookup symptom name
-//                let symptomQuery = symptoms.filter(DatabaseManager.shared.symptom_id == symptomID)
-//                if let symptomRow = try DatabaseManager.shared.pluck(symptomQuery) {
-//                    symptomName = symptomRow[DatabaseManager.shared.symptom_name]
-//                }
-//                
-//                let medQuery = medications.filter(DatabaseManager.shared.medication_id == medID)
-//                if let medRow = try DatabaseManager.shared.pluck(medQuery) {
-//                    medName = medRow[DatabaseManager.shared.medication_name]
-//                    
-//                }
-//                print("here")
-//                results.append((onsetDate, symptomName,medName))
-//                print(results)
-//            }
-//            
-//        } catch {
-//            print("Database error: \(error)")
-//        }
-//        
-//        return results
-//    }
+    //    func emergencyMedPopup(userID: Int64) -> [(Date, String, String)] {
+    //        var results: [(Date, String, String)] = []
+    //
+    //        do {
+    //            let logs = DatabaseManager.shared.logs
+    //            let symptoms = DatabaseManager.shared.symptoms
+    //            var symptomName = ""
+    //            var medName = ""
+    //
+    //            let query = logs
+    //                .filter(DatabaseManager.shared.user_id == userID)
+    //                .filter(DatabaseManager.shared.med_taken == true)
+    //                .filter(DatabaseManager.shared.med_worked != true && DatabaseManager.shared.med_worked != false)
+    //
+    //            let rows = try DatabaseManager.shared.prepare(query)
+    //
+    //            for row in rows {
+    //                let onsetDate = row[DatabaseManager.shared.date]
+    //                let symptomID = row[DatabaseManager.shared.symptom_id]
+    //                let medID = row[DatabaseManager.shared.medication_id]
+    //
+    //                // Lookup symptom name
+    //                let symptomQuery = symptoms.filter(DatabaseManager.shared.symptom_id == symptomID)
+    //                if let symptomRow = try DatabaseManager.shared.pluck(symptomQuery) {
+    //                    symptomName = symptomRow[DatabaseManager.shared.symptom_name]
+    //                }
+    //
+    //                let medQuery = medications.filter(DatabaseManager.shared.medication_id == medID)
+    //                if let medRow = try DatabaseManager.shared.pluck(medQuery) {
+    //                    medName = medRow[DatabaseManager.shared.medication_name]
+    //
+    //                }
+    //                print("here")
+    //                results.append((onsetDate, symptomName,medName))
+    //                print(results)
+    //            }
+    //
+    //        } catch {
+    //            print("Database error: \(error)")
+    //        }
+    //
+    //        return results
+    //    }
     
     func emergencyMedPopup(userID: Int64) -> [Int64] {
         var results: [Int64] = []
@@ -730,25 +730,24 @@ extension DatabaseManager {
         } catch {
             print("Database error: \(error)")
         }
-        print(results)
         return results
     }
-
+    
     
     func updateLog(logID: Int64, medEffectiveValue: Bool) {
         do {
             // Build the filter query for the log we want to update
             let log = logs.filter(log_id == logID)
-
+            
             // Use the helper run(_:) for updates
             _ = try run(log.update(med_worked <- medEffectiveValue))
-
+            
         } catch {
             print(" Failed to update log \(logID): \(error)")
         }
     }
-
-
+    
+    
     
     func getLogDetails(logID: Int64) -> (userID: Int64, date: Date, symptomName: String, symptomID: Int64, emergencyMedID: Int64, emergencyMedName: String)? {
         do {
@@ -788,6 +787,47 @@ extension DatabaseManager {
         
         return nil
     }
+    
+    struct SymptomLog {
+        var log_id: Int64
+        var user_id: Int64
+        var date: Date
+        var onset_time: String?
+        var severity: Int64
+        var symptom_id: Int64?
+        var med_taken: Bool
+        var medication_id: Int64?
+        var med_worked: Bool?
+        var symptom_description: String?
+        var notes: String?
+        var submit_time: Date
+    }
+    
+    
+    func getSymptomLog(by logID: Int64) -> SymptomLog? {
+            do {
+                let query = logs.filter(self.log_id == logID)
+                if let row = try pluck(query) {
+                    return SymptomLog(
+                        log_id: row[self.log_id],
+                        user_id: row[self.user_id],
+                        date: row[self.date],
+                        onset_time: row[self.onset_time],
+                        severity: row[self.severity],
+                        symptom_id: row[self.symptom_id],
+                        med_taken: row[self.med_taken],
+                        medication_id: row[self.medication_id],
+                        med_worked: row[self.med_worked],
+                        symptom_description: row[self.symptom_description],
+                        notes: row[self.notes],
+                        submit_time: row[self.submit_time]
+                    )
+                }
+            } catch {
+                print("Error fetching symptom log \(logID): \(error)")
+            }
+            return nil
+        }
 
 
 }
