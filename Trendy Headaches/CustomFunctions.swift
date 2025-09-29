@@ -869,6 +869,82 @@ extension DatabaseManager {
         }
         return nil
     }
+    
+    func updateSymptomLog(
+        logID: Int64,
+        userID: Int64,
+        date: Date?,
+        onsetTime: String?,
+        severity: Int64?,
+        symptomID: Int64?,
+        medTaken: Bool?,
+        medicationID: Int64?,
+        symptomDescription: String?,
+        notes: String?,
+        triggerIDs: [Int64]?
+    ) {
+        do {
+            // Fetch current row
+            let query = logs.filter(self.log_id == logID)
+            guard let row = try pluck(query) else { return }
+            
+            // Build update dictionary dynamically
+            var setters: [Setter] = []
+            
+            if let newDate = date, newDate != row[self.date] {
+                setters.append(self.date <- newDate)
+            }
+            
+            if let newOnset = onsetTime, newOnset != row[self.onset_time] {
+                setters.append(self.onset_time <- newOnset)
+            }
+            
+            if let newSeverity = severity, newSeverity != row[self.severity] {
+                setters.append(self.severity <- newSeverity)
+            }
+            
+            if let newSymptomID = symptomID, newSymptomID != row[self.symptom_id] {
+                setters.append(self.symptom_id <- newSymptomID)
+            }
+            
+            if let newMedTaken = medTaken, newMedTaken != row[self.med_taken] {
+                setters.append(self.med_taken <- newMedTaken)
+            }
+            
+            if let newMedicationID = medicationID, newMedicationID != row[self.medication_id] {
+                setters.append(self.medication_id <- newMedicationID)
+            }
+            
+            if let newSymptomDesc = symptomDescription, newSymptomDesc != row[self.symptom_description] {
+                setters.append(self.symptom_description <- newSymptomDesc)
+            }
+            
+            if let newNotes = notes, newNotes != row[self.notes] {
+                setters.append(self.notes <- newNotes)
+            }
+            
+            // Perform update only if there’s something to update
+            if !setters.isEmpty {
+                let updateQuery = query.update(setters)
+               _ =  try run(updateQuery)
+            }
+            
+            // Update triggers separately if needed
+            if let newTriggerIDs = triggerIDs {
+                // Remove old triggers for this log
+               _ = try run(log_triggers.filter(lt_log_id == logID).delete())
+                
+                // Insert new trigger links
+                for tID in newTriggerIDs {
+                    _ = try run(log_triggers.insert(lt_log_id <- logID, lt_trigger_id <- tID))
+                }
+            }
+            
+        } catch {
+            print("Error updating symptom log: \(error)")
+        }
+    }
+
 
 }
 

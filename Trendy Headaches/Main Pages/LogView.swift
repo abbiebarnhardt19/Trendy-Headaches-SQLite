@@ -195,7 +195,10 @@ struct LogView: View {
                     .disabled(!formValid)
                 }
                 else{
-                    submitButton(text:"Save"){}
+                    submitButton(text:"Save"){
+                        DatabaseManager.shared.updateSymptomLog(logID: existingLogID ?? 0, userID: userID, date: date, onsetTime: onset, severity: severity, symptomID: symptomID, medTaken: medTaken, medicationID: emergencyMedID, symptomDescription: symptomDesc, notes: notes, triggerIDs: triggerIDs)
+                        hasSubmitted = true
+                    }
                 }
 
             }
