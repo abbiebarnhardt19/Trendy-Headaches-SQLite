@@ -1393,7 +1393,7 @@ struct ScrollableLogTable: View {
                             row(for: log)
                                 .contentShape(Rectangle())
                                 .onTapGesture {
-                                        onLogTap?(log.id, "symptom_logs") // pass table name if needed
+                                        onLogTap?(3, "symptom_logs") // pass table name if needed
                                     }
 
                             if log.id != logs.last?.id {

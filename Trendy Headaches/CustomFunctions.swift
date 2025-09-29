@@ -801,34 +801,74 @@ extension DatabaseManager {
         var symptom_description: String?
         var notes: String?
         var submit_time: Date
+        var symptom_name: String?
+        var medication_name: String?
+        var trigger_ids: [Int64] = []
+        var trigger_names: [String] = []
     }
     
     
     func getSymptomLog(by logID: Int64) -> SymptomLog? {
-            do {
-                let query = logs.filter(self.log_id == logID)
-                if let row = try pluck(query) {
-                    return SymptomLog(
-                        log_id: row[self.log_id],
-                        user_id: row[self.user_id],
-                        date: row[self.date],
-                        onset_time: row[self.onset_time],
-                        severity: row[self.severity],
-                        symptom_id: row[self.symptom_id],
-                        med_taken: row[self.med_taken],
-                        medication_id: row[self.medication_id],
-                        med_worked: row[self.med_worked],
-                        symptom_description: row[self.symptom_description],
-                        notes: row[self.notes],
-                        submit_time: row[self.submit_time]
-                    )
-                }
-            } catch {
-                print("Error fetching symptom log \(logID): \(error)")
-            }
-            return nil
-        }
+        do {
+            let query = logs.filter(self.log_id == logID)
+            if let row = try pluck(query) {
+                // Get the IDs
+                let symptomID = row[self.symptom_id]      // Int64
+                let medicationID = row[self.medication_id] // Int64
 
+                // Fetch the names from the other tables
+                var symptomName: String? = nil
+                let symptomQuery = symptoms.filter(self.symptom_id == symptomID)
+                if let symptomRow = try pluck(symptomQuery) {
+                    symptomName = symptomRow[self.symptom_name]
+                }
+
+                var medicationName: String? = nil
+                let medQuery = medications.filter(self.medication_id == medicationID)
+                if let medRow = try pluck(medQuery) {
+                    medicationName = medRow[self.medication_name]
+                }
+                
+                // Trigger names
+                var triggerNames: [String] = []
+                var triggerIDs: [Int64] = []
+
+                let triggerQuery = log_triggers.filter(lt_log_id == logID)
+                for triggerRow in try prepare(triggerQuery) {
+                    let tID = triggerRow[lt_trigger_id]
+                    triggerIDs.append(tID)  // append the ID
+
+                    let tQuery = triggers.filter(trigger_id == tID)
+                    if let t = try pluck(tQuery) {
+                        let name = t[trigger_name]  // direct assignment, no optional
+                        triggerNames.append(name)
+                    }
+                }
+
+                return SymptomLog(
+                    log_id: row[self.log_id],
+                    user_id: row[self.user_id],
+                    date: row[self.date],
+                    onset_time: row[self.onset_time],
+                    severity: row[self.severity],
+                    symptom_id: symptomID,
+                    med_taken: row[self.med_taken],
+                    medication_id: medicationID,
+                    med_worked: row[self.med_worked],
+                    symptom_description: row[self.symptom_description],
+                    notes: row[self.notes],
+                    submit_time: row[self.submit_time],
+                    symptom_name: symptomName,
+                    medication_name: medicationName,
+                    trigger_ids: triggerIDs,
+                    trigger_names: triggerNames
+                )
+            }
+        } catch {
+            print("Error fetching symptom log \(logID): \(error)")
+        }
+        return nil
+    }
 
 }
 

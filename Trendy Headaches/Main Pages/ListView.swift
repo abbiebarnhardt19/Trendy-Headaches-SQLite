@@ -19,9 +19,25 @@ struct ListView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Your background and blobs
+                Color(hex: background).ignoresSafeArea()
+                
+                SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 30, y: -365, rotation: 0, width:350, height:150)
+                SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 30, y: -270, rotation: 180, width:350, height:150)
 
                 VStack {
+                    HStack{
+                        CustomText(
+                            text: "List View",
+                            color: accent,
+                            width:100,
+                            textAlignment: .leading,
+                            multilineAlignment: .leading,
+                            textSize: 43
+                        )
+                        .padding(.leading, 50)
+                        Spacer()
+                    }
+                    
                     ScrollableLogTable(
                         userID: userID,
                         background: background,
@@ -32,6 +48,7 @@ struct ListView: View {
                             selectedLogTable = table
                         }
                     )
+                    Spacer()
                 }
 
                 // Floating "Add" button
@@ -51,6 +68,17 @@ struct ListView: View {
                     }
                     .padding(.bottom, 80)
                 }
+                
+                VStack {
+                    Spacer()
+                    NavBarView(
+                        userID: userID,
+                        background: $background,
+                        accent: $accent
+                    )
+                }
+                .ignoresSafeArea(edges: .bottom)
+                .zIndex(1)
             }
             .navigationDestination(isPresented: $showLogCreation) {
                 LogView(userID: userID, background: $background, accent: $accent)
@@ -65,6 +93,7 @@ struct ListView: View {
                     LogView(userID: userID, existingLogID: id, existingLogTable: table, background: $background, accent: $accent)
                 }
             }
+
         }
     }
 }

@@ -55,10 +55,8 @@ struct LogView: View {
     @State private var selectedMedication: String?
     @State private var medicationID: Int64 = 0
     
+    //for med popup
     @State private var medWorked: Bool? = nil
-//    @State private var oldSymptomName: String = ""
-//    @State private var oldLogDate: Date = Date()
-//    @State private var oldMedName: String = ""
     @State private var oldLogID: Int64 = 0
     
     
@@ -104,8 +102,6 @@ struct LogView: View {
                    
                 } else {
                     backgroundWaves
-                    CustomText(text: String(existingLogID ?? 0), color:accent)
-                        .padding(.leading, 150)
                     ScrollView {
                         headerSection
                             .padding(.top, 30)
@@ -192,10 +188,16 @@ struct LogView: View {
                 textFieldSection(title: "Symptom Description", text: $symptomDesc)
                 textFieldSection(title: "Notes", text: $notes)
                 
-                submitButton {
-                    submitSymptomLog()
+                if existingLogID == nil{
+                    submitButton(text: "Submit") {
+                        submitSymptomLog()
+                    }
+                    .disabled(!formValid)
                 }
-                .disabled(!formValid)
+                else{
+                    submitButton(text:"Save"){}
+                }
+
             }
             .padding(.bottom, 100)
         }
@@ -215,7 +217,7 @@ struct LogView: View {
             CustomText(text: "Medication*", color: accent, isBold: true, textSize: 24)
             MultipleChoiceButtonGroup(options: $medicationOptions, selected: $selectedMedication, accent: accent)
             
-            submitButton {
+            submitButton(text:"Submit") {
                 submitSideEffectLog()
             }
             .disabled(!formValid)
@@ -240,10 +242,10 @@ struct LogView: View {
         }
     }
     
-    private func submitButton(action: @escaping () -> Void) -> some View {
+    private func submitButton(text: String, action: @escaping () -> Void) -> some View {
         HStack{
             Spacer()
-            CustomButton(text: "Submit", background: background, accent: accent, action: action)
+            CustomButton(text: text, background: background, accent: accent, action: action)
                 .padding(.top, 10)
                 .padding(.trailing, leadingPadding)
             Spacer()
@@ -267,8 +269,19 @@ struct LogView: View {
         
         if let existingLogID = existingLogID {
             if let log = DatabaseManager.shared.getSymptomLog(by: existingLogID){
-               severity = log.severity
+                severity = log.severity
                 symptomDesc = log.symptom_description ?? ""
+                notes = log.notes ?? ""
+                onset = log.onset_time ?? ""
+                medTaken = log.med_taken
+                date = log.date
+                stringDate = formatter.string(from: date)
+                symptom = log.symptom_name
+                symptomID = log.symptom_id ?? 0
+                medTakenName = log.medication_name ?? ""
+                emergencyMedID = log.medication_id ?? 0
+                selectedTriggers = log.trigger_names
+                triggerIDs = log.trigger_ids
             }
            
         }
