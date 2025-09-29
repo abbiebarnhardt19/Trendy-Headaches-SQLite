@@ -1326,7 +1326,7 @@ struct EmergencyMedPopup: View {
                         textSize: 16,
                         action: {
                             if let answer = selectedAnswer {
-                                DatabaseManager.shared.updateLog(
+                                DatabaseManager.shared.updateMedEffective(
                                     logID: oldLogID,
                                     medEffectiveValue: answer
                                 )

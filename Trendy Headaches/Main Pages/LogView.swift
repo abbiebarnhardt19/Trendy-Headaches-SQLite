@@ -59,6 +59,9 @@ struct LogView: View {
     @State private var medWorked: Bool? = nil
     @State private var oldLogID: Int64 = 0
     
+    //for log editing
+    @State private var medEffective: Bool = false
+    
     
     // Date Formatter
     private let formatter: DateFormatter = {
@@ -99,6 +102,7 @@ struct LogView: View {
 
                 if hasSubmitted {
                     ListView(userID: userID, background: $background, accent: $accent)
+                        .zIndex(1)
                    
                 } else {
                     backgroundWaves
@@ -180,6 +184,10 @@ struct LogView: View {
                 if medTaken{
                     CustomText(text: "Emergency Med Name*", color: accent, isBold: true, textSize: 24)
                     MultipleChoiceButtonGroup(options: $emergencyMedOptions, selected: $medTakenName, accent: accent)
+                    
+                    if existingLogID != nil{
+                    CustomSingleCheckbox(text: "Emergency Med Effective?", color: accent, isOn: $medEffective)
+                    }
                 }
                 
                 CustomText(text: "Triggers Present", color: accent, isBold: true, textSize: 24)
@@ -196,11 +204,10 @@ struct LogView: View {
                 }
                 else{
                     submitButton(text:"Save"){
-                        DatabaseManager.shared.updateSymptomLog(logID: existingLogID ?? 0, userID: userID, date: date, onsetTime: onset, severity: severity, symptomID: symptomID, medTaken: medTaken, medicationID: emergencyMedID, symptomDescription: symptomDesc, notes: notes, triggerIDs: triggerIDs)
+                        DatabaseManager.shared.updateSymptomLog(logID: existingLogID ?? 0, userID: userID, date: date, onsetTime: onset, severity: severity, symptomID: symptomID, medTaken: medTaken, medicationID: emergencyMedID, medWorked: medEffective, symptomDescription: symptomDesc, notes: notes, triggerIDs: triggerIDs)
                         hasSubmitted = true
                     }
                 }
-
             }
             .padding(.bottom, 100)
         }
@@ -285,6 +292,7 @@ struct LogView: View {
                 emergencyMedID = log.medication_id ?? 0
                 selectedTriggers = log.trigger_names
                 triggerIDs = log.trigger_ids
+                medEffective = log.med_worked ?? false
             }
            
         }

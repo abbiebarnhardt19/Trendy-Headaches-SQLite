@@ -734,7 +734,7 @@ extension DatabaseManager {
     }
     
     
-    func updateLog(logID: Int64, medEffectiveValue: Bool) {
+    func updateMedEffective(logID: Int64, medEffectiveValue: Bool) {
         do {
             // Build the filter query for the log we want to update
             let log = logs.filter(log_id == logID)
@@ -879,6 +879,7 @@ extension DatabaseManager {
         symptomID: Int64?,
         medTaken: Bool?,
         medicationID: Int64?,
+        medWorked: Bool?,
         symptomDescription: String?,
         notes: String?,
         triggerIDs: [Int64]?
@@ -915,6 +916,10 @@ extension DatabaseManager {
                 setters.append(self.medication_id <- newMedicationID)
             }
             
+            if let newMedWorked = medWorked, newMedWorked != row[self.med_taken] {
+                setters.append(self.med_worked <- newMedWorked)
+            }
+            
             if let newSymptomDesc = symptomDescription, newSymptomDesc != row[self.symptom_description] {
                 setters.append(self.symptom_description <- newSymptomDesc)
             }
@@ -939,6 +944,7 @@ extension DatabaseManager {
                     _ = try run(log_triggers.insert(lt_log_id <- logID, lt_trigger_id <- tID))
                 }
             }
+            print("Update complete")
             
         } catch {
             print("Error updating symptom log: \(error)")
