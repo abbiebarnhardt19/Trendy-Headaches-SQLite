@@ -179,7 +179,7 @@ struct LogView: View {
                     MultipleChoiceButtonGroup(options: $emergencyMedOptions, selected: $medTakenName, accent: accent)
                     
                     if existingLogID != nil{
-                    CustomSingleCheckbox(text: "Emergency Med Effective?", color: accent, isOn: $medEffective )
+                        CustomSingleCheckbox(text: "Emergency Med Effective?", color: accent, isOn: $medEffective )
                     }
                 }
                 
@@ -188,28 +188,35 @@ struct LogView: View {
                 
                 textFieldSection(title: "Symptom Description", text: $symptomDesc)
                 textFieldSection(title: "Notes", text: $notes)
-
+                
                 // Inside your symptom log view
-                CustomButton(
-                    text: "Submit",
-                    background: background,
-                    accent: accent,
-                    height: 50,
-                    width: screenWidth - 50
-                ) {
-                    if existingLogID == nil{
-                        submitSymptomLog()
-                    }
-                    else{
-                        DatabaseManager.shared.updateSymptomLog(logID: existingLogID ?? 0, userID: userID, date: date, onsetTime: onset, severity: severity, symptomID: symptomID, medTaken: medTaken, medicationID: emergencyMedID, medWorked: medEffective, symptomDescription: symptomDesc, notes: notes, triggerIDs: triggerIDs)
-                    }// call your function first
-                    goToListView = true  // then trigger navigation
-                }
-                .disabled(!formValid)
+                HStack{
+                    Spacer()
+                    
+                    let buttonText = existingLogID != nil ? "Submit" : "Save"
 
-                // Navigation destination
-                .navigationDestination(isPresented: $goToListView) {
-                    ListView(userID: userID, background: $background, accent: $accent)
+                    CustomButton(
+                        text: buttonText,
+                        background: background,
+                        accent: accent,
+                        height: 50,
+                        width: 150
+                    ) {
+                        if existingLogID == nil{
+                            submitSymptomLog()
+                        }
+                        else{
+                            DatabaseManager.shared.updateSymptomLog(logID: existingLogID ?? 0, userID: userID, date: date, onsetTime: onset, severity: severity, symptomID: symptomID, medTaken: medTaken, medicationID: emergencyMedID, medWorked: medEffective, symptomDescription: symptomDesc, notes: notes, triggerIDs: triggerIDs)
+                        }// call your function first
+                        goToListView = true  // then trigger navigation
+                    }
+                    .disabled(!formValid)
+                    .padding(.trailing, 40)
+                    // Navigation destination
+                    .navigationDestination(isPresented: $goToListView) {
+                        ListView(userID: userID, background: $background, accent: $accent)
+                    }
+                    Spacer()
                 }
             }
             
@@ -231,10 +238,34 @@ struct LogView: View {
             CustomText(text: "Medication*", color: accent, isBold: true, textSize: 24)
             MultipleChoiceButtonGroup(options: $medicationOptions, selected: $selectedMedication, accent: accent)
             
-//            submitButton(text:"Submit") {
-//                    submitSideEffectLog()
-//            }
-//            .disabled(!formValid)
+            HStack{
+                Spacer()
+                
+                let buttonText = existingLogID != nil ? "Submit" : "Save"
+
+                CustomButton(
+                    text: buttonText,
+                    background: background,
+                    accent: accent,
+                    height: 50,
+                    width: 150
+                ) {
+                    if existingLogID == nil{
+                        submitSymptomLog()
+                    }
+                    else{
+                        DatabaseManager.shared.updateSymptomLog(logID: existingLogID ?? 0, userID: userID, date: date, onsetTime: onset, severity: severity, symptomID: symptomID, medTaken: medTaken, medicationID: emergencyMedID, medWorked: medEffective, symptomDescription: symptomDesc, notes: notes, triggerIDs: triggerIDs)
+                    }// call your function first
+                    goToListView = true  // then trigger navigation
+                }
+                .disabled(!formValid)
+                .padding(.trailing, 40)
+                // Navigation destination
+                .navigationDestination(isPresented: $goToListView) {
+                    ListView(userID: userID, background: $background, accent: $accent)
+                }
+                Spacer()
+            }
         }
     }
     
@@ -273,21 +304,37 @@ struct LogView: View {
         emergencyMedOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name", filterColumn: "medication_category", filterValue: "emergency")
         
         if let existingLogID = existingLogID {
-            if let log = DatabaseManager.shared.getSymptomLog(by: existingLogID){
-                severity = log.severity
-                symptomDesc = log.symptom_description ?? ""
-                notes = log.notes ?? ""
-                onset = log.onset_time ?? ""
-                medTaken = log.med_taken
-                date = log.date
-                stringDate = formatter.string(from: date)
-                symptom = log.symptom_name
-                symptomID = log.symptom_id ?? 0
-                medTakenName = log.medication_name ?? ""
-                emergencyMedID = log.medication_id ?? 0
-                selectedTriggers = log.trigger_names
-                triggerIDs = log.trigger_ids
-                medEffective = log.med_worked ?? false
+            if existingLogTable == "symptoms"{
+                if let log = DatabaseManager.shared.getSymptomLog(by: existingLogID){
+                    severity = log.severity
+                    symptomDesc = log.symptom_description ?? ""
+                    notes = log.notes ?? ""
+                    onset = log.onset_time ?? ""
+                    medTaken = log.med_taken
+                    date = log.date
+                    stringDate = formatter.string(from: date)
+                    symptom = log.symptom_name
+                    symptomID = log.symptom_id ?? 0
+                    medTakenName = log.medication_name ?? ""
+                    emergencyMedID = log.medication_id ?? 0
+                    selectedTriggers = log.trigger_names
+                    triggerIDs = log.trigger_ids
+                    medEffective = log.med_worked ?? false
+                    symptomLogViewShown = true
+                }
+            }
+            else{
+                sideEffectName = "test"
+                if let log = DatabaseManager.shared.getSideEffectLog(by: existingLogID){
+                    sideEffectDate = formatter.string(from: log.date)
+                    sideEffectName = log.side_effect_name ?? ""
+                    sideEffectSeverity = log.side_effect_severity
+                    selectedMedication = log.medication_name ?? ""
+                    medicationID = log.medication_id ?? 0
+                    
+                    
+                    symptomLogViewShown = false
+                }
             }
         }
     }

@@ -950,6 +950,96 @@ extension DatabaseManager {
             print("Error updating symptom log: \(error)")
         }
     }
+    
+    struct SideEffectLog {
+        var side_effect_id: Int64
+        var user_id: Int64
+        var date: Date
+        var side_effect_name: String?
+        var side_effect_severity: Int64
+        var medication_id: Int64?
+        var medication_name: String?
+    }
+
+    func getSideEffectLog(by logID: Int64) -> SideEffectLog? {
+        do {
+            let query = side_effects.filter(self.side_effect_id == logID)
+            if let row = try pluck(query) {
+                let medicationID = row[self.medication_id]
+                
+                // Lookup medication name
+                var medicationName: String? = nil
+                let medID = medicationID   // plain Int64
+
+                let medQuery = medications.filter(self.medication_id == medID)
+                if let medRow = try pluck(medQuery) {
+                    medicationName = medRow[self.medication_name]
+                }
+
+                
+                return SideEffectLog(
+                    side_effect_id: row[self.side_effect_id],
+                    user_id: row[self.user_id],
+                    date: row[self.side_effect_date],
+                    side_effect_name: row[self.side_effect_name],
+                    side_effect_severity: row[self.side_effect_severity],
+                    medication_id: medicationID,
+                    medication_name: medicationName
+                )
+            }
+        } catch {
+            print("Error fetching side effect log \(logID): \(error)")
+        }
+        return nil
+    }
+
+    
+    
+    func updateSideEffectLog(
+        logID: Int64,
+        userID: Int64,
+        date: Date?,
+        sideEffectName: String?,
+        sideEffectSeverity: Int64?,
+        medicationID: Int64?
+    ) {
+        do {
+            // Fetch current row
+            let query = side_effects.filter(self.side_effect_id == logID)
+            guard let row = try pluck(query) else { return }
+            
+            // Build update dictionary dynamically
+            var setters: [Setter] = []
+            
+            if let newDate = date, newDate != row[self.side_effect_date] {
+                setters.append(self.side_effect_date <- newDate)
+            }
+            
+            if let newName = sideEffectName, newName != row[self.side_effect_name] {
+                setters.append(self.side_effect_name <- newName)
+            }
+            
+            if let newSeverity = sideEffectSeverity, newSeverity != row[self.side_effect_severity] {
+                setters.append(self.side_effect_severity <- newSeverity)
+            }
+            
+            if let newMedicationID = medicationID, newMedicationID != row[self.medication_id] {
+                setters.append(self.medication_id <- newMedicationID)
+            }
+            
+            // Perform update only if there’s something to update
+            if !setters.isEmpty {
+                let updateQuery = query.update(setters)
+                _ = try run(updateQuery)
+            }
+            
+            print("Side effect log update complete")
+            
+        } catch {
+            print("Error updating side effect log: \(error)")
+        }
+    }
+
 
 
 }
