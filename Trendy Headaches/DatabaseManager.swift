@@ -93,10 +93,14 @@ class DatabaseManager {
 //                   }
 //                }
         //make the database
+        
+
+        
         do {
             db = try Connection(dbPath)
             db.foreignKeys = true
             createTables()
+            
         } catch {
             fatalError("Database connection failed: \(error)")
         }

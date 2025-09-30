@@ -1219,7 +1219,7 @@ struct DatePickerTextFieldDropdown: View {
                 if showDatePicker {
                     DatePicker(" ", selection: $selectedDate, in: ...Date(), displayedComponents: .date )
                     .datePickerStyle(GraphicalDatePickerStyle())
-                    .frame(width: UIScreen.main.bounds.width*0.85, height: UIScreen.main.bounds.width*0.8)
+                    .frame(width: UIScreen.main.bounds.width*0.85, height: UIScreen.main.bounds.width*0.85)
                     .background(Color(hex: accent))
                     .accentColor(Color(hex: background))
                     .tint(Color(hex: background))
@@ -1393,7 +1393,7 @@ struct ScrollableLogTable: View {
                             row(for: log)
                                 .contentShape(Rectangle())
                                 .onTapGesture {
-                                        onLogTap?(3, "symptom_logs") // pass table name if needed
+                                        onLogTap?(1, "symptom_logs") // pass table name if needed
                                     }
 
                             if log.id != logs.last?.id {
