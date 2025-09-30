@@ -308,38 +308,38 @@ struct LogView: View {
             if existingLogTable == "symptoms"{
 
                 if let log = DatabaseManager.shared.getSymptomLog(by: existingLogID){
-                    severity = log.severity
-                    symptomDesc = log.symptom_description ?? ""
-                    notes = log.notes ?? ""
-                    onset = log.onset_time ?? ""
-                    medTaken = log.med_taken
-                    date = log.date
-                    stringDate = formatter.string(from: date)
-                    symptom = log.symptom_name
-                    symptomID = log.symptom_id ?? 0
-                    medTakenName = log.medication_name ?? ""
-                    emergencyMedID = log.medication_id ?? 0
-                    selectedTriggers = log.trigger_names
-                    triggerIDs = log.trigger_ids
-                    medEffective = log.med_worked ?? false
-                    symptomLogViewShown = true
+ //                   severity = log.severity
+//                    symptomDesc = log.symptom_description ?? ""
+//                    notes = log.notes ?? ""
+//                    onset = log.onset_time ?? ""
+//                    medTaken = log.med_taken
+//                    date = log.date
+//                    stringDate = formatter.string(from: date)
+//                    //symptom = log.symptom_name
+//                    symptomID = log.symptom_id ?? 0
+//                    //medTakenName = log.medication_name ?? ""
+//                    emergencyMedID = log.medication_id ?? 0
+//                    //selectedTriggers = log.trigger_names
+//                    triggerIDs = log.trigger_ids
+//                    medEffective = log.med_worked ?? false
+//                    symptomLogViewShown = true
                 }
                 else{
                     notes = "test"
                 }
             }
             else{
-                sideEffectName = "test"
-                if let log = DatabaseManager.shared.getSideEffectLog(by: existingLogID){
-                    sideEffectDate = formatter.string(from: log.date)
-                    sideEffectName = log.side_effect_name ?? ""
-                    sideEffectSeverity = log.side_effect_severity
-                    selectedMedication = log.medication_name ?? ""
-                    medicationID = log.medication_id ?? 0
-                    
-                    
-                    symptomLogViewShown = false
-                }
+//                sideEffectName = "test"
+//                if let log = DatabaseManager.shared.getSideEffectLog(by: existingLogID){
+//                    sideEffectDate = formatter.string(from: log.date)
+//                    sideEffectName = log.side_effect_name ?? ""
+//                    sideEffectSeverity = log.side_effect_severity
+//                    selectedMedication = log.medication_name ?? ""
+//                    medicationID = log.medication_id ?? 0
+//                    
+//                    
+//                    symptomLogViewShown = false
+ //               }
             }
         }
     }

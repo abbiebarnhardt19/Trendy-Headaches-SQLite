@@ -540,7 +540,7 @@ extension DatabaseManager {
     func createLog(
         userID: Int64,
         date: Date,
-        symptom_onset: String,
+        symptom_onset: String?,
         symptom: Int64,
         severity: Int64,
         med_taken: Bool,
@@ -578,64 +578,101 @@ extension DatabaseManager {
                 )
                 _ = try DatabaseManager.shared.run(linkInsert)
             }
-            print("Create log with logID \(logID)")
-            return logID // Return the actual log's primary key
+            
+            // Fetch and print the inserted row
+            // Fetch and print the inserted row in a readable format
+            let query = DatabaseManager.shared.logs.filter(DatabaseManager.shared.log_id == logID)
+            if let insertedRow = try DatabaseManager.shared.pluck(query) {
+                let id: Int64 = insertedRow[DatabaseManager.shared.log_id]
+                let user: Int64 = insertedRow[DatabaseManager.shared.user_id]
+                let date: Date = insertedRow[DatabaseManager.shared.date]
+                let onset: String = insertedRow[DatabaseManager.shared.onset_time] ?? " "
+                let symptomID: Int64 = insertedRow[DatabaseManager.shared.symptom_id]
+                let severity: Int64 = insertedRow[DatabaseManager.shared.severity]
+                let medTaken: Bool = insertedRow[DatabaseManager.shared.med_taken]
+                let medID: Int64? = insertedRow[DatabaseManager.shared.log_medication_id]
+                let medWorked: Bool? = insertedRow[DatabaseManager.shared.med_worked]
+                let desc: String = insertedRow[DatabaseManager.shared.symptom_description]
+                let notes: String = insertedRow[DatabaseManager.shared.notes]
+                let submitTime: Date = insertedRow[DatabaseManager.shared.submit_time]
+
+                print("""
+                    Inserted Log:
+                    logID: \(id)
+                    userID: \(user)
+                    date: \(date)
+                    onset_time: \(onset)
+                    symptom_id: \(symptomID)
+                    severity: \(severity)
+                    med_taken: \(medTaken)
+                    med_taken_id: \(medID ?? -1)
+                    med_worked: \(medWorked.map { "\($0)" } ?? "nil")
+                    symptom_description: \(desc)
+                    notes: \(notes)
+                    submit_time: \(submitTime)
+                    """)
+            }
+
+            
+            return logID
             
         } catch {
             print("Failed to create log: \(error)")
             return nil
         }
     }
+
     
-    struct Log {
-        var id: Int64
-        var userID: Int64
-        var date: Date
-        var symptomOnset: String
-        var symptom: Int64
-        var severity: Int64
-        var medTaken: Bool
-        var medTakenID: Int64?
-        var medWorked: Bool?
-        var symptomDesc: String
-        var notes: String
-        var submit: Date
-        var triggerIDs: [Int64]
-    }
-    
-    
-    func getLog(byID logID: Int64) -> Log? {
-        do {
-            let query = logs.filter(log_id == logID)
-            if let row = try pluck(query) {
-                let triggerQuery = log_triggers.filter(lt_log_id == logID)
-                let triggers = try prepare(triggerQuery).map { $0[lt_trigger_id] }
-                
-                // Return a Log struct, not a tuple
-                return Log(
-                    id: row[log_id],
-                    userID: row[user_id],
-                    date: row[date],
-                    symptomOnset: row[onset_time],
-                    symptom: row[symptom_id],
-                    severity: row[severity],
-                    medTaken: row[med_taken],
-                    medTakenID: row[medication_id],
-                    medWorked: row[med_worked],
-                    symptomDesc: row[symptom_description],
-                    notes: row[notes],
-                    submit: row[submit_time],
-                    triggerIDs: triggers
-                )
-            } else {
-                print("No log found with ID \(logID)")
-                return nil
-            }
-        } catch {
-            print("Failed to fetch log: \(error)")
-            return nil
-        }
-    }
+//    struct Log {
+//        var id: Int64
+//        var userID: Int64
+//        var date: Date
+//        var symptomOnset: String
+//        var symptom: Int64
+//        var severity: Int64
+//        var medTaken: Bool
+//        var medTakenID: Int64?
+//        var medWorked: Bool?
+//        var symptomDesc: String
+//        var notes: String
+//        var submit: Date
+//        var triggerIDs: [Int64]
+//    }
+//    
+//    
+//    func getLog(byID logID: Int64) -> Log? {
+//        do {
+//            print("entered do")
+//            let query = logs.filter(log_id == logID)
+//            if let row = try pluck(query) {
+//                let triggerQuery = log_triggers.filter(lt_log_id == logID)
+//                let triggers = try prepare(triggerQuery).map { $0[lt_trigger_id] }
+//                
+//                // Return a Log struct, not a tuple
+//                return Log(
+//                    id: row[log_id],
+//                    userID: row[user_id],
+//                    date: row[date],
+//                    symptomOnset: row[onset_time],
+//                    symptom: row[symptom_id],
+//                    severity: row[severity],
+//                    medTaken: row[med_taken],
+//                    medTakenID: row[log_medication_id],
+//                    medWorked: row[med_worked],
+//                    symptomDesc: row[symptom_description],
+//                    notes: row[notes],
+//                    submit: row[submit_time],
+//                    triggerIDs: triggers
+//                )
+//            } else {
+//                print("No log found with ID \(logID)")
+//                return nil
+//            }
+//        } catch {
+//            print("Failed to fetch log: \(error)")
+//            return nil
+//        }
+//    }
     
     func createSideEffectLog(
         userID: Int64,
@@ -810,54 +847,39 @@ extension DatabaseManager {
     
     func getSymptomLog(by logID: Int64) -> SymptomLog? {
         do {
-            do {
-                let rows = try DatabaseManager.shared.prepare(logs)  // use your helper
-                    print("All logs in the table:")
-                    for row in rows {
-                        print("Log ID:", row[log_id],
-                              "User ID:", row[user_id],
-                              "Date:", row[date],
-                              "Onset:", row[onset_time],
-                              "Severity:", row[severity],
-                              "Symptom ID:", row[symptom_id],
-                              "Medication ID:", row[medication_id])
-                    }
-                } catch {
-                    print("Error fetching all logs:", error)
-                }
-                
             let query = logs.filter(self.log_id == logID)
             if let row = try pluck(query) {
-                // Get the IDs
-                let symptomID = row[self.symptom_id]      // Int64
-                let medicationID = row[self.medication_id] // Int64
-
-                // Fetch the names from the other tables
+                let symptomID = row[self.symptom_id]
+                let medicationID = row[self.medication_id]
+                
+                // Fetch names safely
                 var symptomName: String? = nil
-                let symptomQuery = symptoms.filter(self.symptom_id == symptomID)
-                if let symptomRow = try pluck(symptomQuery) {
-                    symptomName = symptomRow[self.symptom_name]
+                if let sID = symptomID {
+                    let symptomQuery = symptoms.filter(self.symptom_id == sID)
+                    if let sRow = try pluck(symptomQuery) {
+                        symptomName = sRow[self.symptom_name]
+                    }
                 }
 
                 var medicationName: String? = nil
-                let medQuery = medications.filter(self.medication_id == medicationID)
-                if let medRow = try pluck(medQuery) {
-                    medicationName = medRow[self.medication_name]
+                if let mID = medicationID {
+                    let medQuery = medications.filter(self.medication_id == mID)
+                    if let mRow = try pluck(medQuery) {
+                        medicationName = mRow[self.medication_name]
+                    }
                 }
-                
-                // Trigger names
-                var triggerNames: [String] = []
+
+                // Triggers
                 var triggerIDs: [Int64] = []
+                var triggerNames: [String] = []
 
                 let triggerQuery = log_triggers.filter(lt_log_id == logID)
-                for triggerRow in try prepare(triggerQuery) {
-                    let tID = triggerRow[lt_trigger_id]
-                    triggerIDs.append(tID)  // append the ID
-
-                    let tQuery = triggers.filter(trigger_id == tID)
-                    if let t = try pluck(tQuery) {
-                        let name = t[trigger_name]  // direct assignment, no optional
-                        triggerNames.append(name)
+                for tRow in try prepare(triggerQuery) {
+                    let tID = tRow[lt_trigger_id]
+                    triggerIDs.append(tID)
+                    
+                    if let tRow = try pluck(triggers.filter(trigger_id == tID)) {
+                        triggerNames.append(tRow[trigger_name])
                     }
                 }
 
@@ -885,6 +907,7 @@ extension DatabaseManager {
         }
         return nil
     }
+
     
     func updateSymptomLog(
         logID: Int64,

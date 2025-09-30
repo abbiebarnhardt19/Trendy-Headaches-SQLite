@@ -58,7 +58,7 @@ class DatabaseManager {
     // log columns
     let log_id = SQLite.Expression<Int64>("log_id")
     let date = SQLite.Expression<Date>("date")
-    let onset_time = SQLite.Expression<String>("onset_time")
+    let onset_time = SQLite.Expression<String?>("onset_time")
     let severity = SQLite.Expression<Int64>("severity_level")
     let med_taken = SQLite.Expression<Bool>("med_taken")
     let med_worked = SQLite.Expression<Bool?>("med_worked")
@@ -338,9 +338,7 @@ class DatabaseManager {
     func prepare(_ query: SQLite.QueryType) throws -> AnySequence<SQLite.Row> {
         try db.prepare(query)
     }
-    
-
-        
+ 
         func debugRowCount(for tableName: String, userID: Int64) -> Int {
             do {
                 let table = Table(tableName)
@@ -352,9 +350,4 @@ class DatabaseManager {
                 return -1
             }
         }
-
-
-
-
-
 }
