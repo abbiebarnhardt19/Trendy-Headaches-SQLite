@@ -544,7 +544,7 @@ extension DatabaseManager {
         symptom: Int64,
         severity: Int64,
         med_taken: Bool,
-        med_taken_id: Int64,
+        med_taken_id: Int64?,
         symptom_desc: String,
         notes: String,
         submit: Date,
@@ -560,8 +560,8 @@ extension DatabaseManager {
                 DatabaseManager.shared.severity <- severity,
                 DatabaseManager.shared.symptom_id <- symptom,
                 DatabaseManager.shared.med_taken <- med_taken,
-                DatabaseManager.shared.medication_id <- med_taken_id,
-                DatabaseManager.shared.med_worked <- med_worked, // now nullable
+                DatabaseManager.shared.log_medication_id <- med_taken_id,
+                DatabaseManager.shared.med_worked <- nil, // now nullable
                 DatabaseManager.shared.symptom_description <- symptom_desc,
                 DatabaseManager.shared.notes <- notes,
                 DatabaseManager.shared.submit_time <- submit
@@ -578,7 +578,7 @@ extension DatabaseManager {
                 )
                 _ = try DatabaseManager.shared.run(linkInsert)
             }
-            
+            print("Create log with logID \(logID)")
             return logID // Return the actual log's primary key
             
         } catch {
@@ -810,6 +810,22 @@ extension DatabaseManager {
     
     func getSymptomLog(by logID: Int64) -> SymptomLog? {
         do {
+            do {
+                let rows = try DatabaseManager.shared.prepare(logs)  // use your helper
+                    print("All logs in the table:")
+                    for row in rows {
+                        print("Log ID:", row[log_id],
+                              "User ID:", row[user_id],
+                              "Date:", row[date],
+                              "Onset:", row[onset_time],
+                              "Severity:", row[severity],
+                              "Symptom ID:", row[symptom_id],
+                              "Medication ID:", row[medication_id])
+                    }
+                } catch {
+                    print("Error fetching all logs:", error)
+                }
+                
             let query = logs.filter(self.log_id == logID)
             if let row = try pluck(query) {
                 // Get the IDs

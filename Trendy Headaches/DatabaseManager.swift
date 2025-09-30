@@ -65,6 +65,7 @@ class DatabaseManager {
     let symptom_description = SQLite.Expression<String>("symptom_description")
     let notes = SQLite.Expression<String>("notes")
     let submit_time = SQLite.Expression<Date>("submit_time")
+    let log_medication_id = SQLite.Expression<Int64?>("medication_id")
 
     //columns for table that handles many to many relationships
     let lt_log_id = SQLite.Expression<Int64>("log_id")
@@ -160,13 +161,13 @@ class DatabaseManager {
                 t.column(severity)
                 t.column(symptom_id)
                 t.column(med_taken)
-                t.column(medication_id)
+                t.column(log_medication_id)
                 t.column(med_worked)
                 t.column(symptom_description)
                 t.column(notes)
                 t.column(submit_time)
                 t.foreignKey(user_id, references: users, user_id, delete: .cascade)
-                t.foreignKey(medication_id, references: medications, medication_id, delete: .cascade)
+                t.foreignKey(log_medication_id, references: medications, medication_id, delete: .cascade)
                 t.foreignKey(symptom_id, references: symptoms, symptom_id, delete: .setNull)
             })
             

@@ -44,7 +44,7 @@ struct LogView: View {
     @State private var selectedTriggers: [String] = []
     @State private var symptomID: Int64 = 0
     @State private var triggerIDs: [Int64] = []
-    @State private var emergencyMedID: Int64 = 0
+    @State private var emergencyMedID: Int64? = nil
     
     //  Side Effect Log variables
     @State private var sideEffectDate: String = ""
@@ -304,7 +304,9 @@ struct LogView: View {
         emergencyMedOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name", filterColumn: "medication_category", filterValue: "emergency")
         
         if let existingLogID = existingLogID {
+            
             if existingLogTable == "symptoms"{
+
                 if let log = DatabaseManager.shared.getSymptomLog(by: existingLogID){
                     severity = log.severity
                     symptomDesc = log.symptom_description ?? ""
@@ -321,6 +323,9 @@ struct LogView: View {
                     triggerIDs = log.trigger_ids
                     medEffective = log.med_worked ?? false
                     symptomLogViewShown = true
+                }
+                else{
+                    notes = "test"
                 }
             }
             else{
@@ -346,7 +351,9 @@ struct LogView: View {
             
             triggerIDs = DatabaseManager.shared.getIDFromName(tableName: "triggers", names: selectedTriggers, userID: userID)
             
-            emergencyMedID = DatabaseManager.shared.getIDFromName(tableName: "medications", names: [medTakenName ?? ""], userID: userID).first ?? 0
+        if medTakenName != ""{
+            emergencyMedID = DatabaseManager.shared.getIDFromName(tableName: "medications", names: [medTakenName ?? ""], userID: userID).first
+        }
             
             //convert the date from string format
             let enteredDate = formatter.date(from: stringDate) ?? Date()
