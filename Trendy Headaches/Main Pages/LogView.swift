@@ -145,7 +145,7 @@ struct LogView: View {
         .onAppear {
             setupData()
             let results = DatabaseManager.shared.emergencyMedPopup(userID: userID)
-            if let first = results.first {
+            if !results.isEmpty {
                 oldLogIDs = results
                 showEmergencyPopup = true
             }
@@ -201,6 +201,7 @@ struct LogView: View {
                 if medTaken{
                     CustomText(text: "Emergency Med Name*", color: accent, isBold: true, textSize: 24)
                     MultipleChoiceButtonGroup(options: $emergencyMedOptions, selected: $medTakenName, accent: accent)
+                        
                     
                     if existingLogID != nil{
                         CustomSingleCheckbox(text: "Emergency Med Effective?", color: accent, isOn: $medEffective )
@@ -230,6 +231,13 @@ struct LogView: View {
                             submitSymptomLog()
                         }
                         else{
+                             if medTakenName != nil && medTakenName != ""{
+                                emergencyMedID = DatabaseManager.shared.getIDFromName(tableName: "medications", names: [medTakenName ?? ""], userID: userID).first
+                            }
+                            else{
+                                emergencyMedID=nil
+                            }
+                            
                             DatabaseManager.shared.updateSymptomLog(logID: existingLogID ?? 0, userID: userID, date: date, onsetTime: onset, severity: severity, symptomID: symptomID, medTaken: medTaken, medicationID: emergencyMedID, medWorked: medEffective, symptomDescription: symptomDesc, notes: notes, triggerIDs: triggerIDs)
                         }// call your function first
                         goToListView = true  // then trigger navigation

@@ -798,6 +798,8 @@ struct MultipleChoiceButtonGroup: View {
     let circleWidth: CGFloat = 20
     let spacing: CGFloat = 8
     let charWidth: CGFloat = 14
+    
+
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -828,6 +830,12 @@ struct MultipleChoiceButtonGroup: View {
         }
         .padding(.bottom, 10)
         .padding(.leading, 5)
+        .onAppear{
+            if options.count == 1{
+                selected = options[0]
+            }
+        }
+
     }
 }
 
