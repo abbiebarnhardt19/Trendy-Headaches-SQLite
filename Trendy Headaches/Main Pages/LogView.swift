@@ -283,7 +283,7 @@ struct LogView: View {
                     width: 150
                 ) {
                     if existingLogID == nil{
-                        submitSymptomLog()
+                        submitSideEffectLog()
                     }
                     else{
                         DatabaseManager.shared.updateSymptomLog(logID: existingLogID ?? 0, userID: userID, date: date, onsetTime: onset, severity: severity, symptomID: symptomID, medTaken: medTaken, medicationID: emergencyMedID, medWorked: medEffective, symptomDescription: symptomDesc, notes: notes, triggerIDs: triggerIDs)
@@ -337,7 +337,7 @@ struct LogView: View {
         
         if let existingLogID = existingLogID {
             
-            if existingLogTable == "symptoms"{
+            if existingLogTable == "Symptom"{
 
                 if let log = DatabaseManager.shared.getSymptomLog(by: existingLogID){
                     severity = log.severity
@@ -396,13 +396,13 @@ struct LogView: View {
     //function to add the side effect to the database
     private func submitSideEffectLog() {
         //get the medication ID from the name
-        medicationID = DatabaseManager.shared.getIDFromName(tableName: "medication", names: [selectedMedication ?? ""], userID: userID).first ?? 0
+        medicationID = DatabaseManager.shared.getIDFromName(tableName: "medications", names: [selectedMedication ?? ""], userID: userID).first ?? 0
        
         //convert the date from a string
         let enteredDate = formatter.date(from: sideEffectDate) ?? Date()
         
         //add it to the database
-        logID = DatabaseManager.shared.createSideEffectLog(userID: userID, date: enteredDate, side_effect: sideEffectName, side_effect_severity: sideEffectSeverity, medication_id: medicationID) ?? 0 
+        logID = DatabaseManager.shared.createSideEffectLog(userID: userID, date: enteredDate, submit_time: Date(), side_effect: sideEffectName, side_effect_severity: sideEffectSeverity, medication_id: medicationID) ?? 0 
     }
 }
 

@@ -1358,34 +1358,15 @@ struct EmergencyMedPopup: View {
     }
 }
 
-
-import SwiftUI
-
-// MARK: - Model
-struct Log: Identifiable, Hashable {
-    let id: Int64
-    let type: String
-    let symptom: String
-    let date: Date
-    let severity: Int
-}
-
 // MARK: - Table View
 struct ScrollableLogTable: View {
     var userID: Int64
+    var logList: [LogList]
     @State var background: String
     @State var accent: String
     var width: CGFloat
     
     var onLogTap: ((Int64, String) -> Void)? = nil
-    @State private var selectedLog: Log? = nil
-    @State private var popupHeight: CGFloat = 100
-
-    private let logs: [Log] = [
-        Log(id:1, type: "Symptom", symptom: "Migraine", date: Date(), severity: 7),
-        Log(id:2, type: "Side Effect", symptom: "Tension", date: Date().addingTimeInterval(-86400), severity: 4),
-        Log(id:3, type: "Symptom", symptom: "Cluster", date: Date().addingTimeInterval(-172800), severity: 9)
-    ]
 
     private var dateFormatter: DateFormatter {
         let f = DateFormatter()
@@ -1397,14 +1378,14 @@ struct ScrollableLogTable: View {
             ScrollView(.vertical, showsIndicators: true) {
                 LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
                     Section(header: tableHeader) {
-                        ForEach(logs) { log in
+                        ForEach(logList, id: \.id) { log in
                             row(for: log)
                                 .contentShape(Rectangle())
                                 .onTapGesture {
-                                        onLogTap?(1, "symptoms") // pass table name if needed
+                                    onLogTap?(log.log_id, log.log_type) // pass table name if needed
                                     }
 
-                            if log.id != logs.last?.id {
+                            if log.id != logList.last?.id {
                                 Divider()
                                     .frame(width: width, height: 1)
                                     .background(Color(hex: background).opacity(0.5))
@@ -1424,27 +1405,27 @@ struct ScrollableLogTable: View {
     }
 
     // MARK: - Row Builder
-    private func row(for log: Log) -> some View {
+    private func row(for logList: LogList) -> some View {
         HStack(spacing: 0) {
-            CustomText(text: log.type, color: background, width: 110, textAlignment: .center, textSize: 16)
+            CustomText(text: logList.log_type, color: background, width: 110, textAlignment: .center, textSize: 16)
                 .padding(.vertical, 5)
 
             Divider().frame(width: 1, height: 30)
                 .background(Color(hex: background).opacity(0.5))
 
-            CustomText(text: log.symptom, color: background, textAlignment: .center, textSize: 16)
+            CustomText(text: logList.symptom, color: background, textAlignment: .center, textSize: 16)
                 .padding(.vertical, 5)
 
             Divider().frame(width: 1, height: 30)
                 .background(Color(hex: background).opacity(0.5))
 
-            CustomText(text: dateFormatter.string(from: log.date), color: background, width: 70, textAlignment: .center, textSize: 16)
+            CustomText(text: dateFormatter.string(from: logList.date), color: background, width: 65, textAlignment: .center, textSize: 16)
                 .padding(.vertical, 5)
 
             Divider().frame(width: 1, height: 30)
                 .background(Color(hex: background).opacity(0.5))
 
-            CustomText(text: "\(log.severity)", color: background, width: 85, textAlignment: .center, textSize: 16)
+            CustomText(text: "\(logList.severity)", color: background, width: 55, textAlignment: .center, textSize: 16)
                 .padding(.vertical, 5)
         }
         .background(Color(hex: accent))
@@ -1466,13 +1447,13 @@ struct ScrollableLogTable: View {
                 Divider().frame(width: 1, height: 30)
                     .background(Color(hex: background).opacity(0.5))
 
-                CustomText(text:"Date", color:background, width:70, textAlignment: .center, isBold: true, textSize: 18)
+                CustomText(text:"Date", color:background, width:65, textAlignment: .center, isBold: true, textSize: 18)
                     .padding(.vertical, 5)
 
                 Divider().frame(width: 1, height: 30)
                     .background(Color(hex: background).opacity(0.5))
 
-                CustomText(text:"Severity", color:background, width:85, textAlignment: .center, isBold: true, textSize: 18)
+                CustomText(text:"Sev.", color:background, width:55, textAlignment: .center, isBold: true, textSize: 18)
                     .padding(.vertical, 5)
             }
             .background(Color(hex: accent))
@@ -1484,3 +1465,15 @@ struct ScrollableLogTable: View {
         .background(Color(hex: accent))
     }
 }
+
+// LogList.swift
+struct LogList {
+    var log_type: String
+    var log_id: Int64
+    var symptom: String
+    var date: Date
+    var submit_date: Date
+    var severity: Int64
+    var id: String { "\(log_type)_\(log_id)" }
+}
+

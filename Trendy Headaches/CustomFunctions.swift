@@ -677,26 +677,31 @@ extension DatabaseManager {
     func createSideEffectLog(
         userID: Int64,
         date: Date,
+        submit_time:Date,
         side_effect: String,
         side_effect_severity: Int64,
         medication_id: Int64 ) -> Int64? {
-            
+            print(medication_id)
             do {
                 // Insert log row
+                
                 let insert = DatabaseManager.shared.side_effects.insert(
                     DatabaseManager.shared.user_id <- userID,
                     DatabaseManager.shared.side_effect_date <- date,
+                    DatabaseManager.shared.side_effect_submit_time <- submit_time,
                     DatabaseManager.shared.side_effect_name <- side_effect,
                     DatabaseManager.shared.side_effect_severity <- side_effect_severity,
-                    DatabaseManager.shared.medication_id <- medication_id
+                    DatabaseManager.shared.side_effect_medication_id <- medication_id
                 )
                 
                 // Execute insert
                 let logID = try DatabaseManager.shared.run(insert)
                 
+                print("Successfully submitted log")
                 return logID // Return the actual log's primary key
                 
             } catch {
+
                 print("Failed to create log: \(error)")
                 return nil
             }
@@ -724,7 +729,6 @@ extension DatabaseManager {
         } catch {
             print("Database error: \(error)")
         }
-        print(results)
         return results
     }
     
@@ -960,13 +964,13 @@ extension DatabaseManager {
         do {
             let query = side_effects.filter(self.side_effect_id == logID)
             if let row = try pluck(query) {
-                let medicationID = row[self.medication_id]
+                let medicationID = row[self.side_effect_medication_id]
                 
                 // Lookup medication name
                 var medicationName: String? = nil
                 let medID = medicationID   // plain Int64
 
-                let medQuery = medications.filter(self.medication_id == medID)
+                let medQuery = medications.filter(self.side_effect_medication_id == medID)
                 if let medRow = try pluck(medQuery) {
                     medicationName = medRow[self.medication_name]
                 }
@@ -1034,6 +1038,83 @@ extension DatabaseManager {
             print("Error updating side effect log: \(error)")
         }
     }
+    
+//    struct LogList {
+//        var log_type: String
+//        var log_id: Int64
+//        var symptom: String
+//        var Date: Date
+//        var severity: Int64
+//    }
+
+    func getLogList(userID: Int64) -> [LogList] {
+        var logsList: [LogList] = []
+        
+        do {
+            // query all logs for this user
+            let query = DatabaseManager.shared.logs
+                .filter(DatabaseManager.shared.user_id == userID)
+            
+            for row in try DatabaseManager.shared.prepare(query) {
+                let logID = row[DatabaseManager.shared.log_id]
+                let date = row[DatabaseManager.shared.date]
+                let submit_date = row[DatabaseManager.shared.submit_time]
+                let severity = row[DatabaseManager.shared.severity]
+                let symptomID = row[DatabaseManager.shared.symptom_id]
+                
+                // query symptoms table using the id
+                var symptomName = "Unknown"
+                if let symptomRow = try DatabaseManager.shared.pluck(
+                    DatabaseManager.shared.symptoms.filter(DatabaseManager.shared.symptom_id == symptomID)
+                ) {
+                    symptomName = symptomRow[DatabaseManager.shared.symptom_name]
+                }
+                
+                let log = LogList(
+                    log_type: "Symptom",
+                    log_id: logID,
+                    symptom: symptomName,
+                    date: date,
+                    submit_date: submit_date,
+                    severity: severity
+                )
+                logsList.append(log)
+            }
+            
+            let query2 = DatabaseManager.shared.side_effects.filter(DatabaseManager.shared.user_id == userID)
+            for row in try DatabaseManager.shared.prepare(query2) {
+                let logID = row[DatabaseManager.shared.side_effect_id]
+                let date = row[DatabaseManager.shared.side_effect_date]
+                let severity = row[DatabaseManager.shared.side_effect_severity]
+                let side_effect = row[DatabaseManager.shared.side_effect_name]
+                
+                let log = LogList(
+                    log_type: "Side Effect",
+                    log_id: logID,
+                    symptom: side_effect,
+                    date: date,
+                    submit_date: date,
+                    severity: severity
+                )
+                logsList.append(log)
+
+            }
+            
+        } catch {
+            print("Error fetching logs: \(error)")
+        }
+        
+        logsList.sort {
+            if $0.date != $1.date {
+                return $0.date > $1.date     // primary sort by main date, descending
+            } else {
+                return $0.submit_date > $1.submit_date  // secondary sort by submit time, descending
+            }
+        }
+
+        return logsList
+    }
+
 
 
 

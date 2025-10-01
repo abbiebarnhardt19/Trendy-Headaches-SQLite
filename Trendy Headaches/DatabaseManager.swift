@@ -75,6 +75,8 @@ class DatabaseManager {
     let side_effect_name = SQLite.Expression<String>("side_effect_name")
     let side_effect_severity = SQLite.Expression<Int64>("side_effect_severity")
     let side_effect_date = SQLite.Expression<Date>("date")
+    let side_effect_medication_id = SQLite.Expression<Int64?>("medication_id")
+    let side_effect_submit_time = SQLite.Expression<Date>("side_effect_submit_time")
 
     
     //create database
@@ -183,12 +185,13 @@ class DatabaseManager {
             try db.run(side_effects.create(ifNotExists: true) { t in
                 t.column(side_effect_id, primaryKey: .autoincrement)
                 t.column(user_id)
-                t.column(medication_id)
+                t.column(side_effect_medication_id)
                 t.column(side_effect_name)
                 t.column(side_effect_severity)
                 t.column(side_effect_date)
+                t.column(side_effect_submit_time)
                 t.foreignKey(user_id, references: users, user_id, delete: .cascade)
-                t.foreignKey(medication_id, references: medications, medication_id, delete: .cascade)
+                t.foreignKey(side_effect_medication_id, references: medications, medication_id, delete: .cascade)
             })
 
             

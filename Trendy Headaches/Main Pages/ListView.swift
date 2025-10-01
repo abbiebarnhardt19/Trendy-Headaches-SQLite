@@ -15,6 +15,8 @@ struct ListView: View {
     @State private var selectedLogID: Int64? = nil
     @State private var selectedLogTable: String? = nil
     @State private var showLogCreation: Bool = false
+    
+    @State private var logList: [LogList] = []
 
     var body: some View {
         NavigationStack {
@@ -26,28 +28,15 @@ struct ListView: View {
 
                 VStack {
                     HStack{
-                        CustomText(
-                            text: "List View",
-                            color: accent,
-                            width:100,
-                            textAlignment: .leading,
-                            multilineAlignment: .leading,
-                            textSize: 43
-                        )
+                        CustomText(text: "List View", color: accent, width:100, textAlignment: .leading,  multilineAlignment: .leading,  textSize: 43)
                         .padding(.leading, 50)
                         Spacer()
                     }
                     
-                    ScrollableLogTable(
-                        userID: userID,
-                        background: background,
-                        accent: accent,
-                        width: UIScreen.main.bounds.width - 30,
-                        onLogTap: { id, table in
+                    ScrollableLogTable( userID: userID, logList: logList, background: background, accent: accent, width: UIScreen.main.bounds.width - 20, onLogTap: { id, table in
                             selectedLogID = id
                             selectedLogTable = table
-                        }
-                    )
+                        })
                     Spacer()
                 }
 
@@ -94,6 +83,9 @@ struct ListView: View {
                 }
             }
 
+        }
+        .onAppear{
+            logList = DatabaseManager.shared.getLogList(userID: userID)
         }
     }
 }
