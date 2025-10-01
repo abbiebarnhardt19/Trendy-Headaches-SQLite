@@ -849,18 +849,16 @@ extension DatabaseManager {
         do {
             let query = logs.filter(self.log_id == logID)
             if let row = try pluck(query) {
+                // Symptom is non-optional in logs
                 let symptomID = row[self.symptom_id]
-                let medicationID = row[self.medication_id]
-                
-                // Fetch names safely
                 var symptomName: String? = nil
-                if let sID = symptomID {
-                    let symptomQuery = symptoms.filter(self.symptom_id == sID)
-                    if let sRow = try pluck(symptomQuery) {
-                        symptomName = sRow[self.symptom_name]
-                    }
+                let symptomQuery = symptoms.filter(self.symptom_id == symptomID)
+                if let sRow = try pluck(symptomQuery) {
+                    symptomName = sRow[self.symptom_name]
                 }
 
+                // Medication is optional
+                let medicationID: Int64? = row[self.log_medication_id]
                 var medicationName: String? = nil
                 if let mID = medicationID {
                     let medQuery = medications.filter(self.medication_id == mID)
@@ -877,7 +875,7 @@ extension DatabaseManager {
                 for tRow in try prepare(triggerQuery) {
                     let tID = tRow[lt_trigger_id]
                     triggerIDs.append(tID)
-                    
+
                     if let tRow = try pluck(triggers.filter(trigger_id == tID)) {
                         triggerNames.append(tRow[trigger_name])
                     }
