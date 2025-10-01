@@ -1006,7 +1006,6 @@ extension DatabaseManager {
             // Fetch current row
             let query = side_effects.filter(self.side_effect_id == logID)
             guard let row = try pluck(query) else { return }
-            
             // Build update dictionary dynamically
             var setters: [Setter] = []
             

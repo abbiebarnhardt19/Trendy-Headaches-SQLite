@@ -281,7 +281,7 @@ struct LogView: View {
                         submitSideEffectLog()
                     }
                     else{
-                        DatabaseManager.shared.updateSymptomLog(logID: existingLogID ?? 0, userID: userID, date: date, onsetTime: onset, severity: severity, symptomID: symptomID, medTaken: medTaken, medicationID: emergencyMedID, medWorked: medEffective, symptomDescription: symptomDesc, notes: notes, triggerIDs: triggerIDs)
+                        DatabaseManager.shared.updateSideEffectLog(logID: existingLogID ?? 0, userID: userID, date: date, sideEffectName: sideEffectName, sideEffectSeverity: sideEffectSeverity, medicationID: medicationID)
                     }// call your function first
                     goToListView = true  // then trigger navigation
                 }
@@ -321,7 +321,7 @@ struct LogView: View {
     private func setupData() {
         //get the current date
         stringDate = formatter.string(from: Date())
-        sideEffectDate = stringDate
+        sideEffectDate = formatter.string(from: Date())
         
         //get data from database
         symptomOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")

@@ -65,7 +65,7 @@ class DatabaseManager {
     let symptom_description = SQLite.Expression<String>("symptom_description")
     let notes = SQLite.Expression<String>("notes")
     let submit_time = SQLite.Expression<Date>("submit_time")
-    let log_medication_id = SQLite.Expression<Int64?>("medication_id")
+    let log_medication_id = SQLite.Expression<Int64?>("log_medication_id")
 
     //columns for table that handles many to many relationships
     let lt_log_id = SQLite.Expression<Int64>("log_id")
