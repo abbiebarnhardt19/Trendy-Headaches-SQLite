@@ -702,49 +702,6 @@ extension DatabaseManager {
             }
         }
     
-    //    func emergencyMedPopup(userID: Int64) -> [(Date, String, String)] {
-    //        var results: [(Date, String, String)] = []
-    //
-    //        do {
-    //            let logs = DatabaseManager.shared.logs
-    //            let symptoms = DatabaseManager.shared.symptoms
-    //            var symptomName = ""
-    //            var medName = ""
-    //
-    //            let query = logs
-    //                .filter(DatabaseManager.shared.user_id == userID)
-    //                .filter(DatabaseManager.shared.med_taken == true)
-    //                .filter(DatabaseManager.shared.med_worked != true && DatabaseManager.shared.med_worked != false)
-    //
-    //            let rows = try DatabaseManager.shared.prepare(query)
-    //
-    //            for row in rows {
-    //                let onsetDate = row[DatabaseManager.shared.date]
-    //                let symptomID = row[DatabaseManager.shared.symptom_id]
-    //                let medID = row[DatabaseManager.shared.medication_id]
-    //
-    //                // Lookup symptom name
-    //                let symptomQuery = symptoms.filter(DatabaseManager.shared.symptom_id == symptomID)
-    //                if let symptomRow = try DatabaseManager.shared.pluck(symptomQuery) {
-    //                    symptomName = symptomRow[DatabaseManager.shared.symptom_name]
-    //                }
-    //
-    //                let medQuery = medications.filter(DatabaseManager.shared.medication_id == medID)
-    //                if let medRow = try DatabaseManager.shared.pluck(medQuery) {
-    //                    medName = medRow[DatabaseManager.shared.medication_name]
-    //
-    //                }
-    //                print("here")
-    //                results.append((onsetDate, symptomName,medName))
-    //                print(results)
-    //            }
-    //
-    //        } catch {
-    //            print("Database error: \(error)")
-    //        }
-    //
-    //        return results
-    //    }
     
     func emergencyMedPopup(userID: Int64) -> [Int64] {
         var results: [Int64] = []
@@ -755,7 +712,7 @@ extension DatabaseManager {
             let query = logs
                 .filter(DatabaseManager.shared.user_id == userID)
                 .filter(DatabaseManager.shared.med_taken == true)
-                .filter(DatabaseManager.shared.med_worked != true && DatabaseManager.shared.med_worked != false)
+                .filter(DatabaseManager.shared.med_worked == nil)
             
             let rows = try DatabaseManager.shared.prepare(query)
             
@@ -767,6 +724,7 @@ extension DatabaseManager {
         } catch {
             print("Database error: \(error)")
         }
+        print(results)
         return results
     }
     

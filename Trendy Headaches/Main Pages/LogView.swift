@@ -56,7 +56,7 @@ struct LogView: View {
     
     //for med popup
     @State private var medWorked: Bool? = nil
-    @State private var oldLogID: Int64 = 0
+    @State private var oldLogIDs: [Int64] = [0]
     
     //for log editing
     @State private var medEffective: Bool = false
@@ -95,10 +95,34 @@ struct LogView: View {
             ZStack {
                 Color(hex: background).ignoresSafeArea()
                 
-                if showEmergencyPopup{
-                    EmergencyMedPopup(selectedAnswer: $medWorked,  isPresented: $showEmergencyPopup,  oldLogID: oldLogID, background: background, accent: accent)
-                        .zIndex(5)
+//                if showEmergencyPopup{
+//                    EmergencyMedPopup(selectedAnswer: $medWorked,  isPresented: $showEmergencyPopup,  oldLogID: oldLogIDs[0], background: background, accent: accent)
+//                        .zIndex(5)
+//                }
+                
+                if showEmergencyPopup, !oldLogIDs.isEmpty {
+                    EmergencyMedPopup(
+                        selectedAnswer: $medWorked,
+                        isPresented: $showEmergencyPopup,
+                        oldLogID: oldLogIDs[0], // always show the first pending ID
+                        background: background,
+                        accent: accent
+                    )
+                    .zIndex(5)
+                    .onDisappear {
+                        // When the popup closes, remove the first ID
+                        if !oldLogIDs.isEmpty {
+                            medWorked = nil
+                            oldLogIDs.removeFirst()
+                            
+                            // If there are more, show the next one
+                            if !oldLogIDs.isEmpty {
+                                showEmergencyPopup = true
+                            }
+                        }
+                    }
                 }
+                
                 backgroundWaves
                 ScrollView {
                     headerSection
@@ -122,7 +146,7 @@ struct LogView: View {
             setupData()
             let results = DatabaseManager.shared.emergencyMedPopup(userID: userID)
             if let first = results.first {
-                oldLogID = first
+                oldLogIDs = results
                 showEmergencyPopup = true
             }
         }
@@ -308,38 +332,37 @@ struct LogView: View {
             if existingLogTable == "symptoms"{
 
                 if let log = DatabaseManager.shared.getSymptomLog(by: existingLogID){
- //                   severity = log.severity
-//                    symptomDesc = log.symptom_description ?? ""
-//                    notes = log.notes ?? ""
-//                    onset = log.onset_time ?? ""
-//                    medTaken = log.med_taken
-//                    date = log.date
-//                    stringDate = formatter.string(from: date)
-//                    //symptom = log.symptom_name
-//                    symptomID = log.symptom_id ?? 0
-//                    //medTakenName = log.medication_name ?? ""
-//                    emergencyMedID = log.medication_id ?? 0
-//                    //selectedTriggers = log.trigger_names
-//                    triggerIDs = log.trigger_ids
-//                    medEffective = log.med_worked ?? false
-//                    symptomLogViewShown = true
+                    severity = log.severity
+                    symptomDesc = log.symptom_description ?? ""
+                    notes = log.notes ?? ""
+                    onset = log.onset_time ?? ""
+                    medTaken = log.med_taken
+                    date = log.date
+                    stringDate = formatter.string(from: date)
+                    symptom = log.symptom_name
+                    symptomID = log.symptom_id ?? 0
+                    medTakenName = log.medication_name ?? ""
+                    emergencyMedID = log.medication_id ?? 0
+                    selectedTriggers = log.trigger_names
+                    triggerIDs = log.trigger_ids
+                    medEffective = log.med_worked ?? false
+                    symptomLogViewShown = true
                 }
                 else{
                     notes = "test"
                 }
             }
             else{
-//                sideEffectName = "test"
-//                if let log = DatabaseManager.shared.getSideEffectLog(by: existingLogID){
-//                    sideEffectDate = formatter.string(from: log.date)
-//                    sideEffectName = log.side_effect_name ?? ""
-//                    sideEffectSeverity = log.side_effect_severity
-//                    selectedMedication = log.medication_name ?? ""
-//                    medicationID = log.medication_id ?? 0
-//                    
-//                    
-//                    symptomLogViewShown = false
- //               }
+                if let log = DatabaseManager.shared.getSideEffectLog(by: existingLogID){
+                    sideEffectDate = formatter.string(from: log.date)
+                    sideEffectName = log.side_effect_name ?? ""
+                    sideEffectSeverity = log.side_effect_severity
+                    selectedMedication = log.medication_name ?? ""
+                    medicationID = log.medication_id ?? 0
+                    
+                    
+                    symptomLogViewShown = false
+                }
             }
         }
     }
