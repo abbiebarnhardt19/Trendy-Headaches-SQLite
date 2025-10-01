@@ -53,6 +53,7 @@ struct ListView: View {
                                 .background(Color(hex: accent))
                                 .clipShape(Circle())
                         }
+                        .buttonStyle(PlainButtonStyle())
                         .padding(.trailing, 30)
                     }
                     .padding(.bottom, 80)
@@ -71,6 +72,7 @@ struct ListView: View {
             }
             .navigationDestination(isPresented: $showLogCreation) {
                 LogView(userID: userID, background: $background, accent: $accent)
+                    .navigationBarBackButtonHidden(true)
             }
             .navigationDestination(
                 isPresented: Binding(
@@ -80,6 +82,7 @@ struct ListView: View {
             ) {
                 if let id = selectedLogID, let table = selectedLogTable {
                     LogView(userID: userID, existingLogID: id, existingLogTable: table, background: $background, accent: $accent)
+                        .navigationBarBackButtonHidden(true)
                 }
             }
 

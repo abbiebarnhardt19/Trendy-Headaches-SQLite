@@ -95,11 +95,6 @@ struct LogView: View {
             ZStack {
                 Color(hex: background).ignoresSafeArea()
                 
-//                if showEmergencyPopup{
-//                    EmergencyMedPopup(selectedAnswer: $medWorked,  isPresented: $showEmergencyPopup,  oldLogID: oldLogIDs[0], background: background, accent: accent)
-//                        .zIndex(5)
-//                }
-                
                 if showEmergencyPopup, !oldLogIDs.isEmpty {
                     EmergencyMedPopup(
                         selectedAnswer: $medWorked,
