@@ -267,12 +267,10 @@ class DatabaseManager {
                 }
             }
         }
-        //return the user ID
         return userId
     }
 
     //database access helpers
-
     func run(_ insert: SQLite.Insert) throws -> Int64 {
         try db.run(insert)
     }

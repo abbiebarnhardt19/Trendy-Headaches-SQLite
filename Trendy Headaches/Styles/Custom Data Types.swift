@@ -7,6 +7,9 @@
 
 import SwiftUI
 
+
+//structs for functions to return
+
 struct LogList {
     var log_type: String
     var log_id: Int64

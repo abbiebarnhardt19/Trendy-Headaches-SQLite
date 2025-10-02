@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+//make checkbox group with dynamic spacing
 struct MultipleChoiceCheckboxGroup: View {
     @Binding var options: [String]
     @Binding var selected: [String]
@@ -123,6 +124,7 @@ struct MultipleChoiceCheckboxGroup: View {
     }
 }
 
+//custom switch
 struct CustomToggle: View {
     var color: String
     @Binding var feature: Bool
@@ -139,6 +141,7 @@ struct CustomToggle: View {
     }
 }
 
+//color picker in text field
 struct ColorPickerTextField: View {
     var accent: String
     var background: String
@@ -177,7 +180,7 @@ struct ColorPickerTextField: View {
         }
     }
     
-    // MARK: - Helpers
+    //convert color to hex code
     private func colorToHex(_ color: Color) -> String {
         let uiColor = UIColor(color)
         var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
@@ -186,6 +189,7 @@ struct ColorPickerTextField: View {
     }
 }
 
+//calender dropdown in text field
 struct DatePickerTextFieldDropdown: View {
     @Binding var selectedDate: Date
     @Binding var textFieldValue: String
@@ -211,12 +215,12 @@ struct DatePickerTextFieldDropdown: View {
                     
                     CustomTextField(background: background, accent: accent,  placeholder: " ",  text: $textFieldValue, width: 220, bottomPadding: 0)
                 }
+                //put the calendar button over the text field
                 .overlay(
                     HStack {
                         Spacer()
                         Button(action: {
-                            withAnimation { showDatePicker.toggle() } })
-                       {
+                            withAnimation { showDatePicker.toggle() } }){
                             Image(systemName: "calendar")
                                 .foregroundColor(Color(hex: background))
                                 .font(.system(size: 25))
@@ -236,7 +240,7 @@ struct DatePickerTextFieldDropdown: View {
                     .cornerRadius(20)
                     .padding()
                     .padding(.bottom, 45)
-                    .offset(y: 60) // distance below text field
+                    .offset(y: 60)
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .onChange(of: selectedDate) {
                         textFieldValue = formatter.string(from: selectedDate)
@@ -248,6 +252,7 @@ struct DatePickerTextFieldDropdown: View {
     }
 }
 
+//checkbox with label next to it
 struct CustomSingleCheckbox: View {
     var text: String
     var color: String
@@ -273,7 +278,7 @@ struct CustomSingleCheckbox: View {
     }
 }
 
-// MARK: - Flexible Wrap Layout for Radio Buttons
+// mutliple choice group with dynamic sizing
 struct FlexibleWrapRadioLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
     var items: Data
     var spacing: CGFloat
@@ -326,6 +331,7 @@ struct FlexibleWrapRadioLayout<Data: RandomAccessCollection, Content: View>: Vie
     }
 }
 
+//numerical slider
 struct StepSlider: View {
     @Binding var value: Int64
     let range: ClosedRange<Int64>
@@ -438,6 +444,7 @@ struct MultipleChoiceButtonGroup: View {
     }
 }
 
+//dropdown option picker
 struct CustomDropdown: View {
     @Binding var color_theme: String
     @Binding var background: String

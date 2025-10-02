@@ -8,12 +8,6 @@
 import SwiftUI
 import Foundation
 
-extension CGPoint {
-    func scale(x xScale: CGFloat, y yScale: CGFloat) -> CGPoint {
-        CGPoint(x: self.x * xScale, y: self.y * yScale)
-    }
-}
-
 struct SameAmplitudeBlob: View {
     var waves: Int
     var amplitude: CGFloat
@@ -62,11 +56,7 @@ struct SameAmplitudeBlob: View {
                 let controlX2 = startX + step * 0.75
                 let controlY2 = midY + direction * controlAmp2
 
-                path.addCurve(
-                    to: CGPoint(x: endX, y: endX * (rect.height / rect.width)),
-                    control1: CGPoint(x: controlX1, y: controlY1),
-                    control2: CGPoint(x: controlX2, y: controlY2)
-                )
+                path.addCurve(to: CGPoint(x: endX, y: endX * (rect.height / rect.width)), control1: CGPoint(x: controlX1, y: controlY1),  control2: CGPoint(x: controlX2, y: controlY2))
             }
             path.addLine(to: CGPoint(x: rect.width, y: 0))
             path.closeSubpath()
@@ -107,11 +97,7 @@ struct WavyTopBottomRectangle: View {
                 let controlX2 = startX + step * 0.75
                 let controlY2 = height + direction * bottomAmps[i]
 
-                path.addCurve(
-                    to: CGPoint(x: endX, y: height),
-                    control1: CGPoint(x: controlX1, y: controlY1),
-                    control2: CGPoint(x: controlX2, y: controlY2)
-                )
+                path.addCurve( to: CGPoint(x: endX, y: height), control1: CGPoint(x: controlX1, y: controlY1), control2: CGPoint(x: controlX2, y: controlY2))
             }
 
             path.addLine(to: CGPoint(x: width, y: 0))
@@ -127,11 +113,7 @@ struct WavyTopBottomRectangle: View {
                 let controlX2 = startX - step * 0.75
                 let controlY2 = 0 + direction * topAmps[i]
 
-                path.addCurve(
-                    to: CGPoint(x: endX, y: 0),
-                    control1: CGPoint(x: controlX1, y: controlY1),
-                    control2: CGPoint(x: controlX2, y: controlY2)
-                )
+                path.addCurve(to: CGPoint(x: endX, y: 0), control1: CGPoint(x: controlX1, y: controlY1), control2: CGPoint(x: controlX2, y: controlY2))
             }
 
             path.addLine(to: CGPoint(x: 0, y: height))
@@ -200,78 +182,6 @@ struct ParametricBlob: View {
             .rotationEffect(.degrees(rotation))
     }
 }
-
-struct RandomBlob: View {
-    var points: Int = 40
-      var width: CGFloat
-      var height: CGFloat
-      var x: CGFloat
-      var y: CGFloat
-      var rotation: CGFloat
-      var accent: String
-      var seed: CGFloat = 42
-
-      var body: some View {
-          let rect = CGRect(x: 0, y: 0, width: width, height: height)
-          let center = CGPoint(x: rect.midX, y: rect.midY)
-          let radiusX = rect.width / 2
-          let radiusY = rect.height / 2
-
-          // deterministic per-point amplitudes
-          let amplitudes: [CGFloat] = (0..<points).map { i in
-              let val = sin(CGFloat(i) * 0.5 + seed) * 0.12
-                      + cos(CGFloat(i) * 0.3 + seed * 0.7) * 0.12
-                      + 1.0
-              return min(max(val, 0.85), 1.15)
-          }
-
-          let blobPath: Path = {
-              var path = Path()
-              var blobPoints: [CGPoint] = []
-
-              for i in 0..<points {
-                  let angle = 2 * .pi * CGFloat(i) / CGFloat(points)
-                  let amp = amplitudes[i]
-                  let px = center.x + radiusX * amp * cos(angle)
-                  let py = center.y + radiusY * amp * sin(angle)
-                  blobPoints.append(CGPoint(x: px, y: py))
-              }
-
-              guard blobPoints.count > 1 else { return path }
-
-              // Start at first point
-              path.move(to: blobPoints[0])
-
-              // Catmull-Rom smoothing through points
-              for i in 0..<blobPoints.count {
-                  let p0 = blobPoints[(i - 1 + points) % points]
-                  let p1 = blobPoints[i]
-                  let p2 = blobPoints[(i + 1) % points]
-                  let p3 = blobPoints[(i + 2) % points]
-
-                  let control1 = CGPoint(
-                      x: p1.x + (p2.x - p0.x) / 6,
-                      y: p1.y + (p2.y - p0.y) / 6
-                  )
-                  let control2 = CGPoint(
-                      x: p2.x - (p3.x - p1.x) / 6,
-                      y: p2.y - (p3.y - p1.y) / 6
-                  )
-
-                  path.addCurve(to: p2, control1: control1, control2: control2)
-              }
-
-              path.closeSubpath()
-              return path
-          }()
-
-          return blobPath
-              .fill(Color(hex: accent))
-              .frame(width: width, height: height)
-              .offset(x: x, y: y)
-              .rotationEffect(.degrees(rotation))
-      }
-  }
 
 // Reproducible random generator
 struct SeededGenerator: RandomNumberGenerator {
