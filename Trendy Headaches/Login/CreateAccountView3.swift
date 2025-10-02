@@ -1,78 +1,99 @@
 import SwiftUI
+import CryptoKit
 
 struct CreateAccountView3: View {
-    // Form data from previous pages
+    // Info from previous pages
+    var background: String = ""
+    var accent: String = ""
     var email: String = ""
     var passwordOne: String = ""
-    var securityQuestion: String = ""
-    var securityAnswer: String = ""
+    var currentSecurityQuestion: String = ""
+    var currentSecurityAnswer: String = ""
     
-    // Color theme options
-    private let themeOptions = [ "Classic Light", "Light Pink", "Classic Dark", "Dark Green", "Dark Blue", "Dark Purple", "Custom" ]
+    // Editable variables for this page
+    @State private var symptoms: String = ""
+    @State private var preventativeMeds: String = ""
+    @State private var emergencyMeds: String = ""
+    @State private var triggers: String = ""
+    @State private var errorMessage: String = ""
+    @State private var accountCreated = false
     
-    // User-selected theme values
-    @State private var selectedTheme: String = "Dark Green"
-    @State private var background: String = "#001D00"
-    @State private var accent: String = "#B5C4B9"
-    @State private var selectedColor: Color = .blue
     // Layout constants
-    private let leadingPadding: CGFloat = 180
     private let screenWidth = UIScreen.main.bounds.width
+    private let leadingPadding = UIScreen.main.bounds.width * 0.8
     
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background
-                Color(hex: background).ignoresSafeArea()
+                Color(hex: background)
+                    .ignoresSafeArea()
                 
-                // Decorative blobs
-                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 100, y: -220, rotation: -180)
-                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 100, y: -220, rotation: 360)
-                
-                VStack(spacing: 20) {
-                    // Header
-                    CustomText(text: "Choose a color theme", color: accent)
-                        .padding(.leading, leadingPadding)
-
-                    // Theme dropdown
-                    CustomDropdown(color_theme: $selectedTheme, background: $background, accent: $accent, options: themeOptions,  width: screenWidth - 50, height: 50, cornerRadius: 30, fontSize: 22)
-
-                    // Custom theme input fields
-                    if selectedTheme == "Custom" {
-                        CustomText(text: "Or, enter two hex codes to design a theme", color: accent, width: screenWidth - 50,  multilineAlignment: .center)
-                        .padding(.bottom, 10)
+                ScrollView {
+                    ZStack {
+                        // Background blobs
+                        WavyTopBottomRectangle(waves: 20, amplitude: 10, accent: accent, x: 300, y: -575, width: 1000, height: 400)
+                        WavyTopBottomRectangle(waves: 20, amplitude: 8, accent: accent, x: 300, y: 550, width: 1000, height: 400)
                         
-                        HStack (spacing: 20){
-                            ColorPickerTextField(
-                                        accent: accent,
-                                        background: background,
-                                        var_to_change: $background,
-                                        placeholder: "Enter HEX color",
-                                        width: UIScreen.main.bounds.width / 2 - 40)
+                        VStack(spacing: 15) {
+                            // Header
+                            CustomText(text: "One Last Step", color: accent, textAlignment: .center, textSize: 50)
+                                .padding(.top, 15)
                             
-                            ColorPickerTextField(
-                                        accent: accent,
-                                        background: background,
-                                        var_to_change: $accent,
-                                        placeholder: "Enter HEX color",
-                                        width: UIScreen.main.bounds.width / 2 - 40)
+                            CustomText(text: "Add multiple items by separating them with commas.", color: accent,  width: screenWidth - 30, textAlignment: .center, multilineAlignment: .center,  textSize: 18)
+                            .padding(.bottom, 20)
+                            
+                            // Input fields
+                            Group {
+                                labeledField("Symptom or Illness", text: $symptoms)
+                                labeledField("Preventative Treatments", text: $preventativeMeds)
+                                labeledField("Emergency Treatments", text: $emergencyMeds)
+                                labeledField("Triggers", text: $triggers)
+                            }
+                            
+                            // Submit button
+                            CustomButton(text: "Submit", background: background, accent: accent) {
+                                createAccount()
+                            }
+                            .padding(.bottom, 40)
+                            
+                            // Error message
+                            if !errorMessage.isEmpty {
+                                CustomWarningText(text: errorMessage)
+                            }
                         }
+                        .padding()
                     }
-                    
-                    // Continue button
-                    CustomNavButton(label: "Continue", destination: CreateAccountView2( background: background, accent: accent, email: email, passwordOne: passwordOne, currentSecurityQuestion: securityQuestion,  currentSecurityAnswer: securityAnswer), background: background,  accent: accent)
+                    .navigationDestination(isPresented: $accountCreated) {
+                        LoginView(background: background, accent: accent)
+                    }
                 }
-                .padding()
             }
+        }
+    }
+    
+    @ViewBuilder
+    private func labeledField(_ label: String, text: Binding<String>) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            CustomText(text: label, color: accent)
+                .padding(.leading, leadingPadding)
+            CustomTextField(background: background, accent: accent, placeholder: "", text: text)
+                .padding(.leading, leadingPadding-10)
+        }
+    }
+    
+    private func createAccount() {
+        do {
+            try DatabaseManager.createUser(email: email, password: passwordOne,  securityQuestion: currentSecurityQuestion,  securityAnswer: currentSecurityAnswer,  background: background, accent: accent, symptoms: symptoms, preventativeMeds: preventativeMeds, emergencyMeds: emergencyMeds, triggers: triggers)
+            errorMessage = ""
+            accountCreated = true
+        } catch {
+            errorMessage = "Failed to create account"
         }
     }
 }
 
 #Preview {
-    CreateAccountView3(
-        email: "test@example.com",
-        passwordOne: "password123",
-        securityQuestion: "Your first pet?",
-        securityAnswer: "Fluffy"
-    )
+    NavigationStack {
+        CreateAccountView3()
+    }
 }

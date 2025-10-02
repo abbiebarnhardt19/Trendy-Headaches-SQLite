@@ -127,7 +127,7 @@ private extension CreateAccountView {
     var continueButton: some View {
         CustomNavButton(
             label: "Continue",
-            destination: CreateAccountView3(email: email, passwordOne: password_one,  securityQuestion: security_question,  securityAnswer: security_answer),  background: background, accent: accent, width: 150)
+            destination: CreateAccountView2(email: email, passwordOne: password_one,  securityQuestion: security_question,  securityAnswer: security_answer),  background: background, accent: accent, width: 150)
         .disabled(!formIsValid)
         .opacity(formIsValid ? 1 : 0.5)
         .padding(.bottom, 45)

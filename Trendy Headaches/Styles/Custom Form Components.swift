@@ -1,0 +1,484 @@
+//
+//  Custom Form Components.swift
+//  Trendy Headaches
+//
+//  Created by Abigail Barnhardt on 10/2/25.
+//
+
+import SwiftUI
+
+struct MultipleChoiceCheckboxGroup: View {
+    @Binding var options: [String]
+    @Binding var selected: [String]
+    var accent: String
+    var background: String
+    
+    let boxSize: CGFloat = 22
+    let spacing: CGFloat = 8
+    let charWidth: CGFloat = 14
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            FlexibleWrapCheckboxLayout(items: options, spacing: 12, boxSize: boxSize, charWidth: charWidth) { option in
+                HStack(spacing: 8) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(selected.contains(option) ? Color(hex: accent) : Color.clear)
+                            .overlay(RoundedRectangle(cornerRadius: 4)
+                                    .stroke(Color(hex: accent), lineWidth: 2))
+                            .frame(width: boxSize, height: boxSize)
+                        
+                        if selected.contains(option) {
+                            Image(systemName: "checkmark")
+                                .foregroundColor(Color(hex: background))
+                                .font(.system(size: boxSize * 0.7, weight: .bold))
+                        }
+                    }
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.15)) {
+                            toggleSelection(option)
+                        }
+                    }
+                    
+                    CustomText(text: option, color: accent, textSize: 20)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.15)) {
+                                toggleSelection(option)
+                            }
+                        }
+                }
+                .padding(.trailing, 25)
+                .fixedSize()
+                .contentShape(Rectangle())
+            }
+        }
+        .padding(.bottom, 10)
+        .padding(.leading, 5)
+    }
+    
+    private func toggleSelection(_ option: String) {
+        if let index = selected.firstIndex(of: option) {
+            // Option already selected, remove it
+            selected.remove(at: index)
+        } else {
+            // Option not selected, add it
+            selected.append(option)
+        }
+    }
+    
+    // MARK: - Flexible Layout
+    struct FlexibleWrapCheckboxLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
+        var items: Data
+        var spacing: CGFloat
+        var boxSize: CGFloat
+        var charWidth: CGFloat
+        var content: (Data.Element) -> Content
+        
+        init(items: Data, spacing: CGFloat, boxSize: CGFloat, charWidth: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
+            self.items = items
+            self.spacing = spacing
+            self.boxSize = boxSize
+            self.charWidth = charWidth
+            self.content = content
+        }
+        
+        var body: some View {
+            generateContent(in: UIScreen.main.bounds.width - 20)
+        }
+        
+        private func generateContent(in totalWidth: CGFloat) -> some View {
+            var width: CGFloat = 0
+            var rows: [[Data.Element]] = [[]]
+            
+            for item in items {
+                let itemWidth = estimateWidth(for: item)
+                if width + itemWidth + spacing > totalWidth {
+                    // start new row
+                    rows.append([item])
+                    width = itemWidth + spacing
+                } else {
+                    rows[rows.count - 1].append(item)
+                    width += itemWidth + spacing
+                }
+            }
+            
+            return VStack(alignment: .leading, spacing: spacing) {
+                ForEach(0..<rows.count, id: \.self) { rowIndex in
+                    HStack(alignment: .center, spacing: spacing) {
+                        ForEach(rows[rowIndex], id: \.self) { item in
+                            content(item)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+        }
+        
+        private func estimateWidth(for item: Data.Element) -> CGFloat {
+            let textCount = String(describing: item).count
+            return boxSize + 8 + CGFloat(textCount) * charWidth
+        }
+    }
+}
+
+struct CustomToggle: View {
+    var color: String
+    @Binding var feature: Bool
+    
+    var body: some View {
+        RoundedRectangle(cornerRadius: 16)
+            .fill(Color(hex: color))
+            .frame(width: 50, height: 32)
+            .overlay(Circle()
+                .fill(.white)
+                .padding(3)
+                .offset(x: feature ? 10 : -10) )
+            .onTapGesture { feature.toggle() }
+    }
+}
+
+struct ColorPickerTextField: View {
+    var accent: String
+    var background: String
+    @Binding var var_to_change: String
+    var placeholder: String = ""
+    var width: CGFloat
+    var cornerRadius: CGFloat? = 30
+    
+    @State private var selectedColor: Color = .white
+    
+    var body: some View {
+        CustomTextField(background: background, accent: accent, placeholder: placeholder, text: $var_to_change, width: width, cornerRadius: cornerRadius ?? 30)
+        .frame(height: 40)
+        .overlay(alignment: .trailing) {
+            ZStack {
+                Image(systemName: "eyedropper")
+                    .foregroundColor(Color(hex: background))
+                    .font(.system(size: 17, weight: .bold))
+                    .padding(.trailing, 15)
+                
+                // Transparent but tappable ColorPicker over the same spot
+                ColorPicker("", selection: $selectedColor, supportsOpacity: false)
+                    .labelsHidden()
+                    .opacity(0.015)
+                    .frame(width: 28, height: 28)
+                    .contentShape(Circle())
+                    .padding(.trailing, 15)
+            }
+            .padding(.bottom, 8)
+        }
+        .onChange(of: selectedColor, initial: false) { oldColor, newColor in
+            var_to_change = colorToHex(newColor)
+        }
+        .onAppear {
+            selectedColor = Color(hex: var_to_change)
+        }
+    }
+    
+    // MARK: - Helpers
+    private func colorToHex(_ color: Color) -> String {
+        let uiColor = UIColor(color)
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        return String(format: "#%02X%02X%02X", Int(red * 255),  Int(green * 255), Int(blue * 255))
+    }
+}
+
+struct DatePickerTextFieldDropdown: View {
+    @Binding var selectedDate: Date
+    @Binding var textFieldValue: String
+    @Binding var background: String
+    @Binding var accent: String
+    
+    @State private var showDatePicker: Bool = false
+    @State private var screenWidth = UIScreen.main.bounds.width
+    
+    private var formatter: DateFormatter {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        return f
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            ZStack(alignment: .topLeading) {
+                // TextField with button overlay
+                HStack{
+                    CustomText(text: "Date:", color: accent, isBold: true, textSize: 24)
+                        .frame(width: 72, height: 45, alignment: .center)
+                    
+                    CustomTextField(background: background, accent: accent,  placeholder: " ",  text: $textFieldValue, width: 220, bottomPadding: 0)
+                }
+                .overlay(
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            withAnimation { showDatePicker.toggle() } })
+                       {
+                            Image(systemName: "calendar")
+                                .foregroundColor(Color(hex: background))
+                                .font(.system(size: 25))
+                                .padding(.trailing, 15)
+                        }
+                    })
+                .buttonStyle(PlainButtonStyle())
+                
+                // Calendar dropdown
+                if showDatePicker {
+                    DatePicker(" ", selection: $selectedDate, in: ...Date(), displayedComponents: .date )
+                    .datePickerStyle(GraphicalDatePickerStyle())
+                    .frame(width: screenWidth*0.85, height: screenWidth*0.85)
+                    .background(Color(hex: accent))
+                    .accentColor(Color(hex: background))
+                    .tint(Color(hex: background))
+                    .cornerRadius(20)
+                    .padding()
+                    .padding(.bottom, 45)
+                    .offset(y: 60) // distance below text field
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .onChange(of: selectedDate) {
+                        textFieldValue = formatter.string(from: selectedDate)
+                        withAnimation { showDatePicker = false }
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct CustomSingleCheckbox: View {
+    var text: String
+    var color: String
+    @Binding var isOn: Bool
+    var textSize: CGFloat = 24
+
+    var body: some View {
+        Button {
+            isOn.toggle()
+        } label: {
+            HStack {
+                CustomText(text: text, color: color, isBold: true, textSize: textSize)
+                Image(systemName: isOn ? "checkmark.square.fill" : "square")
+                    .resizable()
+                    .frame(width: textSize, height: textSize)
+                    .foregroundColor(Color(hex: color))
+            }
+            .padding(.trailing, 30)
+            .padding(.bottom, 10)
+        }
+        .buttonStyle(.plain)
+        .frame(width: UIScreen.main.bounds.width - 40)
+    }
+}
+
+// MARK: - Flexible Wrap Layout for Radio Buttons
+struct FlexibleWrapRadioLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
+    var items: Data
+    var spacing: CGFloat
+    var circleWidth: CGFloat
+    var charWidth: CGFloat
+    var content: (Data.Element) -> Content
+
+    init(items: Data, spacing: CGFloat, circleWidth: CGFloat, charWidth: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
+        self.items = items
+        self.spacing = spacing
+        self.circleWidth = circleWidth
+        self.charWidth = charWidth
+        self.content = content
+    }
+
+    var body: some View {
+        generateContent(in: UIScreen.main.bounds.width - 20)
+    }
+
+    private func generateContent(in totalWidth: CGFloat) -> some View {
+        var width: CGFloat = 0
+        var rows: [[Data.Element]] = [[]]
+
+        for item in items {
+            let itemWidth = estimateWidth(for: item)
+            if width + itemWidth + spacing > totalWidth {
+                rows.append([item])
+                width = itemWidth + spacing
+            } else {
+                rows[rows.count - 1].append(item)
+                width += itemWidth + spacing
+            }
+        }
+
+        return VStack(alignment: .leading, spacing: spacing) {
+            ForEach(0..<rows.count, id: \.self) { rowIndex in
+                HStack(alignment: .center, spacing: spacing) {
+                    ForEach(rows[rowIndex], id: \.self) { item in
+                        content(item)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+
+    private func estimateWidth(for item: Data.Element) -> CGFloat {
+        let textCount = String(describing: item).count
+        return circleWidth + 8 + CGFloat(textCount) * charWidth
+    }
+}
+
+struct StepSlider: View {
+    @Binding var value: Int64
+    let range: ClosedRange<Int64>
+    let step: Int
+    var accentColor: String
+    var width: CGFloat
+
+    private var steps: [Int64] {
+        stride(from: range.lowerBound, through: range.upperBound, by: step).map { $0 }
+    }
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            GeometryReader { geo in
+                let trackWidth = geo.size.width
+                let margin: CGFloat = 14
+                let usableWidth = trackWidth - 2 * margin
+                let spacing = usableWidth / CGFloat(steps.count - 1)
+                let index = steps.firstIndex(of: value) ?? 0
+
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .fill(Color(hex: accentColor).opacity(0.3))
+                        .frame(width: usableWidth + 2 * margin, height: 4)
+                        .position(x: trackWidth / 2, y: geo.size.height / 2)
+
+                    Rectangle()
+                        .fill(Color(hex: accentColor))
+                        .frame(width: CGFloat(index) * spacing, height: 4)
+                        .position(x: margin + CGFloat(index) * spacing / 2, y: geo.size.height / 2)
+
+                    ForEach(0..<steps.count, id: \.self) { i in
+                        Rectangle()
+                            .fill(Color(hex: accentColor))
+                            .frame(width: 2, height: 14)
+                            .position(x: margin + CGFloat(i) * spacing, y: geo.size.height / 2)
+                    }
+
+                    Circle()
+                        .fill(Color(hex: accentColor))
+                        .frame(width: 28, height: 28)
+                        .position(x: margin + CGFloat(index) * spacing, y: geo.size.height / 2)
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { gesture in
+                                    let clampedX = min(max(gesture.location.x - margin, 0), usableWidth)
+                                    let nearestIndex = Int(round(clampedX / spacing))
+                                    let safeIndex = min(max(nearestIndex, 0), steps.count - 1)
+                                    value = steps[safeIndex]
+                                })
+                }
+            }
+            .frame(height: 30)
+
+            HStack(spacing: 0) {
+                ForEach(steps, id: \.self) { stepValue in
+                    CustomText(text: "\(Int(stepValue))",  color: accentColor, textAlignment: .center,  textSize: 18)
+                    .frame(width: 35)
+                }
+            }
+            .padding(.horizontal, 10)
+        }
+        .frame(width: width)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.bottom, 15)
+    }
+}
+
+struct MultipleChoiceButtonGroup: View {
+    @Binding var options: [String]
+    @Binding var selected: String?
+    var accent: String
+
+    let circleWidth: CGFloat = 20
+    let spacing: CGFloat = 8
+    let charWidth: CGFloat = 14
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            FlexibleWrapRadioLayout(items: options, spacing: 12, circleWidth: circleWidth, charWidth: charWidth) { option in
+                HStack(spacing: 8) {
+                    Circle()
+                        .stroke(Color(hex: accent), lineWidth: 2)
+                        .background( Circle()
+                            .fill(selected == option ? Color(hex: accent) : Color.clear))
+                        .frame(width: circleWidth, height: circleWidth)
+                        .onTapGesture {
+                            selected = option
+                        }
+
+                    CustomText(text: option, color: accent, textSize: 20)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .onTapGesture {
+                            selected = option
+                        }
+                }
+                .padding(.trailing, 25)
+                .fixedSize()
+                .contentShape(Rectangle())
+            }
+        }
+        .padding(.bottom, 10)
+        .padding(.leading, 5)
+        .onAppear{
+            if options.count == 1{
+                selected = options[0]
+            }
+        }
+    }
+}
+
+struct CustomDropdown: View {
+    @Binding var color_theme: String
+    @Binding var background: String
+    @Binding var accent: String
+    var options: [String]
+    var width: CGFloat
+    var height: CGFloat
+    var cornerRadius: CGFloat
+    var fontSize: CGFloat
+    
+    var body: some View {
+        Menu {
+            Picker(selection: $color_theme, label: EmptyView()) {
+                ForEach(options, id: \.self) { theme in
+                    Text(theme)
+                        .padding(.leading, 5)
+                }
+            }
+            
+        } label: {
+            HStack {
+                Text(color_theme)
+                    .font(.system(size: fontSize, design: .serif))
+                    .padding(.leading, 5)
+                Spacer()
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 16, weight: .semibold))
+                    .padding(.trailing, 20)
+            }
+            .padding(.leading, 10)
+            .frame(width: width, height: height, alignment: .leading)
+            .background( RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(Color(hex: accent)))
+            .foregroundColor(Color(hex: background))
+        }
+        .onChange(of: color_theme) {
+            let colors = DatabaseManager.getThemeColors(theme: color_theme, currentBackground: background, currentAccent: accent)
+            background = colors.background
+            accent = colors.accent
+        }
+        .buttonStyle(.plain)
+        .padding(.bottom, 20)
+    }
+}
