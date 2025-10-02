@@ -23,15 +23,18 @@ struct ListView: View {
             ZStack {
                 Color(hex: background).ignoresSafeArea()
                 
-                SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 30, y: -365, rotation: 0, width:350, height:150)
+                SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 30, y: -365, rotation: 0, width:350, height:170)
                 SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 30, y: -270, rotation: 180, width:350, height:150)
-
                 VStack {
                     HStack{
-                        CustomText(text: "List View", color: accent, width:100, textAlignment: .leading,  multilineAlignment: .leading,  textSize: 43)
-                        .padding(.leading, 50)
+                        CustomText(text: "List View", color: accent, width:210, textAlignment: .leading,  multilineAlignment: .leading,  textSize: 53)
+                        .padding(.leading, 20)
+                        
+
                         Spacer()
+                       
                     }
+                    .padding(.top, 35)
                     
                     ScrollableLogTable( userID: userID, logList: logList, background: background, accent: accent, width: UIScreen.main.bounds.width - 20, onLogTap: { id, table in
                             selectedLogID = id
@@ -45,16 +48,7 @@ struct ListView: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        Button(action: { showLogCreation = true }) {
-                            Image(systemName: "plus")
-                                .font(.system(size: 36))
-                                .foregroundColor(Color(hex: background))
-                                .frame(width: 60, height: 60)
-                                .background(Color(hex: accent))
-                                .clipShape(Circle())
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .padding(.trailing, 30)
+                        FilterDropDown(background: background, accent: accent)
                     }
                     .padding(.bottom, 80)
                 }

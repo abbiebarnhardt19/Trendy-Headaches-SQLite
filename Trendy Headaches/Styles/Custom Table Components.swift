@@ -112,3 +112,21 @@ struct ScrollableLogTable: View {
         .background(Color(hex: accent))
     }
 }
+
+struct FilterDropDown: View {
+    @State var background: String
+    @State var accent: String
+    
+    var body: some View {
+        VStack{
+            Button(action: {  }) {
+                Image(systemName: "line.horizontal.3.decrease.circle")
+                    .font(.system(size: 65))
+                    .foregroundColor(Color(hex: accent))
+                    .frame(width: 65, height: 25)
+            }
+            .buttonStyle(PlainButtonStyle())
+            .padding(.trailing, 30)
+        }
+    }
+}
