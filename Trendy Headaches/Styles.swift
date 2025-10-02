@@ -109,10 +109,7 @@ struct CustomList: View {
         
         let columnCount = Int(max(1, maxItemWidth / maxWidth))
 
-        LazyVGrid(
-            columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: columnCount),
-            spacing: 3
-        ) {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: columnCount), spacing: 3) {
             ForEach(items, id: \.self) { item in
                 Text("• \(item)")
                     .font(.system(size: 18, design: .serif))
@@ -128,8 +125,6 @@ struct CustomList: View {
         .fixedSize(horizontal: false, vertical: true)
     }
 }
-
-
 
 struct CustomNavButton<Destination: View>: View {
     var label: String
@@ -405,6 +400,7 @@ struct ParametricBlob: View {
             .rotationEffect(.degrees(rotation))
     }
 }
+
 struct RandomBlob: View {
     var points: Int = 40
       var width: CGFloat
@@ -518,10 +514,8 @@ struct CustomDropdown: View {
             }
             .padding(.leading, 10)
             .frame(width: width, height: height, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(Color(hex: accent))
-            )
+            .background( RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(Color(hex: accent)))
             .foregroundColor(Color(hex: background))
         }
         .onChange(of: color_theme) {
@@ -551,7 +545,6 @@ struct CustomFloatButton: View {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                     showMenu.toggle()
                 }
-                
             } label: {
                 Image(systemName: "line.3.horizontal")
                     .font(.system(size: 40, design: .serif))
@@ -577,10 +570,8 @@ struct CustomFloatButton: View {
                         .foregroundColor(Color(hex: background))
                         .font(.system(size: 15, design: .serif))
                         .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 25)
-                                .stroke(Color(hex: background), lineWidth: 2)
-                        )
+                        .overlay(RoundedRectangle(cornerRadius: 25)
+                                .stroke(Color(hex: background), lineWidth: 2))
                         .opacity(showMenu ? 1 : 0)
                         .scaleEffect(showMenu ? 1 : 0.5)
                 }
@@ -630,7 +621,6 @@ struct PolicyTextView: View {
         .padding()
     }
 }
-
 
 struct PolicySheetView: View {
     @Environment(\.dismiss) private var dismiss
@@ -684,7 +674,6 @@ struct EditableList: View {
             ForEach(items.indices.filter { items[$0] != "None entered" }, id: \.self) { i in
                 itemRow(index: i)
             }
-
             addNewItemRow
         }
         .alert("Are you sure you want to delete this item?",
@@ -789,7 +778,6 @@ struct EditableList: View {
     }
 }
 
-
 struct MultipleChoiceButtonGroup: View {
     @Binding var options: [String]
     @Binding var selected: String?
@@ -798,8 +786,6 @@ struct MultipleChoiceButtonGroup: View {
     let circleWidth: CGFloat = 20
     let spacing: CGFloat = 8
     let charWidth: CGFloat = 14
-    
-
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -807,10 +793,8 @@ struct MultipleChoiceButtonGroup: View {
                 HStack(spacing: 8) {
                     Circle()
                         .stroke(Color(hex: accent), lineWidth: 2)
-                        .background(
-                            Circle()
-                                .fill(selected == option ? Color(hex: accent) : Color.clear)
-                        )
+                        .background( Circle()
+                            .fill(selected == option ? Color(hex: accent) : Color.clear))
                         .frame(width: circleWidth, height: circleWidth)
                         .onTapGesture {
                             selected = option
@@ -835,7 +819,6 @@ struct MultipleChoiceButtonGroup: View {
                 selected = options[0]
             }
         }
-
     }
 }
 
@@ -881,7 +864,7 @@ struct FlexibleWrapRadioLayout<Data: RandomAccessCollection, Content: View>: Vie
                         content(item)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading) // ✅ left-align rows
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
@@ -891,8 +874,6 @@ struct FlexibleWrapRadioLayout<Data: RandomAccessCollection, Content: View>: Vie
         return circleWidth + 8 + CGFloat(textCount) * charWidth
     }
 }
-
-
 
 struct StepSlider: View {
     @Binding var value: Int64
@@ -943,8 +924,7 @@ struct StepSlider: View {
                                     let nearestIndex = Int(round(clampedX / spacing))
                                     let safeIndex = min(max(nearestIndex, 0), steps.count - 1)
                                     value = steps[safeIndex]
-                                }
-                        )
+                                })
                 }
             }
             .frame(height: 30)
@@ -988,7 +968,6 @@ struct CustomSingleCheckbox: View {
     }
 }
 
-
 struct MultipleChoiceCheckboxGroup: View {
     @Binding var options: [String]
     @Binding var selected: [String]
@@ -1006,10 +985,8 @@ struct MultipleChoiceCheckboxGroup: View {
                     ZStack {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(selected.contains(option) ? Color(hex: accent) : Color.clear)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .stroke(Color(hex: accent), lineWidth: 2)
-                            )
+                            .overlay(RoundedRectangle(cornerRadius: 4)
+                                    .stroke(Color(hex: accent), lineWidth: 2))
                             .frame(width: boxSize, height: boxSize)
                         
                         if selected.contains(option) {
@@ -1051,7 +1028,6 @@ struct MultipleChoiceCheckboxGroup: View {
             selected.append(option)
         }
     }
-
     
     // MARK: - Flexible Layout
     struct FlexibleWrapCheckboxLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
@@ -1116,12 +1092,10 @@ struct CustomToggle: View {
         RoundedRectangle(cornerRadius: 16)
             .fill(Color(hex: color))
             .frame(width: 50, height: 32)
-            .overlay(
-                Circle()
-                    .fill(.white)
-                    .padding(3)
-                    .offset(x: feature ? 10 : -10)
-            )
+            .overlay(Circle()
+                .fill(.white)
+                .padding(3)
+                .offset(x: feature ? 10 : -10) )
             .onTapGesture { feature.toggle() }
     }
 }
@@ -1137,16 +1111,9 @@ struct ColorPickerTextField: View {
     @State private var selectedColor: Color = .white
     
     var body: some View {
-        CustomTextField(
-            background: background,
-            accent: accent,
-            placeholder: placeholder,
-            text: $var_to_change,
-            width: width,
-            cornerRadius: cornerRadius ?? 30
-        )
+        CustomTextField(background: background, accent: accent, placeholder: placeholder, text: $var_to_change, width: width, cornerRadius: cornerRadius ?? 30)
         .frame(height: 40)
-        .overlay(alignment: .trailing) { // put dropper inside the field
+        .overlay(alignment: .trailing) {
             ZStack {
                 Image(systemName: "eyedropper")
                     .foregroundColor(Color(hex: background))
@@ -1176,10 +1143,7 @@ struct ColorPickerTextField: View {
         let uiColor = UIColor(color)
         var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
         uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        return String(format: "#%02X%02X%02X",
-                      Int(red * 255),
-                      Int(green * 255),
-                      Int(blue * 255))
+        return String(format: "#%02X%02X%02X", Int(red * 255),  Int(green * 255), Int(blue * 255))
     }
 }
 
@@ -1190,6 +1154,7 @@ struct DatePickerTextFieldDropdown: View {
     @Binding var accent: String
     
     @State private var showDatePicker: Bool = false
+    @State private var screenWidth = UIScreen.main.bounds.width
     
     private var formatter: DateFormatter {
         let f = DateFormatter()
@@ -1211,23 +1176,21 @@ struct DatePickerTextFieldDropdown: View {
                     HStack {
                         Spacer()
                         Button(action: {
-                            withAnimation { showDatePicker.toggle() }
-                        })
+                            withAnimation { showDatePicker.toggle() } })
                        {
                             Image(systemName: "calendar")
                                 .foregroundColor(Color(hex: background))
                                 .font(.system(size: 25))
                                 .padding(.trailing, 15)
                         }
-                    }
-                )
+                    })
                 .buttonStyle(PlainButtonStyle())
                 
                 // Calendar dropdown
                 if showDatePicker {
                     DatePicker(" ", selection: $selectedDate, in: ...Date(), displayedComponents: .date )
                     .datePickerStyle(GraphicalDatePickerStyle())
-                    .frame(width: UIScreen.main.bounds.width*0.85, height: UIScreen.main.bounds.width*0.85)
+                    .frame(width: screenWidth*0.85, height: screenWidth*0.85)
                     .background(Color(hex: accent))
                     .accentColor(Color(hex: background))
                     .tint(Color(hex: background))
@@ -1274,7 +1237,6 @@ struct EmergencyMedPopup: View {
         return AnyView(
             ZStack {
                 VStack(spacing: 15) {
-                    // Close Button
                     HStack {
                         Spacer()
                         Button(action: { isPresented = false }) {
@@ -1289,13 +1251,7 @@ struct EmergencyMedPopup: View {
                     
                     // Title
                     CustomText(
-                        text: "Did \(emergencyMedName) help with your \(symptomName) on \(formatter.string(from: date))?",
-                        color: background,
-                        width: screenWidth * 0.75,
-                        textAlignment: .center,
-                        multilineAlignment: .center,
-                        textSize: 20
-                    )
+                        text: "Did \(emergencyMedName) help with your \(symptomName) on \(formatter.string(from: date))?", color: background, width: screenWidth * 0.75, textAlignment: .center, multilineAlignment: .center, textSize: 20)
                     .padding(.horizontal, 10)
                     .padding(.top, 10)
                     
@@ -1324,32 +1280,17 @@ struct EmergencyMedPopup: View {
                     }
                     
                     // Submit Button
-                    CustomButton(
-                        text: "Update Log",
-                        background: accent,
-                        accent: background,
-                        height: 40,
-                        width: 150,
-                        isBold: true,
-                        textSize: 16,
-                        action: {
-                            if let answer = selectedAnswer {
-                                DatabaseManager.shared.updateMedEffective(
-                                    logID: oldLogID,
-                                    medEffectiveValue: answer
-                                )
-                            }
-                            isPresented = false
-                        }
-                    )
+                    CustomButton(text: "Update Log", background: accent, accent: background, height: 40, width: 150, isBold: true, textSize: 16,
+                                 action: {
+                                    if let answer = selectedAnswer {
+                                        DatabaseManager.shared.updateMedEffective(logID: oldLogID, medEffectiveValue: answer )}
+                                    isPresented = false})
                     .disabled(selectedAnswer == nil)
                     .opacity(selectedAnswer == nil ? 0.5 : 1)
                 }
                 .padding(.vertical, 20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 30)
-                        .stroke(Color(hex: background), lineWidth: 3)
-                )
+                .overlay(RoundedRectangle(cornerRadius: 30)
+                        .stroke(Color(hex: background), lineWidth: 3) )
                 .frame(width: screenWidth * 0.85)
                 .background(Color(hex: accent))
                 .cornerRadius(30)
@@ -1396,10 +1337,8 @@ struct ScrollableLogTable: View {
                 .frame(width: width)
                 .background(Color(hex: accent))
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .stroke(Color(hex: background).opacity(0.5), lineWidth: 1)
-                )
+                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(Color(hex: background).opacity(0.5), lineWidth: 1))
         }
         .frame(width: width, height: 300)
     }
@@ -1477,3 +1416,32 @@ struct LogList {
     var id: String { "\(log_type)_\(log_id)" }
 }
 
+struct SideEffectLog {
+    var side_effect_id: Int64
+    var user_id: Int64
+    var date: Date
+    var side_effect_name: String?
+    var side_effect_severity: Int64
+    var medication_id: Int64?
+    var medication_name: String?
+}
+
+
+struct SymptomLog {
+    var log_id: Int64
+    var user_id: Int64
+    var date: Date
+    var onset_time: String?
+    var severity: Int64
+    var symptom_id: Int64?
+    var med_taken: Bool
+    var medication_id: Int64?
+    var med_worked: Bool?
+    var symptom_description: String?
+    var notes: String?
+    var submit_time: Date
+    var symptom_name: String?
+    var medication_name: String?
+    var trigger_ids: [Int64] = []
+    var trigger_names: [String] = []
+}

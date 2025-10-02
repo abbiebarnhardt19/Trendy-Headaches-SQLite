@@ -25,7 +25,6 @@ class DatabaseManager {
     let log_triggers = Table("Log_Triggers")
     let side_effects = Table("Side_Effects")
 
-    
     // columns
     // users columns
     let user_id = SQLite.Expression<Int64>("user_id")
@@ -96,8 +95,6 @@ class DatabaseManager {
 //                   }
 //                }
         //make the database
-        
-
         
         do {
             db = try Connection(dbPath)
@@ -194,58 +191,31 @@ class DatabaseManager {
                 t.foreignKey(side_effect_medication_id, references: medications, medication_id, delete: .cascade)
             })
 
-            
         } catch {
             print("Table creation error: \(error)")
         }
     }
     
-    
     //add a user to the database
-    func addUser(
-        security_question_string: String,
-        security_answer_string: String,
-        emailAddress: String,
-        passwordHash: String,
-        userBackground: String,
-        userAccent: String,
-        preventativeMedsCSV: String? = nil,
-        emergencyMedsCSV: String? = nil,
-        symptomsCSV: String? = nil,
-        triggersCSV: String? = nil
-    ) throws -> Int64 {
+    func addUser(security_question_string: String, security_answer_string: String, emailAddress: String, passwordHash: String, userBackground: String, userAccent: String, preventativeMedsCSV: String? = nil, emergencyMedsCSV: String? = nil, symptomsCSV: String? = nil, triggersCSV: String? = nil) throws -> Int64 {
         
         var userId: Int64 = 0
         
         // add the user data to the user table
         do {
-            let insertUser = users.insert(
-                security_question <- security_question_string,
-                security_answer <- security_answer_string,
-                email <- emailAddress,
-                password <- passwordHash,
-                background_color <- userBackground,
-                accent_color <- userAccent
-            )
+            let insertUser = users.insert(security_question <- security_question_string, security_answer <- security_answer_string, email <- emailAddress, password <- passwordHash, background_color <- userBackground, accent_color <- userAccent)
             //save the user id to use as a foriegn key in the other tables
             userId = try db.run(insertUser)
         } catch {
             throw NSError(domain: "Database Error", code: 1, userInfo: [NSLocalizedDescriptionKey: "Oops! Something went wrong. Please try again later."])
         }
         
-        //add preventative meds to the medications table
-        //seperate on commas and remove whitespace
+        //add preventative meds, seperate on commas and remove whitespace
         if let preventative = preventativeMedsCSV, !preventative.isEmpty {
             let medsArray = preventative.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             for med in medsArray where !med.isEmpty {
                 do {
-                    let insertMed = medications.insert(
-                        user_id <- userId,
-                        medication_category <- "preventative",
-                        medication_name <- med,
-                        medication_start <- Date(),
-                        medication_end <- nil
-                    )
+                    let insertMed = medications.insert(user_id <- userId, medication_category <- "preventative", medication_name <- med, medication_start <- Date(), medication_end <- nil)
                     try db.run(insertMed)
                 } catch {
                     throw NSError(domain: "Database Error", code: 2, userInfo: [NSLocalizedDescriptionKey: "Oops! Something went wrong. Please try again later."])
@@ -253,19 +223,12 @@ class DatabaseManager {
             }
         }
         
-        //add emergency meds to the medications table
-        //seperate on commas and remove whitespace
+        //add emergency meds, seperate on commas and remove whitespace
         if let emergency = emergencyMedsCSV, !emergency.isEmpty {
             let medsArray = emergency.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             for med in medsArray where !med.isEmpty {
                 do {
-                    let insertMed = medications.insert(
-                        user_id <- userId,
-                        medication_category <- "emergency",
-                        medication_name <- med,
-                        medication_start <- Date(),
-                        medication_end <- nil
-                    )
+                    let insertMed = medications.insert(user_id <- userId, medication_category <- "emergency",  medication_name <- med, medication_start <- Date(), medication_end <- nil)
                     try db.run(insertMed)
                 } catch {
                     throw NSError(domain: "Database Error", code: 3, userInfo: [NSLocalizedDescriptionKey: "Oops! Something went wrong. Please try again later."])
@@ -273,18 +236,12 @@ class DatabaseManager {
             }
         }
         
-        //add triggers to the triggers table
-        //seperate on commas and remove whitespace
+        //add triggers,seperate on commas and remove whitespace
         if let triggersList = triggersCSV, !triggersList.isEmpty {
             let array = triggersList.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             for trig in array where !trig.isEmpty {
                 do {
-                    let insertTrig = triggers.insert(
-                        user_id <- userId,
-                        trigger_name <- trig,
-                        trigger_start <- Date(),
-                        trigger_end <- nil
-                    )
+                    let insertTrig = triggers.insert(user_id <- userId, trigger_name <- trig,  trigger_start <- Date(), trigger_end <- nil)
                     try db.run(insertTrig)
                 } catch {
                     throw NSError(domain: "Database Error", code: 4, userInfo: [NSLocalizedDescriptionKey: "Oops! Something went wrong. Please try again later."])
@@ -316,41 +273,24 @@ class DatabaseManager {
 
     
     //database access helpers
-        
-    //insert helper
+
     func run(_ insert: SQLite.Insert) throws -> Int64 {
         try db.run(insert)
     }
 
-    //update helper
     func run(_ update: SQLite.Update) throws -> Int {
         try db.run(update)
     }
 
-    //delete helper
     func run(_ delete: SQLite.Delete) throws -> Int {
         try db.run(delete)
     }
 
-    //select helped
     func pluck(_ query: SQLite.QueryType) throws -> SQLite.Row? {
         try db.pluck(query)
     }
 
-    //prepare helper
     func prepare(_ query: SQLite.QueryType) throws -> AnySequence<SQLite.Row> {
         try db.prepare(query)
     }
- 
-        func debugRowCount(for tableName: String, userID: Int64) -> Int {
-            do {
-                let table = Table(tableName)
-                let idColumn = SQLite.Expression<Int64>("user_id")
-                let count = try db.scalar(table.filter(idColumn == userID).count)
-                return count
-            } catch {
-                print("DEBUG: Failed to count rows for \(tableName): \(error)")
-                return -1
-            }
-        }
 }
