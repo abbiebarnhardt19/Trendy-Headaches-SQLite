@@ -10,6 +10,7 @@ import Foundation
 import CryptoKit
 
 extension DatabaseManager {
+    
     //function to get hex codes from theme name
     static func getThemeColors(theme: String, currentBackground: String, currentAccent: String) -> (background: String, accent: String) {
         switch theme {

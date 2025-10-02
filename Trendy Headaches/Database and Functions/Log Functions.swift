@@ -23,7 +23,7 @@ extension DatabaseManager {
                 DatabaseManager.shared.symptom_id <- symptom,
                 DatabaseManager.shared.med_taken <- med_taken,
                 DatabaseManager.shared.log_medication_id <- med_taken_id,
-                DatabaseManager.shared.med_worked <- nil, // now nullable
+                DatabaseManager.shared.med_worked <- nil,
                 DatabaseManager.shared.symptom_description <- symptom_desc,
                 DatabaseManager.shared.notes <- notes,
                 DatabaseManager.shared.submit_time <- submit)
@@ -48,6 +48,7 @@ extension DatabaseManager {
         }
     }
     
+    //crerate a side effect log
     func createSideEffectLog(userID: Int64, date: Date,  submit_time:Date, side_effect: String, side_effect_severity: Int64, medication_id: Int64 ) -> Int64? {
             do {
                 let insert = DatabaseManager.shared.side_effects.insert(
@@ -70,6 +71,7 @@ extension DatabaseManager {
             }
         }
     
+    //function to get logs that need a med followup
     func emergencyMedPopup(userID: Int64) -> [Int64] {
         var results: [Int64] = []
         
@@ -94,12 +96,10 @@ extension DatabaseManager {
         return results
     }
     
+    //function to update the log with effectiveness
     func updateMedEffective(logID: Int64, medEffectiveValue: Bool) {
         do {
-            // Build the filter query for the log we want to update
             let log = logs.filter(log_id == logID)
-            
-            // Use the helper run(_:) for updates
             _ = try run(log.update(med_worked <- medEffectiveValue))
             
         } catch {
@@ -107,6 +107,7 @@ extension DatabaseManager {
         }
     }
     
+    //function to update the rest of the log
     func updateSymptomLog(logID: Int64,  userID: Int64, date: Date?, onsetTime: String?,  severity: Int64?,  symptomID: Int64?, medTaken: Bool?, medicationID: Int64?, medWorked: Bool?,  symptomDescription: String?, notes: String?,  triggerIDs: [Int64]? ) {
         do {
             // Fetch current row
@@ -174,6 +175,7 @@ extension DatabaseManager {
         }
     }
     
+    //update a side effects log
     func updateSideEffectLog( logID: Int64, userID: Int64, date: Date?, sideEffectName: String?,  sideEffectSeverity: Int64?, medicationID: Int64?) {
         do {
             // Fetch current row
@@ -209,7 +211,7 @@ extension DatabaseManager {
         }
     }
     
-    
+    //get the details of the log for the popup
     func getLogDetails(logID: Int64) -> (userID: Int64, date: Date, symptomName: String, symptomID: Int64, emergencyMedID: Int64, emergencyMedName: String)? {
         do {
             let logs = DatabaseManager.shared.logs
@@ -249,6 +251,7 @@ extension DatabaseManager {
         return nil
     }
     
+    //get symptom log info to populate log page when editing
     func getSymptomLog(by logID: Int64) -> SymptomLog? {
         do {
             let query = logs.filter(self.log_id == logID)
@@ -293,7 +296,7 @@ extension DatabaseManager {
         return nil
     }
     
-    
+    //get side effect log info to populate log page when editing
     func getSideEffectLog(by logID: Int64) -> SideEffectLog? {
         do {
             let query = side_effects.filter(self.side_effect_id == logID)
@@ -317,6 +320,7 @@ extension DatabaseManager {
         return nil
     }
     
+    //get the id of an instance from its name and user
     func getIDFromName(tableName: String, names: [String], userID: Int64) -> [Int64] {
         let singular = String(tableName.dropLast())
         let idColumn = SQLite.Expression<Int64>("\(singular)_id")
@@ -338,7 +342,6 @@ extension DatabaseManager {
                 print("Error querying \(tableName) for '\(name)': \(error)")
             }
         }
-        
         return ids
     }
 }

@@ -121,41 +121,7 @@ extension DatabaseManager {
         }
     }
     
-    //get info to display on profile page
-    func getUserInfo(userId: Int64) -> (email: String, password: String, securityQuestion: String, securityAnswer: String, backgroundColor: String, accentColor: String) {
-        let email = getSingleColumnValue(userId: userId, columnName: "email") ?? ""
-        let password = getSingleColumnValue(userId: userId, columnName: "password") ?? ""
-        let securityQuestion = getSingleColumnValue(userId: userId, columnName: "security_question") ?? ""
-        let securityAnswer = getSingleColumnValue(userId: userId, columnName: "security_answer") ?? ""
-        let backgroundColor = getSingleColumnValue(userId: userId, columnName: "backgroundColor") ?? ""
-        let accentColor = getSingleColumnValue(userId: userId, columnName: "accentColor") ?? ""
-        return (email, password, securityQuestion, securityAnswer, backgroundColor, accentColor)
-    }
-    
-    //get the meds, needs special function to split between emergency and preventative
-    func getMeds(forUserId userId: Int64, medCategory: String) -> [String] {
-        do {
-            let idColumn = SQLite.Expression<Int64>("user_id")
-            let nameColumn = SQLite.Expression<String>("medication_name")
-            let categoryColumn = SQLite.Expression<String>("medication_category")
-            let endDateColumn = SQLite.Expression<Date?>("medication_end")
-            
-            return try prepare(
-                medications
-                    .filter(idColumn == userId &&
-                            categoryColumn == medCategory &&
-                            endDateColumn == nil)
-            ).map { row in
-                row[nameColumn]
-            }
-        } catch {
-            print("Oops! Something went wrong. Please try again later.")
-            return []
-        }
-    }
-    
-    //check if there is an email that matches in the database and if the password matches
-    //if there is, return the user ID so it can be passed to the main app
+    //check if email and password combo is valid
     func attemptLogin(email: String, password: String) -> (userId: Int64?, error: String?) {
         let normalizedEmail = DatabaseManager.normalizedValue(email)
         let hashedPassword = DatabaseManager.hashString(password)
@@ -170,25 +136,19 @@ extension DatabaseManager {
                 return (nil, "Invalid email or password")
             }
         } catch {
-            return (nil, "Oops! Something went wrong. Please try again later.")
+            return (nil, "SQLite error in attemptLogin: \(error)")
         }
-    }
-    
-    //hasing function
-    static func hashString(_ input: String) -> String {
-        let inputData = Data(input.utf8)
-        let hashed = SHA256.hash(data: inputData)
-        return hashed.map { String(format: "%02x", $0) }.joined()
     }
     
     //reset password function
     static func resetPassword(forEmail email: String, newPassword: String) -> Bool {
         do {
             guard let userID = DatabaseManager.shared.getUserFromEmail(email: email) else {
-                print("Oops! Something went wrong. Please try again later.")
+                print("Error in resetPassword")
                 return false
             }
             
+            //hash the password and grab the user's row
             let hashedPassword = DatabaseManager.hashString(newPassword)
             let userFilter = DatabaseManager.shared.users.filter(DatabaseManager.shared.user_id == userID)
             
@@ -196,7 +156,7 @@ extension DatabaseManager {
             return true
             
         } catch {
-            print("Oops! Something went wrong. Please try again later.")
+            print("SQLite error in resetPassword: \(error)")
             return false
         }
     }
@@ -204,6 +164,7 @@ extension DatabaseManager {
     //delete user function
     func deleteUser(userID: Int64) {
         do {
+            //set variables
             let users = Table("users")
             let id = SQLite.Expression<Int64>("user_id")
             
@@ -215,6 +176,7 @@ extension DatabaseManager {
         }
     }
     
+    //function to update a value in the users table
     func updateUser(userID: Int64, newValue: String, column: String){
         do {
             let users = Table("users")
@@ -225,11 +187,13 @@ extension DatabaseManager {
             let _ = try DatabaseManager.shared.run(updateQuery)
             
         } catch {
-            print("Failed to delete user \(userID): \(error)")
+            print("Failed to update user \(userID): \(error)")
         }
     }
     
+    //function to load the data for the profile page
     func loadData(userID: Int64,  symptoms: inout [String], triggers: inout [String], prevMeds: inout [String],  emergencyMeds: inout [String], securityQuestion: inout String, securityAnswer: inout String, newSecurityQuestion: inout String, backgroundColor: inout String, accentColor: inout String, newBackground: inout String, newAccent: inout String,  themeName: inout String, newThemeName: inout String) {
+        //use helper functions to get all the data
         symptoms = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
         symptoms=DatabaseManager.deleteListDuplicates(list:symptoms)
         
@@ -257,11 +221,11 @@ extension DatabaseManager {
         newThemeName = themeName.contains("Custom") ? "Custom" : themeName
     }
     
+    //function for users adding a value to a category
     func insertItem(table: Table, userID: Int64, nameColumn: SQLite.Expression<String>, name: String, startColumn: SQLite.Expression<Date>, endColumn: SQLite.Expression<Date?>, medicationCategory: String? = nil) {
         
         var setters: [Setter] = [user_id <- userID, nameColumn <- name, startColumn <- Date(), endColumn <- nil ]
-        
-        // Always use DatabaseManager.shared.med_category as the column
+
         if let category = medicationCategory {
             setters.append(DatabaseManager.shared.medication_category <- category)
         }
@@ -274,6 +238,7 @@ extension DatabaseManager {
         }
     }
     
+    //function for users updating a value
     func updateItem(table: Table, userID: Int64, oldValue: String, newValue: String, nameColumn: SQLite.Expression<String>, medicationCategory: String? = nil ) {
         var filter = table.filter(user_id == userID && nameColumn == oldValue)
         
@@ -289,6 +254,7 @@ extension DatabaseManager {
         }
     }
     
+    //function for users to stop an item
     func endItem( table: Table, userID: Int64, name: String, nameColumn: SQLite.Expression<String>, endColumn: SQLite.Expression<Date?>, medicationCategory: String? = nil ) {
         var filter = table.filter(user_id == userID && nameColumn == name)
         
@@ -309,7 +275,7 @@ extension DatabaseManager {
         }
     }
     
-    //delete list duplicates, used for rows that are created from csvs
+    //delete list duplicates (sometimes needed csv variables)
     static func deleteListDuplicates(list: [String]) -> [String]{
         var tempList = [String]()
         for item in list{
@@ -329,7 +295,7 @@ extension DatabaseManager {
                 return row[targetColumn]
             }
         } catch {
-            print("Oops! Something went wrong. Please try again later.")
+            print("SQL error in getUserFromEmail: \(error)")
         }
         return nil
     }
