@@ -14,6 +14,7 @@ struct ScrollableLogTable: View {
     @State var background: String
     @State var accent: String
     var width: CGFloat
+    var height: CGFloat
     
     var onLogTap: ((Int64, String) -> Void)? = nil
 
@@ -48,7 +49,7 @@ struct ScrollableLogTable: View {
                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .stroke(Color(hex: background).opacity(0.5), lineWidth: 1))
         }
-        .frame(width: width, height: 300)
+            .frame(width: width, height: height)
     }
 
     // MARK: - Row Builder
@@ -116,17 +117,71 @@ struct ScrollableLogTable: View {
 struct FilterDropDown: View {
     @State var background: String
     @State var accent: String
+    @Binding var showPopUp: Bool
     
     var body: some View {
-        VStack{
-            Button(action: {  }) {
-                Image(systemName: "line.horizontal.3.decrease.circle")
-                    .font(.system(size: 65))
-                    .foregroundColor(Color(hex: accent))
-                    .frame(width: 65, height: 25)
-            }
-            .buttonStyle(PlainButtonStyle())
-            .padding(.trailing, 30)
+        Button(action: { showPopUp.toggle() }) {
+            Image(systemName: "line.horizontal.3.decrease.circle")
+                .font(.system(size: 65))
+                .foregroundColor(Color(hex: accent))
+                .frame(width: 65, height: 25)
         }
+        .buttonStyle(PlainButtonStyle())
+        .padding(.trailing, 30)
+        .padding(.bottom, 10)
+    }
+}
+
+
+
+struct filterPopUp: View {
+    @State var accent: String
+    @State var background: String
+    
+    var body: some View {
+        VStack(spacing:10){
+            HStack{
+                CustomText(text:"Log Type", color: background, width:100, textAlignment: .trailing)
+                    .padding(.trailing, 5)
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 20))
+                    .foregroundColor(Color(hex: background))
+                    .frame(width:10)
+            }
+            HStack{
+                CustomText(text:"Symptom", color: background, width:100, textAlignment: .trailing)
+                    .padding(.trailing, 5)
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 20))
+                    .foregroundColor(Color(hex: background))
+                    .frame(width:10)
+            }
+            .padding(.horizontal, 10)
+            
+            HStack{
+                CustomText(text:"Date", color: background, width:100, textAlignment: .trailing)
+                    .padding(.trailing, 5)
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 20))
+                    .foregroundColor(Color(hex: background))
+                    .frame(width:10)
+            }
+            .padding(.horizontal, 10)
+            
+            HStack{
+                CustomText(text:"Severity", color: background, width:100, textAlignment: .trailing)
+                    .padding(.trailing, 5)
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 20))
+                    .foregroundColor(Color(hex: background))
+                    .frame(width:10)
+            }
+            .padding(.horizontal, 10)
+            
+        }
+        .padding(10)
+        .background(Color(hex:accent))
+        .cornerRadius(20)
+        .padding(.bottom, 40)
     }
 }

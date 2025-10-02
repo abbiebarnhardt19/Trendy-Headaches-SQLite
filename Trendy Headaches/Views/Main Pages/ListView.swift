@@ -17,14 +17,24 @@ struct ListView: View {
     @State private var showLogCreation: Bool = false
     
     @State private var logList: [LogList] = []
+    @State private var showFilterPopup: Bool = false
+    
+    var screenWidth: CGFloat = UIScreen.main.bounds.width
+    var screenHeight: CGFloat = UIScreen.main.bounds.height
+    
+    //height minus the blob height
+    var popupHeight: CGFloat = UIScreen.main.bounds.height-150 - 170 - 70
 
     var body: some View {
         NavigationStack {
             ZStack {
                 Color(hex: background).ignoresSafeArea()
                 
-                SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 30, y: -365, rotation: 0, width:350, height:170)
+                SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 30, y: -375, rotation: 0, width:350, height:170)
+                    .zIndex(5)
                 SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 30, y: -270, rotation: 180, width:350, height:150)
+                    .zIndex(5)
+                
                 VStack {
                     HStack{
                         CustomText(text: "List View", color: accent, width:210, textAlignment: .leading,  multilineAlignment: .leading,  textSize: 53)
@@ -36,11 +46,26 @@ struct ListView: View {
                     }
                     .padding(.top, 35)
                     
-                    ScrollableLogTable( userID: userID, logList: logList, background: background, accent: accent, width: UIScreen.main.bounds.width - 20, onLogTap: { id, table in
+                    ScrollableLogTable( userID: userID, logList: logList, background: background, accent: accent, width: screenWidth - 20, height: popupHeight, onLogTap: { id, table in
                             selectedLogID = id
                             selectedLogTable = table
                         })
                     Spacer()
+                }
+                
+                if showFilterPopup {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            filterPopUp(accent: accent, background: background)
+                                .padding(.trailing, 20)
+                                .padding(.bottom, 120) // lift it above the nav bar
+                            
+                        }
+                    }
+                    .transition(.move(edge: .bottom))
+                    .zIndex(10)
                 }
 
                 // Floating "Add" button
@@ -48,7 +73,7 @@ struct ListView: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        FilterDropDown(background: background, accent: accent)
+                        FilterDropDown(background: background, accent: accent, showPopUp: $showFilterPopup)
                     }
                     .padding(.bottom, 80)
                 }
