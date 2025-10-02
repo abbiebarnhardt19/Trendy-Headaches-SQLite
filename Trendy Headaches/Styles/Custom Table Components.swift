@@ -50,6 +50,11 @@ struct ScrollableLogTable: View {
                         .stroke(Color(hex: background).opacity(0.5), lineWidth: 1))
         }
             .frame(width: width, height: height)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(Color(hex: background).opacity(0.5), lineWidth: 1)
+            )
     }
 
     // MARK: - Row Builder
@@ -179,9 +184,13 @@ struct filterPopUp: View {
             .padding(.horizontal, 10)
             
         }
+        
         .padding(10)
+        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(Color(hex: background), lineWidth: 3))
         .background(Color(hex:accent))
         .cornerRadius(20)
         .padding(.bottom, 40)
+
     }
 }
