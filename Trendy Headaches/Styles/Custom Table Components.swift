@@ -10,7 +10,7 @@ import SwiftUI
 // MARK: - Table View
 struct ScrollableLogTable: View {
     var userID: Int64
-    var logList: [LogList]
+    var logList: [UnifiedLog]
     @State var background: String
     @State var accent: String
     var width: CGFloat
@@ -57,8 +57,7 @@ struct ScrollableLogTable: View {
             )
     }
 
-    // MARK: - Row Builder
-    private func row(for logList: LogList) -> some View {
+    private func row(for logList: UnifiedLog) -> some View {
         HStack(spacing: 0) {
             CustomText(text: logList.log_type, color: background, width: 110, textAlignment: .center, textSize: 16)
                 .padding(.vertical, 5)
@@ -66,8 +65,15 @@ struct ScrollableLogTable: View {
             Divider().frame(width: 1, height: 30)
                 .background(Color(hex: background).opacity(0.5))
 
-            CustomText(text: logList.symptom, color: background, textAlignment: .center, textSize: 16)
-                .padding(.vertical, 5)
+            // If it’s a Symptom log, show the symptom name; otherwise, the side effect name
+            CustomText(
+                text: logList.symptom_name ?? logList.side_effect_name ?? "N/A",
+                color: background,
+                width: 120,
+                textAlignment: .center,
+                textSize: 16
+            )
+            .padding(.vertical, 5)
 
             Divider().frame(width: 1, height: 30)
                 .background(Color(hex: background).opacity(0.5))
@@ -83,6 +89,7 @@ struct ScrollableLogTable: View {
         }
         .background(Color(hex: accent))
     }
+
 
     // MARK: - Header
     private var tableHeader: some View {
@@ -142,47 +149,36 @@ struct FilterDropDown: View {
 struct filterPopUp: View {
     @State var accent: String
     @State var background: String
+    @State var columnOptions: [String]
+    @State var selectedColumns: [String]
+    
+    @State var showColumnList: Bool = false
+//    @State var columnOptions: [String] = ["Log Type", "Date", "Symptom", "Severity", "Symp. Onset (S)", "Emerg. Meds (S)", "Triggers (S)", "Symp. Desc. (S)", "Notes (S)", "Med. (SE)"]
+//    @State var selectedColumns: [String] = ["Log Type", "Date", "Symptom", "Severity"]
+    
     
     var body: some View {
         VStack(spacing:10){
-            HStack{
-                CustomText(text:"Log Type", color: background, width:100, textAlignment: .trailing)
-                    .padding(.trailing, 5)
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 20))
-                    .foregroundColor(Color(hex: background))
-                    .frame(width:10)
+            VStack{
+                HStack{
+                    CustomText(text:"Columns", color: background, width:100, textAlignment: .trailing)
+                        .padding(.trailing, 5)
+                    Button(action: { showColumnList.toggle() }) {
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 20))
+                            .foregroundColor(Color(hex: background))
+                            .frame(width: 10)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.trailing, 30)
+                    if showColumnList{
+                        Spacer()
+                    }
+                }
+                if showColumnList{
+                    MultipleChoiceCheckboxGroup(options: $columnOptions, selected: $selectedColumns, accent: background, background: accent)
+                }
             }
-            HStack{
-                CustomText(text:"Symptom", color: background, width:100, textAlignment: .trailing)
-                    .padding(.trailing, 5)
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 20))
-                    .foregroundColor(Color(hex: background))
-                    .frame(width:10)
-            }
-            .padding(.horizontal, 10)
-            
-            HStack{
-                CustomText(text:"Date", color: background, width:100, textAlignment: .trailing)
-                    .padding(.trailing, 5)
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 20))
-                    .foregroundColor(Color(hex: background))
-                    .frame(width:10)
-            }
-            .padding(.horizontal, 10)
-            
-            HStack{
-                CustomText(text:"Severity", color: background, width:100, textAlignment: .trailing)
-                    .padding(.trailing, 5)
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 20))
-                    .foregroundColor(Color(hex: background))
-                    .frame(width:10)
-            }
-            .padding(.horizontal, 10)
-            
         }
         
         .padding(10)

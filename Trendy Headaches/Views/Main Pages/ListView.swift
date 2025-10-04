@@ -16,14 +16,17 @@ struct ListView: View {
     @State private var selectedLogTable: String? = nil
     @State private var showLogCreation: Bool = false
     
-    @State private var logList: [LogList] = []
+    @State private var logList: [UnifiedLog] = []
     @State private var showFilterPopup: Bool = false
+    
+    @State var columnOptions: [String] = ["Log Type", "Date", "Symptom", "Severity", "Symp. Onset (S)", "Emerg. Meds (S)", "Triggers (S)", "Symp. Desc. (S)", "Notes (S)", "Med. (SE)"]
+    @State var selectedColumns: [String] = ["Log Type", "Date", "Symptom", "Severity"]
     
     var screenWidth: CGFloat = UIScreen.main.bounds.width
     var screenHeight: CGFloat = UIScreen.main.bounds.height
     
     //height minus the blob height
-    var popupHeight: CGFloat = UIScreen.main.bounds.height-150 - 170 - 70
+    var popupHeight: CGFloat = UIScreen.main.bounds.height-150 - 170 - 110
 
     var body: some View {
         NavigationStack {
@@ -44,7 +47,7 @@ struct ListView: View {
                         Spacer()
                        
                     }
-                    .padding(.top, 35)
+                    .padding(.top, 25)
                     
                     ScrollableLogTable( userID: userID, logList: logList, background: background, accent: accent, width: screenWidth - 20, height: popupHeight, onLogTap: { id, table in
                             selectedLogID = id
@@ -58,9 +61,9 @@ struct ListView: View {
                         Spacer()
                         HStack {
                             Spacer()
-                            filterPopUp(accent: accent, background: background)
+                            filterPopUp(accent: accent, background: background, columnOptions: columnOptions, selectedColumns: selectedColumns)
                                 .padding(.trailing, 20)
-                                .padding(.bottom, 120) // lift it above the nav bar
+                                .padding(.bottom, 120) 
                             
                         }
                     }
@@ -68,7 +71,7 @@ struct ListView: View {
                     .zIndex(10)
                 }
 
-                // Floating "Add" button
+                // filter button
                 VStack {
                     Spacer()
                     HStack {
@@ -78,6 +81,7 @@ struct ListView: View {
                     .padding(.bottom, 80)
                 }
                 
+                //nav bar
                 VStack {
                     Spacer()
                     NavBarView(
@@ -96,22 +100,18 @@ struct ListView: View {
             .navigationDestination(
                 isPresented: Binding(
                     get: { selectedLogID != nil },
-                    set: { if !$0 { selectedLogID = nil } }
-                )
-            ) {
+                    set: { if !$0 { selectedLogID = nil } } ) ) {
                 if let id = selectedLogID, let table = selectedLogTable {
                     LogView(userID: userID, existingLogID: id, existingLogTable: table, background: $background, accent: $accent)
                         .navigationBarBackButtonHidden(true)
                 }
             }
-
         }
         .onAppear{
             logList = DatabaseManager.shared.getLogList(userID: userID)
         }
     }
 }
-
 
 #Preview {
     ListView(userID: 1, background: .constant("#001d00"), accent: .constant("#b5c4b9"))
