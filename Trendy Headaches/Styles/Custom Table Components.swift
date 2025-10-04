@@ -7,125 +7,6 @@
 
 import SwiftUI
 
-// MARK: - Table View
-struct ScrollableLogTable: View {
-    var userID: Int64
-    var logList: [UnifiedLog]
-    @State var background: String
-    @State var accent: String
-    var width: CGFloat
-    var height: CGFloat
-    
-    var onLogTap: ((Int64, String) -> Void)? = nil
-
-    private var dateFormatter: DateFormatter {
-        let f = DateFormatter()
-        f.dateStyle = .short
-        return f
-    }
-
-    var body: some View {
-            ScrollView(.vertical, showsIndicators: true) {
-                LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
-                    Section(header: tableHeader) {
-                        ForEach(logList, id: \.id) { log in
-                            row(for: log)
-                                .contentShape(Rectangle())
-                                .onTapGesture {
-                                    onLogTap?(log.log_id, log.log_type) // pass table name if needed
-                                    }
-
-                            if log.id != logList.last?.id {
-                                Divider()
-                                    .frame(width: width, height: 1)
-                                    .background(Color(hex: background).opacity(0.5))
-                            }
-                        }
-                    }
-                }
-                .frame(width: width)
-                .background(Color(hex: accent))
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .stroke(Color(hex: background).opacity(0.5), lineWidth: 1))
-        }
-            .frame(width: width, height: height)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(Color(hex: background).opacity(0.5), lineWidth: 1)
-            )
-    }
-
-    private func row(for logList: UnifiedLog) -> some View {
-        HStack(spacing: 0) {
-            CustomText(text: logList.log_type, color: background, width: 110, textAlignment: .center, textSize: 16)
-                .padding(.vertical, 5)
-
-            Divider().frame(width: 1, height: 30)
-                .background(Color(hex: background).opacity(0.5))
-
-            // If it’s a Symptom log, show the symptom name; otherwise, the side effect name
-            CustomText(
-                text: logList.symptom_name ?? logList.side_effect_name ?? "N/A",
-                color: background,
-                width: 120,
-                textAlignment: .center,
-                textSize: 16
-            )
-            .padding(.vertical, 5)
-
-            Divider().frame(width: 1, height: 30)
-                .background(Color(hex: background).opacity(0.5))
-
-            CustomText(text: dateFormatter.string(from: logList.date), color: background, width: 65, textAlignment: .center, textSize: 16)
-                .padding(.vertical, 5)
-
-            Divider().frame(width: 1, height: 30)
-                .background(Color(hex: background).opacity(0.5))
-
-            CustomText(text: "\(logList.severity)", color: background, width: 55, textAlignment: .center, textSize: 16)
-                .padding(.vertical, 5)
-        }
-        .background(Color(hex: accent))
-    }
-
-
-    // MARK: - Header
-    private var tableHeader: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                CustomText(text:"Log Type", color:background, width:110, textAlignment: .center, isBold: true, textSize: 18)
-                    .padding(.vertical, 5)
-
-                Divider().frame(width: 1, height: 30)
-                    .background(Color(hex: background).opacity(0.5))
-
-                CustomText(text:"Symptom", color:background, textAlignment: .center, isBold: true, textSize: 18)
-                    .padding(.vertical, 5)
-
-                Divider().frame(width: 1, height: 30)
-                    .background(Color(hex: background).opacity(0.5))
-
-                CustomText(text:"Date", color:background, width:65, textAlignment: .center, isBold: true, textSize: 18)
-                    .padding(.vertical, 5)
-
-                Divider().frame(width: 1, height: 30)
-                    .background(Color(hex: background).opacity(0.5))
-
-                CustomText(text:"Sev.", color:background, width:55, textAlignment: .center, isBold: true, textSize: 18)
-                    .padding(.vertical, 5)
-            }
-            .background(Color(hex: accent))
-
-            Divider()
-                .frame(width: width, height: 2)
-                .background(Color(hex: background).opacity(0.5))
-        }
-        .background(Color(hex: accent))
-    }
-}
-
 struct FilterDropDown: View {
     @State var background: String
     @State var accent: String
@@ -144,18 +25,13 @@ struct FilterDropDown: View {
     }
 }
 
-
-
 struct filterPopUp: View {
     @State var accent: String
     @State var background: String
     @State var columnOptions: [String]
-    @State var selectedColumns: [String]
+    @Binding var selectedColumns: [String]
     
     @State var showColumnList: Bool = false
-//    @State var columnOptions: [String] = ["Log Type", "Date", "Symptom", "Severity", "Symp. Onset (S)", "Emerg. Meds (S)", "Triggers (S)", "Symp. Desc. (S)", "Notes (S)", "Med. (SE)"]
-//    @State var selectedColumns: [String] = ["Log Type", "Date", "Symptom", "Severity"]
-    
     
     var body: some View {
         VStack(spacing:10){
@@ -188,5 +64,143 @@ struct filterPopUp: View {
         .cornerRadius(20)
         .padding(.bottom, 40)
 
+    }
+}
+// MARK: - Table View
+struct ScrollableLogTable: View {
+    var userID: Int64
+    var logList: [UnifiedLog]
+    var selectedColumns: [String]
+    @State var background: String
+    @State var accent: String
+    @State var height: CGFloat
+    @State var width: CGFloat
+
+    var onLogTap: ((Int64, String) -> Void)? = nil
+
+    private var dateFormatter: DateFormatter {
+        let f = DateFormatter()
+        f.dateStyle = .short
+        return f
+    }
+
+    var body: some View {
+
+        VStack {
+            ScrollView(.vertical, showsIndicators: true) {
+                ScrollView(.horizontal, showsIndicators: true) {
+                    LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                        Section(header: tableHeader) {
+                            ForEach(logList, id: \.id) { log in
+                                row(for: log)
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        onLogTap?(log.log_id, log.log_type)
+                                    }
+
+                                if log.id != logList.last?.id {
+                                    Divider()
+                                        .frame(height: 1)
+                                        .background(Color(hex: background).opacity(0.5))
+                                }
+                            }
+                        }
+                    }
+                    .background(Color(hex: accent))
+                }
+                .frame(width: width)
+            }
+        }
+        .frame(width: width, height: height)
+        .background(Color(hex: accent))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(Color(hex: background).opacity(0.5), lineWidth: 1)
+        )
+
+        
+    }
+
+    // MARK: - Row
+    private func row(for log: UnifiedLog) -> some View {
+        HStack(spacing: 0) {
+            ForEach(selectedColumns, id: \.self) { column in
+                CustomText(
+                    text: value(for: column, in: log),
+                    color: background,
+                    textAlignment: .center,
+                    textSize: 16
+                )
+                .padding(.vertical, 5)
+                .padding(.horizontal, 8)
+                .frame(minWidth: 80, alignment: .center) // dynamic width with min
+
+                if column != selectedColumns.last {
+                    Divider()
+                        .frame(width: 1, height: 30)
+                        .background(Color(hex: background).opacity(0.5))
+                }
+            }
+        }
+        .background(Color(hex: accent))
+    }
+
+    // MARK: - Header
+    private var tableHeader: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                ForEach(selectedColumns, id: \.self) { column in
+                    CustomText(
+                        text: column,
+                        color: background,
+                        textAlignment: .center,
+                        isBold: true,
+                        textSize: 18
+                    )
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 8)
+                    .frame(minWidth: 80, alignment: .center) // dynamic width
+
+                    if column != selectedColumns.last {
+                        Divider()
+                            .frame(width: 1, height: 30)
+                            .background(Color(hex: background).opacity(0.5))
+                    }
+                }
+            }
+            .background(Color(hex: accent))
+
+            Divider()
+                .frame(height: 2)
+                .background(Color(hex: background).opacity(0.5))
+        }
+        .background(Color(hex: accent))
+    }
+
+    // MARK: - Helpers
+    private func value(for column: String, in log: UnifiedLog) -> String {
+        switch column {
+        case "Log Type":
+            return log.log_type
+        case "Symptom":
+            return log.symptom_name ?? log.side_effect_name ?? "N/A"
+        case "Date":
+            return dateFormatter.string(from: log.date)
+        case "Severity":
+            return "\(log.severity)"
+        case "Notes (S)":
+            return log.notes ?? "N/A"
+//        case "Triggers (S)":
+//            return log.triggers ?? "—"
+        case "Symp. Onset (S)":
+            return log.onset_time ?? "N/A"
+        case "Emerg. Meds (S)":
+            return log.medication_name ?? "N/A"
+        case "Med. (SE)":
+            return log.medication_name ?? "N/A"
+        default:
+            return "N/A"
+        }
     }
 }

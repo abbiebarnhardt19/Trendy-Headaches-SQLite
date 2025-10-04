@@ -42,17 +42,19 @@ struct ListView: View {
                     HStack{
                         CustomText(text: "List View", color: accent, width:210, textAlignment: .leading,  multilineAlignment: .leading,  textSize: 53)
                         .padding(.leading, 20)
-                        
-
                         Spacer()
                        
                     }
                     .padding(.top, 25)
                     
-                    ScrollableLogTable( userID: userID, logList: logList, background: background, accent: accent, width: screenWidth - 20, height: popupHeight, onLogTap: { id, table in
+                    HStack{
+                        Spacer()
+                        ScrollableLogTable( userID: userID, logList: logList, selectedColumns: selectedColumns, background: background, accent: accent, height: popupHeight, width: screenWidth - 20, onLogTap: { id, table in
                             selectedLogID = id
                             selectedLogTable = table
                         })
+                        Spacer()
+                    }
                     Spacer()
                 }
                 
@@ -61,7 +63,7 @@ struct ListView: View {
                         Spacer()
                         HStack {
                             Spacer()
-                            filterPopUp(accent: accent, background: background, columnOptions: columnOptions, selectedColumns: selectedColumns)
+                            filterPopUp(accent: accent, background: background, columnOptions: columnOptions, selectedColumns: $selectedColumns)
                                 .padding(.trailing, 20)
                                 .padding(.bottom, 120) 
                             

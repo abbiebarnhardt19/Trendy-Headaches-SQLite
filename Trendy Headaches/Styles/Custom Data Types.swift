@@ -7,19 +7,6 @@
 
 import SwiftUI
 
-
-//structs for functions to return
-
-struct LogList {
-    var log_type: String
-    var log_id: Int64
-    var symptom: String
-    var date: Date
-    var submit_date: Date
-    var severity: Int64
-    var id: String { "\(log_type)_\(log_id)" }
-}
-
 struct SideEffectLog {
     var side_effect_id: Int64
     var user_id: Int64
