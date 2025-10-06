@@ -19,8 +19,9 @@ struct ListView: View {
     @State private var logList: [UnifiedLog] = []
     @State private var showFilterPopup: Bool = false
     
-    @State var columnOptions: [String] = ["Log Type", "Date", "Symptom", "Severity", "Symp. Onset (S)", "Emerg. Meds (S)", "Triggers (S)", "Symp. Desc. (S)", "Notes (S)", "Med. (SE)"]
-    @State var selectedColumns: [String] = ["Log Type", "Date", "Symptom", "Severity"]
+    @State var columnOptions: [String] = ["Log Type", "Date", "Symptom", "Severity", "Onset (S)", "Emerg. Med. Taken?", "Emerg. Med. Name", "Emerg. Med. Worked?", "Triggers (S)", "Symp. Desc. (S)", "Notes (S)", "Med. (SE)"]
+//    @State var selectedColumns: [String] = ["Log Type", "Date", "Symptom", "Severity"]
+    @State var selectedColumns: [String] = ["Log Type", "Date", "Symptom", "Severity", "Onset (S)", "Emerg. Med. Taken?", "Emerg. Med. Name", "Emerg. Med. Worked?", "Triggers (S)", "Symp. Desc. (S)", "Notes (S)", "Med. (SE)"]
     
     var screenWidth: CGFloat = UIScreen.main.bounds.width
     var screenHeight: CGFloat = UIScreen.main.bounds.height

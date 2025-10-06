@@ -66,7 +66,8 @@ struct filterPopUp: View {
 
     }
 }
-// MARK: - Table View
+import SwiftUI
+
 struct ScrollableLogTable: View {
     var userID: Int64
     var logList: [UnifiedLog]
@@ -75,27 +76,34 @@ struct ScrollableLogTable: View {
     @State var accent: String
     @State var height: CGFloat
     @State var width: CGFloat
-
+    
     var onLogTap: ((Int64, String) -> Void)? = nil
     
-    private var expandedColumns: [String] {
-        selectedColumns.flatMap { column in
-            if column == "Emerg. Meds (S)" {
-                return ["Med Name", "Taken", "Worked"]
-            } else {
-                return [column]
-            }
-        }
-    }
-
     private var dateFormatter: DateFormatter {
         let f = DateFormatter()
         f.dateStyle = .short
         return f
     }
+    
+    // Add this property to your table
+    var columnMaxWidths: [String: CGFloat] = ["Emerg. Med. Taken?": 130, "Emerg. Med. Name": 130, "Emerg. Med. Worked?": 130] // e.g., ["Notes (S)": 300, "Triggers (S)": 200]
 
+    // Updated width helper
+    private func width(for column: String) -> CGFloat {
+        let charWidth: CGFloat = 10
+        let padding: CGFloat = 16
+        
+        let headerCount = column.count
+        let maxRowCount = logList.map { value(for: column, in: $0).count }.max() ?? 0
+        let maxCount = max(headerCount, maxRowCount)
+        
+        // get max width for this column if set, otherwise no limit
+        let maxWidth = columnMaxWidths[column] ?? .infinity
+        return min(CGFloat(maxCount) * charWidth + padding, maxWidth)
+    }
+
+    
     var body: some View {
-
         VStack {
             ScrollView(.vertical, showsIndicators: true) {
                 ScrollView(.horizontal, showsIndicators: true) {
@@ -107,7 +115,6 @@ struct ScrollableLogTable: View {
                                     .onTapGesture {
                                         onLogTap?(log.log_id, log.log_type)
                                     }
-
                                 if log.id != logList.last?.id {
                                     Divider()
                                         .frame(height: 1)
@@ -118,24 +125,55 @@ struct ScrollableLogTable: View {
                     }
                     .background(Color(hex: accent))
                 }
-                .frame(width: width)
             }
         }
-        .frame(width: width, height: height)
+        .frame(height: height)
         .background(Color(hex: accent))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .stroke(Color(hex: background).opacity(0.5), lineWidth: 1)
         )
-
-        
+    }
+    
+    // MARK: - Header
+    private var tableHeader: some View {
+        VStack(spacing: 0) { // VStack allows horizontal divider at bottom
+            HStack(spacing: 0) {
+                ForEach(selectedColumns, id: \.self) { column in
+                    CustomText(
+                        text: column,
+                        color: background,
+                        textAlignment: .center,
+                        multilineAlignment: .center,
+                        isBold: true,
+                        textSize: 18
+                    )
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 8)
+                    .frame(width: width(for: column))
+                    
+                    if column != selectedColumns.last {
+                        Divider()
+                            .frame(width: 1) // vertical divider
+                            .background(Color(hex: background).opacity(0.5))
+                    }
+                }
+            }
+            .background(Color(hex: accent))
+            
+            // Horizontal divider under header
+            Divider()
+                .frame(height: 1)
+                .background(Color(hex: background).opacity(0.5))
+        }
     }
 
+    
     // MARK: - Row
     private func row(for log: UnifiedLog) -> some View {
         HStack(spacing: 0) {
-            ForEach(expandedColumns, id: \.self) { column in
+            ForEach(selectedColumns, id: \.self) { column in
                 CustomText(
                     text: value(for: column, in: log),
                     color: background,
@@ -144,93 +182,33 @@ struct ScrollableLogTable: View {
                 )
                 .padding(.vertical, 5)
                 .padding(.horizontal, 8)
-                .frame(minWidth: 80, alignment: .center) // dynamic width with min
-
-                if column != expandedColumns.last {
+                .frame(width: width(for: column))
+                
+                if column != selectedColumns.last {
                     Divider()
-                        .frame(width: 1, height: 30)
+                        .frame(width: 1)
                         .background(Color(hex: background).opacity(0.5))
                 }
             }
         }
         .background(Color(hex: accent))
     }
-
-    // MARK: - Header
-    private var tableHeader: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                ForEach(expandedColumns, id: \.self) { column in
-                    CustomText(
-                        text: column,
-                        color: background,
-                        textAlignment: .center,
-                        isBold: true,
-                        textSize: 18
-                    )
-                    .padding(.vertical, 5)
-                    .padding(.horizontal, 8)
-                    .frame(minWidth: 80, alignment: .center) // dynamic width
-
-                    if column != expandedColumns.last {
-                        Divider()
-                            .frame(width: 1, height: 30)
-                            .background(Color(hex: background).opacity(0.5))
-                    }
-                }
-            }
-            .background(Color(hex: accent))
-
-            Divider()
-                .frame(height: 2)
-                .background(Color(hex: background).opacity(0.5))
-        }
-        .background(Color(hex: accent))
-    }
-
+    
     // MARK: - Helpers
     private func value(for column: String, in log: UnifiedLog) -> String {
         switch column {
-        case "Log Type":
-            return log.log_type
-        case "Symptom":
-            return log.symptom_name ?? "N/A"
-        case "Date":
-            return dateFormatter.string(from: log.date)
-        case "Severity":
-            return "\(log.severity)"
-        case "Notes (S)":
-            return log.notes ?? "N/A"
-        case "Triggers (S)":
-            if let triggers = log.trigger_names, !triggers.isEmpty {
-                return triggers.joined(separator: ", ")
-            } else {
-                return "N/A"
-            }
-
-        case "Symp. Onset (S)":
-            return log.onset_time ?? "N/A"
-            // Expanded Emerg. Meds columns
-        case "Med Name":
-            return log.medication_name ?? "N/A"
-        case "Taken":
-            if let taken = log.med_taken {
-                return taken ? "Yes" : "No"
-            } else {
-                return "N/A"
-            }
-        case "Worked":
-            if let worked = log.med_worked {
-                return worked ? "Yes" : "No"
-            } else {
-                return "N/A"
-            }
-            
-            
-        case "Med. (SE)":
-            return log.medication_name ?? "N/A"
-        default:
-            return "N/A"
+        case "Log Type": return log.log_type
+        case "Symptom": return log.symptom_name ?? ""
+        case "Date": return dateFormatter.string(from: log.date)
+        case "Severity": return "\(log.severity)"
+        case "Notes (S)": return log.notes ?? ""
+        case "Triggers (S)": return log.trigger_names?.joined(separator: ", ") ?? ""
+        case "Onset (S)": return log.onset_time ?? ""
+        case "Emerg. Med. Name": return log.medication_name ?? ""
+        case "Emerg. Med. Taken?": return log.med_taken == true ? "Yes" : "No"
+        case "Emerg. Med. Worked?": return log.med_worked == true ? "Yes" : "No"
+        case "Med. (SE)": return log.medication_name ?? ""
+        default: return ""
         }
     }
 }
