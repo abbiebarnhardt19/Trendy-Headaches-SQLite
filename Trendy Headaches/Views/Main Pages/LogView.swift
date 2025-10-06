@@ -331,43 +331,40 @@ struct LogView: View {
         emergencyMedOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name", filterColumn: "medication_category", filterValue: "emergency")
         
         if let existingLogID = existingLogID {
-            
-            if existingLogTable == "Symptom"{
-
-                if let log = DatabaseManager.shared.getSymptomLog(by: existingLogID){
+            if let log = DatabaseManager.shared.getUnifiedLog(by: existingLogID, logType: existingLogTable ?? "") {
+                
+                if log.log_type == "Symptom" {
                     severity = log.severity
                     symptomDesc = log.symptom_description ?? ""
                     notes = log.notes ?? ""
                     onset = log.onset_time ?? ""
-                    medTaken = log.med_taken
+                    medTaken = log.med_taken ?? false
                     date = log.date
                     stringDate = formatter.string(from: date)
                     symptom = log.symptom_name
                     symptomID = log.symptom_id ?? 0
                     medTakenName = log.medication_name ?? ""
                     emergencyMedID = log.medication_id ?? 0
-                    selectedTriggers = log.trigger_names
-                    triggerIDs = log.trigger_ids
+                    selectedTriggers = log.trigger_names ?? []
+                    triggerIDs = log.trigger_ids ?? []
                     medEffective = log.med_worked ?? false
                     symptomLogViewShown = true
-                }
-                else{
-                    notes = "test"
-                }
-            }
-            else{
-                if let log = DatabaseManager.shared.getSideEffectLog(by: existingLogID){
+
+                } else if log.log_type == "SideEffect" {
                     sideEffectDate = formatter.string(from: log.date)
-                    sideEffectName = log.side_effect_name ?? ""
-                    sideEffectSeverity = log.side_effect_severity
+                    sideEffectName = log.side_effect_med ?? ""
+                    sideEffectSeverity = log.severity
                     selectedMedication = log.medication_name ?? ""
                     medicationID = log.medication_id ?? 0
-                    
-                    
+
                     symptomLogViewShown = false
                 }
+
+            } else {
+                notes = "test"
             }
         }
+
     }
     
     //function to add the log to the database

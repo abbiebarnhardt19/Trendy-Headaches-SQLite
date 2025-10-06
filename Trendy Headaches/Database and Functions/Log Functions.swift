@@ -137,8 +137,8 @@ extension DatabaseManager {
                 setters.append(self.med_taken <- newMedTaken)
             }
             
-            if let newMedicationID = medicationID, newMedicationID != row[self.medication_id] {
-                setters.append(self.medication_id <- newMedicationID)
+            if let newMedicationID = medicationID, newMedicationID != row[self.log_medication_id] {
+                setters.append(self.log_medication_id <- newMedicationID)
             }
             
             if let newMedWorked = medWorked, newMedWorked != row[self.med_worked] {
@@ -196,8 +196,8 @@ extension DatabaseManager {
                 setters.append(self.side_effect_severity <- newSeverity)
             }
             
-            if let newMedicationID = medicationID, newMedicationID != row[self.medication_id] {
-                setters.append(self.medication_id <- newMedicationID)
+            if let newMedicationID = medicationID, newMedicationID != row[self.side_effect_medication_id] {
+                setters.append(self.side_effect_medication_id <- newMedicationID)
             }
             
             // Perform update only if there’s something to update
@@ -212,7 +212,7 @@ extension DatabaseManager {
     }
     
     //get the details of the log for the popup
-    func getLogDetails(logID: Int64) -> (userID: Int64, date: Date, symptomName: String, symptomID: Int64, emergencyMedID: Int64, emergencyMedName: String)? {
+    func getLogDetails(logID: Int64) -> (userID: Int64, date: Date, symptomName: String, symptomID: Int64, emergencyMedID: Int64?, emergencyMedName: String)? {
         do {
             let logs = DatabaseManager.shared.logs
             let symptoms = DatabaseManager.shared.symptoms
@@ -226,7 +226,7 @@ extension DatabaseManager {
                 let userID = logRow[DatabaseManager.shared.user_id]
                 let date = logRow[DatabaseManager.shared.date]
                 let symptomID = logRow[DatabaseManager.shared.symptom_id]
-                let emergencyMedID = logRow[DatabaseManager.shared.medication_id]
+                let emergencyMedID = logRow[DatabaseManager.shared.log_medication_id]
                 
                 // Get symptom name
                 var symptomName = ""
@@ -237,9 +237,11 @@ extension DatabaseManager {
                 
                 // Get medication name
                 var emergencyMedName = ""
-                let medQuery = medications.filter(DatabaseManager.shared.medication_id == emergencyMedID)
-                if let medRow = try DatabaseManager.shared.pluck(medQuery) {
-                    emergencyMedName = medRow[DatabaseManager.shared.medication_name]
+                if let medID = emergencyMedID {
+                    let medQuery = medications.filter(DatabaseManager.shared.medication_id == medID)
+                    if let medRow = try DatabaseManager.shared.pluck(medQuery) {
+                        emergencyMedName = medRow[DatabaseManager.shared.medication_name]
+                    }
                 }
                 
                 return (userID, date, symptomName, symptomID, emergencyMedID, emergencyMedName)
@@ -248,75 +250,6 @@ extension DatabaseManager {
             print("Database error while fetching log details: \(error)")
         }
         
-        return nil
-    }
-    
-    //get symptom log info to populate log page when editing
-    func getSymptomLog(by logID: Int64) -> SymptomLog? {
-        do {
-            let query = logs.filter(self.log_id == logID)
-            if let row = try pluck(query) {
-                // Symptom is non-optional in logs
-                let symptomID = row[self.symptom_id]
-                var symptomName: String? = nil
-                let symptomQuery = symptoms.filter(self.symptom_id == symptomID)
-                if let sRow = try pluck(symptomQuery) {
-                    symptomName = sRow[self.symptom_name]
-                }
-
-                // Medication is optional
-                let medicationID: Int64? = row[self.log_medication_id]
-                var medicationName: String? = nil
-                if let mID = medicationID {
-                    let medQuery = medications.filter(self.medication_id == mID)
-                    if let mRow = try pluck(medQuery) {
-                        medicationName = mRow[self.medication_name]
-                    }
-                }
-
-                // Triggers
-                var triggerIDs: [Int64] = []
-                var triggerNames: [String] = []
-
-                let triggerQuery = log_triggers.filter(lt_log_id == logID)
-                for tRow in try prepare(triggerQuery) {
-                    let tID = tRow[lt_trigger_id]
-                    triggerIDs.append(tID)
-
-                    if let tRow = try pluck(triggers.filter(trigger_id == tID)) {
-                        triggerNames.append(tRow[trigger_name])
-                    }
-                }
-
-                return SymptomLog(log_id: row[self.log_id], user_id: row[self.user_id], date: row[self.date], onset_time: row[self.onset_time], severity: row[self.severity], symptom_id: symptomID,  med_taken: row[self.med_taken], medication_id: medicationID, med_worked: row[self.med_worked], symptom_description: row[self.symptom_description], notes: row[self.notes], submit_time: row[self.submit_time], symptom_name: symptomName, medication_name: medicationName, trigger_ids: triggerIDs, trigger_names: triggerNames)
-            }
-        } catch {
-            print("Error fetching symptom log \(logID): \(error)")
-        }
-        return nil
-    }
-    
-    //get side effect log info to populate log page when editing
-    func getSideEffectLog(by logID: Int64) -> SideEffectLog? {
-        do {
-            let query = side_effects.filter(self.side_effect_id == logID)
-            if let row = try pluck(query) {
-                let medicationID = row[self.side_effect_medication_id]
-                
-                // Lookup medication name
-                var medicationName: String? = nil
-                let medID = medicationID
-
-                let medQuery = medications.filter(self.side_effect_medication_id == medID)
-                if let medRow = try pluck(medQuery) {
-                    medicationName = medRow[self.medication_name]
-                }
-                
-                return SideEffectLog(side_effect_id: row[self.side_effect_id], user_id: row[self.user_id], date: row[self.side_effect_date], side_effect_name: row[self.side_effect_name], side_effect_severity: row[self.side_effect_severity], medication_id: medicationID, medication_name: medicationName)
-            }
-        } catch {
-            print("Error fetching side effect log \(logID): \(error)")
-        }
         return nil
     }
     
@@ -344,4 +277,106 @@ extension DatabaseManager {
         }
         return ids
     }
+    
+    func getUnifiedLog(by logID: Int64, logType: String) -> UnifiedLog? {
+        do {
+            if logType == "Symptom"{
+                let query = logs.filter(self.log_id == logID)
+                if let row = try pluck(query) {
+                    // Get symptom name
+                    let symptomID = row[self.symptom_id]
+                    var symptomName: String? = nil
+                    if let sRow = try pluck(symptoms.filter(self.symptom_id == symptomID)) {
+                        symptomName = sRow[self.symptom_name]
+                    }
+                    
+                    // Get medication info
+                    var medicationID: Int64? = nil
+                    var medicationName: String? = nil
+                    if let mID = row[self.log_medication_id] {
+                        medicationID = mID
+                        if let mRow = try pluck(medications.filter(self.medication_id == mID)) {
+                            medicationName = mRow[self.medication_name]
+                        }
+                    }
+                    
+                    // Get triggers
+                    var triggerIDs: [Int64] = []
+                    var triggerNames: [String] = []
+                    let triggerQuery = log_triggers.filter(lt_log_id == logID)
+                    for tRow in try prepare(triggerQuery) {
+                        let tID = tRow[lt_trigger_id]
+                        triggerIDs.append(tID)
+                        if let tRow = try pluck(triggers.filter(trigger_id == tID)) {
+                            triggerNames.append(tRow[self.trigger_name])
+                        }
+                    }
+                    
+                    return UnifiedLog(
+                        log_id: row[self.log_id],
+                        user_id: row[self.user_id],
+                        log_type: "Symptom",
+                        date: row[self.date],
+                        severity: row[self.severity],
+                        submit_time: row[self.submit_time],
+                        symptom_id: symptomID,
+                        symptom_name: symptomName,
+                        onset_time: row[self.onset_time],
+                        med_taken: row[self.med_taken],
+                        medication_id: medicationID,
+                        medication_name: medicationName,
+                        med_worked: row[self.med_worked],
+                        symptom_description: row[self.symptom_description],
+                        notes: row[self.notes],
+                        trigger_ids: triggerIDs,
+                        trigger_names: triggerNames,
+                        side_effect_med: nil
+                    )
+                }
+            }
+
+            else{
+                let query = side_effects.filter(self.side_effect_id == logID)
+                if let row = try pluck(query) {
+                    let medicationID = row[self.side_effect_medication_id]
+                    var medicationName: String? = nil
+                    
+                    // Lookup medication name
+                    if let medID = medicationID {
+                        let medQuery = medications.filter(self.medication_id == medID)
+                        if let medRow = try pluck(medQuery) {
+                            medicationName = medRow[self.medication_name]
+                        }
+                    }
+                    
+                    return UnifiedLog(
+                        log_id: row[self.side_effect_id],
+                        user_id: row[self.user_id],
+                        log_type: "SideEffect",
+                        date: row[self.side_effect_date],
+                        severity: row[self.side_effect_severity],
+                        submit_time: row[self.side_effect_submit_time],
+                        symptom_id: nil,
+                        symptom_name: nil,
+                        onset_time: nil,
+                        med_taken: nil,
+                        medication_id: medicationID,
+                        medication_name: medicationName,
+                        med_worked: nil,
+                        symptom_description: nil,
+                        notes: nil,
+                        trigger_ids: nil,
+                        trigger_names: nil,
+                        side_effect_med: row[self.side_effect_name]
+                    )
+                }
+            }
+
+        } catch {
+            print("Error fetching \(logType) log \(logID): \(error)")
+        }
+
+        return nil
+    }
+
 }

@@ -77,6 +77,16 @@ struct ScrollableLogTable: View {
     @State var width: CGFloat
 
     var onLogTap: ((Int64, String) -> Void)? = nil
+    
+    private var expandedColumns: [String] {
+        selectedColumns.flatMap { column in
+            if column == "Emerg. Meds (S)" {
+                return ["Med Name", "Taken", "Worked"]
+            } else {
+                return [column]
+            }
+        }
+    }
 
     private var dateFormatter: DateFormatter {
         let f = DateFormatter()
@@ -125,7 +135,7 @@ struct ScrollableLogTable: View {
     // MARK: - Row
     private func row(for log: UnifiedLog) -> some View {
         HStack(spacing: 0) {
-            ForEach(selectedColumns, id: \.self) { column in
+            ForEach(expandedColumns, id: \.self) { column in
                 CustomText(
                     text: value(for: column, in: log),
                     color: background,
@@ -136,7 +146,7 @@ struct ScrollableLogTable: View {
                 .padding(.horizontal, 8)
                 .frame(minWidth: 80, alignment: .center) // dynamic width with min
 
-                if column != selectedColumns.last {
+                if column != expandedColumns.last {
                     Divider()
                         .frame(width: 1, height: 30)
                         .background(Color(hex: background).opacity(0.5))
@@ -150,7 +160,7 @@ struct ScrollableLogTable: View {
     private var tableHeader: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                ForEach(selectedColumns, id: \.self) { column in
+                ForEach(expandedColumns, id: \.self) { column in
                     CustomText(
                         text: column,
                         color: background,
@@ -162,7 +172,7 @@ struct ScrollableLogTable: View {
                     .padding(.horizontal, 8)
                     .frame(minWidth: 80, alignment: .center) // dynamic width
 
-                    if column != selectedColumns.last {
+                    if column != expandedColumns.last {
                         Divider()
                             .frame(width: 1, height: 30)
                             .background(Color(hex: background).opacity(0.5))
@@ -184,19 +194,39 @@ struct ScrollableLogTable: View {
         case "Log Type":
             return log.log_type
         case "Symptom":
-            return log.symptom_name ?? log.side_effect_name ?? "N/A"
+            return log.symptom_name ?? "N/A"
         case "Date":
             return dateFormatter.string(from: log.date)
         case "Severity":
             return "\(log.severity)"
         case "Notes (S)":
             return log.notes ?? "N/A"
-//        case "Triggers (S)":
-//            return log.triggers ?? "—"
+        case "Triggers (S)":
+            if let triggers = log.trigger_names, !triggers.isEmpty {
+                return triggers.joined(separator: ", ")
+            } else {
+                return "N/A"
+            }
+
         case "Symp. Onset (S)":
             return log.onset_time ?? "N/A"
-        case "Emerg. Meds (S)":
+            // Expanded Emerg. Meds columns
+        case "Med Name":
             return log.medication_name ?? "N/A"
+        case "Taken":
+            if let taken = log.med_taken {
+                return taken ? "Yes" : "No"
+            } else {
+                return "N/A"
+            }
+        case "Worked":
+            if let worked = log.med_worked {
+                return worked ? "Yes" : "No"
+            } else {
+                return "N/A"
+            }
+            
+            
         case "Med. (SE)":
             return log.medication_name ?? "N/A"
         default:

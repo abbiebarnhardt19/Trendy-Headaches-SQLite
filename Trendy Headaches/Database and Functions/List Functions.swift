@@ -66,7 +66,9 @@ extension DatabaseManager {
                     symptom_description: row[self.symptom_description],
                     notes: row[self.notes],
                     trigger_ids: nil,
-                    trigger_names: triggerNames
+                    trigger_names: triggerNames,
+                    
+                    side_effect_med: nil
                 )
                 
                 unifiedLogs.append(unifiedLog)
@@ -101,13 +103,14 @@ extension DatabaseManager {
                     symptom_name: row[self.side_effect_name],
                     onset_time: nil,
                     med_taken: nil,
-                    medication_id: row[self.side_effect_medication_id],
-                    medication_name: medicationName,
+                    medication_id: nil,
+                    medication_name: nil,
                     med_worked: nil,
                     symptom_description: nil,
                     notes: nil,
                     trigger_ids: nil,
-                    trigger_names: nil
+                    trigger_names: nil,
+                    side_effect_med: medicationName
                 )
                 
                 unifiedLogs.append(unifiedLog)
