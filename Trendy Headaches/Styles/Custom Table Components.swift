@@ -199,14 +199,14 @@ struct ScrollableLogTable: View {
     }
     
     // Add this property to your table
-    var columnMaxWidths: [String: CGFloat] = ["Emerg. Med. Taken?": 130, "Emerg. Med. Name": 130, "Emerg. Med. Worked?": 130]
+    var columnMaxWidths: [String: CGFloat] = ["Log Type": 115, "Emerg. Med. Taken?": 130, "Emerg. Med. Name": 130, "Emerg. Med. Worked?": 130, "Sev." : 62]
     
-    var columnMinWidths: [String: CGFloat] = ["Log Type":123, "Date": 65, "Symptom": 120]
+    var columnMinWidths: [String: CGFloat] = ["Log Type":115, "Date": 65, "Symptom": 120, "Sev.":62]
 
     // Updated width helper
     private func width(for column: String) -> CGFloat {
         let charWidth: CGFloat = 10
-        let padding: CGFloat = 14
+        let padding: CGFloat = 5
         
         let headerCount = column.count
         let maxRowCount = logList.map { value(for: column, in: $0).count }.max() ?? 0
