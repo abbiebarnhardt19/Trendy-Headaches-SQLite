@@ -200,7 +200,9 @@ struct DatePickerTextFieldDropdown: View {
     @Binding var accent: String
     @State var textFieldWidth: CGFloat = 220
     @State var arrowSpecialCase: Bool = false
-    @State var labelText: String = "Date:"
+    @State var labelText: Bool = false
+    @State var textSize: CGFloat = 22
+    @State var iconSize: CGFloat = 25
     
     @State private var showDatePicker: Bool = false
     @State private var screenWidth = UIScreen.main.bounds.width
@@ -216,10 +218,12 @@ struct DatePickerTextFieldDropdown: View {
             ZStack(alignment: .topLeading) {
                 // TextField with button overlay
                 HStack{
-                    CustomText(text: labelText, color: accent, isBold: true, textSize: 24)
-                        .frame(width: 72, height: 45, alignment: .center)
+                    if labelText{
+                        CustomText(text: "Date:", color: accent, isBold: true, textSize: 24)
+                            .frame(width: 72, height: 45, alignment: .center)
+                    }
                     
-                    CustomTextField(background: background, accent: accent,  placeholder: " ",  text: $textFieldValue, width: textFieldWidth, bottomPadding: 0)
+                    CustomTextField(background: background, accent: accent,  placeholder: " ",  text: $textFieldValue,  width: textFieldWidth, textSize: textSize, bottomPadding: 0)
                 }
                 //put the calendar button over the text field
                 .overlay(
@@ -229,7 +233,7 @@ struct DatePickerTextFieldDropdown: View {
                             withAnimation { showDatePicker.toggle() } }){
                             Image(systemName: "calendar")
                                 .foregroundColor(Color(hex: background))
-                                .font(.system(size: 25))
+                                .font(.system(size: iconSize))
                                 .padding(.trailing, 15)
                         }
                     })

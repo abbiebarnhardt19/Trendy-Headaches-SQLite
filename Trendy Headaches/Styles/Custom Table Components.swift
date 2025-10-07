@@ -52,8 +52,7 @@ struct filterPopUp: View {
         VStack(spacing:10){
                 VStack{
                     HStack{
-                        CustomText(text:"Columns", color: background, width:120, textAlignment: .trailing, isBold: true)
-                            .padding(.horizontal, 10)
+                        CustomText(text:"Columns", color: background, width:110, textAlignment: .center, isBold: true)
                         Button(action: { showColumnList.toggle() }) {
                             Image(systemName: "chevron.down")
                                 .font(.system(size: 20))
@@ -70,12 +69,11 @@ struct filterPopUp: View {
                             .padding(.leading, 10)
                     }
                 }
-                .frame(width: boolList.contains(true) ? 300 : 155)
+             .frame(width: boolList.contains(true) ? 315 : 155)
             
                 VStack{
                     HStack{
-                        CustomText(text:"Log Type", color: background, width:120, textAlignment: .trailing, isBold: true)
-                            .padding(.horizontal, 10)
+                        CustomText(text:"Log Type", color: background, width:110, textAlignment: .center, isBold: true)
                         Button(action: { showLogTypeOptions.toggle() }) {
                             Image(systemName: "chevron.down")
                                 .font(.system(size: 20))
@@ -92,12 +90,11 @@ struct filterPopUp: View {
                             .padding(.leading, 10)
                     }
                 }
-                .frame(width: boolList.contains(true) ? 300 : 155)
+             .frame(width: boolList.contains(true) ? 315 : 155)
             
                 VStack{
                     HStack{
-                        CustomText(text:"Date", color: background, width:120, textAlignment: .trailing, isBold: true)
-                            .padding(.horizontal, 10)
+                        CustomText(text:"Date", color: background, width:60, textAlignment: .center, isBold: true)
                         Button(action: { showDateOptions.toggle() }) {
                             Image(systemName: "chevron.down")
                                 .font(.system(size: 20))
@@ -109,28 +106,28 @@ struct filterPopUp: View {
                             Spacer()
                         }
                     }
+                    
                     if showDateOptions{
-                        HStack{
-                            DatePickerTextFieldDropdown(selectedDate: $startDate, textFieldValue: $stringStartDate, background: $accent, accent: $background, textFieldWidth: 140, arrowSpecialCase: true, labelText: "")
-                            CustomText(text: "to ", color: background, width:50)
-                            DatePickerTextFieldDropdown(selectedDate: $endDate, textFieldValue: $stringEndDate, background: $accent, accent: $background, textFieldWidth: 140, arrowSpecialCase: true, labelText: "" )
-                        }
-                        
-                        HStack{
-                            if endDate<startDate{
-                                CustomWarningText(text: "*Start must be before end.")
+                        VStack{
+                            HStack{
                                 Spacer()
+                                DatePickerTextFieldDropdown(selectedDate: $startDate, textFieldValue: $stringStartDate, background: $accent, accent: $background, textFieldWidth: 125, arrowSpecialCase: true, labelText: false, textSize: 19, iconSize: 22)
+                                CustomText(text: "to ", color: background, width:50)
+                                DatePickerTextFieldDropdown(selectedDate: $endDate, textFieldValue: $stringEndDate, background: $accent, accent: $background, textFieldWidth: 125, arrowSpecialCase: true, labelText: false, textSize: 19, iconSize: 22)
+                                Spacer()
+                            }
+                                if endDate<startDate{
+                                    CustomWarningText(text: "*Start must be before end.")
                             }
                         }
                         .padding(.leading, 10)
                     }
                 }
-                .frame(width: boolList.contains(true) ? 300 : 155)
+             .frame(width: boolList.contains(true) ? 315 : 155)
             
                 VStack{
                     HStack{
-                        CustomText(text:"Severity", color: background, width:120, textAlignment: .trailing, isBold: true)
-                            .padding(.horizontal, 10)
+                        CustomText(text:"Severity", color: background, width:100, textAlignment: .center, isBold: true)
                         Button(action: { showSeverityOptions.toggle() }) {
                             Image(systemName: "chevron.down")
                                 .font(.system(size: 20))
@@ -160,12 +157,11 @@ struct filterPopUp: View {
                         .padding(.leading, 10)
                     }
                 }
-                .frame(width: boolList.contains(true) ? 300 : 155)
+             .frame(width: boolList.contains(true) ? 315 : 155)
             
                 VStack{
                     HStack{
-                        CustomText(text:"Symptoms", color: background, width:120, textAlignment: .trailing, isBold: true)
-                            .padding(.horizontal, 10)
+                        CustomText(text:"Symptoms", color: background, width:125, textAlignment: .center, isBold: true)
                         Button(action: { showSymptomOptions.toggle() }) {
                             Image(systemName: "chevron.down")
                                 .font(.system(size: 20))
@@ -182,7 +178,7 @@ struct filterPopUp: View {
                             .padding(.leading, 10)
                     }
                 }
-                .frame(width: boolList.contains(true) ? 300 : 155)
+             .frame(width: boolList.contains(true) ? 315 : 155)
             
             }
             .padding(10)
