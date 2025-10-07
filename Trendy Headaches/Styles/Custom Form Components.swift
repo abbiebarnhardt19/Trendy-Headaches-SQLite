@@ -13,6 +13,7 @@ struct MultipleChoiceCheckboxGroup: View {
     @Binding var selected: [String]
     var accent: String
     var background: String
+    var width: CGFloat =  UIScreen.main.bounds.width - 20
     
     let boxSize: CGFloat = 22
     let spacing: CGFloat = 8
@@ -20,7 +21,7 @@ struct MultipleChoiceCheckboxGroup: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            FlexibleWrapCheckboxLayout(items: options, spacing: 12, boxSize: boxSize, charWidth: charWidth) { option in
+            FlexibleWrapCheckboxLayout(items: options, spacing: 12, boxSize: boxSize, charWidth: charWidth, width: width) { option in
                 HStack(spacing: 8) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 4)
@@ -75,18 +76,20 @@ struct MultipleChoiceCheckboxGroup: View {
         var spacing: CGFloat
         var boxSize: CGFloat
         var charWidth: CGFloat
+        var width: CGFloat
         var content: (Data.Element) -> Content
         
-        init(items: Data, spacing: CGFloat, boxSize: CGFloat, charWidth: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
+        init(items: Data, spacing: CGFloat, boxSize: CGFloat, charWidth: CGFloat, width: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
             self.items = items
             self.spacing = spacing
             self.boxSize = boxSize
             self.charWidth = charWidth
+            self.width = width
             self.content = content
         }
         
         var body: some View {
-            generateContent(in: UIScreen.main.bounds.width - 20)
+            generateContent(in: width)
         }
         
         private func generateContent(in totalWidth: CGFloat) -> some View {
@@ -267,6 +270,7 @@ struct CustomSingleCheckbox: View {
     var color: String
     @Binding var isOn: Bool
     var textSize: CGFloat = 24
+    
 
     var body: some View {
         Button {

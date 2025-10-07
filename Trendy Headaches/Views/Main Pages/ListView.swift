@@ -49,6 +49,8 @@ struct ListView: View {
             // Filter by log type
             guard logTypeFilter.contains(log.log_type) else { return false }
             
+
+            
             // Filter by start date
             if log.date < startDate { return false }
             
@@ -58,17 +60,9 @@ struct ListView: View {
             if log.severity < sevStart { return false }
             if log.severity > sevEnd { return false }
             
-            // ✅ Extract unique, non-empty symptom names
-            symptomOptions = Array(Set(logList.compactMap { log in
-                if let symptom = log.symptom_name, !symptom.isEmpty {
-                    return symptom
-                } else {
-                    return nil
-                }
-            })).sorted()
+
             
-            // Optionally initialize selectedSymptoms to all available ones
-            selectedSymptoms = symptomOptions
+            guard selectedSymptoms.contains(log.symptom_name ?? "") else { return false }
             
             return true
         }
@@ -159,12 +153,31 @@ struct ListView: View {
                 startDate = earliest
                 stringStartDate = DateFormatter.localizedString(from: earliest, dateStyle: .short, timeStyle: .none)
             }
+            
+            // ✅ Extract unique, non-empty symptom names
+            symptomOptions = Array(
+                Set(
+                    logList.compactMap { log in
+                        if let symptom = log.symptom_name, !symptom.isEmpty {
+                            return symptom
+                        } else {
+                            return nil
+                        }
+                    }
+                )
+            )
+            .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+
+            
+            // Optionally initialize selectedSymptoms to all available ones
+            selectedSymptoms = symptomOptions
         }
         .onChange(of: startDate) {  filterLogs() }
         .onChange(of: endDate) { filterLogs() }
         .onChange(of: logTypeFilter) {  filterLogs() }
         .onChange(of: sevStart) { filterLogs() }
         .onChange(of: sevEnd) {  filterLogs() }
+        .onChange(of: selectedSymptoms) {  filterLogs() }
     }
 }
 
