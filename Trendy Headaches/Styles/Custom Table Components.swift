@@ -35,16 +35,20 @@ struct filterPopUp: View {
     @Binding var endDate: Date
     @Binding var stringStartDate: String
     @Binding var stringEndDate: String
+    @Binding var sevStart: Int64
+    @Binding var sevEnd: Int64
     
     @State var showColumnList: Bool = false
     @State var showLogTypeOptions: Bool = false
     @State var showDateOptions: Bool = false
+    @State var showSeverityOptions: Bool = false
+    
     
     
 
     
     var body: some View {
-        @State var boolList = [showColumnList, showLogTypeOptions, showDateOptions]
+        @State var boolList = [showColumnList, showLogTypeOptions, showDateOptions, showSeverityOptions]
         
         VStack(spacing:10){
             VStack{
@@ -129,6 +133,40 @@ struct filterPopUp: View {
                     }
 
                 }
+                VStack{
+                    HStack{
+                        CustomText(text:"Severity", color: background, width:100, textAlignment: .leading, isBold: true)
+                            .padding(.horizontal, 10)
+                        Button(action: { showSeverityOptions.toggle() }) {
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 20))
+                                .foregroundColor(Color(hex: background))
+                                .frame(width: 10)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.trailing, 30)
+                        if boolList.contains(true){
+                            Spacer()
+                        }
+                    }
+                    if showSeverityOptions{
+                        HStack{
+                            CustomTextField(background: accent, accent: background, placeholder: "", text: Binding(
+                                get: { String(sevStart) },
+                                set: { sevStart = Int64($0) ?? 0 }
+                            ), width: 65, alignment: .center)
+                            
+                            CustomText(text: " to ", color: background, width: 30)
+                            
+                            CustomTextField(background: accent, accent: background, placeholder: "", text: Binding(
+                                get: { String(sevEnd) },
+                                set: { sevEnd = Int64($0) ?? 0 }
+                            ), width: 65, alignment: .center)
+                        }
+                    }
+                    
+                }
+                
             }
         }
         

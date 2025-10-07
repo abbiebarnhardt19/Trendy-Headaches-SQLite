@@ -28,7 +28,8 @@ struct ListView: View {
     @State var stringStartDate: String = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .none)
     @State var stringEndDate: String = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .none)
     
-    
+    @State var sevStart: Int64 = 1
+    @State var sevEnd: Int64 = 10
     
     @State var logTypeFilter: [String] = ["Symptom", "Side Effect"]
     
@@ -49,6 +50,9 @@ struct ListView: View {
             
             // Filter by end date
             if log.date > endDate { return false }
+            
+            if log.severity < sevStart { return false }
+            if log.severity > sevEnd { return false }
             
             return true
         }
@@ -90,7 +94,7 @@ struct ListView: View {
                         Spacer()
                         HStack {
                             Spacer()
-                            filterPopUp(accent: accent, background: background, columnOptions: columnOptions, selectedColumns: $selectedColumns, logType: $logTypeFilter, startDate: $startDate, endDate: $endDate, stringStartDate: $stringStartDate, stringEndDate: $stringEndDate)
+                            filterPopUp(accent: accent, background: background, columnOptions: columnOptions, selectedColumns: $selectedColumns, logType: $logTypeFilter, startDate: $startDate, endDate: $endDate, stringStartDate: $stringStartDate, stringEndDate: $stringEndDate, sevStart: $sevStart, sevEnd: $sevEnd)
                                 .padding(.trailing, 20)
                                 .padding(.bottom, 120) 
                             
@@ -143,6 +147,8 @@ struct ListView: View {
         .onChange(of: startDate) {  filterLogs() }
         .onChange(of: endDate) { filterLogs() }
         .onChange(of: logTypeFilter) {  filterLogs() }
+        .onChange(of: sevStart) { filterLogs() }
+        .onChange(of: sevEnd) {  filterLogs() }
     }
 }
 

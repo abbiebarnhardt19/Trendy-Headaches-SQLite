@@ -19,6 +19,7 @@ struct CustomTextField: View {
     var isMultiline: Bool = false
     var isSecure: Bool = false
     var bottomPadding: CGFloat? = 8
+    var alignment: TextAlignment = .leading
     
     var body: some View {
         Group {
@@ -32,6 +33,7 @@ struct CustomTextField: View {
             
             else {
                 TextField(placeholder, text: $text)
+                    .multilineTextAlignment(alignment)
             }
         }
         .padding(.horizontal, 20)
