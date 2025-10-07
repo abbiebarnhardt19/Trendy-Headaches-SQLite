@@ -19,15 +19,41 @@ struct ListView: View {
     @State private var logList: [UnifiedLog] = []
     @State private var showFilterPopup: Bool = false
     
-    @State var columnOptions: [String] = ["Log Type", "Date", "Symptom", "Severity", "Onset (S)", "Emerg. Med. Taken?", "Emerg. Med. Name", "Emerg. Med. Worked?", "Triggers (S)", "Symp. Desc. (S)", "Notes (S)", "Med. (SE)"]
-//    @State var selectedColumns: [String] = ["Log Type", "Date", "Symptom", "Severity"]
-    @State var selectedColumns: [String] = ["Log Type", "Date", "Symptom", "Severity", "Onset (S)", "Emerg. Med. Taken?", "Emerg. Med. Name", "Emerg. Med. Worked?", "Triggers (S)", "Symp. Desc. (S)", "Notes (S)", "Med. (SE)"]
+    @State var columnOptions: [String] = ["Log Type", "Date", "Symptom", "Sev.", "Onset (S)", "Emerg. Med. Taken?", "Emerg. Med. Name", "Emerg. Med. Worked?", "Triggers (S)", "Symp. Desc. (S)", "Notes (S)", "Med. (SE)"]
+    @State var selectedColumns: [String] = ["Log Type", "Date", "Symptom", "Sev."]
+    
+    @State var startDate: Date = Date()
+    @State var endDate: Date = Date()
+    
+    @State var stringStartDate: String = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .none)
+    @State var stringEndDate: String = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .none)
+    
+    
+    
+    @State var logTypeFilter: [String] = ["Symptom", "Side Effect"]
     
     var screenWidth: CGFloat = UIScreen.main.bounds.width
     var screenHeight: CGFloat = UIScreen.main.bounds.height
     
     //height minus the blob height
     var popupHeight: CGFloat = UIScreen.main.bounds.height-150 - 170 - 110
+    
+    func filterLogs() {
+        let allLogs = DatabaseManager.shared.getLogList(userID: userID)
+        logList = allLogs.filter { log in
+            // Filter by log type
+            guard logTypeFilter.contains(log.log_type) else { return false }
+            
+            // Filter by start date
+            if log.date < startDate { return false }
+            
+            // Filter by end date
+            if log.date > endDate { return false }
+            
+            return true
+        }
+    }
+
 
     var body: some View {
         NavigationStack {
@@ -64,7 +90,7 @@ struct ListView: View {
                         Spacer()
                         HStack {
                             Spacer()
-                            filterPopUp(accent: accent, background: background, columnOptions: columnOptions, selectedColumns: $selectedColumns)
+                            filterPopUp(accent: accent, background: background, columnOptions: columnOptions, selectedColumns: $selectedColumns, logType: $logTypeFilter, startDate: $startDate, endDate: $endDate, stringStartDate: $stringStartDate, stringEndDate: $stringEndDate)
                                 .padding(.trailing, 20)
                                 .padding(.bottom, 120) 
                             
@@ -87,11 +113,7 @@ struct ListView: View {
                 //nav bar
                 VStack {
                     Spacer()
-                    NavBarView(
-                        userID: userID,
-                        background: $background,
-                        accent: $accent
-                    )
+                    NavBarView(userID: userID, background: $background,  accent: $accent)
                 }
                 .ignoresSafeArea(edges: .bottom)
                 .zIndex(1)
@@ -112,7 +134,15 @@ struct ListView: View {
         }
         .onAppear{
             logList = DatabaseManager.shared.getLogList(userID: userID)
+            
+            if let earliest = logList.map({ $0.date }).min() {
+                startDate = earliest
+                stringStartDate = DateFormatter.localizedString(from: earliest, dateStyle: .short, timeStyle: .none)
+            }
         }
+        .onChange(of: startDate) {  filterLogs() }
+        .onChange(of: endDate) { filterLogs() }
+        .onChange(of: logTypeFilter) {  filterLogs() }
     }
 }
 

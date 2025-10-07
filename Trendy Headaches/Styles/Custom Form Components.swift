@@ -195,6 +195,9 @@ struct DatePickerTextFieldDropdown: View {
     @Binding var textFieldValue: String
     @Binding var background: String
     @Binding var accent: String
+    @State var textFieldWidth: CGFloat = 220
+    @State var arrowSpecialCase: Bool = false
+    @State var labelText: String = "Date:"
     
     @State private var showDatePicker: Bool = false
     @State private var screenWidth = UIScreen.main.bounds.width
@@ -210,10 +213,10 @@ struct DatePickerTextFieldDropdown: View {
             ZStack(alignment: .topLeading) {
                 // TextField with button overlay
                 HStack{
-                    CustomText(text: "Date:", color: accent, isBold: true, textSize: 24)
+                    CustomText(text: labelText, color: accent, isBold: true, textSize: 24)
                         .frame(width: 72, height: 45, alignment: .center)
                     
-                    CustomTextField(background: background, accent: accent,  placeholder: " ",  text: $textFieldValue, width: 220, bottomPadding: 0)
+                    CustomTextField(background: background, accent: accent,  placeholder: " ",  text: $textFieldValue, width: textFieldWidth, bottomPadding: 0)
                 }
                 //put the calendar button over the text field
                 .overlay(
@@ -233,7 +236,12 @@ struct DatePickerTextFieldDropdown: View {
                 if showDatePicker {
                     DatePicker(" ", selection: $selectedDate, in: ...Date(), displayedComponents: .date )
                     .datePickerStyle(GraphicalDatePickerStyle())
-                    .frame(width: screenWidth*0.85, height: screenWidth*0.85)
+                    .frame(
+                        width: screenWidth * (arrowSpecialCase ? 0.75 : 0.85),
+                        height: screenWidth * (arrowSpecialCase ? 0.75: 0.85)
+                    )
+                    .scaleEffect(arrowSpecialCase ? 0.8 : 1.0)
+
                     .background(Color(hex: accent))
                     .accentColor(Color(hex: background))
                     .tint(Color(hex: background))
@@ -241,6 +249,7 @@ struct DatePickerTextFieldDropdown: View {
                     .padding()
                     .padding(.bottom, 45)
                     .offset(y: 60)
+                    .colorScheme(Color.isHexColorDark(accent) ? .dark : .light)
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .onChange(of: selectedDate) {
                         textFieldValue = formatter.string(from: selectedDate)

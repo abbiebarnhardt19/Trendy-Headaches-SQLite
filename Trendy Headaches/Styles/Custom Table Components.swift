@@ -30,15 +30,27 @@ struct filterPopUp: View {
     @State var background: String
     @State var columnOptions: [String]
     @Binding var selectedColumns: [String]
+    @Binding var logType: [String]
+    @Binding var startDate: Date
+    @Binding var endDate: Date
+    @Binding var stringStartDate: String
+    @Binding var stringEndDate: String
     
     @State var showColumnList: Bool = false
+    @State var showLogTypeOptions: Bool = false
+    @State var showDateOptions: Bool = false
+    
+    
+
     
     var body: some View {
+        @State var boolList = [showColumnList, showLogTypeOptions, showDateOptions]
+        
         VStack(spacing:10){
             VStack{
                 HStack{
-                    CustomText(text:"Columns", color: background, width:100, textAlignment: .trailing)
-                        .padding(.trailing, 5)
+                    CustomText(text:"Columns", color: background, width:100, textAlignment: .leading, isBold: true)
+                        .padding(.horizontal, 10)
                     Button(action: { showColumnList.toggle() }) {
                         Image(systemName: "chevron.down")
                             .font(.system(size: 20))
@@ -47,12 +59,75 @@ struct filterPopUp: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                     .padding(.trailing, 30)
-                    if showColumnList{
+                    if boolList.contains(true){
                         Spacer()
                     }
                 }
                 if showColumnList{
                     MultipleChoiceCheckboxGroup(options: $columnOptions, selected: $selectedColumns, accent: background, background: accent)
+                }
+                
+            }
+            VStack{
+                HStack{
+                    CustomText(text:"Log Type", color: background, width:100, textAlignment: .leading, isBold: true)
+                        .padding(.horizontal, 10)
+                    Button(action: { showLogTypeOptions.toggle() }) {
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 20))
+                            .foregroundColor(Color(hex: background))
+                            .frame(width: 10)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.trailing, 30)
+                    if boolList.contains(true){
+                        Spacer()
+                    }
+                }
+                if showLogTypeOptions{
+                    MultipleChoiceCheckboxGroup(options: .constant(["Symptom", "Side Effect"]), selected: $logType, accent: background, background: accent)
+                }
+            }
+            VStack{
+                HStack{
+                    CustomText(text:"Date", color: background, width:100, textAlignment: .leading, isBold: true)
+                        .padding(.horizontal, 10)
+                    Button(action: { showDateOptions.toggle() }) {
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 20))
+                            .foregroundColor(Color(hex: background))
+                            .frame(width: 10)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.trailing, 30)
+                    if boolList.contains(true){
+                        Spacer()
+                    }
+                }
+                if showDateOptions{
+                    DatePickerTextFieldDropdown(
+                        selectedDate: $startDate,
+                        textFieldValue: $stringStartDate,
+                        background: $accent,
+                        accent: $background,
+                        textFieldWidth: 190,
+                        arrowSpecialCase: true,
+                        labelText: "Start:"
+                    )
+
+                    DatePickerTextFieldDropdown(
+                        selectedDate: $endDate,
+                        textFieldValue: $stringEndDate,
+                        background: $accent,
+                        accent: $background,
+                        textFieldWidth: 190,
+                        arrowSpecialCase: true,
+                        labelText: "End:"
+                    )
+                    if endDate<startDate{
+                        CustomWarningText(text: "*Start must be before end.")
+                    }
+
                 }
             }
         }
@@ -86,54 +161,68 @@ struct ScrollableLogTable: View {
     }
     
     // Add this property to your table
-    var columnMaxWidths: [String: CGFloat] = ["Emerg. Med. Taken?": 130, "Emerg. Med. Name": 130, "Emerg. Med. Worked?": 130] // e.g., ["Notes (S)": 300, "Triggers (S)": 200]
+    var columnMaxWidths: [String: CGFloat] = ["Emerg. Med. Taken?": 130, "Emerg. Med. Name": 130, "Emerg. Med. Worked?": 130]
+    
+    var columnMinWidths: [String: CGFloat] = ["Log Type":123, "Date": 65, "Symptom": 120]
 
     // Updated width helper
     private func width(for column: String) -> CGFloat {
         let charWidth: CGFloat = 10
-        let padding: CGFloat = 16
+        let padding: CGFloat = 14
         
         let headerCount = column.count
         let maxRowCount = logList.map { value(for: column, in: $0).count }.max() ?? 0
         let maxCount = max(headerCount, maxRowCount)
         
-        // get max width for this column if set, otherwise no limit
+        let rawWidth = CGFloat(maxCount) * charWidth + padding
+        
+        // get custom limits if they exist
         let maxWidth = columnMaxWidths[column] ?? .infinity
-        return min(CGFloat(maxCount) * charWidth + padding, maxWidth)
+        let minWidth = columnMinWidths[column] ?? 0
+        
+        // clamp between min and max
+        return min(max(rawWidth, minWidth), maxWidth)
     }
+
 
     
     var body: some View {
         VStack {
             ScrollView(.vertical, showsIndicators: true) {
-                ScrollView(.horizontal, showsIndicators: true) {
-                    LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
-                        Section(header: tableHeader) {
-                            ForEach(logList, id: \.id) { log in
-                                row(for: log)
-                                    .contentShape(Rectangle())
-                                    .onTapGesture {
-                                        onLogTap?(log.log_id, log.log_type)
+                HStack {
+                    ScrollView(.horizontal, showsIndicators: true) {
+                        LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                            Section(header: tableHeader) {
+                                ForEach(logList, id: \.id) { log in
+                                    row(for: log)
+                                        .contentShape(Rectangle())
+                                        .onTapGesture {
+                                            onLogTap?(log.log_id, log.log_type)
+                                        }
+                                    if log.id != logList.last?.id {
+                                        Divider()
+                                            .frame(height: 1)
+                                            .background(Color(hex: background).opacity(0.5))
                                     }
-                                if log.id != logList.last?.id {
-                                    Divider()
-                                        .frame(height: 1)
-                                        .background(Color(hex: background).opacity(0.5))
                                 }
                             }
                         }
+                        .background(Color(hex: accent))
+                        .fixedSize(horizontal: false, vertical: true)
                     }
-                    .background(Color(hex: accent))
+                    .frame(width: width)
+                    .clipped()
                 }
+                .frame(width: width)
             }
+            .frame(maxHeight: height)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(Color(hex: background).opacity(0.5), lineWidth: 1)
+            )
         }
-        .frame(height: height)
-        .background(Color(hex: accent))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(Color(hex: background).opacity(0.5), lineWidth: 1)
-        )
+
     }
     
     // MARK: - Header
@@ -200,7 +289,7 @@ struct ScrollableLogTable: View {
         case "Log Type": return log.log_type
         case "Symptom": return log.symptom_name ?? ""
         case "Date": return dateFormatter.string(from: log.date)
-        case "Severity": return "\(log.severity)"
+        case "Sev.": return "\(log.severity)"
         case "Notes (S)": return log.notes ?? ""
         case "Triggers (S)": return log.trigger_names?.joined(separator: ", ") ?? ""
         case "Onset (S)": return log.onset_time ?? ""
@@ -212,3 +301,4 @@ struct ScrollableLogTable: View {
         }
     }
 }
+

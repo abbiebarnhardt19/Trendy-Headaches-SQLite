@@ -64,3 +64,5 @@ struct UnifiedLog {
     // Computed ID
     var id: String { "\(log_type)_\(log_id)" }
 }
+
+

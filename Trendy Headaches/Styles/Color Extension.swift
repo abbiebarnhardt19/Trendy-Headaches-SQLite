@@ -31,4 +31,27 @@ extension Color {
                   blue: Double(b) / 255,
                   opacity: Double(a) / 255)
     }
+    
+    static func isHexColorDark(_ hex: String) -> Bool {
+            // Strip the `#` if it exists
+            var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+            hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
+
+            var rgb: UInt64 = 0
+            Scanner(string: hexSanitized).scanHexInt64(&rgb)
+
+            let r, g, b: Double
+            if hexSanitized.count == 6 {
+                r = Double((rgb >> 16) & 0xFF) / 255.0
+                g = Double((rgb >> 8) & 0xFF) / 255.0
+                b = Double(rgb & 0xFF) / 255.0
+            } else {
+                // fallback gray if parsing fails
+                r = 0.5; g = 0.5; b = 0.5
+            }
+
+            // Perceived brightness (standard formula)
+            let brightness = (r * 299 + g * 587 + b * 114) / 1000
+            return brightness < 0.5 // lower = darker
+        }
 }
