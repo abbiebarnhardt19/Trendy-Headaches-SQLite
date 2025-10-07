@@ -122,7 +122,7 @@ struct MultipleChoiceCheckboxGroup: View {
         
         private func estimateWidth(for item: Data.Element) -> CGFloat {
             let textCount = String(describing: item).count
-            return boxSize + 8 + CGFloat(textCount) * charWidth
+            return boxSize + 4 + CGFloat(textCount) * charWidth
         }
     }
 }
@@ -207,7 +207,7 @@ struct DatePickerTextFieldDropdown: View {
     
     private var formatter: DateFormatter {
         let f = DateFormatter()
-        f.dateStyle = .medium
+        f.dateStyle = .short
         return f
     }
     

@@ -19,7 +19,7 @@ struct ListView: View {
     @State private var logList: [UnifiedLog] = []
     @State private var showFilterPopup: Bool = false
     
-    @State var columnOptions: [String] = ["Log Type", "Date", "Symptom", "Sev.", "Onset (S)", "Emerg. Med. Taken?", "Emerg. Med. Name", "Emerg. Med. Worked?", "Triggers (S)", "Symp. Desc. (S)", "Notes (S)", "Med. (SE)"]
+    @State var columnOptions: [String] = ["Log Type", "Date", "Symptom", "Sev.", "Onset", "Triggers", "Em. Med. Taken?", "Em. Med. Name", "Em. Med. Worked?", "Symp. Desc.", "Notes ", "S.E. Med."]
     @State var selectedColumns: [String] = ["Log Type", "Date", "Symptom", "Sev."]
     
     @State var startDate: Date = Date()
@@ -49,8 +49,6 @@ struct ListView: View {
             // Filter by log type
             guard logTypeFilter.contains(log.log_type) else { return false }
             
-
-            
             // Filter by start date
             if log.date < startDate { return false }
             
@@ -59,8 +57,6 @@ struct ListView: View {
             
             if log.severity < sevStart { return false }
             if log.severity > sevEnd { return false }
-            
-
             
             guard selectedSymptoms.contains(log.symptom_name ?? "") else { return false }
             

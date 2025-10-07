@@ -52,7 +52,7 @@ struct filterPopUp: View {
         VStack(spacing:10){
                 VStack{
                     HStack{
-                        CustomText(text:"Columns", color: background, width:120, textAlignment: .leading, isBold: true)
+                        CustomText(text:"Columns", color: background, width:120, textAlignment: .trailing, isBold: true)
                             .padding(.horizontal, 10)
                         Button(action: { showColumnList.toggle() }) {
                             Image(systemName: "chevron.down")
@@ -61,7 +61,6 @@ struct filterPopUp: View {
                                 .frame(width: 10)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        .padding(.trailing, 30)
                         if boolList.contains(true){
                             Spacer()
                         }
@@ -70,14 +69,12 @@ struct filterPopUp: View {
                         MultipleChoiceCheckboxGroup(options: $columnOptions, selected: $selectedColumns, accent: background, background: accent, width:300)
                             .padding(.leading, 10)
                     }
-                    
                 }
-                .frame(width: boolList.contains(true) ? 300 : 200)
-            
+                .frame(width: boolList.contains(true) ? 300 : 155)
             
                 VStack{
                     HStack{
-                        CustomText(text:"Log Type", color: background, width:120, textAlignment: .leading, isBold: true)
+                        CustomText(text:"Log Type", color: background, width:120, textAlignment: .trailing, isBold: true)
                             .padding(.horizontal, 10)
                         Button(action: { showLogTypeOptions.toggle() }) {
                             Image(systemName: "chevron.down")
@@ -86,7 +83,6 @@ struct filterPopUp: View {
                                 .frame(width: 10)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        .padding(.trailing, 30)
                         if boolList.contains(true){
                             Spacer()
                         }
@@ -96,11 +92,11 @@ struct filterPopUp: View {
                             .padding(.leading, 10)
                     }
                 }
-                .frame(width: boolList.contains(true) ? 300 : 200)
+                .frame(width: boolList.contains(true) ? 300 : 155)
             
                 VStack{
                     HStack{
-                        CustomText(text:"Date", color: background, width:120, textAlignment: .leading, isBold: true)
+                        CustomText(text:"Date", color: background, width:120, textAlignment: .trailing, isBold: true)
                             .padding(.horizontal, 10)
                         Button(action: { showDateOptions.toggle() }) {
                             Image(systemName: "chevron.down")
@@ -109,23 +105,16 @@ struct filterPopUp: View {
                                 .frame(width: 10)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        .padding(.trailing, 30)
                         if boolList.contains(true){
                             Spacer()
                         }
                     }
                     if showDateOptions{
                         HStack{
-                            DatePickerTextFieldDropdown(selectedDate: $startDate, textFieldValue: $stringStartDate, background: $accent, accent: $background, textFieldWidth: 190, arrowSpecialCase: true, labelText: "Start:")
-                            Spacer()
+                            DatePickerTextFieldDropdown(selectedDate: $startDate, textFieldValue: $stringStartDate, background: $accent, accent: $background, textFieldWidth: 140, arrowSpecialCase: true, labelText: "")
+                            CustomText(text: "to ", color: background, width:50)
+                            DatePickerTextFieldDropdown(selectedDate: $endDate, textFieldValue: $stringEndDate, background: $accent, accent: $background, textFieldWidth: 140, arrowSpecialCase: true, labelText: "" )
                         }
-                        .padding(.leading, 10)
-                        
-                        HStack{
-                            DatePickerTextFieldDropdown(selectedDate: $endDate, textFieldValue: $stringEndDate, background: $accent, accent: $background, textFieldWidth: 190, arrowSpecialCase: true, labelText: "End:" )
-                            Spacer()
-                        }
-                        .padding(.leading, 10)
                         
                         HStack{
                             if endDate<startDate{
@@ -136,11 +125,11 @@ struct filterPopUp: View {
                         .padding(.leading, 10)
                     }
                 }
-                .frame(width: boolList.contains(true) ? 300 : 200)
+                .frame(width: boolList.contains(true) ? 300 : 155)
             
                 VStack{
                     HStack{
-                        CustomText(text:"Severity", color: background, width:120, textAlignment: .leading, isBold: true)
+                        CustomText(text:"Severity", color: background, width:120, textAlignment: .trailing, isBold: true)
                             .padding(.horizontal, 10)
                         Button(action: { showSeverityOptions.toggle() }) {
                             Image(systemName: "chevron.down")
@@ -149,7 +138,6 @@ struct filterPopUp: View {
                                 .frame(width: 10)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        .padding(.trailing, 30)
                         if boolList.contains(true){
                             Spacer()
                         }
@@ -172,11 +160,11 @@ struct filterPopUp: View {
                         .padding(.leading, 10)
                     }
                 }
-                .frame(width: boolList.contains(true) ? 300 : 200)
+                .frame(width: boolList.contains(true) ? 300 : 155)
             
                 VStack{
                     HStack{
-                        CustomText(text:"Symptoms", color: background, width:120, textAlignment: .leading, isBold: true)
+                        CustomText(text:"Symptoms", color: background, width:120, textAlignment: .trailing, isBold: true)
                             .padding(.horizontal, 10)
                         Button(action: { showSymptomOptions.toggle() }) {
                             Image(systemName: "chevron.down")
@@ -185,7 +173,6 @@ struct filterPopUp: View {
                                 .frame(width: 10)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        .padding(.trailing, 30)
                         if boolList.contains(true){
                             Spacer()
                         }
@@ -195,9 +182,11 @@ struct filterPopUp: View {
                             .padding(.leading, 10)
                     }
                 }
-                .frame(width: boolList.contains(true) ? 300 : 200)
+                .frame(width: boolList.contains(true) ? 300 : 155)
+            
             }
             .padding(10)
+            .padding(.trailing, 10)
             .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .stroke(Color(hex: background), lineWidth: 3))
             .background(Color(hex:accent))
@@ -225,7 +214,7 @@ struct ScrollableLogTable: View {
     }
     
     // Add this property to your table
-    var columnMaxWidths: [String: CGFloat] = ["Log Type": 115, "Emerg. Med. Taken?": 130, "Emerg. Med. Name": 130, "Emerg. Med. Worked?": 130, "Sev." : 62]
+    var columnMaxWidths: [String: CGFloat] = ["Log Type": 115, "Em. Med. Taken?": 130, "Em. Med. Name": 130, "Em. Med. Worked?": 130, "Sev." : 62]
     
     var columnMinWidths: [String: CGFloat] = ["Log Type":115, "Date": 65, "Symptom": 120, "Sev.":62]
 
@@ -354,13 +343,13 @@ struct ScrollableLogTable: View {
         case "Symptom": return log.symptom_name ?? ""
         case "Date": return dateFormatter.string(from: log.date)
         case "Sev.": return "\(log.severity)"
-        case "Notes (S)": return log.notes ?? ""
-        case "Triggers (S)": return log.trigger_names?.joined(separator: ", ") ?? ""
-        case "Onset (S)": return log.onset_time ?? ""
-        case "Emerg. Med. Name": return log.medication_name ?? ""
-        case "Emerg. Med. Taken?": return log.med_taken == true ? "Yes" : "No"
-        case "Emerg. Med. Worked?": return log.med_worked == true ? "Yes" : "No"
-        case "Med. (SE)": return log.medication_name ?? ""
+        case "Notes": return log.notes ?? ""
+        case "Triggers": return log.trigger_names?.joined(separator: ", ") ?? ""
+        case "Onset": return log.onset_time ?? ""
+        case "Em. Med. Name": return log.medication_name ?? ""
+        case "Em. Med. Taken?": return log.med_taken == true ? "Yes" : "No"
+        case "Em. Med. Worked?": return log.med_worked == true ? "Yes" : "No"
+        case "S.E. Med.": return log.medication_name ?? ""
         default: return ""
         }
     }
