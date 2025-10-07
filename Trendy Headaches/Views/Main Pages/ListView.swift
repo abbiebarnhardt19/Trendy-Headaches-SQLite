@@ -33,6 +33,10 @@ struct ListView: View {
     
     @State var logTypeFilter: [String] = ["Symptom", "Side Effect"]
     
+    @State var symptomOptions: [String] = []
+    @State var selectedSymptoms: [String] = []
+    
+    
     var screenWidth: CGFloat = UIScreen.main.bounds.width
     var screenHeight: CGFloat = UIScreen.main.bounds.height
     
@@ -53,6 +57,18 @@ struct ListView: View {
             
             if log.severity < sevStart { return false }
             if log.severity > sevEnd { return false }
+            
+            // ✅ Extract unique, non-empty symptom names
+            symptomOptions = Array(Set(logList.compactMap { log in
+                if let symptom = log.symptom_name, !symptom.isEmpty {
+                    return symptom
+                } else {
+                    return nil
+                }
+            })).sorted()
+            
+            // Optionally initialize selectedSymptoms to all available ones
+            selectedSymptoms = symptomOptions
             
             return true
         }
@@ -94,7 +110,7 @@ struct ListView: View {
                         Spacer()
                         HStack {
                             Spacer()
-                            filterPopUp(accent: accent, background: background, columnOptions: columnOptions, selectedColumns: $selectedColumns, logType: $logTypeFilter, startDate: $startDate, endDate: $endDate, stringStartDate: $stringStartDate, stringEndDate: $stringEndDate, sevStart: $sevStart, sevEnd: $sevEnd)
+                            filterPopUp(accent: accent, background: background, columnOptions: columnOptions, selectedColumns: $selectedColumns, logType: $logTypeFilter, startDate: $startDate, endDate: $endDate, stringStartDate: $stringStartDate, stringEndDate: $stringEndDate, sevStart: $sevStart, sevEnd: $sevEnd, symptomOptions: $symptomOptions, selectedSymptoms: $selectedSymptoms)
                                 .padding(.trailing, 20)
                                 .padding(.bottom, 120) 
                             

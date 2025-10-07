@@ -37,23 +37,22 @@ struct filterPopUp: View {
     @Binding var stringEndDate: String
     @Binding var sevStart: Int64
     @Binding var sevEnd: Int64
+    @Binding var symptomOptions: [String]
+    @Binding var selectedSymptoms: [String]
     
     @State var showColumnList: Bool = false
     @State var showLogTypeOptions: Bool = false
     @State var showDateOptions: Bool = false
     @State var showSeverityOptions: Bool = false
-    
-    
-    
-
+    @State var showSymptomOptions: Bool = false
     
     var body: some View {
-        @State var boolList = [showColumnList, showLogTypeOptions, showDateOptions, showSeverityOptions]
+        @State var boolList = [showColumnList, showLogTypeOptions, showDateOptions, showSeverityOptions, showSymptomOptions]
         
         VStack(spacing:10){
             VStack{
                 HStack{
-                    CustomText(text:"Columns", color: background, width:100, textAlignment: .leading, isBold: true)
+                    CustomText(text:"Columns", color: background, width:120, textAlignment: .leading, isBold: true)
                         .padding(.horizontal, 10)
                     Button(action: { showColumnList.toggle() }) {
                         Image(systemName: "chevron.down")
@@ -74,7 +73,7 @@ struct filterPopUp: View {
             }
             VStack{
                 HStack{
-                    CustomText(text:"Log Type", color: background, width:100, textAlignment: .leading, isBold: true)
+                    CustomText(text:"Log Type", color: background, width:120, textAlignment: .leading, isBold: true)
                         .padding(.horizontal, 10)
                     Button(action: { showLogTypeOptions.toggle() }) {
                         Image(systemName: "chevron.down")
@@ -94,7 +93,7 @@ struct filterPopUp: View {
             }
             VStack{
                 HStack{
-                    CustomText(text:"Date", color: background, width:100, textAlignment: .leading, isBold: true)
+                    CustomText(text:"Date", color: background, width:120, textAlignment: .leading, isBold: true)
                         .padding(.horizontal, 10)
                     Button(action: { showDateOptions.toggle() }) {
                         Image(systemName: "chevron.down")
@@ -135,7 +134,7 @@ struct filterPopUp: View {
                 }
                 VStack{
                     HStack{
-                        CustomText(text:"Severity", color: background, width:100, textAlignment: .leading, isBold: true)
+                        CustomText(text:"Severity", color: background, width:120, textAlignment: .leading, isBold: true)
                             .padding(.horizontal, 10)
                         Button(action: { showSeverityOptions.toggle() }) {
                             Image(systemName: "chevron.down")
@@ -163,6 +162,27 @@ struct filterPopUp: View {
                                 set: { sevEnd = Int64($0) ?? 0 }
                             ), width: 65, alignment: .center)
                         }
+                    }
+                    
+                }
+                VStack{
+                    HStack{
+                        CustomText(text:"Symptoms", color: background, width:120, textAlignment: .leading, isBold: true)
+                            .padding(.horizontal, 10)
+                        Button(action: { showSymptomOptions.toggle() }) {
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 20))
+                                .foregroundColor(Color(hex: background))
+                                .frame(width: 10)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.trailing, 30)
+                        if boolList.contains(true){
+                            Spacer()
+                        }
+                    }
+                    if showSymptomOptions{
+                        MultipleChoiceCheckboxGroup(options: $symptomOptions, selected: $selectedSymptoms, accent: background, background: accent)
                     }
                     
                 }
