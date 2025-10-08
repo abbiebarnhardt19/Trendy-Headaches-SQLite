@@ -36,6 +36,8 @@ struct ListView: View {
     @State var symptomOptions: [String] = []
     @State var selectedSymptoms: [String] = []
     
+    @State var deleteCount: Int64 = 0
+    
     
     var screenWidth: CGFloat = UIScreen.main.bounds.width
     var screenHeight: CGFloat = UIScreen.main.bounds.height
@@ -86,7 +88,7 @@ struct ListView: View {
                     
                     HStack{
                         Spacer()
-                        ScrollableLogTable( userID: userID, logList: logList, selectedColumns: selectedColumns, background: background, accent: accent, height: popupHeight, width: screenWidth - 20, onLogTap: { id, table in
+                        ScrollableLogTable( userID: userID, logList: logList, selectedColumns: selectedColumns, background: background, accent: accent, height: popupHeight, width: screenWidth - 20, deleteCount: $deleteCount, onLogTap: { id, table in
                             selectedLogID = id
                             selectedLogTable = table
                         })
@@ -174,6 +176,7 @@ struct ListView: View {
         .onChange(of: sevStart) { filterLogs() }
         .onChange(of: sevEnd) {  filterLogs() }
         .onChange(of: selectedSymptoms) {  filterLogs() }
+        .onChange(of: deleteCount) {  filterLogs() }
     }
 }
 

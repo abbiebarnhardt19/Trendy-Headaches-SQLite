@@ -60,16 +60,18 @@ struct filterPopUp: View {
                                 .frame(width: 10)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        if boolList.contains(true){
-                            Spacer()
-                        }
+                        
+                        Spacer()
+                        
                     }
+                
                     if showColumnList{
                         MultipleChoiceCheckboxGroup(options: $columnOptions, selected: $selectedColumns, accent: background, background: accent, width:300)
                             .padding(.leading, 10)
                     }
+                    
                 }
-             .frame(width: boolList.contains(true) ? 315 : 155)
+          .frame(width: boolList.contains(true) ? 315 : 145)
             
                 VStack{
                     HStack{
@@ -81,16 +83,15 @@ struct filterPopUp: View {
                                 .frame(width: 10)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        if boolList.contains(true){
                             Spacer()
-                        }
+                        
                     }
                     if showLogTypeOptions{
                         MultipleChoiceCheckboxGroup(options: .constant(["Symptom", "Side Effect"]), selected: $logType, accent: background, background: accent, width:300)
                             .padding(.leading, 10)
                     }
                 }
-             .frame(width: boolList.contains(true) ? 315 : 155)
+          .frame(width: boolList.contains(true) ? 315 : 145)
             
                 VStack{
                     HStack{
@@ -102,9 +103,9 @@ struct filterPopUp: View {
                                 .frame(width: 10)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        if boolList.contains(true){
+
                             Spacer()
-                        }
+                        
                     }
                     
                     if showDateOptions{
@@ -123,7 +124,7 @@ struct filterPopUp: View {
                         .padding(.leading, 10)
                     }
                 }
-             .frame(width: boolList.contains(true) ? 315 : 155)
+          .frame(width: boolList.contains(true) ? 315 : 145)
             
                 VStack{
                     HStack{
@@ -135,9 +136,9 @@ struct filterPopUp: View {
                                 .frame(width: 10)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        if boolList.contains(true){
+
                             Spacer()
-                        }
+                        
                     }
                     if showSeverityOptions{
                         HStack{
@@ -157,7 +158,7 @@ struct filterPopUp: View {
                         .padding(.leading, 10)
                     }
                 }
-             .frame(width: boolList.contains(true) ? 315 : 155)
+          .frame(width: boolList.contains(true) ? 315 : 145)
             
                 VStack{
                     HStack{
@@ -169,16 +170,14 @@ struct filterPopUp: View {
                                 .frame(width: 10)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        if boolList.contains(true){
                             Spacer()
-                        }
                     }
                     if showSymptomOptions{
                         MultipleChoiceCheckboxGroup(options: $symptomOptions, selected: $selectedSymptoms, accent: background, background: accent, width:300)
                             .padding(.leading, 10)
                     }
                 }
-             .frame(width: boolList.contains(true) ? 315 : 155)
+          .frame(width: boolList.contains(true) ? 315 : 145)
             
             }
             .padding(10)
@@ -190,8 +189,191 @@ struct filterPopUp: View {
             .padding(.bottom, 40)
     }
 }
-
-
+//
+//
+//struct ScrollableLogTable: View {
+//    var userID: Int64
+//    var logList: [UnifiedLog]
+//    var selectedColumns: [String]
+//    @State var background: String
+//    @State var accent: String
+//    @State var height: CGFloat
+//    @State var width: CGFloat
+//    @Binding var deleteCount: Int64
+//    
+//    @State private var showDeleteAlert = false
+//    @State private var logToDelete: UnifiedLog? = nil
+//
+//    var onLogTap: ((Int64, String) -> Void)? = nil
+//    
+//    private var dateFormatter: DateFormatter {
+//        let f = DateFormatter()
+//        f.dateStyle = .short
+//        return f
+//    }
+//    
+//    // Add this property to your table
+//    var columnMaxWidths: [String: CGFloat] = ["Log Type": 115, "Em. Med. Taken?": 130, "Em. Med. Name": 130, "Em. Med. Worked?": 130, "Sev." : 62]
+//    
+//    var columnMinWidths: [String: CGFloat] = ["Log Type":115, "Date": 65, "Symptom": 120, "Sev.":62]
+//
+//    // Updated width helper
+//    private func width(for column: String) -> CGFloat {
+//        let charWidth: CGFloat = 10
+//        let padding: CGFloat = 5
+//        
+//        let headerCount = column.count
+//        let maxRowCount = logList.map { value(for: column, in: $0).count }.max() ?? 0
+//        let maxCount = max(headerCount, maxRowCount)
+//        
+//        let rawWidth = CGFloat(maxCount) * charWidth + padding
+//        
+//        // get custom limits if they exist
+//        let maxWidth = columnMaxWidths[column] ?? .infinity
+//        let minWidth = columnMinWidths[column] ?? 0
+//        
+//        // clamp between min and max
+//        return min(max(rawWidth, minWidth), maxWidth)
+//    }
+//
+//
+//    
+//    var body: some View {
+//        VStack {
+//            ScrollView(.vertical, showsIndicators: true) {
+//                HStack {
+//                    ScrollView(.horizontal, showsIndicators: true) {
+//                        LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+//                            Section(header: tableHeader) {
+//                                ForEach(logList, id: \.id) { log in
+//                                    row(for: log)
+//                                        .contentShape(Rectangle())
+//                                        .onLongPressGesture(minimumDuration: 1.0, perform: {
+//                                            logToDelete = log
+//                                            showDeleteAlert = true
+//                                        })
+//                                        .simultaneousGesture(
+//                                            TapGesture()
+//                                                .onEnded {
+//                                                    onLogTap?(log.log_id, log.log_type)
+//                                                }
+//                                        )
+//
+//                                    if log.id != logList.last?.id {
+//                                        Divider()
+//                                            .frame(height: 1)
+//                                            .background(Color(hex: background).opacity(0.5))
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        .background(Color(hex: accent))
+//                        .fixedSize(horizontal: false, vertical: true)
+//                    }
+//                    .frame(width: width)
+//                    .clipped()
+//                }
+//                .frame(width: width)
+//            }
+//            .frame(maxHeight: height)
+//            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+//            .overlay(
+//                RoundedRectangle(cornerRadius: 12, style: .continuous)
+//                    .stroke(Color(hex: background).opacity(0.5), lineWidth: 1)
+//            )
+//        }
+//        .alert("Delete Log?", isPresented: $showDeleteAlert, presenting: logToDelete) { log in
+//            Button("Delete", role: .destructive) {
+//                // TODO: Call your delete function here
+//               // print("Deleting log with ID \(log.log_id)")
+//                DatabaseManager.shared.deleteLog(logID: log.log_id, table: log.log_type)
+//                deleteCount += 1
+//            }
+//            Button("Cancel", role: .cancel) { }
+//        } message: { log in
+//            Text("Are you sure you want to delete this log?")
+//        }
+//
+//
+//    }
+//    
+//    // MARK: - Header
+//    private var tableHeader: some View {
+//        VStack(spacing: 0) { // VStack allows horizontal divider at bottom
+//            HStack(spacing: 0) {
+//                ForEach(selectedColumns, id: \.self) { column in
+//                    CustomText(
+//                        text: column,
+//                        color: background,
+//                        textAlignment: .center,
+//                        multilineAlignment: .center,
+//                        isBold: true,
+//                        textSize: 18
+//                    )
+//                    .padding(.vertical, 5)
+//                    .padding(.horizontal, 8)
+//                    .frame(width: width(for: column))
+//                    
+//                    if column != selectedColumns.last {
+//                        Divider()
+//                            .frame(width: 1) // vertical divider
+//                            .background(Color(hex: background).opacity(0.5))
+//                    }
+//                }
+//            }
+//            .background(Color(hex: accent))
+//            
+//            // Horizontal divider under header
+//            Divider()
+//                .frame(height: 1)
+//                .background(Color(hex: background).opacity(0.5))
+//        }
+//    }
+//
+//    
+//    // MARK: - Row
+//    private func row(for log: UnifiedLog) -> some View {
+//        HStack(spacing: 0) {
+//            ForEach(selectedColumns, id: \.self) { column in
+//                CustomText(
+//                    text: value(for: column, in: log),
+//                    color: background,
+//                    textAlignment: .center,
+//                    textSize: 16
+//                )
+//                .padding(.vertical, 5)
+//                .padding(.horizontal, 8)
+//                .frame(width: width(for: column))
+//                
+//                if column != selectedColumns.last {
+//                    Divider()
+//                        .frame(width: 1)
+//                        .background(Color(hex: background).opacity(0.5))
+//                }
+//            }
+//        }
+//        .background(Color(hex: accent))
+//    }
+//    
+//    // MARK: - Helpers
+//    private func value(for column: String, in log: UnifiedLog) -> String {
+//        switch column {
+//        case "Log Type": return log.log_type
+//        case "Symptom": return log.symptom_name ?? ""
+//        case "Date": return dateFormatter.string(from: log.date)
+//        case "Sev.": return "\(log.severity)"
+//        case "Notes": return log.notes ?? ""
+//        case "Triggers": return log.trigger_names?.joined(separator: ", ") ?? ""
+//        case "Onset": return log.onset_time ?? ""
+//        case "Em. Med. Name": return log.medication_name ?? ""
+//        case "Em. Med. Taken?": return log.med_taken == true ? "Yes" : "No"
+//        case "Em. Med. Worked?": return log.med_worked == true ? "Yes" : "No"
+//        case "S.E. Med.": return log.medication_name ?? ""
+//        default: return ""
+//        }
+//    }
+//}
+//
 struct ScrollableLogTable: View {
     var userID: Int64
     var logList: [UnifiedLog]
@@ -200,7 +382,11 @@ struct ScrollableLogTable: View {
     @State var accent: String
     @State var height: CGFloat
     @State var width: CGFloat
+    @Binding var deleteCount: Int64
     
+    @State private var showDeleteAlert = false
+    @State private var logToDelete: UnifiedLog? = nil
+
     var onLogTap: ((Int64, String) -> Void)? = nil
     
     private var dateFormatter: DateFormatter {
@@ -208,46 +394,49 @@ struct ScrollableLogTable: View {
         f.dateStyle = .short
         return f
     }
-    
-    // Add this property to your table
-    var columnMaxWidths: [String: CGFloat] = ["Log Type": 115, "Em. Med. Taken?": 130, "Em. Med. Name": 130, "Em. Med. Worked?": 130, "Sev." : 62]
-    
-    var columnMinWidths: [String: CGFloat] = ["Log Type":115, "Date": 65, "Symptom": 120, "Sev.":62]
 
-    // Updated width helper
+    var columnMaxWidths: [String: CGFloat] = ["Log Type": 115, "Em. Med. Taken?": 130, "Em. Med. Name": 130, "Em. Med. Worked?": 130, "Sev." : 62]
+    var columnMinWidths: [String: CGFloat] = ["Log Type":115, "Date": 65, "Symptom": 120, "Sev.":62]
+    
+    
+
     private func width(for column: String) -> CGFloat {
         let charWidth: CGFloat = 10
         let padding: CGFloat = 5
-        
         let headerCount = column.count
         let maxRowCount = logList.map { value(for: column, in: $0).count }.max() ?? 0
         let maxCount = max(headerCount, maxRowCount)
-        
         let rawWidth = CGFloat(maxCount) * charWidth + padding
-        
-        // get custom limits if they exist
         let maxWidth = columnMaxWidths[column] ?? .infinity
         let minWidth = columnMinWidths[column] ?? 0
-        
-        // clamp between min and max
         return min(max(rawWidth, minWidth), maxWidth)
     }
 
-
-    
     var body: some View {
+        
+        let rowHeight: CGFloat = 31 
+        let headerHeight: CGFloat = 35
+        let contentHeight = headerHeight + CGFloat(logList.count) * rowHeight
+        
         VStack {
             ScrollView(.vertical, showsIndicators: true) {
-                HStack {
+                VStack(spacing: 0) {
                     ScrollView(.horizontal, showsIndicators: true) {
                         LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
                             Section(header: tableHeader) {
                                 ForEach(logList, id: \.id) { log in
                                     row(for: log)
                                         .contentShape(Rectangle())
-                                        .onTapGesture {
-                                            onLogTap?(log.log_id, log.log_type)
+                                        .onLongPressGesture(minimumDuration: 1.0) {
+                                            logToDelete = log
+                                            showDeleteAlert = true
                                         }
+                                        .simultaneousGesture(
+                                            TapGesture()
+                                                .onEnded {
+                                                    onLogTap?(log.log_id, log.log_type)
+                                                }
+                                        )
                                     if log.id != logList.last?.id {
                                         Divider()
                                             .frame(height: 1)
@@ -257,26 +446,31 @@ struct ScrollableLogTable: View {
                             }
                         }
                         .background(Color(hex: accent))
-                        .fixedSize(horizontal: false, vertical: true)
+                        .fixedSize(horizontal: true, vertical: true)
                     }
-                    .frame(width: width)
-                    .clipped()
+                    .frame(maxWidth: width)
                 }
-                .frame(width: width)
             }
-            .frame(maxHeight: height)
+            .frame(height: min(height, contentHeight))
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .stroke(Color(hex: background).opacity(0.5), lineWidth: 1)
             )
         }
-
+        .alert("Delete Log?", isPresented: $showDeleteAlert, presenting: logToDelete) { log in
+            Button("Delete", role: .destructive) {
+                DatabaseManager.shared.deleteLog(logID: log.log_id, table: log.log_type)
+                deleteCount += 1
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: { log in
+            Text("Are you sure you want to delete this log?")
+        }
     }
-    
-    // MARK: - Header
+
     private var tableHeader: some View {
-        VStack(spacing: 0) { // VStack allows horizontal divider at bottom
+        VStack(spacing: 0) {
             HStack(spacing: 0) {
                 ForEach(selectedColumns, id: \.self) { column in
                     CustomText(
@@ -289,26 +483,21 @@ struct ScrollableLogTable: View {
                     )
                     .padding(.vertical, 5)
                     .padding(.horizontal, 8)
-                    .frame(width: width(for: column))
-                    
+                    .frame(width: width(for: column), height: 35)
                     if column != selectedColumns.last {
                         Divider()
-                            .frame(width: 1) // vertical divider
+                            .frame(width: 1)
                             .background(Color(hex: background).opacity(0.5))
                     }
                 }
             }
             .background(Color(hex: accent))
-            
-            // Horizontal divider under header
             Divider()
                 .frame(height: 1)
                 .background(Color(hex: background).opacity(0.5))
         }
     }
 
-    
-    // MARK: - Row
     private func row(for log: UnifiedLog) -> some View {
         HStack(spacing: 0) {
             ForEach(selectedColumns, id: \.self) { column in
@@ -320,8 +509,7 @@ struct ScrollableLogTable: View {
                 )
                 .padding(.vertical, 5)
                 .padding(.horizontal, 8)
-                .frame(width: width(for: column))
-                
+                .frame(width: width(for: column), height: 30)
                 if column != selectedColumns.last {
                     Divider()
                         .frame(width: 1)
@@ -331,8 +519,7 @@ struct ScrollableLogTable: View {
         }
         .background(Color(hex: accent))
     }
-    
-    // MARK: - Helpers
+
     private func value(for column: String, in log: UnifiedLog) -> String {
         switch column {
         case "Log Type": return log.log_type
@@ -351,3 +538,14 @@ struct ScrollableLogTable: View {
     }
 }
 
+
+// MARK: - Preference Keys
+private struct ViewHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}
+
+private struct ViewWidthKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}

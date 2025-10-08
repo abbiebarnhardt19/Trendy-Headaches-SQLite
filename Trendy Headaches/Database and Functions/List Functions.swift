@@ -130,4 +130,31 @@ extension DatabaseManager {
         
         return unifiedLogs
     }
+    
+    func deleteLog(logID: Int64, table:String) {
+        do {
+            if table == "Symptom" {
+                let logs = Table("logs")
+                let idColumn = SQLite.Expression<Int64>("log_id")
+                
+                let logToDelete = logs.filter(idColumn == logID)
+                let delete = logToDelete.delete()
+                
+                let _ = try run(delete)
+            }
+            else{
+                let logs = Table("side_effects")
+                let idColumn = SQLite.Expression<Int64>("side_effect_id")
+                
+                let logToDelete = logs.filter(idColumn == logID)
+                let delete = logToDelete.delete()
+                
+                let _ = try run(delete)
+            }
+
+        } catch {
+            print(" Failed to delete log with ID \(logID): \(error)")
+        }
+    }
+
 }
