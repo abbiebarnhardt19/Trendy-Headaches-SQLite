@@ -200,6 +200,213 @@ struct filterPopUp: View {
             .padding(.bottom, 40)
     }
 }
+extension String {
+    func width(usingFont font: UIFont) -> CGFloat {
+        let attributes = [NSAttributedString.Key.font: font]
+        return (self as NSString).size(withAttributes: attributes).width
+    }
+}
+//
+//struct ScrollableLogTable: View {
+//    var userID: Int64
+//    var logList: [UnifiedLog]
+//    var selectedColumns: [String]
+//    @State var background: String
+//    @State var accent: String
+//    @State var height: CGFloat
+//    @State var width: CGFloat
+//    @Binding var deleteCount: Int64
+//
+//    @State private var showDeleteAlert = false
+//    @State private var logToDelete: UnifiedLog? = nil
+//
+//    var onLogTap: ((Int64, String) -> Void)? = nil
+//
+//    private var dateFormatter: DateFormatter {
+//        let f = DateFormatter()
+//        f.dateStyle = .short
+//        return f
+//    }
+//
+//    var columnMaxWidths: [String: CGFloat] = ["Log Type": 115, "Em. Med. Taken?": 130, "Em. Med. Name": 130, "Em. Med. Worked?": 130, "Sev." : 62]
+//    var columnMinWidths: [String: CGFloat] = ["Log Type":115, "Date": 65, "Symptom": 120, "Sev.":62, "Onset": 120]
+//
+//
+//
+//    private func width(for column: String) -> CGFloat {
+//        let charWidth: CGFloat = 10
+//        let padding: CGFloat = 5
+//        let headerCount = column.count
+//        let maxRowCount = logList.map { value(for: column, in: $0).count }.max() ?? 0
+//        let maxCount = max(headerCount, maxRowCount)
+//        let rawWidth = CGFloat(maxCount) * charWidth + padding
+//        let maxWidth = columnMaxWidths[column] ?? .infinity
+//        let minWidth = columnMinWidths[column] ?? 0
+//        return min(max(rawWidth, minWidth), maxWidth)
+//    }
+//    
+//    private var computedColumnWidths: [String: CGFloat] {
+//        var widths: [String: CGFloat] = [:]
+//        let padding: CGFloat = 16
+//        let headerFont = UIFont.boldSystemFont(ofSize: 18)
+//        let cellFont = UIFont.systemFont(ofSize: 16)
+//        
+//        for column in selectedColumns {
+//            let headerWidth = column.width(usingFont: headerFont)
+//            let maxRowWidth = logList
+//                .map { value(for: column, in: $0).width(usingFont: cellFont) }
+//                .max() ?? 0
+//            let rawWidth = max(headerWidth, maxRowWidth) * 1.2 + padding
+//
+//            let maxWidth = columnMaxWidths[column] ?? .infinity
+//            let minWidth = columnMinWidths[column] ?? 0
+//            widths[column] = min(max(rawWidth, minWidth), maxWidth)
+//        }
+//        
+//        return widths
+//    }
+//
+//
+//
+//    var body: some View {
+//
+//        let rowHeight: CGFloat = 31
+//        let headerHeight: CGFloat = 35
+////        let contentHeight = headerHeight + CGFloat(logList.count) * rowHeight
+//
+//        VStack {
+//            ScrollView([.vertical, .horizontal], showsIndicators: true) {
+//                LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+//                    Section(header: tableHeader) {
+//                        ForEach(logList, id: \.id) { log in
+//                            row(for: log)
+//                                .contentShape(Rectangle())
+//                                .onLongPressGesture(minimumDuration: 1.0) {
+//                                    logToDelete = log
+//                                    showDeleteAlert = true
+//                                }
+//                                .simultaneousGesture(
+//                                    TapGesture().onEnded {
+//                                        onLogTap?(log.log_id, log.log_type)
+//                                    }
+//                                )
+//                            if log.id != logList.last?.id {
+//                                Divider()
+//                                    .frame(height: 1)
+//                                    .background(Color(hex: background).opacity(0.5))
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            .frame(height: min(height, headerHeight + CGFloat(logList.count) * 31))
+//            .clipShape(RoundedRectangle(cornerRadius: 12))
+//            .overlay(
+//                RoundedRectangle(cornerRadius: 12)
+//                    .stroke(Color(hex: background).opacity(0.5), lineWidth: 1)
+//            )
+//
+//
+//
+//        }
+//        .alert("Delete Log?", isPresented: $showDeleteAlert, presenting: logToDelete) { log in
+//            Button("Delete", role: .destructive) {
+//                DatabaseManager.shared.deleteLog(logID: log.log_id, table: log.log_type)
+//                deleteCount += 1
+//            }
+//            Button("Cancel", role: .cancel) { }
+//        } message: { log in
+//            Text("Are you sure you want to delete this log?")
+//        }
+//        .onAppear {
+//            UIScrollView.appearance().bounces = false
+//            UIScrollView.appearance().showsVerticalScrollIndicator = true
+//
+//        }
+//    }
+//
+//    private var tableHeader: some View {
+//        VStack(spacing: 0) {
+//            HStack(spacing: 0) {
+//                ForEach(selectedColumns, id: \.self) { column in
+//                    CustomText(
+//                        text: column,
+//                        color: background,
+//                        textAlignment: .center,
+//                        multilineAlignment: .center,
+//                        isBold: true,
+//                        textSize: 18
+//                    )
+//                    .padding(.vertical, 5)
+//                    .padding(.horizontal, 8)
+//                    .frame(width: computedColumnWidths[column] ?? 100, height: 35)
+//                    if column != selectedColumns.last {
+//                        Divider()
+//                            .frame(width: 1)
+//                            .background(Color(hex: background).opacity(0.5))
+//                    }
+//                }
+//            }
+//            .background(Color(hex: accent))
+//            Divider()
+//                .frame(height: 1)
+//                .background(Color(hex: background).opacity(0.5))
+//        }
+//    }
+//
+//    private func row(for log: UnifiedLog) -> some View {
+//        HStack(spacing: 0) {
+//            ForEach(selectedColumns, id: \.self) { column in
+//                CustomText(
+//                    text: value(for: column, in: log),
+//                    color: background,
+//                    textAlignment: .center,
+//                    textSize: 16
+//                )
+//                .padding(.vertical, 5)
+//                .padding(.horizontal, 8)
+//                .frame(width: computedColumnWidths[column] ?? 100, height: 30)
+//                if column != selectedColumns.last {
+//                    Divider()
+//                        .frame(width: 1)
+//                        .background(Color(hex: background).opacity(0.5))
+//                }
+//            }
+//            
+//        }
+//        .background(Color(hex: accent))
+//    }
+//
+//    private func value(for column: String, in log: UnifiedLog) -> String {
+//        switch column {
+//        case "Log Type": return log.log_type
+//        case "Symptom": return log.symptom_name ?? ""
+//        case "Date": return dateFormatter.string(from: log.date)
+//        case "Sev.": return "\(log.severity)"
+//        case "Notes": return log.notes ?? ""
+//        case "Triggers": return log.trigger_names?.joined(separator: ", ") ?? ""
+//        case "Onset": return log.onset_time ?? ""
+//        case "Em. Med. Name": return log.medication_name ?? ""
+//        case "Em. Med. Taken?": return log.med_taken == true ? "Yes" : "No"
+//        case "Em. Med. Worked?": return log.med_worked == true ? "Yes" : "No"
+//        case "S.E. Med.": return log.medication_name ?? ""
+//        default: return ""
+//        }
+//    }
+//}
+//
+//
+//// MARK: - Preference Keys
+//private struct ViewHeightKey: PreferenceKey {
+//    static var defaultValue: CGFloat = 0
+//    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+//}
+//
+//private struct ViewWidthKey: PreferenceKey {
+//    static var defaultValue: CGFloat = 0
+//    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+//}
+import SwiftUI
 
 struct ScrollableLogTable: View {
     var userID: Int64
@@ -210,96 +417,115 @@ struct ScrollableLogTable: View {
     @State var height: CGFloat
     @State var width: CGFloat
     @Binding var deleteCount: Int64
-    
+
+    var onLogTap: ((Int64, String) -> Void)? = nil
+
+    @State private var columnWidths: [String: CGFloat] = [:]
+    @State private var defaultWidths: [String: CGFloat] = [:]
+    @State private var activeColumn: String? = nil
+    @State private var dragOffset: CGFloat = 0
+
     @State private var showDeleteAlert = false
     @State private var logToDelete: UnifiedLog? = nil
 
-    var onLogTap: ((Int64, String) -> Void)? = nil
-    
+    private let headerHeight: CGFloat = 35
+    private let rowHeight: CGFloat = 31
+
+    // 👇 Your actual custom width rules
+    let columnMaxWidths: [String: CGFloat] = [
+//        "Log Type": 115,
+        "Em. Med. Taken?": 170,
+        "Em. Med. Name": 130,
+        "Em. Med. Worked?": 180,
+//        "Sev.": 62
+    ]
+    let columnMinWidths: [String: CGFloat] = [
+        "Log Type": 115,
+        "Date": 70,
+        "Symptom": 110,
+        "Sev.": 62,
+        "Onset": 120
+    ]
+
     private var dateFormatter: DateFormatter {
         let f = DateFormatter()
         f.dateStyle = .short
         return f
     }
-
-    var columnMaxWidths: [String: CGFloat] = ["Log Type": 115, "Em. Med. Taken?": 130, "Em. Med. Name": 130, "Em. Med. Worked?": 130, "Sev." : 62]
-    var columnMinWidths: [String: CGFloat] = ["Log Type":115, "Date": 65, "Symptom": 120, "Sev.":62]
     
-    
+    var defaultTableWidth: CGFloat {
+        let sumDefaults = defaultWidths.values.reduce(0, +)
+        return min(width, sumDefaults)
+    }
 
-    private func width(for column: String) -> CGFloat {
-        let charWidth: CGFloat = 10
-        let padding: CGFloat = 5
+    private func autoWidth(for column: String) -> CGFloat {
+        let charWidth: CGFloat = 9.5
+        let padding: CGFloat = 16
         let headerCount = column.count
         let maxRowCount = logList.map { value(for: column, in: $0).count }.max() ?? 0
         let maxCount = max(headerCount, maxRowCount)
         let rawWidth = CGFloat(maxCount) * charWidth + padding
+
         let maxWidth = columnMaxWidths[column] ?? .infinity
-        let minWidth = columnMinWidths[column] ?? 0
+        let minWidth = columnMinWidths[column] ?? 60
+        
         return min(max(rawWidth, minWidth), maxWidth)
     }
 
     var body: some View {
-        
-        let rowHeight: CGFloat = 31 
-        let headerHeight: CGFloat = 35
-        let contentHeight = headerHeight + CGFloat(logList.count) * rowHeight
-        
-        VStack {
-            ScrollView(.vertical, showsIndicators: true) {
-                VStack(spacing: 0) {
-                    ScrollView(.horizontal, showsIndicators: true) {
-                        LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
-                            Section(header: tableHeader) {
-                                ForEach(logList, id: \.id) { log in
-                                    row(for: log)
-                                        .contentShape(Rectangle())
-                                        .onLongPressGesture(minimumDuration: 1.0) {
-                                            logToDelete = log
-                                            showDeleteAlert = true
-                                        }
-                                        .simultaneousGesture(
-                                            TapGesture()
-                                                .onEnded {
-                                                    onLogTap?(log.log_id, log.log_type)
-                                                }
-                                        )
-                                    if log.id != logList.last?.id {
-                                        Divider()
-                                            .frame(height: 1)
-                                            .background(Color(hex: background).opacity(0.5))
-                                    }
-                                }
-                            }
+        VStack(spacing: 0) {
+            // Outer wrapper for rounded corners
+            ZStack(alignment: .topLeading) {
+                Color.clear // takes no extra space
+
+                ScrollView([.vertical, .horizontal], showsIndicators: true) {
+                    VStack(spacing: 0) {
+                        headerRow
+                        Divider().background(Color(hex: background).opacity(0.5))
+                        ForEach(logList, id: \.id) { log in
+                            row(for: log)
+                            Divider().background(Color(hex: background).opacity(0.5))
                         }
-                        .background(Color(hex: accent))
-                        .fixedSize(horizontal: true, vertical: true)
                     }
-                    .frame(maxWidth: width)
+                    .background(Color(hex: accent))
                 }
             }
-            .frame(height: min(height, contentHeight))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .background(Color(hex: accent)) // extends clip to empty areas
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                RoundedRectangle(cornerRadius: 12)
                     .stroke(Color(hex: background).opacity(0.5), lineWidth: 1)
             )
+
+            .frame(height: min(height, headerHeight + CGFloat(logList.count) * rowHeight))
+            .frame(width: defaultTableWidth)
+            //need to do this so it expands to full width when columns are added
+        }
+
+        .onAppear {
+            UIScrollView.appearance().bounces = false
+            for col in selectedColumns {
+                let width = autoWidth(for: col)
+                columnWidths[col] = width
+                defaultWidths[col] = width
+            }
         }
         .alert("Delete Log?", isPresented: $showDeleteAlert, presenting: logToDelete) { log in
             Button("Delete", role: .destructive) {
                 DatabaseManager.shared.deleteLog(logID: log.log_id, table: log.log_type)
                 deleteCount += 1
             }
-            Button("Cancel", role: .cancel) { }
-        } message: { log in
+            Button("Cancel", role: .cancel) {}
+        } message: { _ in
             Text("Are you sure you want to delete this log?")
         }
     }
 
-    private var tableHeader: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                ForEach(selectedColumns, id: \.self) { column in
+    // MARK: - Header
+    private var headerRow: some View {
+        HStack(spacing: 0) {
+            ForEach(selectedColumns, id: \.self) { column in
+                ZStack(alignment: .trailing) {
                     CustomText(
                         text: column,
                         color: background,
@@ -308,23 +534,47 @@ struct ScrollableLogTable: View {
                         isBold: true,
                         textSize: 18
                     )
-                    .padding(.vertical, 5)
-                    .padding(.horizontal, 8)
-                    .frame(width: width(for: column), height: 35)
-                    if column != selectedColumns.last {
-                        Divider()
-                            .frame(width: 1)
-                            .background(Color(hex: background).opacity(0.5))
-                    }
+                    .frame(width: effectiveWidth(for: column), height: headerHeight)
+                    .background(Color(hex: accent))
+
+                    // Resize handle
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(width: 10)
+                        .contentShape(Rectangle())
+                        .gesture(
+                            DragGesture(minimumDistance: 1)
+                                .onChanged { value in
+                                    if activeColumn != column {
+                                        activeColumn = column
+                                        dragOffset = 0
+                                    }
+                                    dragOffset = value.translation.width
+                                }
+                                .onEnded { value in
+                                    if let col = activeColumn {
+                                        let minWidth = columnMinWidths[col] ?? 60
+                                        let maxWidth = columnMaxWidths[col] ?? .infinity
+                                        let newWidth = (columnWidths[col] ?? autoWidth(for: col)) + value.translation.width
+                                        columnWidths[col] = min(max(newWidth, minWidth), maxWidth)
+                                    }
+                                    activeColumn = nil
+                                    dragOffset = 0
+                                }
+                        )
+                        .onTapGesture(count: 2) {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                columnWidths[column] = defaultWidths[column]
+                            }
+                        }
                 }
+                Divider().background(Color(hex: background).opacity(0.5))
             }
-            .background(Color(hex: accent))
-            Divider()
-                .frame(height: 1)
-                .background(Color(hex: background).opacity(0.5))
         }
+        .background(Color(hex: accent))
     }
 
+    // MARK: - Row
     private func row(for log: UnifiedLog) -> some View {
         HStack(spacing: 0) {
             ForEach(selectedColumns, id: \.self) { column in
@@ -334,19 +584,40 @@ struct ScrollableLogTable: View {
                     textAlignment: .center,
                     textSize: 16
                 )
-                .padding(.vertical, 5)
-                .padding(.horizontal, 8)
-                .frame(width: width(for: column), height: 30)
-                if column != selectedColumns.last {
-                    Divider()
-                        .frame(width: 1)
-                        .background(Color(hex: background).opacity(0.5))
-                }
+                .lineLimit(1)                  // ✅ limit to 1 line
+                .truncationMode(.tail)         // ✅ show "..." if too long
+                .frame(width: effectiveWidth(for: column), height: rowHeight)
+                .background(Color(hex: accent))
+                
+                Divider().background(Color(hex: background).opacity(0.5))
             }
         }
-        .background(Color(hex: accent))
+        .contentShape(Rectangle())
+        .onLongPressGesture(minimumDuration: 1.0) {
+            logToDelete = log
+            showDeleteAlert = true
+        }
+        .simultaneousGesture(
+            TapGesture().onEnded {
+                onLogTap?(log.log_id, log.log_type)
+            }
+        )
     }
 
+
+    // MARK: - Width Logic
+    private func effectiveWidth(for column: String) -> CGFloat {
+        let minWidth = columnMinWidths[column] ?? 60
+        let maxWidth = columnMaxWidths[column] ?? .infinity
+        if column == activeColumn {
+            let proposed = (columnWidths[column] ?? autoWidth(for: column)) + dragOffset
+            return min(max(proposed, minWidth), maxWidth)
+        } else {
+            return columnWidths[column] ?? autoWidth(for: column)
+        }
+    }
+
+    // MARK: - Value Mapping
     private func value(for column: String, in log: UnifiedLog) -> String {
         switch column {
         case "Log Type": return log.log_type
@@ -359,20 +630,7 @@ struct ScrollableLogTable: View {
         case "Em. Med. Name": return log.medication_name ?? ""
         case "Em. Med. Taken?": return log.med_taken == true ? "Yes" : "No"
         case "Em. Med. Worked?": return log.med_worked == true ? "Yes" : "No"
-        case "S.E. Med.": return log.medication_name ?? ""
         default: return ""
         }
     }
-}
-
-
-// MARK: - Preference Keys
-private struct ViewHeightKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
-}
-
-private struct ViewWidthKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
 }

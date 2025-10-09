@@ -92,7 +92,9 @@ struct ListView: View {
                             selectedLogID = id
                             selectedLogTable = table
                         })
+                        
                         Spacer()
+                        
                     }
                     Spacer()
                 }
@@ -145,6 +147,7 @@ struct ListView: View {
             }
         }
         .onAppear{
+
             logList = DatabaseManager.shared.getLogList(userID: userID)
             
             if let earliest = logList.map({ $0.date }).min() {
