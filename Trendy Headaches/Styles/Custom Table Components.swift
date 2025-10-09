@@ -46,13 +46,17 @@ struct filterPopUp: View {
     enum FilterSection {
         case none, columns, logType, date, severity, symptoms
     }
+    
+
+
+
 
     @State private var expandedSection: FilterSection = .none
     @State private var dropdownWidths: [FilterSection: (collapsed: CGFloat, expanded: CGFloat)] = [
         .columns: (100, 315),
-        .logType: (100, 200),
-        .date: (55, 315),
-        .severity: (90, 200),
+        .logType: (100, 120),
+        .date: (55, 300),
+        .severity: (90, 190),
         .symptoms: (120, 300)
     ]
 
@@ -89,7 +93,6 @@ struct filterPopUp: View {
             sectionButton(title: "Date", section: .date) {
                 VStack {
                     HStack {
-                        Spacer()
                         DatePickerTextFieldDropdown(
                             selectedDate: $startDate,
                             textFieldValue: $stringStartDate,
@@ -116,7 +119,6 @@ struct filterPopUp: View {
                             iconSize: 22
                         )
                         .padding(.top, 10)
-                        Spacer()
                     }
                     if endDate < startDate {
                         CustomWarningText(text: "*Start must be before end.")
@@ -128,7 +130,6 @@ struct filterPopUp: View {
             // MARK: Severity
             sectionButton(title: "Severity", section: .severity) {
                 HStack {
-                    Spacer()
                     CustomTextField(
                         background: accent,
                         accent: background,
@@ -149,7 +150,6 @@ struct filterPopUp: View {
                         alignment: .center
                     )
                     .padding(.top, 10)
-                    Spacer()
                 }
                 .padding(.leading, 10)
             }
@@ -176,6 +176,7 @@ struct filterPopUp: View {
         .cornerRadius(20)
         .padding(.bottom, 40)
     }
+        
 
     // MARK: Section Button Helper
     @ViewBuilder
@@ -185,41 +186,49 @@ struct filterPopUp: View {
         @ViewBuilder content: () -> Content
     ) -> some View {
         let widths = dropdownWidths[section] ?? (300, 300)
-        let collapsedWidth = widths.collapsed
         let expandedWidth = widths.expanded
         let isExpanded = expandedSection == section
         
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 5) {
-                CustomText(
-                    text: title,
-                    color: background,
-                    width: collapsedWidth,
-                    textAlignment: .leading,
-                    isBold: true
-                )
-                
-                Button(action: {
-                    withAnimation(.easeInOut) {
-                        self.expandedSection = isExpanded ? .none : section
+        let currentWidth: CGFloat = {
+            if let activeWidths = dropdownWidths[expandedSection] {
+                // Use the expanded width of the active section
+                return expandedSection == .none ? widths.collapsed : activeWidths.expanded
+            } else {
+                // Default fallback
+                return widths.collapsed
+            }
+        }()
+        
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 5) {
+                    CustomText(
+                        text: title,
+                        color: background,
+                        width: currentWidth,
+                        textAlignment: .leading,
+                        isBold: true
+                    )
+                    
+                    Button(action: {
+                        withAnimation(.easeInOut) {
+                            self.expandedSection = isExpanded ? .none : section
+                        }
+                    }) {
+                        Image(systemName: "chevron.down")
+                            .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                            .font(.system(size: 20))
+                            .foregroundColor(Color(hex: background))
                     }
-                }) {
-                    Image(systemName: "chevron.down")
-                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
-                        .font(.system(size: 20))
-                        .foregroundColor(Color(hex: background))
+                    .buttonStyle(PlainButtonStyle())
                 }
-                .buttonStyle(PlainButtonStyle())
-            }
-            .padding(.horizontal, 5)
-            
-            if isExpanded {
-                content()
-                    .frame(width: expandedWidth, alignment: .leading)
-                    .padding(.leading, 5)
-            }
+                .padding(.horizontal, 5)
+                
+                if isExpanded {
+                    content()
+                        .frame(width: expandedWidth, alignment: .leading)
+                }
+                
         }
-        .frame(width: isExpanded ? expandedWidth : 170, alignment: .leading)
     }
 }
 
