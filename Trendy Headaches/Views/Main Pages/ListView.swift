@@ -177,6 +177,7 @@ struct ListView: View {
         .onChange(of: sevEnd) {  filterLogs() }
         .onChange(of: selectedSymptoms) {  filterLogs() }
         .onChange(of: deleteCount) {  filterLogs() }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
