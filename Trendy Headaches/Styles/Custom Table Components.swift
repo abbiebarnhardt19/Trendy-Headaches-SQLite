@@ -50,7 +50,7 @@ struct filterPopUp: View {
     @State private var expandedSection: FilterSection = .none
     @State private var dropdownWidths: [FilterSection: (collapsed: CGFloat, expanded: CGFloat)] = [
         .columns: (100, 315),
-        .logType: (100, 120),
+        .logType: (100, 140),
         .date: (55, 300),
         .severity: (90, 190),
         .symptoms: (120, 300)
@@ -160,6 +160,7 @@ struct filterPopUp: View {
                     width: expandedWidth
                 )
                 .padding(.leading, 10)
+                .padding(.top, 10)
             }
         }
         .padding(10)
@@ -264,7 +265,7 @@ struct ScrollableLogTable: View {
     let columnMaxWidths: [String: CGFloat] = [
 //        "Log Type": 115,
         "Em. Med. Taken?": 170,
-        "Em. Med. Name": 130,
+        "Em. Med. Name": 150,
         "Em. Med. Worked?": 180,
 //        "Sev.": 62
     ]
