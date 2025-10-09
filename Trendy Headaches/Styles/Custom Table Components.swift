@@ -41,31 +41,40 @@ struct filterPopUp: View {
     @Binding var selectedSymptoms: [String]
 
     @State private var expandedWidth: CGFloat = 215
-    @State private var unexpandedWidth: CGFloat = 155
+    @State private var unexpandedWidth: CGFloat = 255
 
     enum FilterSection {
         case none, columns, logType, date, severity, symptoms
     }
 
     @State private var expandedSection: FilterSection = .none
+    @State private var dropdownWidths: [FilterSection: (collapsed: CGFloat, expanded: CGFloat)] = [
+        .columns: (100, 315),
+        .logType: (100, 200),
+        .date: (55, 315),
+        .severity: (90, 200),
+        .symptoms: (120, 300)
+    ]
+
 
     var body: some View {
         VStack(spacing: 10) {
             // MARK: Columns
+                sectionButton(title: "Columns", section: .columns) {
+                    MultipleChoiceCheckboxGroup(
+                        options: $columnOptions,
+                        selected: $selectedColumns,
+                        accent: background,
+                        background: accent,
+                        width: expandedWidth
+                    )
+                    .padding(.leading, 10)
+                    .padding(.top, 10)
+                }
             
-            sectionButton(title: "Columns", section: .columns, expandedWidth: 315) {
-                MultipleChoiceCheckboxGroup(
-                    options: $columnOptions,
-                    selected: $selectedColumns,
-                    accent: background,
-                    background: accent,
-                    width: expandedWidth - 15
-                )
-                .padding(.leading, 10)
-            }
 
             // MARK: Log Type
-            sectionButton(title: "Log Type", section: .logType, expandedWidth: 150) {
+            sectionButton(title: "Log Type", section: .logType) {
                 MultipleChoiceCheckboxGroup(
                     options: .constant(["Symptom", "Side Effect"]),
                     selected: $logType,
@@ -73,11 +82,11 @@ struct filterPopUp: View {
                     background: accent,
                     width: expandedWidth
                 )
-                .padding(.leading, 10)
+                .padding(.top, 10)
             }
 
             // MARK: Date
-            sectionButton(title: "Date", section: .date, expandedWidth: 315) {
+            sectionButton(title: "Date", section: .date) {
                 VStack {
                     HStack {
                         Spacer()
@@ -92,7 +101,9 @@ struct filterPopUp: View {
                             textSize: 19,
                             iconSize: 22
                         )
+                        .padding(.top, 10)
                         CustomText(text: "to ", color: background, width: 50)
+                            .padding(.top, 10)
                         DatePickerTextFieldDropdown(
                             selectedDate: $endDate,
                             textFieldValue: $stringEndDate,
@@ -104,6 +115,7 @@ struct filterPopUp: View {
                             textSize: 19,
                             iconSize: 22
                         )
+                        .padding(.top, 10)
                         Spacer()
                     }
                     if endDate < startDate {
@@ -114,8 +126,9 @@ struct filterPopUp: View {
             }
 
             // MARK: Severity
-            sectionButton(title: "Severity", section: .severity, expandedWidth: 190) {
+            sectionButton(title: "Severity", section: .severity) {
                 HStack {
+                    Spacer()
                     CustomTextField(
                         background: accent,
                         accent: background,
@@ -124,7 +137,9 @@ struct filterPopUp: View {
                         width: 65,
                         alignment: .center
                     )
+                    .padding(.top, 10)
                     CustomText(text: " to ", color: background, width: 30)
+                        .padding(.top, 10)
                     CustomTextField(
                         background: accent,
                         accent: background,
@@ -133,19 +148,20 @@ struct filterPopUp: View {
                         width: 65,
                         alignment: .center
                     )
+                    .padding(.top, 10)
                     Spacer()
                 }
                 .padding(.leading, 10)
             }
 
             // MARK: Symptoms
-            sectionButton(title: "Symptoms", section: .symptoms, expandedWidth: 315) {
+            sectionButton(title: "Symptoms", section: .symptoms) {
                 MultipleChoiceCheckboxGroup(
                     options: $symptomOptions,
                     selected: $selectedSymptoms,
                     accent: background,
                     background: accent,
-                    width: expandedWidth - 15
+                    width: expandedWidth
                 )
                 .padding(.leading, 10)
             }
@@ -166,31 +182,44 @@ struct filterPopUp: View {
     private func sectionButton<Content: View>(
         title: String,
         section: FilterSection,
-        expandedWidth: CGFloat,
         @ViewBuilder content: () -> Content
     ) -> some View {
-        VStack {
-            HStack {
-                CustomText(text: title, color: background, width: 120, textAlignment: .center, isBold: true)
+        let widths = dropdownWidths[section] ?? (300, 300)
+        let collapsedWidth = widths.collapsed
+        let expandedWidth = widths.expanded
+        let isExpanded = expandedSection == section
+        
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 5) {
+                CustomText(
+                    text: title,
+                    color: background,
+                    width: collapsedWidth,
+                    textAlignment: .leading,
+                    isBold: true
+                )
+                
                 Button(action: {
                     withAnimation(.easeInOut) {
-                        self.expandedSection = self.expandedSection == section ? .none : section
-                        self.expandedWidth = self.expandedSection == section ? expandedWidth : 215
+                        self.expandedSection = isExpanded ? .none : section
                     }
                 }) {
                     Image(systemName: "chevron.down")
+                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
                         .font(.system(size: 20))
                         .foregroundColor(Color(hex: background))
-                        .frame(width: 10)
                 }
                 .buttonStyle(PlainButtonStyle())
-                Spacer()
             }
-            if expandedSection == section {
+            .padding(.horizontal, 5)
+            
+            if isExpanded {
                 content()
+                    .frame(width: expandedWidth, alignment: .leading)
+                    .padding(.leading, 5)
             }
         }
-        .frame(width: expandedSection == section ? self.expandedWidth : self.unexpandedWidth)
+        .frame(width: isExpanded ? expandedWidth : 170, alignment: .leading)
     }
 }
 
