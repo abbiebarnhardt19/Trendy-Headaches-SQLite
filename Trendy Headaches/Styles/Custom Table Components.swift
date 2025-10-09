@@ -46,10 +46,6 @@ struct filterPopUp: View {
     enum FilterSection {
         case none, columns, logType, date, severity, symptoms
     }
-    
-
-
-
 
     @State private var expandedSection: FilterSection = .none
     @State private var dropdownWidths: [FilterSection: (collapsed: CGFloat, expanded: CGFloat)] = [
@@ -62,7 +58,7 @@ struct filterPopUp: View {
 
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: 10) {
             // MARK: Columns
                 sectionButton(title: "Columns", section: .columns) {
                     MultipleChoiceCheckboxGroup(
@@ -228,7 +224,9 @@ struct filterPopUp: View {
                         .frame(width: expandedWidth, alignment: .leading)
                 }
                 
-        }
+            }
+            .frame(width: isExpanded ? currentWidth : 160, alignment: .leading)
+        
     }
 }
 
