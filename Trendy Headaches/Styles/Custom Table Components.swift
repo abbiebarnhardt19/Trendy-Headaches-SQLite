@@ -39,167 +39,161 @@ struct filterPopUp: View {
     @Binding var sevEnd: Int64
     @Binding var symptomOptions: [String]
     @Binding var selectedSymptoms: [String]
-    
-    @State var showColumnList: Bool = false
-    @State var showLogTypeOptions: Bool = false
-    @State var showDateOptions: Bool = false
-    @State var showSeverityOptions: Bool = false
-    @State var showSymptomOptions: Bool = false
-    
+
     @State private var expandedWidth: CGFloat = 215
-    @State private var unexpandedWidth: CGFloat = 145
-    
+    @State private var unexpandedWidth: CGFloat = 155
+
+    enum FilterSection {
+        case none, columns, logType, date, severity, symptoms
+    }
+
+    @State private var expandedSection: FilterSection = .none
+
     var body: some View {
-        let boolList = [showColumnList, showLogTypeOptions, showDateOptions, showSeverityOptions, showSymptomOptions]
-        
-
-        
-        VStack(spacing:10){
-                VStack{
-                    HStack{
-                        CustomText(text:"Columns", color: background, width:110, textAlignment: .center, isBold: true)
-                        Button(action: { showColumnList.toggle()
-                            expandedWidth = showColumnList ? 315 : 215}) {
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 20))
-                                .foregroundColor(Color(hex: background))
-                                .frame(width: 10)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        
-                        Spacer()
-                        
-                    }
-                
-                    if showColumnList{
-                        MultipleChoiceCheckboxGroup(options: $columnOptions, selected: $selectedColumns, accent: background, background: accent, width:expandedWidth-15)
-                            .padding(.leading, 10)
-                        
-                    }
-                    
-                }
-          .frame(width: boolList.contains(true) ? expandedWidth : unexpandedWidth)
+        VStack(spacing: 10) {
+            // MARK: Columns
             
-                VStack{
-                    HStack{
-                        CustomText(text:"Log Type", color: background, width:110, textAlignment: .center, isBold: true)
-                        Button(action: { showLogTypeOptions.toggle()
-                            expandedWidth = showLogTypeOptions ? 150 : 215}) {
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 20))
-                                .foregroundColor(Color(hex: background))
-                                .frame(width: 10)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                            Spacer()
-                        
-                    }
-                    if showLogTypeOptions{
-                        MultipleChoiceCheckboxGroup(options: .constant(["Symptom", "Side Effect"]), selected: $logType, accent: background, background: accent, width:expandedWidth)
-                            .padding(.leading, 10)
-                    }
-                }
-                .frame(width: boolList.contains(true) ? expandedWidth : unexpandedWidth)
-            
-                VStack{
-                    HStack{
-                        CustomText(text:"Date", color: background, width:60, textAlignment: .center, isBold: true)
-                        Button(action: { showDateOptions.toggle()
-                            expandedWidth = showDateOptions ? 315 : 215}) {
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 20))
-                                .foregroundColor(Color(hex: background))
-                                .frame(width: 10)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-
-                            Spacer()
-                        
-                    }
-                    
-                    if showDateOptions{
-                        VStack{
-                            HStack{
-                                Spacer()
-                                DatePickerTextFieldDropdown(selectedDate: $startDate, textFieldValue: $stringStartDate, background: $accent, accent: $background, textFieldWidth: 125, arrowSpecialCase: true, labelText: false, textSize: 19, iconSize: 22)
-                                CustomText(text: "to ", color: background, width:50)
-                                DatePickerTextFieldDropdown(selectedDate: $endDate, textFieldValue: $stringEndDate, background: $accent, accent: $background, textFieldWidth: 125, arrowSpecialCase: true, labelText: false, textSize: 19, iconSize: 22)
-                                Spacer()
-                            }
-                                if endDate<startDate{
-                                    CustomWarningText(text: "*Start must be before end.")
-                            }
-                        }
-                        .padding(.leading, 10)
-                    }
-                }
-                .frame(width: boolList.contains(true) ? expandedWidth : unexpandedWidth)
-            
-                VStack{
-                    HStack{
-                        CustomText(text:"Severity", color: background, width:100, textAlignment: .center, isBold: true)
-                        Button(action: { showSeverityOptions.toggle()
-                            expandedWidth = showSeverityOptions ? 190 : 215}) {
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 20))
-                                .foregroundColor(Color(hex: background))
-                                .frame(width: 10)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-
-                            Spacer()
-                        
-                    }
-                    if showSeverityOptions{
-                        HStack{
-                            CustomTextField(background: accent, accent: background, placeholder: "", text: Binding(
-                                get: { String(sevStart) },
-                                set: { sevStart = Int64($0) ?? 0 }
-                            ), width: 65, alignment: .center)
-                            
-                            CustomText(text: " to ", color: background, width: 30)
-                            
-                            CustomTextField(background: accent, accent: background, placeholder: "", text: Binding(
-                                get: { String(sevEnd) },
-                                set: { sevEnd = Int64($0) ?? 0 }
-                            ), width: 65, alignment: .center)
-                            Spacer()
-                        }
-                        .padding(.leading, 10)
-                    }
-                }
-                .frame(width: boolList.contains(true) ? expandedWidth : unexpandedWidth)
-            
-                VStack{
-                    HStack{
-                        CustomText(text:"Symptoms", color: background, width:125, textAlignment: .center, isBold: true)
-                        Button(action: { showSymptomOptions.toggle()
-                            expandedWidth = showSymptomOptions ? 315 : 215}) {
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 20))
-                                .foregroundColor(Color(hex: background))
-                                .frame(width: 10)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                            Spacer()
-                    }
-                    if showSymptomOptions{
-                        MultipleChoiceCheckboxGroup(options: $symptomOptions, selected: $selectedSymptoms, accent: background, background: accent, width:expandedWidth-15)
-                            .padding(.leading, 10)
-                    }
-                }
-                .frame(width: boolList.contains(true) ? expandedWidth : unexpandedWidth)
-            
+            sectionButton(title: "Columns", section: .columns, expandedWidth: 315) {
+                MultipleChoiceCheckboxGroup(
+                    options: $columnOptions,
+                    selected: $selectedColumns,
+                    accent: background,
+                    background: accent,
+                    width: expandedWidth - 15
+                )
+                .padding(.leading, 10)
             }
-            .padding(10)
-            .padding(.trailing, 10)
-            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(Color(hex: background), lineWidth: 3))
-            .background(Color(hex:accent))
-            .cornerRadius(20)
-            .padding(.bottom, 40)
+
+            // MARK: Log Type
+            sectionButton(title: "Log Type", section: .logType, expandedWidth: 150) {
+                MultipleChoiceCheckboxGroup(
+                    options: .constant(["Symptom", "Side Effect"]),
+                    selected: $logType,
+                    accent: background,
+                    background: accent,
+                    width: expandedWidth
+                )
+                .padding(.leading, 10)
+            }
+
+            // MARK: Date
+            sectionButton(title: "Date", section: .date, expandedWidth: 315) {
+                VStack {
+                    HStack {
+                        Spacer()
+                        DatePickerTextFieldDropdown(
+                            selectedDate: $startDate,
+                            textFieldValue: $stringStartDate,
+                            background: $accent,
+                            accent: $background,
+                            textFieldWidth: 125,
+                            arrowSpecialCase: true,
+                            labelText: false,
+                            textSize: 19,
+                            iconSize: 22
+                        )
+                        CustomText(text: "to ", color: background, width: 50)
+                        DatePickerTextFieldDropdown(
+                            selectedDate: $endDate,
+                            textFieldValue: $stringEndDate,
+                            background: $accent,
+                            accent: $background,
+                            textFieldWidth: 125,
+                            arrowSpecialCase: true,
+                            labelText: false,
+                            textSize: 19,
+                            iconSize: 22
+                        )
+                        Spacer()
+                    }
+                    if endDate < startDate {
+                        CustomWarningText(text: "*Start must be before end.")
+                    }
+                }
+                .padding(.leading, 10)
+            }
+
+            // MARK: Severity
+            sectionButton(title: "Severity", section: .severity, expandedWidth: 190) {
+                HStack {
+                    CustomTextField(
+                        background: accent,
+                        accent: background,
+                        placeholder: "",
+                        text: Binding(get: { String(sevStart) }, set: { sevStart = Int64($0) ?? 0 }),
+                        width: 65,
+                        alignment: .center
+                    )
+                    CustomText(text: " to ", color: background, width: 30)
+                    CustomTextField(
+                        background: accent,
+                        accent: background,
+                        placeholder: "",
+                        text: Binding(get: { String(sevEnd) }, set: { sevEnd = Int64($0) ?? 0 }),
+                        width: 65,
+                        alignment: .center
+                    )
+                    Spacer()
+                }
+                .padding(.leading, 10)
+            }
+
+            // MARK: Symptoms
+            sectionButton(title: "Symptoms", section: .symptoms, expandedWidth: 315) {
+                MultipleChoiceCheckboxGroup(
+                    options: $symptomOptions,
+                    selected: $selectedSymptoms,
+                    accent: background,
+                    background: accent,
+                    width: expandedWidth - 15
+                )
+                .padding(.leading, 10)
+            }
+        }
+        .padding(10)
+        .padding(.trailing, 10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(Color(hex: background), lineWidth: 3)
+        )
+        .background(Color(hex: accent))
+        .cornerRadius(20)
+        .padding(.bottom, 40)
+    }
+
+    // MARK: Section Button Helper
+    @ViewBuilder
+    private func sectionButton<Content: View>(
+        title: String,
+        section: FilterSection,
+        expandedWidth: CGFloat,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack {
+            HStack {
+                CustomText(text: title, color: background, width: 120, textAlignment: .center, isBold: true)
+                Button(action: {
+                    withAnimation(.easeInOut) {
+                        self.expandedSection = self.expandedSection == section ? .none : section
+                        self.expandedWidth = self.expandedSection == section ? expandedWidth : 215
+                    }
+                }) {
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 20))
+                        .foregroundColor(Color(hex: background))
+                        .frame(width: 10)
+                }
+                .buttonStyle(PlainButtonStyle())
+                Spacer()
+            }
+            if expandedSection == section {
+                content()
+            }
+        }
+        .frame(width: expandedSection == section ? self.expandedWidth : self.unexpandedWidth)
     }
 }
+
 extension String {
     func width(usingFont font: UIFont) -> CGFloat {
         let attributes = [NSAttributedString.Key.font: font]
