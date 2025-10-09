@@ -285,12 +285,16 @@ struct ScrollableLogTable: View {
                         Section(header:
                             VStack(spacing: 0) {
                                 headerRow
-                                Divider().background(Color(hex: background).opacity(0.5))
+                            Rectangle()
+                                .fill(Color(hex: background))
+                                .frame(height: 2)
                             }
                         ) {
                             ForEach(logList, id: \.id) { log in
                                 row(for: log)
-                                Divider().background(Color(hex: background).opacity(0.5))
+                                Rectangle()
+                                    .fill(Color(hex: background).opacity(0.3))
+                                    .frame(height: 2)
                             }
                         }
                     }
@@ -357,7 +361,8 @@ struct ScrollableLogTable: View {
                         textSize: 18
                     )
                     .frame(width: effectiveWidth(for: column), height: headerHeight)
-                    .background(Color(hex: accent))
+                    .background(Color.blend(Color(hex: background), Color(hex: accent), ratio: 0.6))
+
 
                     // Resize handle
                     Rectangle()
@@ -390,7 +395,9 @@ struct ScrollableLogTable: View {
                             }
                         }
                 }
-                Divider().background(Color(hex: background).opacity(0.5))
+                Rectangle()
+                    .fill(Color(hex: background).opacity(0.8))
+                    .frame(width: 2)
             }
         }
         .background(Color(hex: accent))
@@ -406,12 +413,14 @@ struct ScrollableLogTable: View {
                     textAlignment: .center,
                     textSize: 16
                 )
-                .lineLimit(1)                  // ✅ limit to 1 line
-                .truncationMode(.tail)         // ✅ show "..." if too long
+                .lineLimit(1)
+                .truncationMode(.tail)
                 .frame(width: effectiveWidth(for: column), height: rowHeight)
                 .background(Color(hex: accent))
                 
-                Divider().background(Color(hex: background).opacity(0.5))
+                Rectangle()
+                    .fill(Color(hex: background).opacity(0.3))
+                    .frame(width: 2)
             }
         }
         .contentShape(Rectangle())
