@@ -13,6 +13,10 @@ struct AnalyticsView: View {
     @Binding var background: String
     @Binding var accent: String
     
+    @State var logs: [UnifiedLog] = []
+    
+    @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
+    
     
     var body: some View {
         ZStack {
@@ -24,7 +28,13 @@ struct AnalyticsView: View {
             SameAmplitudeBlob(waves: 13, amplitude: 15, accent: accent, x: 0, y: -375, rotation: 155)
             
             VStack(spacing: 0) {
-                CustomText(text:"Analytics View", color: accent, width:300, textAlignment: .center, multilineAlignment: .center, textSize:75)
+                HStack{
+                    CalendarView(logs: logs, background: background, accent: accent, width:screenWidth-120)
+                        .frame(height: 350)
+                        .padding(.horizontal, 10)
+                    SeverityKeyBar(accent: accent, width: 20, height:screenWidth-100)
+                    
+                }
             }
             
             .ignoresSafeArea(edges: .bottom)
@@ -41,6 +51,9 @@ struct AnalyticsView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
             }
             .ignoresSafeArea(edges: .bottom)
+        }
+        .onAppear{
+            logs = DatabaseManager.shared.getLogList(userID: userID)
         }
     }
 }

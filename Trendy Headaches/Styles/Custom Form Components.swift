@@ -113,68 +113,6 @@ struct FlexibleWrapCheckboxLayout<Item: Hashable, Content: View>: View {
     }
 }
 
-
-
-    //    // MARK: - Flexible Layout
-    //    struct FlexibleWrapCheckboxLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
-    //        var items: Data
-    //        var spacing: CGFloat
-    //        var boxSize: CGFloat
-    //        var charWidth: CGFloat
-    //        var width: CGFloat
-    //        var content: (Data.Element) -> Content
-    //
-    //        init(items: Data, spacing: CGFloat, boxSize: CGFloat, charWidth: CGFloat, width: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
-    //            self.items = items
-    //            self.spacing = spacing
-    //            self.boxSize = boxSize
-    //            self.charWidth = charWidth
-    //            self.width = width
-    //            self.content = content
-    //        }
-    //
-    //        var body: some View {
-    //            generateContent(in: width)
-    //        }
-    //
-    //        private func generateContent(in totalWidth: CGFloat) -> some View {
-    //            var width: CGFloat = 0
-    //            var rows: [[Data.Element]] = [[]]
-    //
-    //            for item in items {
-    //                let itemWidth = estimateWidth(for: item)
-    //                if width + itemWidth + spacing > totalWidth {
-    //                    // start new row
-    //                    rows.append([item])
-    //                    width = itemWidth + spacing
-    //                } else {
-    //                    rows[rows.count - 1].append(item)
-    //                    width += itemWidth + spacing
-    //                }
-    //            }
-    //
-    //            return VStack(alignment: .leading, spacing: spacing) {
-    //                ForEach(0..<rows.count, id: \.self) { rowIndex in
-    //                    HStack(alignment: .center, spacing: spacing) {
-    //                        ForEach(rows[rowIndex], id: \.self) { item in
-    //                            content(item)
-    //                        }
-    //                    }
-    //                    .frame(maxWidth: .infinity, alignment: .leading)
-    //                }
-    //            }
-    //        }
-    //
-    //        private func estimateWidth(for item: Data.Element) -> CGFloat {
-    //            let textCount = String(describing: item).count
-    //            return boxSize + 4 + CGFloat(textCount) * charWidth
-    //        }
-    //    }
-    //}
-    
-   
-
-
 //custom switch
 struct CustomToggle: View {
     var color: String

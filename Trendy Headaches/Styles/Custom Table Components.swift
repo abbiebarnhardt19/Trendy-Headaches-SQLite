@@ -264,7 +264,6 @@ struct ScrollableLogTable: View {
         "Em. Med. Taken?": 170,
         "Em. Med. Name": 150,
         "Em. Med. Worked?": 180,
-//        "Sev.": 62
     ]
     let columnMinWidths: [String: CGFloat] = [
         "Log Type": 115,
@@ -389,7 +388,7 @@ struct ScrollableLogTable: View {
                         textSize: 18
                     )
                     .frame(width: effectiveWidth(for: column), height: headerHeight)
-                    .background(Color.blend(Color(hex: background), Color(hex: accent), ratio: 0.6))
+                    .background(Color.blend(Color(hex: background), Color(hex: accent), ratio: 0.8))
 
 
                     // Resize handle
