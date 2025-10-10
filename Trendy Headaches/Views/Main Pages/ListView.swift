@@ -31,6 +31,7 @@ struct ListView: View {
     @State var sevStart: Int64 = 1
     @State var sevEnd: Int64 = 10
     
+    @State var logTypeOptions: [String] = ["Symptom", "Side Effect"]
     @State var logTypeFilter: [String] = ["Symptom", "Side Effect"]
     
     @State var symptomOptions: [String] = []
@@ -104,7 +105,7 @@ struct ListView: View {
                         Spacer()
                         HStack {
                             Spacer()
-                            filterPopUp(accent: accent, background: background, columnOptions: columnOptions, selectedColumns: $selectedColumns, logType: $logTypeFilter, startDate: $startDate, endDate: $endDate, stringStartDate: $stringStartDate, stringEndDate: $stringEndDate, sevStart: $sevStart, sevEnd: $sevEnd, symptomOptions: $symptomOptions, selectedSymptoms: $selectedSymptoms)
+                            filterPopUp(accent: accent, background: background, columnOptions: columnOptions, selectedColumns: $selectedColumns, logTypeOptions: $logTypeOptions, logType: $logTypeFilter, startDate: $startDate, endDate: $endDate, stringStartDate: $stringStartDate, stringEndDate: $stringEndDate, sevStart: $sevStart, sevEnd: $sevEnd, symptomOptions: $symptomOptions, selectedSymptoms: $selectedSymptoms)
                                 .padding(.trailing, 20)
                                 .padding(.bottom, 120) 
                             

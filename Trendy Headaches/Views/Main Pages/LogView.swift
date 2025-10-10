@@ -204,7 +204,8 @@ struct LogView: View {
                 }
                 
                 CustomText(text: "Triggers Present", color: accent, isBold: true, textSize: 24)
-                MultipleChoiceCheckboxGroup(options: $triggerOptions, selected: $selectedTriggers, accent: accent, background: background)
+                MultipleChoiceCheckboxGroup(options: $triggerOptions, selected: $selectedTriggers, accent: accent, background: background, width: screenWidth-100)
+                    .padding(.leading, 5)
                 
                 textFieldSection(title: "Symptom Description", text: $symptomDesc)
                 textFieldSection(title: "Notes", text: $notes)

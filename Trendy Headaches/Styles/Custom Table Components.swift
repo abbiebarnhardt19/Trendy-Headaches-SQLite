@@ -30,6 +30,7 @@ struct filterPopUp: View {
     @State var background: String
     @State var columnOptions: [String]
     @Binding var selectedColumns: [String]
+    @Binding var logTypeOptions: [String]
     @Binding var logType: [String]
     @Binding var startDate: Date
     @Binding var endDate: Date
@@ -51,7 +52,7 @@ struct filterPopUp: View {
     @State private var dropdownWidths: [FilterSection: (collapsed: CGFloat, expanded: CGFloat)] = [
         .columns: (100, 315),
         .logType: (100, 140),
-        .date: (55, 300),
+        .date: (55, 270),
         .severity: (90, 190),
         .symptoms: (120, 300)
     ]
@@ -76,51 +77,47 @@ struct filterPopUp: View {
             // MARK: Log Type
             sectionButton(title: "Log Type", section: .logType) {
                 MultipleChoiceCheckboxGroup(
-                    options: .constant(["Symptom", "Side Effect"]),
+                    options: $logTypeOptions,
                     selected: $logType,
                     accent: background,
                     background: accent,
                     width: expandedWidth
                 )
                 .padding(.top, 10)
+                .padding(.leading, 10)
             }
 
             // MARK: Date
             sectionButton(title: "Date", section: .date) {
                 VStack {
-                    HStack {
                         DatePickerTextFieldDropdown(
                             selectedDate: $startDate,
                             textFieldValue: $stringStartDate,
                             background: $accent,
                             accent: $background,
-                            textFieldWidth: 125,
+                            textFieldWidth: 155,
                             arrowSpecialCase: true,
-                            labelText: false,
-                            textSize: 19,
-                            iconSize: 22
+                            labelText: "Start:",
+                            textSize: 21,
+                            iconSize: 30,
+                            isBold: false
                         )
                         .padding(.top, 10)
-                        CustomText(text: "to ", color: background, width: 50)
-                            .padding(.top, 10)
+
                         DatePickerTextFieldDropdown(
                             selectedDate: $endDate,
                             textFieldValue: $stringEndDate,
                             background: $accent,
                             accent: $background,
-                            textFieldWidth: 125,
+                            textFieldWidth: 155,
                             arrowSpecialCase: true,
-                            labelText: false,
-                            textSize: 19,
-                            iconSize: 22
+                            labelText: "End:",
+                            textSize: 21,
+                            iconSize: 30,
+                            isBold: false
                         )
-                        .padding(.top, 10)
-                    }
-                    if endDate < startDate {
-                        CustomWarningText(text: "*Start must be before end.")
-                    }
                 }
-                .padding(.leading, 10)
+                .padding(.leading, 5)
             }
 
             // MARK: Severity
