@@ -5,36 +5,19 @@ struct CalendarView: View {
     let logs: [UnifiedLog]
     var background: String
     var accent: String
-    var width: CGFloat // pass in width
+    var width: CGFloat
+    let symptomToIcon: [String: String] // Add this property
+
+    func icon(for symptom: String?) -> String {
+        guard let name = symptom, !name.isEmpty else { return "questionmark.square.fill" }
+        return symptomToIcon[name] ?? "questionmark.square.fill"
+    }
     
     @State private var currentMonth: Date = Date()
     private let calendar = Calendar.current
     private let weekDays = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
     
-    // List of icons to cycle through
-    let availableIcons = [
-        "square.fill", "triangle.fill", "star.fill", "diamond.fill",
-        "hexagon.fill", "heart.fill", "bolt.fill", "leaf.fill", "flame.fill"
-    ]
-    let unknownIcon = "questionmark.square.fill"
 
-    // Keep a mapping from symptom name -> icon
-    @State private var symptomToIcon: [String: String] = [:]
-
-    func icon(for symptom: String?) -> String {
-        guard let name = symptom, !name.isEmpty else {
-            return unknownIcon
-        }
-
-        if let assignedIcon = symptomToIcon[name] {
-            return assignedIcon
-        } else {
-            // Assign next available icon in a cycle
-            let nextIcon = availableIcons[symptomToIcon.count % availableIcons.count]
-            symptomToIcon[name] = nextIcon
-            return nextIcon
-        }
-    }
 
     var body: some View {
         VStack(spacing: 10) {
@@ -75,15 +58,17 @@ struct CalendarView: View {
                             let dayLogs = logs.filter { calendar.isDate($0.date, inSameDayAs: date) }
                             
                             if dayLogs.count == 1 {
-                                // Single log: dot below number
+                                // Single log: icon below number
                                 VStack(spacing: 2) {
                                     Text("\(calendar.component(.day, from: date))")
                                         .foregroundColor(Color(hex: background))
                                         .fontWeight(isToday(date) ? .bold : .regular)
                                     
-                                    Circle()
-                                        .fill(color(forSeverity: dayLogs[0].severity))
-                                        .frame(width: 5, height: 5)
+                                    Image(systemName: icon(for: dayLogs[0].symptom_name ?? "Unknown"))
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 8, height: 8)
+                                        .foregroundColor(color(forSeverity: dayLogs[0].severity))
                                         .padding(.top, 2)
                                 }
                             } else if dayLogs.count > 1 {
@@ -92,7 +77,6 @@ struct CalendarView: View {
                                     let log = dayLogs[i]
                                     let angle = Double(i) / Double(dayLogs.count) * 360
                                     let radius: CGFloat = 14
-                                    let iconName = icon(for: log.symptom_name ?? "Unknown")
 
                                     Image(systemName: icon(for: log.symptom_name))
                                         .resizable()
@@ -129,6 +113,7 @@ struct CalendarView: View {
         .padding()
         .background(Color(hex: accent))
         .cornerRadius(15)
+        
     }
 
     
@@ -181,6 +166,70 @@ struct CalendarView: View {
         }
     }
 }
+import SwiftUI
+import SwiftUI
+
+struct SymptomKey: View {
+    let symptomToIcon: [String: String]
+    var accent: String
+    var width: CGFloat         // Pass in desired width
+    var spacing: CGFloat = 8
+    var itemHeight: CGFloat = 18
+
+    var body: some View {
+        self.generateContent()
+            .frame(width: width, alignment: .leading)
+    }
+
+    private func generateContent() -> some View {
+        var widthUsed: CGFloat = 0
+        var rows: [[(String, String)]] = [[]]
+
+        for symptom in symptomToIcon.keys.sorted() {
+            let iconName = symptomToIcon[symptom] ?? "questionmark.square.fill"
+            let displayText = String(symptom.prefix(12)) // truncate to 12 chars
+            let itemWidth = textWidth(for: displayText) + itemHeight + spacing * 2
+
+            if widthUsed + itemWidth > width {
+                rows.append([])
+                widthUsed = 0
+            }
+
+            rows[rows.count - 1].append((symptom, iconName))
+            widthUsed += itemWidth + spacing
+        }
+
+        return VStack(alignment: .leading, spacing: spacing) {
+            ForEach(0..<rows.count, id: \.self) { rowIndex in
+                HStack(spacing: spacing) {
+                    ForEach(rows[rowIndex], id: \.0) { item in
+                        HStack(spacing: 4) {
+                            Image(systemName: item.1)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: itemHeight, height: itemHeight)
+                                .foregroundColor(Color(hex: accent))
+                            CustomText(text:String(item.0.prefix(12)), color: accent, textSize: 14) // truncate here too
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                        }
+                        .padding(.vertical, 2)
+                        .padding(.horizontal, 4)
+                    }
+                }
+            }
+        }
+    }
+
+    // Estimate width of text
+    private func textWidth(for text: String) -> CGFloat {
+        let font = UIFont.systemFont(ofSize: 14)
+        let attributes = [NSAttributedString.Key.font: font]
+        let size = text.size(withAttributes: attributes)
+        return size.width
+    }
+}
+
 
 
 //
