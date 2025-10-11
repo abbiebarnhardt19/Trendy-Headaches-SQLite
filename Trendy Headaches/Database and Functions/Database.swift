@@ -1,5 +1,5 @@
 //
-//  DatabaseManager.swift
+//  Database.swift
 //  learning_xcode
 //
 //  Created by Abigail Barnhardt on 8/24/25.
@@ -12,8 +12,8 @@ enum DatabaseError: Error {
     case connectionFailed
 }
 
-class DatabaseManager {
-    static let shared = DatabaseManager()
+class Database {
+    static let shared = Database()
     private let db: Connection
 
     // tables

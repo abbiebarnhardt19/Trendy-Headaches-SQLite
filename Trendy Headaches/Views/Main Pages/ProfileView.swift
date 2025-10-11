@@ -69,7 +69,7 @@ struct ProfileView: View {
             //delete confirmation
             .alert("Are you sure you want to delete your account?", isPresented: $showDeleteConfirmation) {
                 Button("Delete", role: .destructive) {
-                    DatabaseManager.shared.deleteUser(userID: userID)
+                    Database.shared.deleteUser(userID: userID)
                     logOut = true
                 }
                 Button("Cancel", role: .cancel) {}
@@ -80,7 +80,7 @@ struct ProfileView: View {
             }
             //get data on load
             .onAppear {
-                DatabaseManager.shared.loadData(userID: userID,  symptoms: &symptoms, triggers: &triggers,  prevMeds: &prevMeds, emergencyMeds: &emergencyMeds,  securityQuestion: &securityQuestion,  securityAnswer: &securityAnswer, newSecurityQuestion: &newSecurityQuestion, backgroundColor: &background, accentColor: &accent, newBackground: &newBackground, newAccent: &newAccent, themeName: &themeName,  newThemeName: &newThemeName)}
+                Database.shared.loadData(userID: userID,  symptoms: &symptoms, triggers: &triggers,  prevMeds: &prevMeds, emergencyMeds: &emergencyMeds,  securityQuestion: &securityQuestion,  securityAnswer: &securityAnswer, newSecurityQuestion: &newSecurityQuestion, backgroundColor: &background, accentColor: &accent, newBackground: &newBackground, newAccent: &newAccent, themeName: &themeName,  newThemeName: &newThemeName)}
         }
     }
     
@@ -98,20 +98,20 @@ struct ProfileView: View {
                 //symptom editable list
                 sectionTitle("Symptoms", width: columnWidth)
                 EditableList(items: $symptoms,  title: "Symptoms", backgroundColor: newBackground, accentColor: newAccent,
-                     onAdd: { newSymptom in DatabaseManager.shared.insertItem( table: DatabaseManager.shared.symptoms, userID: userID, nameColumn: DatabaseManager.shared.symptom_name, name: newSymptom, startColumn: DatabaseManager.shared.symptom_start, endColumn: DatabaseManager.shared.symptom_end)},
+                     onAdd: { newSymptom in Database.shared.insertItem( table: Database.shared.symptoms, userID: userID, nameColumn: Database.shared.symptom_name, name: newSymptom, startColumn: Database.shared.symptom_start, endColumn: Database.shared.symptom_end)},
                              
-                    onEdit: { oldValue, newValue in DatabaseManager.shared.updateItem( table: DatabaseManager.shared.symptoms, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: DatabaseManager.shared.symptom_name)},
+                    onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.symptoms, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: Database.shared.symptom_name)},
                              
-                    onDelete: { value in DatabaseManager.shared.endItem( table: DatabaseManager.shared.symptoms, userID: userID, name: value, nameColumn: DatabaseManager.shared.symptom_name, endColumn: DatabaseManager.shared.symptom_end)} )
+                    onDelete: { value in Database.shared.endItem( table: Database.shared.symptoms, userID: userID, name: value, nameColumn: Database.shared.symptom_name, endColumn: Database.shared.symptom_end)} )
                 
                 //prev meds editable list
                 sectionTitle("Preventative Medications", width: columnWidth)
                 EditableList(items: $prevMeds, title: "Preventative Medications", backgroundColor: newBackground, accentColor: newAccent,
-                     onAdd: { newPrevMed in DatabaseManager.shared.insertItem( table: DatabaseManager.shared.medications, userID: userID, nameColumn: DatabaseManager.shared.medication_name, name: newPrevMed, startColumn: DatabaseManager.shared.medication_start, endColumn: DatabaseManager.shared.medication_end, medicationCategory: "preventative" )},
+                     onAdd: { newPrevMed in Database.shared.insertItem( table: Database.shared.medications, userID: userID, nameColumn: Database.shared.medication_name, name: newPrevMed, startColumn: Database.shared.medication_start, endColumn: Database.shared.medication_end, medicationCategory: "preventative" )},
                              
-                    onEdit: { oldValue, newValue in DatabaseManager.shared.updateItem( table: DatabaseManager.shared.medications, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: DatabaseManager.shared.medication_name, medicationCategory: "preventative")},
+                    onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.medications, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: Database.shared.medication_name, medicationCategory: "preventative")},
                              
-                    onDelete: { value in DatabaseManager.shared.endItem( table: DatabaseManager.shared.medications, userID: userID, name: value, nameColumn: DatabaseManager.shared.medication_name, endColumn: DatabaseManager.shared.medication_end, medicationCategory: "preventative")})
+                    onDelete: { value in Database.shared.endItem( table: Database.shared.medications, userID: userID, name: value, nameColumn: Database.shared.medication_name, endColumn: Database.shared.medication_end, medicationCategory: "preventative")})
                 
                 //non-editable list fields
                 sectionTitle("Security Question", width: columnWidth)
@@ -147,20 +147,20 @@ struct ProfileView: View {
                 //triggers editable list
                 sectionTitle("Triggers", width: columnWidth)
                 EditableList(items: $triggers, title: "Triggers", backgroundColor: newBackground, accentColor: newAccent,
-                     onAdd: { newTrigger in DatabaseManager.shared.insertItem( table: DatabaseManager.shared.triggers, userID: userID, nameColumn: DatabaseManager.shared.trigger_name, name: newTrigger, startColumn: DatabaseManager.shared.trigger_start, endColumn: DatabaseManager.shared.trigger_end)},
+                     onAdd: { newTrigger in Database.shared.insertItem( table: Database.shared.triggers, userID: userID, nameColumn: Database.shared.trigger_name, name: newTrigger, startColumn: Database.shared.trigger_start, endColumn: Database.shared.trigger_end)},
                              
-                    onEdit: { oldValue, newValue in DatabaseManager.shared.updateItem( table: DatabaseManager.shared.triggers, userID: userID,  oldValue: oldValue, newValue: newValue, nameColumn: DatabaseManager.shared.trigger_name)},
+                    onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.triggers, userID: userID,  oldValue: oldValue, newValue: newValue, nameColumn: Database.shared.trigger_name)},
                              
-                    onDelete: { value in DatabaseManager.shared.endItem( table: DatabaseManager.shared.triggers, userID: userID, name: value, nameColumn: DatabaseManager.shared.trigger_name, endColumn: DatabaseManager.shared.trigger_end)} )
+                    onDelete: { value in Database.shared.endItem( table: Database.shared.triggers, userID: userID, name: value, nameColumn: Database.shared.trigger_name, endColumn: Database.shared.trigger_end)} )
                 
                 //emerg meds editable list
                 sectionTitle("Emergency Medications", width: columnWidth)
                 EditableList( items: $emergencyMeds, title: "Emergency Medications", backgroundColor: newBackground, accentColor: newAccent,
-                    onAdd: { newEmergencyMed in DatabaseManager.shared.insertItem( table: DatabaseManager.shared.medications, userID: userID, nameColumn: DatabaseManager.shared.medication_name, name: newEmergencyMed, startColumn: DatabaseManager.shared.medication_start, endColumn: DatabaseManager.shared.medication_end,  medicationCategory: "emergency")},
+                    onAdd: { newEmergencyMed in Database.shared.insertItem( table: Database.shared.medications, userID: userID, nameColumn: Database.shared.medication_name, name: newEmergencyMed, startColumn: Database.shared.medication_start, endColumn: Database.shared.medication_end,  medicationCategory: "emergency")},
                               
-                    onEdit: { oldValue, newValue in DatabaseManager.shared.updateItem( table: DatabaseManager.shared.medications, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: DatabaseManager.shared.medication_name, medicationCategory: "emergency")},
+                    onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.medications, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: Database.shared.medication_name, medicationCategory: "emergency")},
                               
-                    onDelete: { value in DatabaseManager.shared.endItem( table: DatabaseManager.shared.medications, userID: userID, name: value, nameColumn: DatabaseManager.shared.medication_name, endColumn: DatabaseManager.shared.medication_end, medicationCategory: "emergency")})
+                    onDelete: { value in Database.shared.endItem( table: Database.shared.medications, userID: userID, name: value, nameColumn: Database.shared.medication_name, endColumn: Database.shared.medication_end, medicationCategory: "emergency")})
                 
                 //non-edtiable list text field
                 sectionTitle("Security Answer", width: columnWidth)
@@ -200,25 +200,25 @@ struct ProfileView: View {
                 section(columnTitle: "Triggers", items: triggers, width: columnWidth)
                 section(columnTitle: "Emergency Meds", items: emergencyMeds, width: columnWidth)
                 section(columnTitle: "Color Theme", items: [themeName], width: columnWidth)
+                
+                //options button
+                HStack {
+                    Spacer()
+                    let buttonActions: [() -> Void] = [ { isEditing = true },  { showPolicy = true },  { logOut = true },  { showDeleteConfirmation = true } ]
+                    
+                    CustomFloatButton( accent: newAccent,  background: newBackground,  options: buttonNames, actions: buttonActions)
+                        .padding(.top, 20)
+                    .fullScreenCover(isPresented: $showPolicy) {
+                        PolicySheetView(policyFileName: "DataPolicy", showsAgreeButton: false)
+                    }
+                    .padding(.trailing, 10)
+                }
             }
             .frame(maxWidth: columnWidth)
         }
-        
-        // Floating Button
-        HStack {
-            Spacer()
-            let buttonActions: [() -> Void] = [ { isEditing = true },  { showPolicy = true },  { logOut = true },  { showDeleteConfirmation = true } ]
-            
-            CustomFloatButton( accent: newAccent,  background: newBackground,  options: buttonNames, actions: buttonActions)
-            .fullScreenCover(isPresented: $showPolicy) {
-                PolicySheetView(policyFileName: "DataPolicy", showsAgreeButton: false)
-            }
-            .padding(.trailing, 10)
-        }
-        .frame(width: columnWidth * 2)
     }
     
-    // Helpers
+    //Break repetive code into reusable sections
     private func sectionTitle(_ title: String, width: CGFloat) -> some View {
         CustomText(text: title, color: newAccent, width: width - 15, textAlignment: .center, multilineAlignment: .center, isBold: true)
     }
@@ -232,24 +232,24 @@ struct ProfileView: View {
     
     private func saveProfileChanges() {
         if securityQuestion != newSecurityQuestion {
-            DatabaseManager.shared.updateUser(userID: userID, newValue: newSecurityQuestion, column: "security_question")
+            Database.shared.updateUser(userID: userID, newValue: newSecurityQuestion, column: "security_question")
         }
         
-        let normalizedSecurityAnswer = DatabaseManager.normalizedValue(newSecurityAnswer)
-        let hashedSecurityAnswer = DatabaseManager.hashString(normalizedSecurityAnswer)
+        let normalizedSecurityAnswer = Database.normalizedValue(newSecurityAnswer)
+        let hashedSecurityAnswer = Database.hashString(normalizedSecurityAnswer)
         if hashedSecurityAnswer != securityAnswer {
-            DatabaseManager.shared.updateUser(userID: userID, newValue: hashedSecurityAnswer, column: "security_answer")
+            Database.shared.updateUser(userID: userID, newValue: hashedSecurityAnswer, column: "security_answer")
         }
         
         if background != newBackground {
-            DatabaseManager.shared.updateUser(userID: userID, newValue: newBackground, column: "background_color")
+            Database.shared.updateUser(userID: userID, newValue: newBackground, column: "background_color")
             background = newBackground
-            themeName = DatabaseManager.getThemeName(selected_background: newBackground, selected_accent: newAccent)
+            themeName = Database.getThemeName(selected_background: newBackground, selected_accent: newAccent)
             newThemeName = themeName.contains("Custom") ? "Custom" : themeName
         }
         
         if accent != newAccent {
-            DatabaseManager.shared.updateUser(userID: userID, newValue: newAccent, column: "accent_color")
+            Database.shared.updateUser(userID: userID, newValue: newAccent, column: "accent_color")
             accent = newAccent
         }
         isEditing = false

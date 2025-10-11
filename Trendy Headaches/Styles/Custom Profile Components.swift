@@ -183,6 +183,5 @@ struct CustomFloatButton: View {
                 .offset(x: xList[index], y: yList[index])
             }
         }
-        .frame(height: 200)
     }
 }

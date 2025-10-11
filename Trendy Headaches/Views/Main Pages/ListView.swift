@@ -55,7 +55,7 @@ struct ListView: View {
     
     //call this when any filter values change
     func filterLogs() {
-        let allLogs = DatabaseManager.shared.getLogList(userID: userID)
+        let allLogs = Database.shared.getLogList(userID: userID)
         logList = allLogs.filter { log in
             guard logTypeFilter.contains(log.log_type) else { return false }
             
@@ -147,7 +147,7 @@ struct ListView: View {
         }
         //load in user logs
         .onAppear{
-            logList = DatabaseManager.shared.getLogList(userID: userID)
+            logList = Database.shared.getLogList(userID: userID)
             
             if let earliest = logList.map({ $0.date }).min() {
                 startDate = earliest

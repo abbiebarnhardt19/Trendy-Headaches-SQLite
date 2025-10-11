@@ -52,7 +52,7 @@ struct LoginView: SwiftUI.View {
                     
                     // Login Button
                     CustomButton(text: "Log In", background: background, accent: accent) {
-                        let result = DatabaseManager.shared.attemptLogin(email: email, password: password)
+                        let result = Database.shared.attemptLogin(email: email, password: password)
                         userId = result.userId
                         loginError = result.error
                         isLoggedIn = userId != nil
@@ -68,7 +68,7 @@ struct LoginView: SwiftUI.View {
                     }
                 }
                 .padding(.horizontal)
-                .onAppear { _ = DatabaseManager.shared }
+                .onAppear { _ = Database.shared }
                 
                 //  Navigation
                 .navigationDestination(isPresented: $isLoggedIn) {

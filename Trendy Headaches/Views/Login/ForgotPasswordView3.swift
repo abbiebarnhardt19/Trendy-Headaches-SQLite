@@ -27,7 +27,7 @@ struct ForgotPasswordView3: View {
     private var passwordResetValid: Bool {
         passwordOne == passwordTwo &&
         passwordOne != currentPassword &&
-        DatabaseManager.isPasswordValid(passwordOne)
+        Database.isPasswordValid(passwordOne)
     }
 
     var body: some View {
@@ -57,10 +57,10 @@ struct ForgotPasswordView3: View {
                                 
                                 // Password warnings
                                 if !passwordOne.isEmpty {
-                                    if !DatabaseManager.isPasswordValid(passwordOne) {
+                                    if !Database.isPasswordValid(passwordOne) {
                                         CustomWarningText(text: "8+ chars: uppercase, lowercase, number, & symbol.")
                                             .padding(.bottom, 5)
-                                    } else if DatabaseManager.hashString(passwordOne) == currentPassword {
+                                    } else if Database.hashString(passwordOne) == currentPassword {
                                         CustomWarningText(text: "New password must differ from previous password.")
                                             .padding(.bottom, 5)
                                     } else {
@@ -93,7 +93,7 @@ struct ForgotPasswordView3: View {
 
                             // Reset Button
                             CustomButton(text: "Reset Password",  background: background, accent: accent, height: 50, width: 200) {
-                                isPasswordUpdated = DatabaseManager.resetPassword(forEmail: enteredEmail, newPassword: passwordOne)
+                                isPasswordUpdated = Database.resetPassword(forEmail: enteredEmail, newPassword: passwordOne)
                             }
                             .padding(.bottom, 120)
                             .disabled(!passwordResetValid)
@@ -104,8 +104,8 @@ struct ForgotPasswordView3: View {
                         }
                     }
                     .onAppear {
-                        if let currentUser = DatabaseManager.shared.getUserFromEmail(email: enteredEmail) {
-                            currentPassword = DatabaseManager.shared.getSingleColumnValue(
+                        if let currentUser = Database.shared.getUserFromEmail(email: enteredEmail) {
+                            currentPassword = Database.shared.getSingleColumnValue(
                                 userId: currentUser,
                                 columnName: "password"
                             ) ?? ""

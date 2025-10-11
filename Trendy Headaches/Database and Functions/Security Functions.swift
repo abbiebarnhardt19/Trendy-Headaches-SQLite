@@ -8,7 +8,7 @@ import SQLite
 import Foundation
 import CryptoKit
 
-extension DatabaseManager {
+extension Database {
     
     //hashing function
     static func hashString(_ input: String) -> String {

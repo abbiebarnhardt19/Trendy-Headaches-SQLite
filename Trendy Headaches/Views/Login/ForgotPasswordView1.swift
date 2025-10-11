@@ -36,7 +36,7 @@ struct ForgotPasswordView1: View {
                             emailCheckTask = Task {
                                 try? await Task.sleep(nanoseconds: 500_000_000)
                                 if !Task.isCancelled {
-                                    emailExists = DatabaseManager.doesEmailExist(email)
+                                    emailExists = Database.doesEmailExist(email)
                                 }
                             }
                         }
@@ -49,7 +49,7 @@ struct ForgotPasswordView1: View {
                     }
                     
                     // Continue button
-                    CustomNavButton( label: "Continue", destination: ForgotPasswordView2(enteredEmail: DatabaseManager.normalizedValue(email)), background: background, accent: accent,  width: screenWidth / 2 - 20)
+                    CustomNavButton( label: "Continue", destination: ForgotPasswordView2(enteredEmail: Database.normalizedValue(email)), background: background, accent: accent,  width: screenWidth / 2 - 20)
                     .disabled(!(emailExists ?? false))
                     .opacity((emailExists ?? false) ? 1.0 : 0.5)
                 }

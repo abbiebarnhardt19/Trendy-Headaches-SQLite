@@ -274,7 +274,7 @@ struct ScrollableLogTable: View {
         }
         .alert("Delete Log?", isPresented: $showDeleteAlert, presenting: logToDelete) { log in
             Button("Delete", role: .destructive) {
-                DatabaseManager.shared.deleteLog(logID: log.log_id, table: log.log_type)
+                Database.shared.deleteLog(logID: log.log_id, table: log.log_type)
                 deleteCount += 1
             }
             Button("Cancel", role: .cancel) {}

@@ -93,7 +93,7 @@ struct EmergencyMedPopup: View {
         let screenWidth = UIScreen.main.bounds.width
         let yesNoOptions = ["Yes", "No"]
 
-        guard let logDetails = DatabaseManager.shared.getLogDetails(logID: oldLogID) else {
+        guard let logDetails = Database.shared.getLogDetails(logID: oldLogID) else {
             return AnyView(Text("Log not found"))
         }
         
@@ -150,7 +150,7 @@ struct EmergencyMedPopup: View {
                     CustomButton(text: "Update Log", background: accent, accent: background, height: 40, width: 150, isBold: true, textSize: 16,
                                  action: {
                                     if let answer = selectedAnswer {
-                                        DatabaseManager.shared.updateMedEffective(logID: oldLogID, medEffectiveValue: answer )}
+                                        Database.shared.updateMedEffective(logID: oldLogID, medEffectiveValue: answer )}
                                     isPresented = false})
                     .disabled(selectedAnswer == nil)
                     .opacity(selectedAnswer == nil ? 0.5 : 1)

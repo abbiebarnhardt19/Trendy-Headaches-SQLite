@@ -133,7 +133,7 @@ struct LogView: View {
         }
         .onAppear {
             setupData()
-            let results = DatabaseManager.shared.emergencyMedPopup(userID: userID)
+            let results = Database.shared.emergencyMedPopup(userID: userID)
             if !results.isEmpty {
                 oldLogIDs = results
                 showEmergencyPopup = true
@@ -212,13 +212,13 @@ struct LogView: View {
                         }
                         else{
                              if medTakenName != nil && medTakenName != ""{
-                                emergencyMedID = DatabaseManager.shared.getIDFromName(tableName: "medications", names: [medTakenName ?? ""], userID: userID).first
+                                emergencyMedID = Database.shared.getIDFromName(tableName: "medications", names: [medTakenName ?? ""], userID: userID).first
                             }
                             else{
                                 emergencyMedID=nil
                             }
                             
-                            DatabaseManager.shared.updateSymptomLog(logID: existingLogID ?? 0, userID: userID, date: date, onsetTime: onset, severity: severity, symptomID: symptomID, medTaken: medTaken, medicationID: emergencyMedID, medWorked: medEffective, symptomDescription: symptomDesc, notes: notes, triggerIDs: triggerIDs)
+                            Database.shared.updateSymptomLog(logID: existingLogID ?? 0, userID: userID, date: date, onsetTime: onset, severity: severity, symptomID: symptomID, medTaken: medTaken, medicationID: emergencyMedID, medWorked: medEffective, symptomDescription: symptomDesc, notes: notes, triggerIDs: triggerIDs)
                         }// call your function first
                         goToListView = true  // then trigger navigation
                     }
@@ -266,7 +266,7 @@ struct LogView: View {
                         submitSideEffectLog()
                     }
                     else{
-                        DatabaseManager.shared.updateSideEffectLog(logID: existingLogID ?? 0, userID: userID, date: date, sideEffectName: sideEffectName, sideEffectSeverity: sideEffectSeverity, medicationID: medicationID)
+                        Database.shared.updateSideEffectLog(logID: existingLogID ?? 0, userID: userID, date: date, sideEffectName: sideEffectName, sideEffectSeverity: sideEffectSeverity, medicationID: medicationID)
                     }// call your function first
                     goToListView = true  // then trigger navigation
                 }
@@ -309,14 +309,14 @@ struct LogView: View {
         sideEffectDate = formatter.string(from: Date())
         
         //get data from database
-        symptomOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
-        triggerOptions = DatabaseManager.deleteListDuplicates(list: DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name"))
-        medicationOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name")
+        symptomOptions = Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
+        triggerOptions = Database.deleteListDuplicates(list: Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name"))
+        medicationOptions = Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name")
         
-        emergencyMedOptions = DatabaseManager.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name", filterColumn: "medication_category", filterValue: "emergency")
+        emergencyMedOptions = Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name", filterColumn: "medication_category", filterValue: "emergency")
         
         if let existingLogID = existingLogID {
-            if let log = DatabaseManager.shared.getUnifiedLog(by: existingLogID, logType: existingLogTable ?? "") {
+            if let log = Database.shared.getUnifiedLog(by: existingLogID, logType: existingLogTable ?? "") {
                 
                 if log.log_type == "Symptom" {
                     severity = log.severity
@@ -355,31 +355,31 @@ struct LogView: View {
     //function to add the log to the database
     private func submitSymptomLog(){
             //get the symptoms and triggers from the names
-            symptomID = DatabaseManager.shared.getIDFromName(tableName: "symptoms", names: [symptom ?? ""], userID: userID).first ?? 0
+            symptomID = Database.shared.getIDFromName(tableName: "symptoms", names: [symptom ?? ""], userID: userID).first ?? 0
             
-            triggerIDs = DatabaseManager.shared.getIDFromName(tableName: "triggers", names: selectedTriggers, userID: userID)
+            triggerIDs = Database.shared.getIDFromName(tableName: "triggers", names: selectedTriggers, userID: userID)
             
         if medTakenName != ""{
-            emergencyMedID = DatabaseManager.shared.getIDFromName(tableName: "medications", names: [medTakenName ?? ""], userID: userID).first
+            emergencyMedID = Database.shared.getIDFromName(tableName: "medications", names: [medTakenName ?? ""], userID: userID).first
         }
             
             //convert the date from string format
             let enteredDate = formatter.date(from: stringDate) ?? Date()
             
             //add log to database
-            logID = DatabaseManager.shared.createLog(userID: userID,  date: enteredDate, symptom_onset: onset ?? "", symptom: symptomID, severity: severity, med_taken: medTaken, med_taken_id: emergencyMedID, symptom_desc: symptomDesc, notes: notes, submit: Date(), triggerIDs: triggerIDs) ?? 0
+            logID = Database.shared.createLog(userID: userID,  date: enteredDate, symptom_onset: onset ?? "", symptom: symptomID, severity: severity, med_taken: medTaken, med_taken_id: emergencyMedID, symptom_desc: symptomDesc, notes: notes, submit: Date(), triggerIDs: triggerIDs) ?? 0
     }
     
     //function to add the side effect to the database
     private func submitSideEffectLog() {
         //get the medication ID from the name
-        medicationID = DatabaseManager.shared.getIDFromName(tableName: "medications", names: [selectedMedication ?? ""], userID: userID).first ?? 0
+        medicationID = Database.shared.getIDFromName(tableName: "medications", names: [selectedMedication ?? ""], userID: userID).first ?? 0
        
         //convert the date from a string
         let enteredDate = formatter.date(from: sideEffectDate) ?? Date()
         
         //add it to the database
-        logID = DatabaseManager.shared.createSideEffectLog(userID: userID, date: enteredDate, submit_time: Date(), side_effect: sideEffectName, side_effect_severity: sideEffectSeverity, medication_id: medicationID) ?? 0 
+        logID = Database.shared.createSideEffectLog(userID: userID, date: enteredDate, submit_time: Date(), side_effect: sideEffectName, side_effect_severity: sideEffectSeverity, medication_id: medicationID) ?? 0 
     }
 }
 

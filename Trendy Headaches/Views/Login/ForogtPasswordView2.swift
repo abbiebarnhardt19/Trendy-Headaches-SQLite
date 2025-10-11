@@ -26,10 +26,10 @@ struct ForgotPasswordView2: View {
     // MARK: - Validation
     private var isCorrectAnswer: Bool {
         guard !enteredAnswer.isEmpty else { return false }
-        let normalizedInput = DatabaseManager.normalizedValue(
+        let normalizedInput = Database.normalizedValue(
             enteredAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
         )
-        return DatabaseManager.hashString(normalizedInput) == securityAnswerHash
+        return Database.hashString(normalizedInput) == securityAnswerHash
     }
 
     var body: some View {
@@ -72,12 +72,12 @@ struct ForgotPasswordView2: View {
                     }
                 }
                 .onAppear {
-                    userID = DatabaseManager.shared.getUserFromEmail(email: enteredEmail)
-                    securityQuestion = DatabaseManager.shared.getSingleColumnValue(
+                    userID = Database.shared.getUserFromEmail(email: enteredEmail)
+                    securityQuestion = Database.shared.getSingleColumnValue(
                         userId: userID ?? -1,
                         columnName: "security_question"
                     ) ?? ""
-                    securityAnswerHash = DatabaseManager.shared.getSingleColumnValue(
+                    securityAnswerHash = Database.shared.getSingleColumnValue(
                         userId: userID ?? -1,
                         columnName: "security_answer"
                     ) ?? ""

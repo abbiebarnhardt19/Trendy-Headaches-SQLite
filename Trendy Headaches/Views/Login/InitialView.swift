@@ -37,7 +37,7 @@ struct InitialView: View {
             }
             // Launch database
             .onAppear {
-                _ = DatabaseManager.shared // Ensures database is initialized
+                _ = Database.shared 
             }
 
             //  Modals & Navigation

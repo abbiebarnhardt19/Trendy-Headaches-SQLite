@@ -9,35 +9,35 @@ import SQLite
 import Foundation
 import CryptoKit
 
-extension DatabaseManager {
+extension Database {
     
     //create log function
     func createLog(userID: Int64,  date: Date, symptom_onset: String?, symptom: Int64,  severity: Int64, med_taken: Bool, med_taken_id: Int64?,  symptom_desc: String,  notes: String,  submit: Date, triggerIDs: [Int64] = []) -> Int64? {
         
         do {
             // Insert log row
-            let insert = DatabaseManager.shared.logs.insert( DatabaseManager.shared.user_id <- userID,
-                DatabaseManager.shared.date <- date,
-                DatabaseManager.shared.onset_time <- symptom_onset,
-                DatabaseManager.shared.severity <- severity,
-                DatabaseManager.shared.symptom_id <- symptom,
-                DatabaseManager.shared.med_taken <- med_taken,
-                DatabaseManager.shared.log_medication_id <- med_taken_id,
-                DatabaseManager.shared.med_worked <- nil,
-                DatabaseManager.shared.symptom_description <- symptom_desc,
-                DatabaseManager.shared.notes <- notes,
-                DatabaseManager.shared.submit_time <- submit)
+            let insert = Database.shared.logs.insert( Database.shared.user_id <- userID,
+                Database.shared.date <- date,
+                Database.shared.onset_time <- symptom_onset,
+                Database.shared.severity <- severity,
+                Database.shared.symptom_id <- symptom,
+                Database.shared.med_taken <- med_taken,
+                Database.shared.log_medication_id <- med_taken_id,
+                Database.shared.med_worked <- nil,
+                Database.shared.symptom_description <- symptom_desc,
+                Database.shared.notes <- notes,
+                Database.shared.submit_time <- submit)
             
             // Execute insert
-            let logID = try DatabaseManager.shared.run(insert)
+            let logID = try Database.shared.run(insert)
             
             // If triggers were passed in, associate them in the junction table
             for trigID in triggerIDs {
-                let linkInsert = DatabaseManager.shared.log_triggers.insert(
-                    DatabaseManager.shared.lt_log_id <- logID,
-                    DatabaseManager.shared.lt_trigger_id <- trigID)
+                let linkInsert = Database.shared.log_triggers.insert(
+                    Database.shared.lt_log_id <- logID,
+                    Database.shared.lt_trigger_id <- trigID)
                
-                _ = try DatabaseManager.shared.run(linkInsert)
+                _ = try Database.shared.run(linkInsert)
             }
             return logID
         } catch {
@@ -49,16 +49,16 @@ extension DatabaseManager {
     //crerate a side effect log
     func createSideEffectLog(userID: Int64, date: Date,  submit_time:Date, side_effect: String, side_effect_severity: Int64, medication_id: Int64 ) -> Int64? {
             do {
-                let insert = DatabaseManager.shared.side_effects.insert(
-                    DatabaseManager.shared.user_id <- userID,
-                    DatabaseManager.shared.side_effect_date <- date,
-                    DatabaseManager.shared.side_effect_submit_time <- submit_time,
-                    DatabaseManager.shared.side_effect_name <- side_effect,
-                    DatabaseManager.shared.side_effect_severity <- side_effect_severity,
-                    DatabaseManager.shared.side_effect_medication_id <- medication_id)
+                let insert = Database.shared.side_effects.insert(
+                    Database.shared.user_id <- userID,
+                    Database.shared.side_effect_date <- date,
+                    Database.shared.side_effect_submit_time <- submit_time,
+                    Database.shared.side_effect_name <- side_effect,
+                    Database.shared.side_effect_severity <- side_effect_severity,
+                    Database.shared.side_effect_medication_id <- medication_id)
                 
                 // Execute insert
-                let logID = try DatabaseManager.shared.run(insert)
+                let logID = try Database.shared.run(insert)
                 return logID
             } catch {
                 print("Failed to create log: \(error)")
@@ -71,17 +71,17 @@ extension DatabaseManager {
         var results: [Int64] = []
         
         do {
-            let logs = DatabaseManager.shared.logs
+            let logs = Database.shared.logs
             
             let query = logs
-                .filter(DatabaseManager.shared.user_id == userID)
-                .filter(DatabaseManager.shared.med_taken == true)
-                .filter(DatabaseManager.shared.med_worked == nil)
+                .filter(Database.shared.user_id == userID)
+                .filter(Database.shared.med_taken == true)
+                .filter(Database.shared.med_worked == nil)
             
-            let rows = try DatabaseManager.shared.prepare(query)
+            let rows = try Database.shared.prepare(query)
             
             for row in rows {
-                let logID = row[DatabaseManager.shared.log_id] // Get just the log ID
+                let logID = row[Database.shared.log_id] // Get just the log ID
                 results.append(logID)
             }
         } catch {
@@ -206,32 +206,32 @@ extension DatabaseManager {
     //get the details of the log for the popup
     func getLogDetails(logID: Int64) -> (userID: Int64, date: Date, symptomName: String, symptomID: Int64, emergencyMedID: Int64?, emergencyMedName: String)? {
         do {
-            let logs = DatabaseManager.shared.logs
-            let symptoms = DatabaseManager.shared.symptoms
-            let medications = DatabaseManager.shared.medications
+            let logs = Database.shared.logs
+            let symptoms = Database.shared.symptoms
+            let medications = Database.shared.medications
             
             // Get the log row for the given logID
-            let logQuery = logs.filter(DatabaseManager.shared.log_id == logID)
-            if let logRow = try DatabaseManager.shared.pluck(logQuery) {
+            let logQuery = logs.filter(Database.shared.log_id == logID)
+            if let logRow = try Database.shared.pluck(logQuery) {
                 
                 // Extract base log info
-                let userID = logRow[DatabaseManager.shared.user_id]
-                let date = logRow[DatabaseManager.shared.date]
-                let symptomID = logRow[DatabaseManager.shared.symptom_id]
-                let emergencyMedID = logRow[DatabaseManager.shared.log_medication_id]
+                let userID = logRow[Database.shared.user_id]
+                let date = logRow[Database.shared.date]
+                let symptomID = logRow[Database.shared.symptom_id]
+                let emergencyMedID = logRow[Database.shared.log_medication_id]
                
                 // Get symptom name
                 var symptomName = ""
-                let symptomQuery = symptoms.filter(DatabaseManager.shared.symptom_id == symptomID)
-                if let symptomRow = try DatabaseManager.shared.pluck(symptomQuery) {
-                    symptomName = symptomRow[DatabaseManager.shared.symptom_name]
+                let symptomQuery = symptoms.filter(Database.shared.symptom_id == symptomID)
+                if let symptomRow = try Database.shared.pluck(symptomQuery) {
+                    symptomName = symptomRow[Database.shared.symptom_name]
                 }
                 // Get medication name
                 var emergencyMedName = ""
                 if let medID = emergencyMedID {
-                    let medQuery = medications.filter(DatabaseManager.shared.medication_id == medID)
-                    if let medRow = try DatabaseManager.shared.pluck(medQuery) {
-                        emergencyMedName = medRow[DatabaseManager.shared.medication_name]
+                    let medQuery = medications.filter(Database.shared.medication_id == medID)
+                    if let medRow = try Database.shared.pluck(medQuery) {
+                        emergencyMedName = medRow[Database.shared.medication_name]
                     }
                 }
                 return (userID, date, symptomName, symptomID, emergencyMedID, emergencyMedName)
@@ -255,7 +255,7 @@ extension DatabaseManager {
         for name in names {
             let query = table.filter(userColumn == userID && nameColumn == name)
             do {
-                if let row = try DatabaseManager.shared.pluck(query) {
+                if let row = try Database.shared.pluck(query) {
                     ids.append(row[idColumn])
                 } else {
                     print("No row found for '\(name)'")

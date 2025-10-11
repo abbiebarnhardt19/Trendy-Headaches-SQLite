@@ -7,7 +7,7 @@
 
 import SQLite
 
-extension DatabaseManager {
+extension Database {
     
     // get a single column value using userID
     func getSingleColumnValue(userId: Int64, columnName: String) -> String? {

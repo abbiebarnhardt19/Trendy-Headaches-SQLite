@@ -8,7 +8,7 @@
 import SQLite
 import Foundation
 
-extension DatabaseManager {
+extension Database {
     
     //get all the logs for a user and sort them
     func getLogList(userID: Int64) -> [UnifiedLog] {

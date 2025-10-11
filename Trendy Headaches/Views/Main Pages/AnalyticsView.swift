@@ -71,7 +71,7 @@ struct AnalyticsView: View {
                 .ignoresSafeArea(edges: .bottom)
                 .zIndex(10)
                 .onAppear{
-                    logs = DatabaseManager.shared.getLogList(userID: userID)
+                    logs = Database.shared.getLogList(userID: userID)
                     var mapping: [String: String] = [:]
                     for (index, symptom) in Set(logs.compactMap { $0.symptom_name }).sorted().enumerated() {
                         mapping[symptom] = availableIcons[index % availableIcons.count]

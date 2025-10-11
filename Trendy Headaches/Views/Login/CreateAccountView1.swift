@@ -25,7 +25,7 @@ struct CreateAccountView: View {
         !security_question.isEmpty &&
         !security_answer.isEmpty &&
         password_one == password_two &&
-        DatabaseManager.isPasswordValid(password_one) &&
+        Database.isPasswordValid(password_one) &&
         emailAvailable
     }
     
@@ -81,7 +81,7 @@ private extension CreateAccountView {
             fieldLabel("Password")
             CustomTextField(background: background, accent: accent, placeholder: "", text: $password_one, isSecure: true)
             
-            if !DatabaseManager.isPasswordValid(password_one) && !password_one.isEmpty {
+            if !Database.isPasswordValid(password_one) && !password_one.isEmpty {
                 CustomWarningText(text: "8+ chars: uppercase, lowercase, number, & symbol")
             } else {
                 CustomWarningText(text: "      ")
@@ -134,7 +134,7 @@ private extension CreateAccountView {
         emailCheckTask = Task {
             try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 sec delay
             if !Task.isCancelled {
-                emailAvailable = !DatabaseManager.doesEmailExist(email)
+                emailAvailable = !Database.doesEmailExist(email)
             }
         }
     }

@@ -484,7 +484,7 @@ struct CustomDropdown: View {
             .foregroundColor(Color(hex: background))
         }
         .onChange(of: color_theme) {
-            let colors = DatabaseManager.getThemeColors(theme: color_theme, currentBackground: background, currentAccent: accent)
+            let colors = Database.getThemeColors(theme: color_theme, currentBackground: background, currentAccent: accent)
             background = colors.background
             accent = colors.accent
         }

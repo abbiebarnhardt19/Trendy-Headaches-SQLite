@@ -78,7 +78,7 @@ struct CreateAccountView3: View {
     
     private func createAccount() {
         do {
-            try DatabaseManager.createUser(email: email, password: passwordOne,  securityQuestion: currentSecurityQuestion,  securityAnswer: currentSecurityAnswer,  background: background, accent: accent, symptoms: symptoms, preventativeMeds: preventativeMeds, emergencyMeds: emergencyMeds, triggers: triggers)
+            try Database.createUser(email: email, password: passwordOne,  securityQuestion: currentSecurityQuestion,  securityAnswer: currentSecurityAnswer,  background: background, accent: accent, symptoms: symptoms, preventativeMeds: preventativeMeds, emergencyMeds: emergencyMeds, triggers: triggers)
             errorMessage = ""
             accountCreated = true
         } catch {
