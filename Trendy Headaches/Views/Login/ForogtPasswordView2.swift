@@ -26,7 +26,7 @@ struct ForgotPasswordView2: View {
     // MARK: - Validation
     private var isCorrectAnswer: Bool {
         guard !enteredAnswer.isEmpty else { return false }
-        let normalizedInput = Database.normalizedValue(
+        let normalizedInput = Database.normalize(
             enteredAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
         )
         return Database.hashString(normalizedInput) == securityAnswerHash
@@ -43,7 +43,7 @@ struct ForgotPasswordView2: View {
                             
                             //  Header
                             HStack {
-                                CustomText(text: "Please answer your security question", color: accent,  width: screenWidth / 2, textAlignment: .leading, multilineAlignment: .leading, textSize: 50)
+                                CustomText(text: "Please answer your security question", color: accent,  width: screenWidth / 2, textAlign: .leading, multiAlign: .leading, textSize: 50)
                                 .padding(.leading, leadingPadding)
                                 Spacer()
                             }
@@ -54,7 +54,7 @@ struct ForgotPasswordView2: View {
                                 .padding(.top, 30)
 
                             // Answer Field
-                            CustomTextField( background: background, accent: accent,  placeholder: "", text: $enteredAnswer, isSecure: true)
+                            CustomTextField( bg: background, accent: accent,  placeholder: "", text: $enteredAnswer, secure: true)
                                 .padding(.leading, leadingPadding-10)
                             .disableAutocorrection(true)
 
@@ -66,7 +66,7 @@ struct ForgotPasswordView2: View {
                             }
 
                             //  Continue Button
-                            CustomNavButton( label: "Continue", destination: ForgotPasswordView3(enteredEmail: enteredEmail),  background: background,accent: accent )
+                            CustomNavButton( label: "Continue", dest: ForgotPasswordView3(enteredEmail: enteredEmail),  bg: background, accent: accent )
                             .disabled(!isCorrectAnswer)
                         }
                     }

@@ -10,30 +10,30 @@ import SwiftUI
 struct ProfileView: View {
     // Passed-in Values
     var userID: Int64
-    @Binding var background: String
+    @Binding var bg: String
     @Binding var accent: String
     
     //  UI State
     @State private var isEditing = false
     @State private var logOut = false
     @State private var showPolicy = false
-    @State private var showDeleteConfirmation = false
+    @State private var showDelete = false
     
     //  User Data
-    @State private var symptoms: [String] = []
-    @State private var triggers: [String] = []
+    @State private var symps: [String] = []
+    @State private var triggs: [String] = []
     @State private var prevMeds: [String] = []
-    @State private var emergencyMeds: [String] = []
-    @State private var securityQuestion = ""
-    @State private var securityAnswer = ""
+    @State private var emergMeds: [String] = []
+    @State private var sQ = ""
+    @State private var sA = ""
     @State private var themeName = ""
     
     //  Editable Values
-    @State private var newSecurityQuestion = ""
-    @State private var newSecurityAnswer = ""
-    @State private var newThemeName = ""
-    @State private var newBackground = ""
-    @State private var newAccent = ""
+    @State private var newSQ = ""
+    @State private var newSA = ""
+    @State private var newTN = ""
+    @State private var newBG = ""
+    @State private var newAcc = ""
     
     //  Constants
     private let themeOptions = ["Classic Light", "Light Pink", "Light Yellow", "Classic Dark",  "Dark Green", "Dark Blue", "Dark Purple", "Custom"]
@@ -44,7 +44,7 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                ProfileBGComps(background: newBackground, accent: newAccent)
+                ProfileBGComps(background: newBG, accent: newAcc)
                 
                 // Content
                 ScrollView {
@@ -61,13 +61,13 @@ struct ProfileView: View {
                 // Bottom Nav Bar
                 VStack {
                     Spacer()
-                    NavBarView(userID: userID, background: $newBackground, accent: $newAccent, selectedIndex: .constant(3))
+                    NavBarView(userID: userID, bg: $newBG, accent: $newAcc, selected: .constant(3))
                 }
                 .ignoresSafeArea(edges: .bottom)
                 .zIndex(1)
             }
             //delete confirmation
-            .alert("Are you sure you want to delete your account?", isPresented: $showDeleteConfirmation) {
+            .alert("Are you sure you want to delete your account?", isPresented: $showDelete) {
                 Button("Delete", role: .destructive) {
                     Database.shared.deleteUser(userID: userID)
                     logOut = true
@@ -80,24 +80,24 @@ struct ProfileView: View {
             }
             //get data on load
             .onAppear {
-                Database.shared.loadData(userID: userID,  symptoms: &symptoms, triggers: &triggers,  prevMeds: &prevMeds, emergencyMeds: &emergencyMeds,  securityQuestion: &securityQuestion,  securityAnswer: &securityAnswer, newSecurityQuestion: &newSecurityQuestion, backgroundColor: &background, accentColor: &accent, newBackground: &newBackground, newAccent: &newAccent, themeName: &themeName,  newThemeName: &newThemeName)}
+                Database.shared.loadData(userID: userID,  symptoms: &symps, triggers: &triggs,  prevMeds: &prevMeds, emergencyMeds: &emergMeds,  securityQuestion: &sQ,  securityAnswer: &sA, newSecurityQuestion: &newSQ, backgroundColor: &bg, accentColor: &accent, newBackground: &newBG, newAccent: &newAcc, themeName: &themeName,  newThemeName: &newTN)}
         }
     }
     
     // Editing View
     @ViewBuilder
     private func editingView() -> some View {
-        let columnWidth = screenWidth / 2
+        let colWidth = screenWidth / 2
         
-        CustomText(text: "User Profile", color: newAccent, textAlignment: .center, textSize: 45)
+        CustomText(text: "User Profile", color: newAcc, textAlign: .center, textSize: 45)
             .padding(.top, 30)
             .padding(.bottom, 10)
         
         HStack(alignment: .top) {
             VStack(alignment: .center) {
                 //symptom editable list
-                sectionTitle("Symptoms", width: columnWidth)
-                EditableList(items: $symptoms,  title: "Symptoms", backgroundColor: newBackground, accentColor: newAccent,
+                sectionTitle("Symptoms", width: colWidth)
+                EditableList(items: $symps,  title: "Symptoms", backgroundColor: newBG, accentColor: newAcc,
                      onAdd: { newSymptom in Database.shared.insertItem( table: Database.shared.symptoms, userID: userID, nameColumn: Database.shared.symptom_name, name: newSymptom, startColumn: Database.shared.symptom_start, endColumn: Database.shared.symptom_end)},
                              
                     onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.symptoms, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: Database.shared.symptom_name)},
@@ -105,8 +105,8 @@ struct ProfileView: View {
                     onDelete: { value in Database.shared.endItem( table: Database.shared.symptoms, userID: userID, name: value, nameColumn: Database.shared.symptom_name, endColumn: Database.shared.symptom_end)} )
                 
                 //prev meds editable list
-                sectionTitle("Preventative Medications", width: columnWidth)
-                EditableList(items: $prevMeds, title: "Preventative Medications", backgroundColor: newBackground, accentColor: newAccent,
+                sectionTitle("Preventative Medications", width: colWidth)
+                EditableList(items: $prevMeds, title: "Preventative Medications", backgroundColor: newBG, accentColor: newAcc,
                      onAdd: { newPrevMed in Database.shared.insertItem( table: Database.shared.medications, userID: userID, nameColumn: Database.shared.medication_name, name: newPrevMed, startColumn: Database.shared.medication_start, endColumn: Database.shared.medication_end, medicationCategory: "preventative" )},
                              
                     onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.medications, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: Database.shared.medication_name, medicationCategory: "preventative")},
@@ -114,39 +114,39 @@ struct ProfileView: View {
                     onDelete: { value in Database.shared.endItem( table: Database.shared.medications, userID: userID, name: value, nameColumn: Database.shared.medication_name, endColumn: Database.shared.medication_end, medicationCategory: "preventative")})
                 
                 //non-editable list fields
-                sectionTitle("Security Question", width: columnWidth)
-                CustomTextField(background: newBackground, accent: newAccent, placeholder: "",  text: $newSecurityQuestion,  width: columnWidth - 15, height: 50, cornerRadius: 8, textSize: 20,  isMultiline: true)
+                sectionTitle("Security Question", width: colWidth)
+                CustomTextField(bg: newBG, accent: newAcc, placeholder: "",  text: $newSQ,  width: colWidth - 15, height: 50, corner: 8, textSize: 20,  multiline: true)
                 
-                sectionTitle("Color Theme", width: columnWidth)
-                CustomDropdown(color_theme: $newThemeName, background: $newBackground, accent: $newAccent, options: themeOptions, width: columnWidth - 15, height: 50,  cornerRadius: 8, fontSize: 20)
+                sectionTitle("Color Theme", width: colWidth)
+                CustomDropdown(color_theme: $newTN, background: $newBG, accent: $newAcc, options: themeOptions, width: colWidth - 15, height: 50,  cornerRadius: 8, fontSize: 20)
                 
                 //conditionally show hex code text boxes
-                if newThemeName == "Custom" {
-                    sectionTitle("Hex Codes", width: columnWidth)
+                if newTN == "Custom" {
+                    sectionTitle("Hex Codes", width: colWidth)
                     ColorPickerTextField(
-                                accent: newAccent,
-                                background: newBackground,
-                                var_to_change: $newBackground,
+                                accent: newAcc,
+                                background: newBG,
+                                var_to_change: $newBG,
                                 placeholder: "Enter HEX color",
-                                width: columnWidth-10)
+                                width: colWidth-10)
                     .padding(.vertical, 15)
 
                     ColorPickerTextField(
-                                accent: newAccent,
-                                background: newBackground,
-                                var_to_change: $newAccent,
+                                accent: newAcc,
+                                background: newBG,
+                                var_to_change: $newAcc,
                                 placeholder: "Enter HEX color",
-                                width: columnWidth - 10)
+                                width: colWidth - 10)
                 }
             }
-            .frame(maxWidth: columnWidth)
+            .frame(maxWidth: colWidth)
             .padding(.leading, 10)
             
             //second column
             VStack {
                 //triggers editable list
-                sectionTitle("Triggers", width: columnWidth)
-                EditableList(items: $triggers, title: "Triggers", backgroundColor: newBackground, accentColor: newAccent,
+                sectionTitle("Triggers", width: colWidth)
+                EditableList(items: $triggs, title: "Triggers", backgroundColor: newBG, accentColor: newAcc,
                      onAdd: { newTrigger in Database.shared.insertItem( table: Database.shared.triggers, userID: userID, nameColumn: Database.shared.trigger_name, name: newTrigger, startColumn: Database.shared.trigger_start, endColumn: Database.shared.trigger_end)},
                              
                     onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.triggers, userID: userID,  oldValue: oldValue, newValue: newValue, nameColumn: Database.shared.trigger_name)},
@@ -154,8 +154,8 @@ struct ProfileView: View {
                     onDelete: { value in Database.shared.endItem( table: Database.shared.triggers, userID: userID, name: value, nameColumn: Database.shared.trigger_name, endColumn: Database.shared.trigger_end)} )
                 
                 //emerg meds editable list
-                sectionTitle("Emergency Medications", width: columnWidth)
-                EditableList( items: $emergencyMeds, title: "Emergency Medications", backgroundColor: newBackground, accentColor: newAccent,
+                sectionTitle("Emergency Medications", width: colWidth)
+                EditableList( items: $emergMeds, title: "Emergency Medications", backgroundColor: newBG, accentColor: newAcc,
                     onAdd: { newEmergencyMed in Database.shared.insertItem( table: Database.shared.medications, userID: userID, nameColumn: Database.shared.medication_name, name: newEmergencyMed, startColumn: Database.shared.medication_start, endColumn: Database.shared.medication_end,  medicationCategory: "emergency")},
                               
                     onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.medications, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: Database.shared.medication_name, medicationCategory: "emergency")},
@@ -163,11 +163,11 @@ struct ProfileView: View {
                     onDelete: { value in Database.shared.endItem( table: Database.shared.medications, userID: userID, name: value, nameColumn: Database.shared.medication_name, endColumn: Database.shared.medication_end, medicationCategory: "emergency")})
                 
                 //non-edtiable list text field
-                sectionTitle("Security Answer", width: columnWidth)
-                CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newSecurityAnswer, width: columnWidth - 15, height: 50, cornerRadius: 8, textSize: 16, isSecure: true)
+                sectionTitle("Security Answer", width: colWidth)
+                CustomTextField(bg: newBG, accent: newAcc, placeholder: "", text: $newSA, width: colWidth - 15, height: 50, corner: 8, textSize: 16)
                 
                 //push the changes to the database
-                CustomButton( text: "Save", background: newBackground, accent: newAccent, height: 50, width: columnWidth - 25, cornerRadius: 36,  isBold: true, textSize: 25, action: saveProfileChanges )
+                CustomButton( text: "Save", bg: newBG, accent: newAcc, height: 50, width: colWidth - 25, corner: 36,  bold: true, textSize: 25, action: saveProfileChanges )
                 .padding(.top, 10)
             }
             .padding(.trailing, 10)
@@ -179,34 +179,34 @@ struct ProfileView: View {
     //  Viewing View
     @ViewBuilder
     private func viewingView() -> some View {
-        let columnWidth = screenWidth / 2
+        let colWidth = screenWidth / 2
         
-        CustomText(text: "User Profile", color: newAccent, textAlignment: .center, textSize: 45)
+        CustomText(text: "User Profile", color: newAcc, textAlign: .center, textSize: 45)
             .padding(.vertical, 50)
         
         HStack(alignment: .top) {
             //column one
             VStack {
                 //display the data in a non-editable list
-                section(columnTitle: "Symptoms", items: symptoms, width: columnWidth)
-                section(columnTitle: "Preventative Meds", items: prevMeds, width: columnWidth)
-                section(columnTitle: "Security Question", items: [newSecurityQuestion], width: columnWidth)
+                section(colTitle: "Symptoms", items: symps, width: colWidth)
+                section(colTitle: "Preventative Meds", items: prevMeds, width: colWidth)
+                section(colTitle: "Security Question", items: [newSQ], width: colWidth)
             }
-            .frame(maxWidth: columnWidth)
+            .frame(maxWidth: colWidth)
             
             //column two
             VStack {
                 //display the data in a non-editable list
-                section(columnTitle: "Triggers", items: triggers, width: columnWidth)
-                section(columnTitle: "Emergency Meds", items: emergencyMeds, width: columnWidth)
-                section(columnTitle: "Color Theme", items: [themeName], width: columnWidth)
+                section(colTitle: "Triggers", items: triggs, width: colWidth)
+                section(colTitle: "Emergency Meds", items: emergMeds, width: colWidth)
+                section(colTitle: "Color Theme", items: [themeName], width: colWidth)
                 
                 //options button
                 HStack {
                     Spacer()
-                    let buttonActions: [() -> Void] = [ { isEditing = true },  { showPolicy = true },  { logOut = true },  { showDeleteConfirmation = true } ]
+                    let buttonActions: [() -> Void] = [ { isEditing = true },  { showPolicy = true },  { logOut = true },  { showDelete = true } ]
                     
-                    CustomFloatButton( accent: newAccent,  background: newBackground,  options: buttonNames, actions: buttonActions)
+                    CustomFloatButton( accent: newAcc,  background: newBG,  options: buttonNames, actions: buttonActions)
                         .padding(.top, 20)
                     .fullScreenCover(isPresented: $showPolicy) {
                         PolicySheetView(policyFileName: "DataPolicy", showsAgreeButton: false)
@@ -214,48 +214,48 @@ struct ProfileView: View {
                     .padding(.trailing, 10)
                 }
             }
-            .frame(maxWidth: columnWidth)
+            .frame(maxWidth: colWidth)
         }
     }
     
     //Break repetive code into reusable sections
     private func sectionTitle(_ title: String, width: CGFloat) -> some View {
-        CustomText(text: title, color: newAccent, width: width - 15, textAlignment: .center, multilineAlignment: .center, isBold: true)
+        CustomText(text: title, color: newAcc, width: width - 15, textAlign: .center, multiAlign: .center, bold: true)
     }
     
-    private func section(columnTitle: String, items: [String], width: CGFloat) -> some View {
+    private func section(colTitle: String, items: [String], width: CGFloat) -> some View {
             VStack {
-                sectionTitle(columnTitle, width: width)
-                CustomList(items: items, color: newAccent)
+                sectionTitle(colTitle, width: width)
+                CustomList(items: items, color: newAcc)
             }
     }
     
     private func saveProfileChanges() {
-        if securityQuestion != newSecurityQuestion {
-            Database.shared.updateUser(userID: userID, newValue: newSecurityQuestion, column: "security_question")
+        if sQ != newSQ {
+            Database.shared.updateUser(userID: userID, newValue: newSQ, column: "security_question")
         }
         
-        let normalizedSecurityAnswer = Database.normalizedValue(newSecurityAnswer)
-        let hashedSecurityAnswer = Database.hashString(normalizedSecurityAnswer)
-        if hashedSecurityAnswer != securityAnswer {
-            Database.shared.updateUser(userID: userID, newValue: hashedSecurityAnswer, column: "security_answer")
+        let normSA = Database.normalize(newSA)
+        let hashedSA = Database.hashString(normSA)
+        if hashedSA != sA {
+            Database.shared.updateUser(userID: userID, newValue: hashedSA, column: "security_answer")
         }
         
-        if background != newBackground {
-            Database.shared.updateUser(userID: userID, newValue: newBackground, column: "background_color")
-            background = newBackground
-            themeName = Database.getThemeName(selected_background: newBackground, selected_accent: newAccent)
-            newThemeName = themeName.contains("Custom") ? "Custom" : themeName
+        if bg != newBG {
+            Database.shared.updateUser(userID: userID, newValue: newBG, column: "background_color")
+            bg = newBG
+            themeName = Database.getThemeName(background: newBG, accent: newAcc)
+            newTN = themeName.contains("Custom") ? "Custom" : themeName
         }
         
-        if accent != newAccent {
-            Database.shared.updateUser(userID: userID, newValue: newAccent, column: "accent_color")
-            accent = newAccent
+        if accent != newAcc {
+            Database.shared.updateUser(userID: userID, newValue: newAcc, column: "accent_color")
+            accent = newAcc
         }
         isEditing = false
     }
 }
 
 #Preview {
-    ProfileView(userID: 1, background: .constant("#001d00"), accent: .constant("#b5c4b9"))
+    ProfileView(userID: 1, bg: .constant("#001d00"), accent: .constant("#b5c4b9"))
 }

@@ -9,9 +9,9 @@ import SwiftUI
 
 struct NavBarView: View {
     let userID: Int64
-    @Binding var background: String
+    @Binding var bg: String
     @Binding var accent: String
-    @Binding var selectedIndex: Int
+    @Binding var selected: Int
     
     struct NavItem {
         let icon: String
@@ -22,25 +22,25 @@ struct NavBarView: View {
     
     var navItems: [NavItem] {
         [NavItem(icon: "square.and.pencil", label: "Log",
-                    destination: AnyView(LogView(userID: userID, background: $background, accent: $accent).navigationBarBackButtonHidden(true)),
+                    destination: AnyView(LogView(userID: userID, background: $bg, accent: $accent).navigationBarBackButtonHidden(true)),
                     padding: EdgeInsets(top: 0, leading: 15, bottom: 0, trailing: 0)),
             
             NavItem(icon: "list.bullet", label: "List",
-                    destination: AnyView(ListView(userID: userID, background: $background, accent: $accent).navigationBarBackButtonHidden(true)),
+                    destination: AnyView(ListView(userID: userID, background: $bg, accent: $accent).navigationBarBackButtonHidden(true)),
                     padding: EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0)),
             
             NavItem(icon: "chart.bar.xaxis", label: "Analytics",
-                    destination: AnyView(AnalyticsView(userID: userID, background: $background, accent: $accent).navigationBarBackButtonHidden(true)),
+                    destination: AnyView(AnalyticsView(userID: userID, background: $bg, accent: $accent).navigationBarBackButtonHidden(true)),
                     padding: nil),
             
             NavItem(icon: "person.fill", label: "Profile",
-                    destination: AnyView(ProfileView(userID: userID, background: $background, accent: $accent).navigationBarBackButtonHidden(true)),
+                    destination: AnyView(ProfileView(userID: userID, bg: $bg, accent: $accent).navigationBarBackButtonHidden(true)),
                     padding: EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 15)) ]
     }
     
     var body: some View {
         ZStack {
-            Color(hex: background)
+            Color(hex: bg)
             HStack {
                 ForEach(navItems.indices, id: \.self) { index in
                     let item = navItems[index]
@@ -49,12 +49,12 @@ struct NavBarView: View {
                         VStack(spacing: 2) {
                             Image(systemName: item.icon)
                                 .font(.system(size: 22))
-                            CustomText(text: item.label, color: accent, textAlignment: .center, multilineAlignment: .center, textSize: 15)
+                            CustomText(text: item.label, color: accent, textAlign: .center, multiAlign: .center, textSize: 15)
                         }
                         .frame(width: 70, height: 70)
                         .background(
                             ZStack {
-                                if selectedIndex == index {
+                                if selected == index {
                                     RoundedRectangle(cornerRadius: 35)
                                         .fill(Color(hex: accent).opacity(0.075))
                                         .blur(radius: 8)
@@ -66,7 +66,7 @@ struct NavBarView: View {
                                         .blur(radius: 40)
                                 }
                             } )
-                        .animation(.easeInOut(duration: 0.0), value: selectedIndex)
+                        .animation(.easeInOut(duration: 0.0), value: selected)
                     }
                     .buttonStyle(.plain)
                 }

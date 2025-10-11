@@ -12,9 +12,9 @@ import CryptoKit
 extension Database {
     
     //check if the email is present in the users table
-    static func doesEmailExist(_ emailAddress: String) -> Bool {
-        let cleaned = Database.normalizedValue(emailAddress)
-        let query = Database.shared.users.filter(Database.shared.email == cleaned)
+    static func emailExists(_ email: String) -> Bool {
+        let cleaned_email = Database.normalize(email)
+        let query = Database.shared.users.filter(Database.shared.email == cleaned_email)
         do {
             return try Database.shared.pluck(query) != nil
         } catch {
@@ -24,12 +24,12 @@ extension Database {
     }
     
     //lowercase string and remove whitespace
-    static func normalizedValue(_ s: String) -> String {
+    static func normalize(_ s: String) -> String {
         s.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
     
     //check if password meets complexity requirements
-    static func isPasswordValid(_ password: String) -> Bool {
+    static func passwordValid(_ password: String) -> Bool {
         let passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$"
         return NSPredicate(format: "SELF MATCHES %@", passwordRegex).evaluate(with: password)
     }
@@ -37,9 +37,9 @@ extension Database {
     //add user to the database
     static func createUser(email: String, password: String, securityQuestion: String, securityAnswer: String, background: String, accent: String, symptoms: String, preventativeMeds: String, emergencyMeds: String, triggers: String)
     throws {
-        let normalizedEmail = Database.normalizedValue(email)
+        let normalizedEmail = Database.normalize(email)
         let hashedPassword = Database.hashString(password)
-        let hashedSecurityAnswer = Database.hashString(Database.normalizedValue(securityAnswer))
+        let hashedSecurityAnswer = Database.hashString(Database.normalize(securityAnswer))
         
         // Insert into users table
         let insertUser = Database.shared.users.insert(
@@ -123,7 +123,7 @@ extension Database {
     
     //check if email and password combo is valid
     func attemptLogin(email: String, password: String) -> (userId: Int64?, error: String?) {
-        let normalizedEmail = Database.normalizedValue(email)
+        let normalizedEmail = Database.normalize(email)
         let hashedPassword = Database.hashString(password)
         
         do {
@@ -217,7 +217,7 @@ extension Database {
         newAccent = accentColor
         newBackground = backgroundColor
         
-        themeName = Database.getThemeName(selected_background: newBackground, selected_accent: newAccent)
+        themeName = Database.getThemeName(background: newBackground, accent: newAccent)
         newThemeName = themeName.contains("Custom") ? "Custom" : themeName
     }
     

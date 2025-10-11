@@ -58,7 +58,7 @@ struct PolicySheetView: View {
     var body: some View {
         NavigationStack {
             ScrollView(.vertical, showsIndicators: true) {
-                CustomText( text: "Data Policy",  color: textHex, width: 300, textAlignment: .center, textSize: 50)
+                CustomText( text: "Data Policy",  color: textHex, width: 300, textAlign: .center, textSize: 50)
                 PolicyTextView(policyFileName: policyFileName, textColor: textColor)
             }
             .background(backgroundColor.ignoresSafeArea())
@@ -118,7 +118,7 @@ struct EmergencyMedPopup: View {
                     
                     // Title
                     CustomText(
-                        text: "Did \(emergencyMedName) help with your \(symptomName) on \(formatter.string(from: date))?", color: background, width: screenWidth * 0.75, textAlignment: .center, multilineAlignment: .center, textSize: 20)
+                        text: "Did \(emergencyMedName) help with your \(symptomName) on \(formatter.string(from: date))?", color: background, width: screenWidth * 0.75, textAlign: .center, multiAlign: .center, textSize: 20)
                     .padding(.horizontal, 10)
                     .padding(.top, 10)
                     
@@ -147,7 +147,7 @@ struct EmergencyMedPopup: View {
                     }
                     
                     // Submit Button
-                    CustomButton(text: "Update Log", background: accent, accent: background, height: 40, width: 150, isBold: true, textSize: 16,
+                    CustomButton(text: "Update Log", bg: accent, accent: background, height: 40, width: 150, bold: true, textSize: 16,
                                  action: {
                                     if let answer = selectedAnswer {
                                         Database.shared.updateMedEffective(logID: oldLogID, medEffectiveValue: answer )}

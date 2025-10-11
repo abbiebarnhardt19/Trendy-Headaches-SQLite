@@ -137,12 +137,12 @@ struct ColorPickerTextField: View {
     @Binding var var_to_change: String
     var placeholder: String = ""
     var width: CGFloat
-    var cornerRadius: CGFloat? = 30
+    var corner: CGFloat? = 30
     
     @State private var selectedColor: Color = .white
     
     var body: some View {
-        CustomTextField(background: background, accent: accent, placeholder: placeholder, text: $var_to_change, width: width, cornerRadius: cornerRadius ?? 30)
+        CustomTextField(bg: background, accent: accent, placeholder: placeholder, text: $var_to_change, width: width, corner: corner ?? 30)
         .frame(height: 40)
         .overlay(alignment: .trailing) {
             ZStack {
@@ -205,11 +205,10 @@ struct DatePickerTextFieldDropdown: View {
             ZStack(alignment: .topLeading) {
                 // TextField with button overlay
                 HStack{
-                        CustomText(text: labelText, color: accent, isBold: isBold, textSize: 24)
-                            .frame(width: 62, height: 45, alignment: .center)
+                    CustomText(text: labelText, color: accent, bold: isBold, textSize: 24)
+                        .frame(width: 62, height: 45, alignment: .center)
                     
-                    
-                    CustomTextField(background: background, accent: accent,  placeholder: " ",  text: $textFieldValue,  width: textFieldWidth, textSize: textSize, bottomPadding: 0)
+                    CustomTextField(bg: background, accent: accent,  placeholder: " ",  text: $textFieldValue,  width: textFieldWidth, textSize: textSize, botPad: 0)
                 }
                 //put the calendar button over the text field
                 .overlay(
@@ -267,7 +266,7 @@ struct CustomSingleCheckbox: View {
             isOn.toggle()
         } label: {
             HStack {
-                CustomText(text: text, color: color, isBold: true, textSize: textSize)
+                CustomText(text: text, color: color, bold: true, textSize: textSize)
                 Image(systemName: isOn ? "checkmark.square.fill" : "square")
                     .resizable()
                     .frame(width: textSize, height: textSize)
@@ -391,7 +390,7 @@ struct StepSlider: View {
 
             HStack(spacing: 0) {
                 ForEach(steps, id: \.self) { stepValue in
-                    CustomText(text: "\(Int(stepValue))",  color: accentColor, textAlignment: .center,  textSize: 18)
+                    CustomText(text: "\(Int(stepValue))",  color: accentColor, textAlign: .center,  textSize: 18)
                     .frame(width: 35)
                 }
             }

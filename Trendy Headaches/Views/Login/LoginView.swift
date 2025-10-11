@@ -27,7 +27,7 @@ struct LoginView: SwiftUI.View {
                 LoginBGComps(background: background, accent: accent)
                 //  Content
                 VStack(spacing: 15) {
-                    CustomText(text: "Log In",  color: accent, width: 200, textAlignment: .center,  textSize: 50 )
+                    CustomText(text: "Log In",  color: accent, width: 200, textAlign: .center,  textSize: 50 )
                     .padding(.bottom, 20)
                     
                     // Email
@@ -35,14 +35,14 @@ struct LoginView: SwiftUI.View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.leading, leadingPadding)
                     
-                    CustomTextField(background: background, accent: accent, placeholder: "", text: $email)
+                    CustomTextField(bg: background, accent: accent, placeholder: "", text: $email)
                     
                     // Password
                     CustomText(text: "Password", color: accent)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.leading, leadingPadding)
                     
-                    CustomTextField(background: background, accent: accent, placeholder: "", text: $password, isSecure: true)
+                    CustomTextField(bg: background, accent: accent, placeholder: "", text: $password, secure: true)
                     
                     // Forgot Password Link
                     CustomLink(destination: ForgotPasswordView1(), text: "Forgot Password?", accent: accent)
@@ -51,7 +51,7 @@ struct LoginView: SwiftUI.View {
                         .padding(.top, 5)
                     
                     // Login Button
-                    CustomButton(text: "Log In", background: background, accent: accent) {
+                    CustomButton(text: "Log In", bg: background, accent: accent) {
                         let result = Database.shared.attemptLogin(email: email, password: password)
                         userId = result.userId
                         loginError = result.error

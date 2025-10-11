@@ -27,7 +27,7 @@ struct ForgotPasswordView3: View {
     private var passwordResetValid: Bool {
         passwordOne == passwordTwo &&
         passwordOne != currentPassword &&
-        Database.isPasswordValid(passwordOne)
+        Database.passwordValid(passwordOne)
     }
 
     var body: some View {
@@ -41,7 +41,7 @@ struct ForgotPasswordView3: View {
                             //  Header
                             HStack {
                                 Spacer()
-                                CustomText( text: "Last Step", color: accent, width: 100, textAlignment: .trailing, textSize: 50)
+                                CustomText( text: "Last Step", color: accent, width: 100, textAlign: .trailing, textSize: 50)
                                 .padding(.top, 60)
                                 .padding(.bottom, 70)
                                 .padding(.trailing, 10)
@@ -53,11 +53,11 @@ struct ForgotPasswordView3: View {
                                 CustomText(text: "New Password", color: accent)
                                     .padding(.leading, leadingPadding)
                                 
-                                CustomTextField(background: background, accent: accent,  placeholder: "",  text: $passwordOne,  isSecure: true )
+                                CustomTextField(bg: background, accent: accent,  placeholder: "",  text: $passwordOne,  secure: true )
                                 
                                 // Password warnings
                                 if !passwordOne.isEmpty {
-                                    if !Database.isPasswordValid(passwordOne) {
+                                    if !Database.passwordValid(passwordOne) {
                                         CustomWarningText(text: "8+ chars: uppercase, lowercase, number, & symbol.")
                                             .padding(.bottom, 5)
                                     } else if Database.hashString(passwordOne) == currentPassword {
@@ -79,7 +79,7 @@ struct ForgotPasswordView3: View {
                                 CustomText(text: "Confirm New Password", color: accent)
                                     .padding(.leading, leadingPadding)
                                 
-                                CustomTextField(background: background, accent: accent, placeholder: "", text: $passwordTwo,  isSecure: true )
+                                CustomTextField(bg: background, accent: accent, placeholder: "", text: $passwordTwo,  secure: true )
                                 
                                 if !passwordTwo.isEmpty && passwordTwo != passwordOne {
                                     CustomWarningText(text: "Passwords do not match.")
@@ -92,7 +92,7 @@ struct ForgotPasswordView3: View {
                             .frame(width: screenWidth)
 
                             // Reset Button
-                            CustomButton(text: "Reset Password",  background: background, accent: accent, height: 50, width: 200) {
+                            CustomButton(text: "Reset Password",  bg: background, accent: accent, height: 50, width: 200) {
                                 isPasswordUpdated = Database.resetPassword(forEmail: enteredEmail, newPassword: passwordOne)
                             }
                             .padding(.bottom, 120)

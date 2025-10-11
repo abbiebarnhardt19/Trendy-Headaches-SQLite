@@ -24,19 +24,19 @@ struct ForgotPasswordView1: View {
                 
                 VStack(spacing: 20) {
                     // Header and instructions
-                    CustomText(text: "Forgot your password?", color: accent, width: screenWidth - 50, textAlignment: .center, multilineAlignment: .center,  textSize: 50)
+                    CustomText(text: "Forgot your password?", color: accent, width: screenWidth - 50, textAlign: .center, multiAlign: .center,  textSize: 50)
                     
-                    CustomText( text: "No worries! Enter your email below to start the password reset process.",  color: accent, width: screenWidth - 50,  textAlignment: .center, multilineAlignment: .center, textSize: 18)
+                    CustomText( text: "No worries! Enter your email below to start the password reset process.",  color: accent, width: screenWidth - 50,  textAlign: .center, multiAlign: .center, textSize: 18)
                     
                     // Email input with debounced availability check
-                    CustomTextField(background: background, accent: accent, placeholder: "", text: $email)
+                    CustomTextField(bg: background, accent: accent, placeholder: "", text: $email)
                         .keyboardType(.emailAddress)
                         .onChange(of: email) {
                             emailCheckTask?.cancel()
                             emailCheckTask = Task {
                                 try? await Task.sleep(nanoseconds: 500_000_000)
                                 if !Task.isCancelled {
-                                    emailExists = Database.doesEmailExist(email)
+                                    emailExists = Database.emailExists(email)
                                 }
                             }
                         }
@@ -49,7 +49,7 @@ struct ForgotPasswordView1: View {
                     }
                     
                     // Continue button
-                    CustomNavButton( label: "Continue", destination: ForgotPasswordView2(enteredEmail: Database.normalizedValue(email)), background: background, accent: accent,  width: screenWidth / 2 - 20)
+                    CustomNavButton( label: "Continue", dest: ForgotPasswordView2(enteredEmail: Database.normalize(email)), bg: background, accent: accent,  width: screenWidth / 2 - 20)
                     .disabled(!(emailExists ?? false))
                     .opacity((emailExists ?? false) ? 1.0 : 0.5)
                 }

@@ -81,14 +81,14 @@ struct filterPopUp: View {
             // MARK: Severity
             sectionButton(title: "Severity", section: .severity) {
                 HStack {
-                    CustomTextField(background: accent,  accent: background, placeholder: "", text: Binding(get: { String(sevStart) }, set: { sevStart = Int64($0) ?? 0 }),
-                        width: 65, alignment: .center)
+                    CustomTextField(bg: accent,  accent: background, placeholder: "", text: Binding(get: { String(sevStart) }, set: { sevStart = Int64($0) ?? 0 }),
+                        width: 65, align: .center)
                     .padding(.top, 10)
                     
                     CustomText(text: " to ", color: background, width: 30)
                         .padding(.top, 10)
                     
-                    CustomTextField(background: accent, accent: background, placeholder: "", text: Binding(get: { String(sevEnd) }, set: { sevEnd = Int64($0) ?? 0 }), width: 65,  alignment: .center)
+                    CustomTextField(bg: accent, accent: background, placeholder: "", text: Binding(get: { String(sevEnd) }, set: { sevEnd = Int64($0) ?? 0 }), width: 65,  align: .center)
                     .padding(.top, 10)
                 }
                 .padding(.leading, 10)
@@ -131,7 +131,7 @@ struct filterPopUp: View {
         
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 5) {
-                CustomText(text: title, color: background,  width: currentWidth, textAlignment: .leading, isBold: true)
+                CustomText(text: title, color: background,  width: currentWidth, textAlign: .leading, bold: true)
                 
                 Button(action: {
                     withAnimation(.easeInOut) {
@@ -288,7 +288,7 @@ struct ScrollableLogTable: View {
         HStack(spacing: 0) {
             ForEach(selectedColumns, id: \.self) { column in
                 ZStack(alignment: .trailing) {
-                    CustomText(text: column, color: background,  textAlignment: .center, multilineAlignment: .center, isBold: true, textSize: 18)
+                    CustomText(text: column, color: background,  textAlign: .center, multiAlign: .center, bold: true, textSize: 18)
                     .frame(width: effectiveWidth(for: column), height: headerHeight)
                     .background(Color.blend(Color(hex: background), Color(hex: accent), ratio: 0.8))
 
@@ -338,7 +338,7 @@ struct ScrollableLogTable: View {
                 let column = selectedColumns[index]
                 let isLastColumn = index == selectedColumns.count - 1
 
-                CustomText(text: value(for: column, in: log), color: background,  textAlignment: .center, textSize: 16)
+                CustomText(text: value(for: column, in: log), color: background,  textAlign: .center, textSize: 16)
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .frame(width: effectiveWidth(for: column), height: rowHeight)

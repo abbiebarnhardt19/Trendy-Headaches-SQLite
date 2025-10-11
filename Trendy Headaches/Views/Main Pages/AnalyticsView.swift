@@ -66,7 +66,7 @@ struct AnalyticsView: View {
                 // Nav bar overlay at bottom
                 VStack {
                     Spacer()
-                    NavBarView(userID: userID, background: $background,  accent: $accent, selectedIndex: .constant(2))
+                    NavBarView(userID: userID, bg: $background,  accent: $accent, selected: .constant(2))
                 }
                 .ignoresSafeArea(edges: .bottom)
                 .zIndex(10)

@@ -8,44 +8,44 @@
 import SwiftUI
 
 struct CustomTextField: View {
-    let background: String
+    let bg: String
     let accent: String
     let placeholder: String
     @Binding var text: String
     var width: CGFloat? = 350
     var height: CGFloat? = 55
-    var cornerRadius: CGFloat? = 30
+    var corner: CGFloat? = 30
     var textSize: CGFloat? = 22
-    var isMultiline: Bool = false
-    var isSecure: Bool = false
-    var bottomPadding: CGFloat? = 8
-    var alignment: TextAlignment = .leading
+    var multiline: Bool = false
+    var secure: Bool = false
+    var botPad: CGFloat? = 8
+    var align: TextAlignment = .leading
     
     var body: some View {
         Group {
-            if isMultiline {
+            if multiline {
                 TextField(placeholder, text: $text, axis: .vertical)
                     .lineLimit(1...2)
             }
-            else if isSecure{
+            else if secure{
                 SecureField(placeholder, text: $text)
             }
             
             else {
                 TextField(placeholder, text: $text)
-                    .multilineTextAlignment(alignment)
+                    .multilineTextAlignment(align)
             }
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 5)
-        .frame(width: width ?? UIScreen.main.bounds.width-50, height: height ?? (isMultiline ? nil : 55))
+        .frame(width: width ?? UIScreen.main.bounds.width-50, height: height ?? (multiline ? nil : 55))
         .background(Color(hex: accent))
-        .foregroundColor(Color(hex: background))
-        .cornerRadius(cornerRadius ?? 30)
+        .foregroundColor(Color(hex: bg))
+        .cornerRadius(corner ?? 30)
         .font(.system(size: textSize ?? 22, design: .serif))
-        .tint(Color(hex: background))
+        .tint(Color(hex: bg))
         .textContentType(nil)
-        .padding(.bottom,  bottomPadding ?? 8)
+        .padding(.bottom,  botPad ?? 8)
     }
 }
 
@@ -53,19 +53,19 @@ struct CustomText: View {
     var text: String
     var color: String
     var width: CGFloat?
-    var textAlignment: Alignment? = .leading
-    var multilineAlignment: TextAlignment? = .leading
-    var isBold: Bool = false
+    var textAlign: Alignment? = .leading
+    var multiAlign: TextAlignment? = .leading
+    var bold: Bool = false
     var textSize: CGFloat? = 22
     
     var body: some View {
         Text(text)
             .font(.system(size: textSize ?? 22, design: .serif))
-            .fontWeight(isBold ? .bold : .regular)
+            .fontWeight(bold ? .bold : .regular)
             .foregroundColor(Color(hex: color))
-            .frame(maxWidth: width ?? .infinity, alignment: textAlignment ?? .leading)
+            .frame(maxWidth: width ?? .infinity, alignment: textAlign ?? .leading)
             .fixedSize(horizontal: false, vertical: true)
-            .multilineTextAlignment(multilineAlignment ?? .center)
+            .multilineTextAlignment(multiAlign ?? .center)
     }
 }
 
@@ -103,19 +103,19 @@ struct CustomList: View {
 
 struct CustomNavButton<Destination: View>: View {
     var label: String
-    var destination: Destination
-    var background: String
+    var dest: Destination
+    var bg: String
     var accent: String
     var width: CGFloat?
 
     var body: some View {
         NavigationLink {
-            destination
+            dest
         } label: {
             Text(label)
                 .frame(width: width ?? 180, height: 55)
                 .background(Color(hex: accent))
-                .foregroundColor(Color(hex: background))
+                .foregroundColor(Color(hex: bg))
                 .cornerRadius(30)
                 .font(.system(size: 20, design: .serif))
         }
@@ -159,12 +159,12 @@ struct CustomWarningText: View {
 
 struct CustomButton: View {
     var text: String
-    var background: String
+    var bg: String
     var accent: String
     var height: CGFloat?
     var width: CGFloat?
-    var cornerRadius: CGFloat?
-    var isBold: Bool = false
+    var corner: CGFloat?
+    var bold: Bool = false
     var textSize: CGFloat? = 20
     var action: () -> Void
     
@@ -173,10 +173,10 @@ struct CustomButton: View {
             Text(text)
                 .frame(width: width ?? 150, height: height ?? 50)
                 .background(Color(hex: accent))
-                .foregroundColor(Color(hex: background))
-                .cornerRadius(cornerRadius ?? 30)
+                .foregroundColor(Color(hex: bg))
+                .cornerRadius(corner ?? 30)
                 .font(.system(size: textSize ?? 20, design: .serif))
-                .fontWeight(isBold ? .bold : .regular)
+                .fontWeight(bold ? .bold : .regular)
         }
         .buttonStyle(.plain)
         .padding(.bottom, 10)

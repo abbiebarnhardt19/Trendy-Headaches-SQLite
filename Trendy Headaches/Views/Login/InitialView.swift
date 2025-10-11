@@ -24,13 +24,13 @@ struct InitialView: View {
 
                 //  Content
                 VStack(spacing: 20) {
-                    CustomText( text: "Trendy Headaches", color: accent, width: screenWidth - 50, textAlignment: .center, multilineAlignment: .center, textSize: 50 )
+                    CustomText( text: "Trendy Headaches", color: accent, width: screenWidth - 50, textAlign: .center, multiAlign: .center, textSize: 50 )
 
                     // Sign In Button
-                    CustomNavButton( label: "Sign In", destination: LoginView(), background: background, accent: accent)
+                    CustomNavButton( label: "Sign In", dest: LoginView(), bg: background, accent: accent)
 
                     // Sign Up Button (Shows Policy First)
-                    CustomButton(text: "Sign Up", background: background, accent: accent,  height: 55, width: 180 ) {
+                    CustomButton(text: "Sign Up", bg: background, accent: accent,  height: 55, width: 180 ) {
                         showPolicy = true
                     }
                 }

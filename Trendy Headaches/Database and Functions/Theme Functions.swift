@@ -36,10 +36,10 @@ extension Database {
     }
     
     //function to get theme name from hex codes
-    static func getThemeName(selected_background: String, selected_accent: String) -> String{
+    static func getThemeName(background: String, accent: String) -> String{
         var themeName = ""
-        let background = selected_background.uppercased()
-        let accent = selected_accent.uppercased()
+        let background = background.uppercased()
+        let accent = accent.uppercased()
         
         if background == "#FAF7F7" && accent == "#5E5D5D" {
             themeName = "Classic Light"
@@ -60,7 +60,7 @@ extension Database {
             themeName = "Dark Purple"
         }
         else{
-            themeName = "Custom (\(selected_background) and \(selected_accent))"
+            themeName = "Custom (\(background) and \(accent))"
         }
         return themeName
     }

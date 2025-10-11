@@ -43,7 +43,7 @@ struct CalendarView: View {
                 
                 //show key button
                 Button(action: {showKey.toggle()}){
-                    CustomText(text:showKey ? "Dismiss Key" : "Show Key", color: accent,  width:110, textAlignment: .center, textSize: 16)
+                    CustomText(text:showKey ? "Dismiss Key" : "Show Key", color: accent,  width:110, textAlign: .center, textSize: 16)
                         .frame(height: 27)
                         .background(Color(hex: background))
                         .cornerRadius(20)
@@ -54,7 +54,7 @@ struct CalendarView: View {
             // Weekday Labels
             HStack {
                 ForEach(weekDays, id: \.self) { day in
-                    CustomText(text: day, color: background, textAlignment: .center,  textSize: 14)
+                    CustomText(text: day, color: background, textAlign: .center,  textSize: 14)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -251,7 +251,7 @@ struct SeverityKeyBar: View {
             //Labels
             VStack(spacing: 0) {
                 ForEach((1...10).reversed(), id: \.self) { i in
-                    CustomText(text:"\(i)", color:accent,  textAlignment: .center, textSize: 14)
+                    CustomText(text:"\(i)", color:accent,  textAlign: .center, textSize: 14)
                         .frame(height: height / 10)
                 }
             }

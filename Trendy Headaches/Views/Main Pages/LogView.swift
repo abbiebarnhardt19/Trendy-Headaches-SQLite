@@ -126,7 +126,7 @@ struct LogView: View {
                 }
                 .padding(.leading, leadingPadding)
                 
-                VStack { Spacer(); NavBarView(userID: userID, background: $background, accent: $accent, selectedIndex: .constant(0)) }
+                VStack { Spacer(); NavBarView(userID: userID, bg: $background, accent: $accent, selected: .constant(0)) }
                     .zIndex(1)
                     .ignoresSafeArea(edges: .bottom)
             }
@@ -148,7 +148,7 @@ struct LogView: View {
         HStack {
             CustomText(text: symptomLogViewShown ? "Symptom Log" : "Side Effect Log",
                        color: accent,
-                       textAlignment: .center,
+                       textAlign: .center,
                        textSize: 43)
             .lineLimit(1)
             .fixedSize(horizontal: true, vertical: false)
@@ -166,19 +166,19 @@ struct LogView: View {
             VStack(alignment: .leading, spacing: 16) {
                 dateField(label: "Date:", text: $stringDate)
                 
-                CustomText(text: "Symptom*", color: accent, isBold: true, textSize: 24)
+                CustomText(text: "Symptom*", color: accent, bold: true, textSize: 24)
                 MultipleChoiceButtonGroup(options: $symptomOptions, selected: $symptom, accent: accent)
                 
-                CustomText(text: "Symptom Severity*", color: accent, isBold: true, textSize: 24)
+                CustomText(text: "Symptom Severity*", color: accent, bold: true, textSize: 24)
                 StepSlider(value: $severity, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
                 
-                CustomText(text: "Symptom Onset", color: accent, isBold: true, textSize: 24)
+                CustomText(text: "Symptom Onset", color: accent, bold: true, textSize: 24)
                 MultipleChoiceButtonGroup(options: $onsetOptions, selected: $onset, accent: accent)
                 
                 CustomSingleCheckbox(text: "Emergency Med Taken?", color: accent, isOn: $medTaken)
                 
                 if medTaken{
-                    CustomText(text: "Emergency Med Name*", color: accent, isBold: true, textSize: 24)
+                    CustomText(text: "Emergency Med Name*", color: accent, bold: true, textSize: 24)
                     MultipleChoiceButtonGroup(options: $emergencyMedOptions, selected: $medTakenName, accent: accent)
                         
                     
@@ -187,7 +187,7 @@ struct LogView: View {
                     }
                 }
                 
-                CustomText(text: "Triggers Present", color: accent, isBold: true, textSize: 24)
+                CustomText(text: "Triggers Present", color: accent, bold: true, textSize: 24)
                 MultipleChoiceCheckboxGroup(options: $triggerOptions, selected: $selectedTriggers, accent: accent, background: background, width: screenWidth-100)
                     .padding(.leading, 5)
                 
@@ -200,13 +200,7 @@ struct LogView: View {
                     
                     let buttonText = existingLogID != nil ? "Submit" : "Save"
 
-                    CustomButton(
-                        text: buttonText,
-                        background: background,
-                        accent: accent,
-                        height: 50,
-                        width: 150
-                    ) {
+                    CustomButton(text: buttonText, bg: background, accent: accent, height: 50, width: 150) {
                         if existingLogID == nil{
                             submitSymptomLog()
                         }
@@ -244,10 +238,10 @@ struct LogView: View {
             
             textFieldSection(title: "Side Effect*", text: $sideEffectName)
             
-            CustomText(text: "Side Effect Severity*", color: accent, isBold: true, textSize: 24)
+            CustomText(text: "Side Effect Severity*", color: accent, bold: true, textSize: 24)
             StepSlider(value: $sideEffectSeverity, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
             
-            CustomText(text: "Medication*", color: accent, isBold: true, textSize: 24)
+            CustomText(text: "Medication*", color: accent, bold: true, textSize: 24)
             MultipleChoiceButtonGroup(options: $medicationOptions, selected: $selectedMedication, accent: accent)
             
             HStack{
@@ -255,13 +249,7 @@ struct LogView: View {
                 
                 let buttonText = existingLogID != nil ? "Submit" : "Save"
 
-                CustomButton(
-                    text: buttonText,
-                    background: background,
-                    accent: accent,
-                    height: 50,
-                    width: 150
-                ) {
+                CustomButton(text: buttonText, bg: background, accent: accent, height: 50, width: 150) {
                     if existingLogID == nil{
                         submitSideEffectLog()
                     }
@@ -293,8 +281,8 @@ struct LogView: View {
     //text field, which is reused in both views
     private func textFieldSection(title: String, text: Binding<String>) -> some View {
         VStack(alignment: .leading) {
-            CustomText(text: title, color: accent, isBold: true, textSize: 24)
-            CustomTextField(background: background, accent: accent, placeholder: "", text: text, width: screenWidth - 50, height: 45, textSize: 20, isMultiline: true)
+            CustomText(text: title, color: accent, bold: true, textSize: 24)
+            CustomTextField(bg: background, accent: accent, placeholder: "", text: text, width: screenWidth - 50, height: 45, textSize: 20, multiline: true)
                 .padding(.trailing, leadingPadding + 20)
         }
     }

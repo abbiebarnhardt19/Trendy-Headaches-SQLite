@@ -34,7 +34,7 @@ struct CreateAccountView2: View {
 
                     // Custom theme input fields
                     if selectedTheme == "Custom" {
-                        CustomText(text: "Or, enter two hex codes to design a theme", color: accent, width: screenWidth - 50,  multilineAlignment: .center)
+                        CustomText(text: "Or, enter two hex codes to design a theme", color: accent, width: screenWidth - 50,  multiAlign: .center)
                         .padding(.bottom, 10)
                         
                         HStack (spacing: 20){
@@ -55,7 +55,7 @@ struct CreateAccountView2: View {
                     }
                     
                     // Continue button
-                    CustomNavButton(label: "Continue", destination: CreateAccountView3( background: background, accent: accent, email: email, passwordOne: passwordOne, currentSecurityQuestion: securityQuestion,  currentSecurityAnswer: securityAnswer), background: background,  accent: accent)
+                    CustomNavButton(label: "Continue", dest: CreateAccountView3( background: background, accent: accent, email: email, passwordOne: passwordOne, currentSecurityQuestion: securityQuestion,  currentSecurityAnswer: securityAnswer), bg: background,  accent: accent)
                 }
                 .padding()
             }

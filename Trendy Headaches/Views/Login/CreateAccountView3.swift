@@ -31,10 +31,10 @@ struct CreateAccountView3: View {
                     ZStack {
                         VStack(spacing: 15) {
                             // Header
-                            CustomText(text: "One Last Step", color: accent, textAlignment: .center, textSize: 50)
+                            CustomText(text: "One Last Step", color: accent, textAlign: .center, textSize: 50)
                                 .padding(.top, 15)
                             
-                            CustomText(text: "Add multiple items by separating them with commas.", color: accent,  width: screenWidth - 30, textAlignment: .center, multilineAlignment: .center,  textSize: 18)
+                            CustomText(text: "Add multiple items by separating them with commas.", color: accent,  width: screenWidth - 30, textAlign: .center, multiAlign: .center,  textSize: 18)
                             .padding(.bottom, 20)
                             
                             // Input fields
@@ -46,7 +46,7 @@ struct CreateAccountView3: View {
                             }
                             
                             // Submit button
-                            CustomButton(text: "Submit", background: background, accent: accent) {
+                            CustomButton(text: "Submit", bg: background, accent: accent) {
                                 createAccount()
                             }
                             .padding(.bottom, 40)
@@ -71,7 +71,7 @@ struct CreateAccountView3: View {
         VStack(alignment: .leading, spacing: 5) {
             CustomText(text: label, color: accent)
                 .padding(.leading, leadingPadding)
-            CustomTextField(background: background, accent: accent, placeholder: "", text: text)
+            CustomTextField(bg: background, accent: accent, placeholder: "", text: text)
                 .padding(.leading, leadingPadding-10)
         }
     }

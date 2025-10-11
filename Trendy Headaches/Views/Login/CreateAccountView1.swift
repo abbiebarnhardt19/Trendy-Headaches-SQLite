@@ -25,7 +25,7 @@ struct CreateAccountView: View {
         !security_question.isEmpty &&
         !security_answer.isEmpty &&
         password_one == password_two &&
-        Database.isPasswordValid(password_one) &&
+        Database.passwordValid(password_one) &&
         emailAvailable
     }
     
@@ -55,14 +55,14 @@ struct CreateAccountView: View {
 // MARK: - Subviews
 private extension CreateAccountView {
     var header: some View {
-        CustomText(text: "Create Account", color: accent, textAlignment: .center, textSize: 50)
+        CustomText(text: "Create Account", color: accent, textAlign: .center, textSize: 50)
             .padding(.bottom, 10)
     }
     
     var emailSection: some View {
         VStack(spacing: 5) {
             fieldLabel("Email")
-            CustomTextField(background: background, accent: accent, placeholder: "", text: $email)
+            CustomTextField(bg: background, accent: accent, placeholder: "", text: $email)
                 .onChange(of: email) {
                     debounceEmailCheck()
                 }
@@ -79,9 +79,9 @@ private extension CreateAccountView {
     var passwordSection: some View {
         VStack(spacing: 5) {
             fieldLabel("Password")
-            CustomTextField(background: background, accent: accent, placeholder: "", text: $password_one, isSecure: true)
+            CustomTextField(bg: background, accent: accent, placeholder: "", text: $password_one, secure: true)
             
-            if !Database.isPasswordValid(password_one) && !password_one.isEmpty {
+            if !Database.passwordValid(password_one) && !password_one.isEmpty {
                 CustomWarningText(text: "8+ chars: uppercase, lowercase, number, & symbol")
             } else {
                 CustomWarningText(text: "      ")
@@ -92,7 +92,7 @@ private extension CreateAccountView {
     var confirmPasswordSection: some View {
         VStack(spacing: 5) {
             fieldLabel("Confirm Password")
-            CustomTextField(background: background, accent: accent, placeholder: "", text: $password_two, isSecure: true)
+            CustomTextField(bg: background, accent: accent, placeholder: "", text: $password_two, secure: true)
             
             if !password_two.isEmpty && password_two != password_one {
                 CustomWarningText(text: "Passwords do not match.")
@@ -105,19 +105,19 @@ private extension CreateAccountView {
     var securitySection: some View {
         VStack(spacing: 5) {
             fieldLabel("Security Question")
-            CustomTextField(background: background, accent: accent, placeholder: "", text: $security_question)
+            CustomTextField(bg: background, accent: accent, placeholder: "", text: $security_question)
             
             CustomWarningText(text: "       ") // for spacing
             
             fieldLabel("Security Question Answer")
-            CustomTextField(background: background, accent: accent, placeholder: "", text: $security_answer)
+            CustomTextField(bg: background, accent: accent, placeholder: "", text: $security_answer)
         }
     }
     
     var continueButton: some View {
         CustomNavButton(
             label: "Continue",
-            destination: CreateAccountView2(email: email, passwordOne: password_one,  securityQuestion: security_question,  securityAnswer: security_answer),  background: background, accent: accent, width: 150)
+            dest: CreateAccountView2(email: email, passwordOne: password_one,  securityQuestion: security_question, securityAnswer: security_answer),  bg: background, accent: accent, width: 150)
         .disabled(!formIsValid)
         .opacity(formIsValid ? 1 : 0.5)
         .padding(.bottom, 45)
@@ -134,7 +134,7 @@ private extension CreateAccountView {
         emailCheckTask = Task {
             try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 sec delay
             if !Task.isCancelled {
-                emailAvailable = !Database.doesEmailExist(email)
+                emailAvailable = !Database.emailExists(email)
             }
         }
     }
