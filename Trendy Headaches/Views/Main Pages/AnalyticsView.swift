@@ -25,7 +25,9 @@ struct AnalyticsView: View {
 
     // Keep a mapping from symptom name -> icon
     @State private var symptomToIcon: [String: String] = [:]
+    
 
+    //assign the icons to the symptoms
     func icon(for symptom: String?) -> String {
         guard let name = symptom, !name.isEmpty else {
             return unknownIcon
@@ -44,12 +46,7 @@ struct AnalyticsView: View {
     var body: some View {
         NavigationStack{
             ZStack {
-                // Background color
-                Color(hex: background).ignoresSafeArea()
-                
-                // Decorative blobs
-                SameAmplitudeBlob(waves: 12, amplitude: 20, accent: accent, x: 100, y: -350, rotation: -50)
-                SameAmplitudeBlob(waves: 13, amplitude: 15, accent: accent, x: 70, y: -300, rotation: 130)
+                AnalyticsBackgroundComponents(background: background, accent: accent)
                 
                 VStack(spacing: 0) {
                     HStack{
@@ -85,6 +82,7 @@ struct AnalyticsView: View {
         }
     }
 }
+
 
 #Preview {
     AnalyticsView(userID: 1, background: .constant("#001d00"), accent: .constant("#b5c4b9"))

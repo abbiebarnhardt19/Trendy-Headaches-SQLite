@@ -32,11 +32,10 @@ struct CreateAccountView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(hex: background).ignoresSafeArea()
+                Create1BackgroundComponents(background: background, accent: accent)
                 
                 ScrollView {
                     ZStack {
-                        decorativeBlobs
                         
                         VStack(spacing: 12) {
                             header
@@ -56,13 +55,7 @@ struct CreateAccountView: View {
 
 // MARK: - Subviews
 private extension CreateAccountView {
-    
-    var decorativeBlobs: some View {
-        Group {
-            WavyTopBottomRectangle(waves: 20, amplitude: 10, accent: accent, x: 300, y: -630, width: 1000, height: 400)
-            WavyTopBottomRectangle(waves: 20, amplitude: 10, accent: accent, x: 300, y: 600, width: 1000, height: 400)
-        }
-    }
+
     
     var header: some View {
         CustomText(text: "Create Account", color: accent, textAlignment: .center, textSize: 50)

@@ -44,14 +44,7 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background
-                Color(hex: newBackground).ignoresSafeArea()
-                
-                // Decorative blobs
-                SameAmplitudeBlob(waves: 15, amplitude: 11, accent: newAccent, x: 100, y: -395, rotation: -35)
-                    .zIndex(1)
-                SameAmplitudeBlob(waves: 15, amplitude: 11, accent: newAccent, x: 265, y: -180, rotation: 145)
-                    .zIndex(1)
+                ProfileBackgroundComponents(background: newBackground, accent: newAccent)
                 
                 // Content
                 ScrollView {
@@ -240,7 +233,6 @@ struct ProfileView: View {
             DatabaseManager.shared.updateUser(userID: userID, newValue: newAccent, column: "accent_color")
             accent = newAccent
         }
-        
         isEditing = false
     }
 }

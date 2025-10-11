@@ -93,7 +93,7 @@ struct LogView: View {
         
         NavigationStack {
             ZStack {
-                Color(hex: background).ignoresSafeArea()
+                LogBackgroundComponents(background: background, accent: accent)
                 
                 if showEmergencyPopup, !oldLogIDs.isEmpty {
                     EmergencyMedPopup(selectedAnswer: $medWorked, isPresented: $showEmergencyPopup,  oldLogID: oldLogIDs[0],  background: background, accent: accent)
@@ -112,7 +112,7 @@ struct LogView: View {
                     }
                 }
                 
-                backgroundWaves
+                
                 ScrollView {
                     headerSection
                         .padding(.top, 20)
@@ -142,16 +142,6 @@ struct LogView: View {
     }
     
     //  Subviews
-    
-    //waves
-    private var backgroundWaves: some View {
-        Group {
-            WavyTopBottomRectangle(waves: 7, amplitude: 8, accent: accent, x: 0, y: -430, width: screenWidth, height: 80)
-                .zIndex(1)
-            WavyTopBottomRectangle(waves: 7, amplitude: 8, accent: accent, x: 0, y: 355, width: screenWidth, height: 80)
-                .zIndex(1)
-        }
-    }
     
     //header and toggle
     private var headerSection: some View {

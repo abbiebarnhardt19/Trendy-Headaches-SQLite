@@ -22,12 +22,7 @@ struct CreateAccountView2: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background
-                Color(hex: background).ignoresSafeArea()
-                
-                // Decorative blobs
-                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 100, y: -220, rotation: -180)
-                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 100, y: -220, rotation: 360)
+                Create2BackgroundComponents(background: background, accent: accent)
                 
                 VStack(spacing: 20) {
                     // Header

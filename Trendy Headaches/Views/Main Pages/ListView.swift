@@ -74,10 +74,7 @@ struct ListView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(hex: background).ignoresSafeArea()
-                
-                SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 90, y: -382, rotation: -10, width:screenWidth, height:180)
-                SameAmplitudeBlob(waves: 4, amplitude: 16, accent: accent, x: 60, y: -285, rotation: 170, width:screenWidth, height:180)
+                ListBackgroundComponents(background: background, accent: accent)
                 
                 VStack {
                     //page label

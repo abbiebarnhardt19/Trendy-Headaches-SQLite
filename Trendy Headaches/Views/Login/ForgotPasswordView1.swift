@@ -20,12 +20,7 @@ struct ForgotPasswordView1: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background color
-                Color(hex: background).ignoresSafeArea()
-                
-                // Corner blobs
-                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 140, y: -200, rotation: 110)
-                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 280, y: -120, rotation: 290)
+                Forgot1BackgroundComponents(background: background, accent: accent)
                 
                 VStack(spacing: 20) {
                     // Header and instructions

@@ -9,6 +9,8 @@ import SQLite
 import Foundation
 
 extension DatabaseManager {
+    
+    //get all the logs for a user and sort them
     func getLogList(userID: Int64) -> [UnifiedLog] {
         var unifiedLogs: [UnifiedLog] = []
         
@@ -83,6 +85,7 @@ extension DatabaseManager {
         return unifiedLogs
     }
     
+    //function to delete log based on log id and table
     func deleteLog(logID: Int64, table:String) {
         do {
             if table == "Symptom" {

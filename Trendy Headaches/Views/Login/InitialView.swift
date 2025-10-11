@@ -20,10 +20,7 @@ struct InitialView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                //  Background
-                Color(hex: background).ignoresSafeArea()
-                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 140, y: -220, rotation: 120)
-                SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 140, y: -220, rotation: 295)
+                InitialViewBackgroundComponents(background: background, accent: accent)
 
                 //  Content
                 VStack(spacing: 20) {

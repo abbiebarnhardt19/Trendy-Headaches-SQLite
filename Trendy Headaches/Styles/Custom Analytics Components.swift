@@ -41,6 +41,7 @@ struct CalendarView: View {
                 
                 Spacer()
                 
+                //show key button
                 Button(action: {showKey.toggle()}){
                     CustomText(text:showKey ? "Dismiss Key" : "Show Key", color: accent,  width:110, textAlignment: .center, textSize: 16)
                         .frame(height: 27)
@@ -119,23 +120,26 @@ struct CalendarView: View {
         .cornerRadius(15)
     }
 
-    // MARK: Helpers
+//change the moth
     private func changeMonth(by offset: Int) {
         if let newMonth = calendar.date(byAdding: .month, value: offset, to: currentMonth) {
             currentMonth = newMonth
         }
     }
     
+    //get the month and year for the month change
     private func monthYearString(for date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "LLLL yyyy"
         return formatter.string(from: date)
     }
     
+    //check if it is today to make the date bold
     private func isToday(_ date: Date) -> Bool {
         calendar.isDateInToday(date)
     }
     
+    //assign the days to their spot on the grid
     private func makeDays() -> [Date?] {
         var days: [Date?] = []
         let range = calendar.range(of: .day, in: .month, for: currentMonth)!
@@ -169,6 +173,7 @@ struct CalendarView: View {
     }
 }
 
+//make a key for mapping the shapes to the symptoms
 struct SymptomKey: View {
     let symptomToIcon: [String: String]
     var accent: String
@@ -228,6 +233,7 @@ struct SymptomKey: View {
     }
 }
 
+//make the gradient bar for the severity key
 struct SeverityKeyBar: View {
     var accent: String
     var width: CGFloat = 20

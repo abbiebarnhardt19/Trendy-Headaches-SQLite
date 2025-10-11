@@ -39,9 +39,7 @@ extension DatabaseManager {
                
                 _ = try DatabaseManager.shared.run(linkInsert)
             }
-
             return logID
-            
         } catch {
             print("Failed to create log: \(error)")
             return nil
@@ -61,11 +59,8 @@ extension DatabaseManager {
                 
                 // Execute insert
                 let logID = try DatabaseManager.shared.run(insert)
-                
                 return logID
-                
             } catch {
-
                 print("Failed to create log: \(error)")
                 return nil
             }
@@ -89,7 +84,6 @@ extension DatabaseManager {
                 let logID = row[DatabaseManager.shared.log_id] // Get just the log ID
                 results.append(logID)
             }
-            
         } catch {
             print("Database error: \(error)")
         }
@@ -169,7 +163,6 @@ extension DatabaseManager {
                     _ = try run(log_triggers.insert(lt_log_id <- logID, lt_trigger_id <- tID))
                 }
             }
-            
         } catch {
             print("Error updating symptom log: \(error)")
         }
@@ -205,7 +198,6 @@ extension DatabaseManager {
                 let updateQuery = query.update(setters)
                 _ = try run(updateQuery)
             }
-            
         } catch {
             print("Error updating side effect log: \(error)")
         }
@@ -227,14 +219,13 @@ extension DatabaseManager {
                 let date = logRow[DatabaseManager.shared.date]
                 let symptomID = logRow[DatabaseManager.shared.symptom_id]
                 let emergencyMedID = logRow[DatabaseManager.shared.log_medication_id]
-                
+               
                 // Get symptom name
                 var symptomName = ""
                 let symptomQuery = symptoms.filter(DatabaseManager.shared.symptom_id == symptomID)
                 if let symptomRow = try DatabaseManager.shared.pluck(symptomQuery) {
                     symptomName = symptomRow[DatabaseManager.shared.symptom_name]
                 }
-                
                 // Get medication name
                 var emergencyMedName = ""
                 if let medID = emergencyMedID {
@@ -243,13 +234,11 @@ extension DatabaseManager {
                         emergencyMedName = medRow[DatabaseManager.shared.medication_name]
                     }
                 }
-                
                 return (userID, date, symptomName, symptomID, emergencyMedID, emergencyMedName)
             }
         } catch {
             print("Database error while fetching log details: \(error)")
         }
-        
         return nil
     }
     
@@ -278,6 +267,7 @@ extension DatabaseManager {
         return ids
     }
     
+    //function to load in log for editing
     func getUnifiedLog(by logID: Int64, logType: String) -> UnifiedLog? {
         do {
             if logType == "Symptom"{
@@ -289,7 +279,6 @@ extension DatabaseManager {
                     if let sRow = try pluck(symptoms.filter(self.symptom_id == symptomID)) {
                         symptomName = sRow[self.symptom_name]
                     }
-                    
                     // Get medication info
                     var medicationID: Int64? = nil
                     var medicationName: String? = nil
@@ -299,7 +288,6 @@ extension DatabaseManager {
                             medicationName = mRow[self.medication_name]
                         }
                     }
-                    
                     // Get triggers
                     var triggerIDs: [Int64] = []
                     var triggerNames: [String] = []
@@ -311,30 +299,9 @@ extension DatabaseManager {
                             triggerNames.append(tRow[self.trigger_name])
                         }
                     }
-                    
-                    return UnifiedLog(
-                        log_id: row[self.log_id],
-                        user_id: row[self.user_id],
-                        log_type: "Symptom",
-                        date: row[self.date],
-                        severity: row[self.severity],
-                        submit_time: row[self.submit_time],
-                        symptom_id: symptomID,
-                        symptom_name: symptomName,
-                        onset_time: row[self.onset_time],
-                        med_taken: row[self.med_taken],
-                        medication_id: medicationID,
-                        medication_name: medicationName,
-                        med_worked: row[self.med_worked],
-                        symptom_description: row[self.symptom_description],
-                        notes: row[self.notes],
-                        trigger_ids: triggerIDs,
-                        trigger_names: triggerNames,
-                        side_effect_med: nil
-                    )
+                    return UnifiedLog(log_id: row[self.log_id], user_id: row[self.user_id], log_type: "Symptom", date: row[self.date], severity: row[self.severity], submit_time: row[self.submit_time],  symptom_id: symptomID, symptom_name: symptomName, onset_time: row[self.onset_time], med_taken: row[self.med_taken], medication_id: medicationID, medication_name: medicationName, med_worked: row[self.med_worked],  symptom_description: row[self.symptom_description], notes: row[self.notes], trigger_ids: triggerIDs, trigger_names: triggerNames, side_effect_med: nil)
                 }
             }
-
             else{
                 let query = side_effects.filter(self.side_effect_id == logID)
                 if let row = try pluck(query) {
@@ -348,35 +315,12 @@ extension DatabaseManager {
                             medicationName = medRow[self.medication_name]
                         }
                     }
-                    
-                    return UnifiedLog(
-                        log_id: row[self.side_effect_id],
-                        user_id: row[self.user_id],
-                        log_type: "SideEffect",
-                        date: row[self.side_effect_date],
-                        severity: row[self.side_effect_severity],
-                        submit_time: row[self.side_effect_submit_time],
-                        symptom_id: nil,
-                        symptom_name: nil,
-                        onset_time: nil,
-                        med_taken: nil,
-                        medication_id: medicationID,
-                        medication_name: medicationName,
-                        med_worked: nil,
-                        symptom_description: nil,
-                        notes: nil,
-                        trigger_ids: nil,
-                        trigger_names: nil,
-                        side_effect_med: row[self.side_effect_name]
-                    )
+                    return UnifiedLog(log_id: row[self.side_effect_id], user_id: row[self.user_id],  log_type: "SideEffect", date: row[self.side_effect_date],  severity: row[self.side_effect_severity], submit_time: row[self.side_effect_submit_time], symptom_id: nil, symptom_name: nil, onset_time: nil, med_taken: nil, medication_id: medicationID, medication_name: medicationName, med_worked: nil, symptom_description: nil, notes: nil, trigger_ids: nil, trigger_names: nil, side_effect_med: row[self.side_effect_name])
                 }
             }
-
         } catch {
             print("Error fetching \(logType) log \(logID): \(error)")
         }
-
         return nil
     }
-
 }

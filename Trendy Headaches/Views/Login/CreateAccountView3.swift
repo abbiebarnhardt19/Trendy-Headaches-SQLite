@@ -25,15 +25,10 @@ struct CreateAccountView3: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(hex: background)
-                    .ignoresSafeArea()
+                Create3BackgroundComponents(background: background, accent: accent)
                 
                 ScrollView {
                     ZStack {
-                        // Background blobs
-                        WavyTopBottomRectangle(waves: 20, amplitude: 10, accent: accent, x: 300, y: -575, width: 1000, height: 400)
-                        WavyTopBottomRectangle(waves: 20, amplitude: 8, accent: accent, x: 300, y: 550, width: 1000, height: 400)
-                        
                         VStack(spacing: 15) {
                             // Header
                             CustomText(text: "One Last Step", color: accent, textAlignment: .center, textSize: 50)

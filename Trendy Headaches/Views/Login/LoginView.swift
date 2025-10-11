@@ -19,11 +19,7 @@ struct LoginView: SwiftUI.View {
     var body: some SwiftUI.View {
         NavigationStack {
             ZStack {
-                //  Background
-                Color(hex: background).ignoresSafeArea()
-                ParametricBlob(points: 45, amplitude: 0.075, x: -100, y: 425, rotation: 195, accent: accent)
-                ParametricBlob(points: 45, amplitude: 0.075, x: -30, y: 425, rotation: 30, accent: accent)
-                
+                LoginBackgroundComponents(background: background, accent: accent)
                 //  Content
                 VStack(spacing: 15) {
                     CustomText(text: "Log In",  color: accent, width: 200, textAlignment: .center,  textSize: 50 )

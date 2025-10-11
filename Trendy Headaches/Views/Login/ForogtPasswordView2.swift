@@ -35,14 +35,10 @@ struct ForgotPasswordView2: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(hex: background).ignoresSafeArea()
+                Forgot2BackgroundComponents(background: background, accent: accent)
 
                 ScrollView {
                     ZStack {
-                        //  Background Blobs
-                        ParametricBlob(points: 40, amplitude: 0.075, x: -140, y: 270, rotation: 210, accent: accent)
-                        ParametricBlob(points: 40, amplitude: 0.075, x: 10, y: 500, rotation: 17, accent: accent)
-
                         VStack(alignment: .leading, spacing: 20) {
                             
                             //  Header
