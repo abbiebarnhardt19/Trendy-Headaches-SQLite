@@ -126,10 +126,7 @@ struct EmergencyMedPopup: View {
                     HStack {
                         Spacer()
                         VStack {
-                            MultipleChoiceButtonGroup(
-                                options: .constant(yesNoOptions),
-                                selected: Binding(
-                                    get: {
+                            MultipleChoice(options: .constant(yesNoOptions),  selected: Binding(get: {
                                         if let answer = selectedAnswer {
                                             return answer ? "Yes" : "No"
                                         }
@@ -137,10 +134,7 @@ struct EmergencyMedPopup: View {
                                     },
                                     set: { newValue in
                                         selectedAnswer = (newValue == "Yes")
-                                    }
-                                ),
-                                accent: background
-                            )
+                                    }), accent: background )
                         }
                         .frame(width: 100)
                         Spacer()

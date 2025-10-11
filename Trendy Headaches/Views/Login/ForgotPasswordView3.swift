@@ -90,7 +90,7 @@ struct ForgotPasswordView3: View {
 
                             // Reset Button
                             CustomButton(text: "Reset Password",  bg: bg, accent: accent, height: 50, width: 200) {
-                               updated = Database.resetPassword(forEmail: email, newPassword: passOne)
+                               updated = Database.resetPassword(email: email, password: passOne)
                             }
                             .padding(.bottom, 120)
                             .disabled(!resetValid)
@@ -101,11 +101,8 @@ struct ForgotPasswordView3: View {
                         }
                     }
                     .onAppear {
-                        if let currentUser = Database.shared.getUserFromEmail(email: email) {
-                            currentPass = Database.shared.getSingleColumnValue(
-                                userId: currentUser,
-                                columnName: "password"
-                            ) ?? ""
+                        if let currentUser = Database.shared.userFromEmail(email: email) {
+                            currentPass = Database.shared.getSingleVal(userId: currentUser, col: "password") ?? ""
                         }
                     }
                 }

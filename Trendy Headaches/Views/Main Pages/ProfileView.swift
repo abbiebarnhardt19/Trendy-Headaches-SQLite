@@ -80,7 +80,7 @@ struct ProfileView: View {
             }
             //get data on load
             .onAppear {
-                Database.shared.loadData(userID: userID,  symptoms: &symps, triggers: &triggs,  prevMeds: &prevMeds, emergencyMeds: &emergMeds,  securityQuestion: &sQ,  securityAnswer: &sA, newSecurityQuestion: &newSQ, backgroundColor: &bg, accentColor: &accent, newBackground: &newBG, newAccent: &newAcc, themeName: &themeName,  newThemeName: &newTN)}
+                Database.shared.loadData(userID: userID,  symps: &symps, triggs: &triggs,  prevMeds: &prevMeds, emergMeds: &emergMeds,  SQ: &sQ,  SA: &sA, newSQ: &newSQ, bg: &bg, accent: &accent, newBG: &newBG, newAccent: &newAcc, theme: &themeName,  newTN: &newTN)}
         }
     }
     
@@ -97,46 +97,36 @@ struct ProfileView: View {
             VStack(alignment: .center) {
                 //symptom editable list
                 sectionTitle("Symptoms", width: colWidth)
-                EditableList(items: $symps,  title: "Symptoms", backgroundColor: newBG, accentColor: newAcc,
-                     onAdd: { newSymptom in Database.shared.insertItem( table: Database.shared.symptoms, userID: userID, nameColumn: Database.shared.symptom_name, name: newSymptom, startColumn: Database.shared.symptom_start, endColumn: Database.shared.symptom_end)},
+                EditableList(items: $symps,  title: "Symptoms", bg: newBG, accent: newAcc,
+                     onAdd: { newSymptom in Database.shared.insertItem( table: Database.shared.symptoms, userID: userID, nameCol: Database.shared.symptom_name, name: newSymptom, startCol: Database.shared.symptom_start, endCol: Database.shared.symptom_end)},
                              
-                    onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.symptoms, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: Database.shared.symptom_name)},
-                             
-                    onDelete: { value in Database.shared.endItem( table: Database.shared.symptoms, userID: userID, name: value, nameColumn: Database.shared.symptom_name, endColumn: Database.shared.symptom_end)} )
+                    onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.symptoms, userID: userID, old: oldValue, new: newValue, nameCol: Database.shared.symptom_name)},
+                     
+                     onDelete: { value in Database.shared.endItem( table: Database.shared.symptoms, userID: userID, name: value, nameCol: Database.shared.symptom_name, endCol: Database.shared.symptom_end)} )
                 
                 //prev meds editable list
                 sectionTitle("Preventative Medications", width: colWidth)
-                EditableList(items: $prevMeds, title: "Preventative Medications", backgroundColor: newBG, accentColor: newAcc,
-                     onAdd: { newPrevMed in Database.shared.insertItem( table: Database.shared.medications, userID: userID, nameColumn: Database.shared.medication_name, name: newPrevMed, startColumn: Database.shared.medication_start, endColumn: Database.shared.medication_end, medicationCategory: "preventative" )},
+                EditableList(items: $prevMeds, title: "Preventative Medications", bg: newBG, accent: newAcc,
+                     onAdd: { newPrevMed in Database.shared.insertItem( table: Database.shared.medications, userID: userID, nameCol: Database.shared.medication_name, name: newPrevMed, startCol: Database.shared.medication_start, endCol: Database.shared.medication_end, medCat: "preventative" )},
                              
-                    onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.medications, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: Database.shared.medication_name, medicationCategory: "preventative")},
+                    onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.medications, userID: userID, old: oldValue, new: newValue, nameCol: Database.shared.medication_name, medCat: "preventative")},
                              
-                    onDelete: { value in Database.shared.endItem( table: Database.shared.medications, userID: userID, name: value, nameColumn: Database.shared.medication_name, endColumn: Database.shared.medication_end, medicationCategory: "preventative")})
+                    onDelete: { value in Database.shared.endItem( table: Database.shared.medications, userID: userID, name: value, nameCol: Database.shared.medication_name, endCol: Database.shared.medication_end, medCat: "preventative")})
                 
                 //non-editable list fields
                 sectionTitle("Security Question", width: colWidth)
                 CustomTextField(bg: newBG, accent: newAcc, placeholder: "",  text: $newSQ,  width: colWidth - 15, height: 50, corner: 8, textSize: 20,  multiline: true)
                 
                 sectionTitle("Color Theme", width: colWidth)
-                CustomDropdown(color_theme: $newTN, background: $newBG, accent: $newAcc, options: themeOptions, width: colWidth - 15, height: 50,  cornerRadius: 8, fontSize: 20)
+                CustomDropdown(theme: $newTN, bg: $newBG, accent: $newAcc, options: themeOptions, width: colWidth - 15, height: 50,  corner: 8, fontSize: 20)
                 
                 //conditionally show hex code text boxes
                 if newTN == "Custom" {
                     sectionTitle("Hex Codes", width: colWidth)
-                    ColorPickerTextField(
-                                accent: newAcc,
-                                background: newBG,
-                                var_to_change: $newBG,
-                                placeholder: "Enter HEX color",
-                                width: colWidth-10)
+                    ColorTextField(accent: newAcc, bg: newBG, update: $newBG, placeholder: "Enter HEX color", width: colWidth-10)
                     .padding(.vertical, 15)
 
-                    ColorPickerTextField(
-                                accent: newAcc,
-                                background: newBG,
-                                var_to_change: $newAcc,
-                                placeholder: "Enter HEX color",
-                                width: colWidth - 10)
+                    ColorTextField(accent: newAcc, bg: newBG, update: $newAcc, placeholder: "Enter HEX color", width: colWidth - 10)
                 }
             }
             .frame(maxWidth: colWidth)
@@ -146,21 +136,21 @@ struct ProfileView: View {
             VStack {
                 //triggers editable list
                 sectionTitle("Triggers", width: colWidth)
-                EditableList(items: $triggs, title: "Triggers", backgroundColor: newBG, accentColor: newAcc,
-                     onAdd: { newTrigger in Database.shared.insertItem( table: Database.shared.triggers, userID: userID, nameColumn: Database.shared.trigger_name, name: newTrigger, startColumn: Database.shared.trigger_start, endColumn: Database.shared.trigger_end)},
+                EditableList(items: $triggs, title: "Triggers", bg: newBG, accent: newAcc,
+                     onAdd: { newTrigger in Database.shared.insertItem( table: Database.shared.triggers, userID: userID, nameCol: Database.shared.trigger_name, name: newTrigger, startCol: Database.shared.trigger_start, endCol: Database.shared.trigger_end)},
                              
-                    onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.triggers, userID: userID,  oldValue: oldValue, newValue: newValue, nameColumn: Database.shared.trigger_name)},
-                             
-                    onDelete: { value in Database.shared.endItem( table: Database.shared.triggers, userID: userID, name: value, nameColumn: Database.shared.trigger_name, endColumn: Database.shared.trigger_end)} )
+                     onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.triggers, userID: userID,  old: oldValue, new: newValue, nameCol: Database.shared.trigger_name)},
+                     
+                     onDelete: { value in Database.shared.endItem( table: Database.shared.triggers, userID: userID, name: value, nameCol: Database.shared.trigger_name, endCol: Database.shared.trigger_end)} )
                 
                 //emerg meds editable list
                 sectionTitle("Emergency Medications", width: colWidth)
-                EditableList( items: $emergMeds, title: "Emergency Medications", backgroundColor: newBG, accentColor: newAcc,
-                    onAdd: { newEmergencyMed in Database.shared.insertItem( table: Database.shared.medications, userID: userID, nameColumn: Database.shared.medication_name, name: newEmergencyMed, startColumn: Database.shared.medication_start, endColumn: Database.shared.medication_end,  medicationCategory: "emergency")},
+                EditableList( items: $emergMeds, title: "Emergency Medications", bg: newBG, accent: newAcc,
+                      onAdd: { newEmergencyMed in Database.shared.insertItem( table: Database.shared.medications, userID: userID, nameCol: Database.shared.medication_name, name: newEmergencyMed, startCol: Database.shared.medication_start, endCol: Database.shared.medication_end,  medCat: "emergency")},
                               
-                    onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.medications, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: Database.shared.medication_name, medicationCategory: "emergency")},
+                    onEdit: { oldValue, newValue in Database.shared.updateItem( table: Database.shared.medications, userID: userID, old: oldValue, new: newValue, nameCol: Database.shared.medication_name, medCat: "emergency")},
                               
-                    onDelete: { value in Database.shared.endItem( table: Database.shared.medications, userID: userID, name: value, nameColumn: Database.shared.medication_name, endColumn: Database.shared.medication_end, medicationCategory: "emergency")})
+                    onDelete: { value in Database.shared.endItem( table: Database.shared.medications, userID: userID, name: value, nameCol: Database.shared.medication_name, endCol: Database.shared.medication_end, medCat: "emergency")})
                 
                 //non-edtiable list text field
                 sectionTitle("Security Answer", width: colWidth)
@@ -206,7 +196,7 @@ struct ProfileView: View {
                     Spacer()
                     let buttonActions: [() -> Void] = [ { isEditing = true },  { showPolicy = true },  { logOut = true },  { showDelete = true } ]
                     
-                    CustomFloatButton( accent: newAcc,  background: newBG,  options: buttonNames, actions: buttonActions)
+                    FloatButton( accent: newAcc,  bg: newBG,  options: buttonNames, actions: buttonActions)
                         .padding(.top, 20)
                     .fullScreenCover(isPresented: $showPolicy) {
                         PolicySheetView(policyFileName: "DataPolicy", showsAgreeButton: false)
@@ -232,24 +222,24 @@ struct ProfileView: View {
     
     private func saveProfileChanges() {
         if sQ != newSQ {
-            Database.shared.updateUser(userID: userID, newValue: newSQ, column: "security_question")
+            Database.shared.updateUser(userID: userID, value: newSQ, col: "security_question")
         }
         
         let normSA = Database.normalize(newSA)
         let hashedSA = Database.hashString(normSA)
         if hashedSA != sA {
-            Database.shared.updateUser(userID: userID, newValue: hashedSA, column: "security_answer")
+            Database.shared.updateUser(userID: userID, value: hashedSA, col: "security_answer")
         }
         
         if bg != newBG {
-            Database.shared.updateUser(userID: userID, newValue: newBG, column: "background_color")
+            Database.shared.updateUser(userID: userID, value: newBG, col: "background_color")
             bg = newBG
             themeName = Database.getThemeName(background: newBG, accent: newAcc)
             newTN = themeName.contains("Custom") ? "Custom" : themeName
         }
         
         if accent != newAcc {
-            Database.shared.updateUser(userID: userID, newValue: newAcc, column: "accent_color")
+            Database.shared.updateUser(userID: userID, value: newAcc, col: "accent_color")
             accent = newAcc
         }
         isEditing = false

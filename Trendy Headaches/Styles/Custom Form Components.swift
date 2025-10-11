@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct MultipleChoiceCheckboxGroup: View {
+struct MultipleCheckbox: View {
     @Binding var options: [String]
     @Binding var selected: [String]
     var accent: String
-    var background: String
+    var bg: String
     var width: CGFloat = 140
     
     let boxSize: CGFloat = 22
@@ -27,15 +27,13 @@ struct MultipleChoiceCheckboxGroup: View {
                 ZStack {
                     RoundedRectangle(cornerRadius: 4)
                         .fill(selected.contains(option) ? Color(hex: accent) : Color.clear)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 4)
-                                .stroke(Color(hex: accent), lineWidth: 2)
-                        )
+                        .overlay(RoundedRectangle(cornerRadius: 4)
+                                .stroke(Color(hex: accent), lineWidth: 2))
                         .frame(width: boxSize, height: boxSize)
                     
                     if selected.contains(option) {
                         Image(systemName: "checkmark")
-                            .foregroundColor(Color(hex: background))
+                            .foregroundColor(Color(hex: bg))
                             .font(.system(size: boxSize * 0.7, weight: .bold))
                     }
                 }
@@ -131,10 +129,10 @@ struct CustomToggle: View {
 }
 
 //color picker in text field
-struct ColorPickerTextField: View {
+struct ColorTextField: View {
     var accent: String
-    var background: String
-    @Binding var var_to_change: String
+    var bg: String
+    @Binding var update: String
     var placeholder: String = ""
     var width: CGFloat
     var corner: CGFloat? = 30
@@ -142,12 +140,12 @@ struct ColorPickerTextField: View {
     @State private var selectedColor: Color = .white
     
     var body: some View {
-        CustomTextField(bg: background, accent: accent, placeholder: placeholder, text: $var_to_change, width: width, corner: corner ?? 30)
+        CustomTextField(bg: bg, accent: accent, placeholder: placeholder, text: $update, width: width, corner: corner ?? 30)
         .frame(height: 40)
         .overlay(alignment: .trailing) {
             ZStack {
                 Image(systemName: "eyedropper")
-                    .foregroundColor(Color(hex: background))
+                    .foregroundColor(Color(hex: bg))
                     .font(.system(size: 17, weight: .bold))
                     .padding(.trailing, 15)
                 
@@ -162,10 +160,10 @@ struct ColorPickerTextField: View {
             .padding(.bottom, 8)
         }
         .onChange(of: selectedColor, initial: false) { oldColor, newColor in
-            var_to_change = colorToHex(newColor)
+            update = colorToHex(newColor)
         }
         .onAppear {
-            selectedColor = Color(hex: var_to_change)
+            selectedColor = Color(hex: update)
         }
     }
     
@@ -179,17 +177,17 @@ struct ColorPickerTextField: View {
 }
 
 //calender dropdown in text field
-struct DatePickerTextFieldDropdown: View {
-    @Binding var selectedDate: Date
-    @Binding var textFieldValue: String
-    @Binding var background: String
+struct DateTextField: View {
+    @Binding var date: Date
+    @Binding var textValue: String
+    @Binding var bg: String
     @Binding var accent: String
-    @State var textFieldWidth: CGFloat = 220
-    @State var arrowSpecialCase: Bool = false
-    @State var labelText: String = "Date:"
+    @State var width: CGFloat = 220
+    @State var specialCase: Bool = false
+    @State var label: String = "Date:"
     @State var textSize: CGFloat = 22
     @State var iconSize: CGFloat = 25
-    @State var isBold: Bool = true
+    @State var bold: Bool = true
     
     @State private var showDatePicker: Bool = false
     @State private var screenWidth = UIScreen.main.bounds.width
@@ -205,10 +203,10 @@ struct DatePickerTextFieldDropdown: View {
             ZStack(alignment: .topLeading) {
                 // TextField with button overlay
                 HStack{
-                    CustomText(text: labelText, color: accent, bold: isBold, textSize: 24)
+                    CustomText(text: label, color: accent, bold: bold, textSize: 24)
                         .frame(width: 62, height: 45, alignment: .center)
                     
-                    CustomTextField(bg: background, accent: accent,  placeholder: " ",  text: $textFieldValue,  width: textFieldWidth, textSize: textSize, botPad: 0)
+                    CustomTextField(bg: bg, accent: accent,  placeholder: " ",  text: $textValue,  width: width, textSize: textSize, botPad: 0)
                 }
                 //put the calendar button over the text field
                 .overlay(
@@ -217,7 +215,7 @@ struct DatePickerTextFieldDropdown: View {
                         Button(action: {
                             withAnimation { showDatePicker.toggle() } }){
                             Image(systemName: "calendar")
-                                .foregroundColor(Color(hex: background))
+                                .foregroundColor(Color(hex: bg))
                                 .font(.system(size: iconSize))
                                 .padding(.trailing, 15)
                         }
@@ -226,25 +224,22 @@ struct DatePickerTextFieldDropdown: View {
                 
                 // Calendar dropdown
                 if showDatePicker {
-                    DatePicker(" ", selection: $selectedDate, in: ...Date(), displayedComponents: .date )
+                    DatePicker(" ", selection: $date, in: ...Date(), displayedComponents: .date )
                     .datePickerStyle(GraphicalDatePickerStyle())
-                    .frame(
-                        width: screenWidth * (arrowSpecialCase ? 0.6 : 0.85),
-                        height: screenWidth * (arrowSpecialCase ? 0.7: 0.85)
-                    )
-                    .scaleEffect(arrowSpecialCase ? 0.75 : 1.0)
+                    .frame(width: screenWidth * (specialCase ? 0.6 : 0.85),  height: screenWidth * (specialCase ? 0.7: 0.85))
+                    .scaleEffect(specialCase ? 0.75 : 1.0)
 
                     .background(Color(hex: accent))
-                    .accentColor(Color(hex: background))
-                    .tint(Color(hex: background))
+                    .accentColor(Color(hex: bg))
+                    .tint(Color(hex: bg))
                     .cornerRadius(20)
                     .padding()
                     .padding(.bottom, 45)
                     .offset(y: 60)
                     .colorScheme(Color.isHexColorDark(accent) ? .dark : .light)
                     .transition(.move(edge: .top).combined(with: .opacity))
-                    .onChange(of: selectedDate) {
-                        textFieldValue = formatter.string(from: selectedDate)
+                    .onChange(of: date) {
+                        textValue = formatter.string(from: date)
                         withAnimation { showDatePicker = false }
                     }
                 }
@@ -254,12 +249,11 @@ struct DatePickerTextFieldDropdown: View {
 }
 
 //checkbox with label next to it
-struct CustomSingleCheckbox: View {
+struct SingleCheckbox: View {
     var text: String
     var color: String
     @Binding var isOn: Bool
     var textSize: CGFloat = 24
-    
 
     var body: some View {
         Button {
@@ -281,7 +275,7 @@ struct CustomSingleCheckbox: View {
 }
 
 // mutliple choice group with dynamic sizing
-struct FlexibleWrapRadioLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
+struct FlexibleWrap<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
     var items: Data
     var spacing: CGFloat
     var circleWidth: CGFloat
@@ -334,11 +328,11 @@ struct FlexibleWrapRadioLayout<Data: RandomAccessCollection, Content: View>: Vie
 }
 
 //numerical slider
-struct StepSlider: View {
+struct Slider: View {
     @Binding var value: Int64
     let range: ClosedRange<Int64>
     let step: Int
-    var accentColor: String
+    var color: String
     var width: CGFloat
 
     private var steps: [Int64] {
@@ -356,24 +350,24 @@ struct StepSlider: View {
 
                 ZStack(alignment: .leading) {
                     Rectangle()
-                        .fill(Color(hex: accentColor).opacity(0.3))
+                        .fill(Color(hex: color).opacity(0.3))
                         .frame(width: usableWidth + 2 * margin, height: 4)
                         .position(x: trackWidth / 2, y: geo.size.height / 2)
 
                     Rectangle()
-                        .fill(Color(hex: accentColor))
+                        .fill(Color(hex: color))
                         .frame(width: CGFloat(index) * spacing, height: 4)
                         .position(x: margin + CGFloat(index) * spacing / 2, y: geo.size.height / 2)
 
                     ForEach(0..<steps.count, id: \.self) { i in
                         Rectangle()
-                            .fill(Color(hex: accentColor))
+                            .fill(Color(hex: color))
                             .frame(width: 2, height: 14)
                             .position(x: margin + CGFloat(i) * spacing, y: geo.size.height / 2)
                     }
 
                     Circle()
-                        .fill(Color(hex: accentColor))
+                        .fill(Color(hex: color))
                         .frame(width: 28, height: 28)
                         .position(x: margin + CGFloat(index) * spacing, y: geo.size.height / 2)
                         .gesture(
@@ -390,7 +384,7 @@ struct StepSlider: View {
 
             HStack(spacing: 0) {
                 ForEach(steps, id: \.self) { stepValue in
-                    CustomText(text: "\(Int(stepValue))",  color: accentColor, textAlign: .center,  textSize: 18)
+                    CustomText(text: "\(Int(stepValue))",  color: color, textAlign: .center,  textSize: 18)
                     .frame(width: 35)
                 }
             }
@@ -402,7 +396,7 @@ struct StepSlider: View {
     }
 }
 
-struct MultipleChoiceButtonGroup: View {
+struct MultipleChoice: View {
     @Binding var options: [String]
     @Binding var selected: String?
     var accent: String
@@ -413,7 +407,7 @@ struct MultipleChoiceButtonGroup: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            FlexibleWrapRadioLayout(items: options, spacing: 12, circleWidth: circleWidth, charWidth: charWidth) { option in
+            FlexibleWrap(items: options, spacing: 12, circleWidth: circleWidth, charWidth: charWidth) { option in
                 HStack(spacing: 8) {
                     Circle()
                         .stroke(Color(hex: accent), lineWidth: 2)
@@ -448,18 +442,18 @@ struct MultipleChoiceButtonGroup: View {
 
 //dropdown option picker
 struct CustomDropdown: View {
-    @Binding var color_theme: String
-    @Binding var background: String
+    @Binding var theme: String
+    @Binding var bg: String
     @Binding var accent: String
     var options: [String]
     var width: CGFloat
     var height: CGFloat
-    var cornerRadius: CGFloat
+    var corner: CGFloat
     var fontSize: CGFloat
     
     var body: some View {
         Menu {
-            Picker(selection: $color_theme, label: EmptyView()) {
+            Picker(selection: $theme, label: EmptyView()) {
                 ForEach(options, id: \.self) { theme in
                     Text(theme)
                         .padding(.leading, 5)
@@ -468,7 +462,7 @@ struct CustomDropdown: View {
             
         } label: {
             HStack {
-                Text(color_theme)
+                Text(theme)
                     .font(.system(size: fontSize, design: .serif))
                     .padding(.leading, 5)
                 Spacer()
@@ -478,13 +472,13 @@ struct CustomDropdown: View {
             }
             .padding(.leading, 10)
             .frame(width: width, height: height, alignment: .leading)
-            .background( RoundedRectangle(cornerRadius: cornerRadius)
+            .background( RoundedRectangle(cornerRadius: corner)
                     .fill(Color(hex: accent)))
-            .foregroundColor(Color(hex: background))
+            .foregroundColor(Color(hex: bg))
         }
-        .onChange(of: color_theme) {
-            let colors = Database.getThemeColors(theme: color_theme, currentBackground: background, currentAccent: accent)
-            background = colors.background
+        .onChange(of: theme) {
+            let colors = Database.getThemeColors(theme: theme, currentBackground: bg, currentAccent: accent)
+            bg = colors.background
             accent = colors.accent
         }
         .buttonStyle(.plain)

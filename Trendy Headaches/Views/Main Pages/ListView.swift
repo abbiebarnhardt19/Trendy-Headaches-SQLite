@@ -88,7 +88,7 @@ struct ListView: View {
                     //table
                     HStack{
                         Spacer()
-                        ScrollableLogTable( userID: userID, logList: logList, selectedColumns: selectedCols, background: bg, accent: accent, height: popupHeight, width: screenWidth - 20, deleteCount: $deleteCount, onLogTap: { id, table in
+                        ScrollableLogTable( userID: userID, list: logList, selectedCols: selectedCols, bg: bg, accent: accent, height: popupHeight, width: screenWidth - 20, deleteCount: $deleteCount, onLogTap: { id, table in
                             selectLog = id
                             selectTable = table
                         })
@@ -103,7 +103,7 @@ struct ListView: View {
                         Spacer()
                         HStack {
                             Spacer()
-                            filterPopUp(accent: accent, background: bg, columnOptions: colOptions, selectedColumns: $selectedCols, logTypeOptions: $logTypeOptions, logType: $logTypeFilter, startDate: $startDate, endDate: $endDate, stringStartDate: $stringStartDate, stringEndDate: $stringEndDate, sevStart: $sevStart, sevEnd: $sevEnd, symptomOptions: $sympOptions, selectedSymptoms: $selectedSymps)
+                            filterPopUp(accent: accent, bg: bg, colOptions: colOptions, selectedCols: $selectedCols, typeOptions: $logTypeOptions, type: $logTypeFilter, start: $startDate, end: $endDate, stringStart: $stringStartDate, stringEnd: $stringEndDate, sevStart: $sevStart, sevEnd: $sevEnd, sympOptions: $sympOptions, selectedSymps: $selectedSymps)
                                 .padding(.trailing, 20)
                                 .padding(.bottom, 120)
                         }
@@ -117,7 +117,7 @@ struct ListView: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        FilterDropDown(background: bg, accent: accent, showPopUp: $showFilter)
+                        FilterDropDown(accent: accent, popUp: $showFilter)
                     }
                     .padding(.bottom, 90)
                 }

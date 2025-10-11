@@ -31,7 +31,7 @@ struct CreateAccountView2: View {
                         .padding(.leading, leadPad)
 
                     // Theme dropdown
-                    CustomDropdown(color_theme: $theme, background: $bg, accent: $accent, options: themeOptions,  width: screenWidth - 50, height: 50, cornerRadius: 30, fontSize: 22)
+                    CustomDropdown(theme: $theme, bg: $bg, accent: $accent, options: themeOptions,  width: screenWidth - 50, height: 50, corner: 30, fontSize: 22)
 
                     // Custom theme input fields
                     if theme == "Custom" {
@@ -39,9 +39,9 @@ struct CreateAccountView2: View {
                         .padding(.bottom, 10)
                         
                         HStack (spacing: 20){
-                            ColorPickerTextField(accent: accent, background: bg, var_to_change: $bg, placeholder: "Enter HEX color", width: hexWidth)
+                            ColorTextField(accent: accent, bg: bg, update: $bg, placeholder: "Enter HEX color", width: hexWidth)
                             
-                            ColorPickerTextField(accent: accent, background: bg, var_to_change: $accent, placeholder: "Enter HEX color", width: hexWidth)
+                            ColorTextField(accent: accent, bg: bg, update: $accent, placeholder: "Enter HEX color", width: hexWidth)
                         }
                     }
                     

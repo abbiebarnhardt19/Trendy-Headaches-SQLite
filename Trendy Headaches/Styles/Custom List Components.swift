@@ -8,12 +8,11 @@
 import SwiftUI
 
 struct FilterDropDown: View {
-    @State var background: String
     @State var accent: String
-    @Binding var showPopUp: Bool
+    @Binding var popUp: Bool
     
     var body: some View {
-        Button(action: { showPopUp.toggle() }) {
+        Button(action: { popUp.toggle() }) {
             Image(systemName: "line.horizontal.3.decrease.circle")
                 .font(.system(size: 65))
                 .foregroundColor(Color(hex: accent))
@@ -27,19 +26,19 @@ struct FilterDropDown: View {
 
 struct filterPopUp: View {
     @State var accent: String
-    @State var background: String
-    @State var columnOptions: [String]
-    @Binding var selectedColumns: [String]
-    @Binding var logTypeOptions: [String]
-    @Binding var logType: [String]
-    @Binding var startDate: Date
-    @Binding var endDate: Date
-    @Binding var stringStartDate: String
-    @Binding var stringEndDate: String
+    @State var bg: String
+    @State var colOptions: [String]
+    @Binding var selectedCols: [String]
+    @Binding var typeOptions: [String]
+    @Binding var type: [String]
+    @Binding var start: Date
+    @Binding var end: Date
+    @Binding var stringStart: String
+    @Binding var stringEnd: String
     @Binding var sevStart: Int64
     @Binding var sevEnd: Int64
-    @Binding var symptomOptions: [String]
-    @Binding var selectedSymptoms: [String]
+    @Binding var sympOptions: [String]
+    @Binding var selectedSymps: [String]
 
     @State private var expandedWidth: CGFloat = 215
     @State private var unexpandedWidth: CGFloat = 255
@@ -55,14 +54,14 @@ struct filterPopUp: View {
         VStack(alignment: .leading, spacing: 10) {
             // MARK: Columns
                 sectionButton(title: "Columns", section: .columns) {
-                    MultipleChoiceCheckboxGroup(options: $columnOptions, selected: $selectedColumns, accent: background, background: accent, width: expandedWidth)
+                    MultipleCheckbox(options: $colOptions, selected: $selectedCols, accent: bg, bg: accent, width: expandedWidth)
                     .padding(.leading, 10)
                     .padding(.top, 10)
                 }
             
             // MARK: Log Type
             sectionButton(title: "Log Type", section: .logType) {
-                MultipleChoiceCheckboxGroup(options: $logTypeOptions, selected: $logType, accent: background, background: accent, width: expandedWidth)
+                MultipleCheckbox(options: $typeOptions, selected: $type, accent: bg, bg: accent, width: expandedWidth)
                 .padding(.top, 10)
                 .padding(.leading, 10)
             }
@@ -70,10 +69,10 @@ struct filterPopUp: View {
             // MARK: Date
             sectionButton(title: "Date", section: .date) {
                 VStack {
-                        DatePickerTextFieldDropdown(selectedDate: $startDate, textFieldValue: $stringStartDate, background: $accent,  accent: $background, textFieldWidth: 155, arrowSpecialCase: true, labelText: "Start:", textSize: 21,  iconSize: 30,  isBold: false)
+                        DateTextField(date: $start, textValue: $stringStart, bg: $accent,  accent: $bg, width: 155, specialCase: true, label: "Start:", textSize: 21,  iconSize: 30,  bold: false)
                         .padding(.top, 10)
 
-                        DatePickerTextFieldDropdown(selectedDate: $endDate, textFieldValue: $stringEndDate, background: $accent,  accent: $background, textFieldWidth: 155, arrowSpecialCase: true, labelText: "End:",  textSize: 21, iconSize: 30,  isBold: false)
+                        DateTextField(date: $end, textValue: $stringEnd, bg: $accent,  accent: $bg, width: 155, specialCase: true, label: "End:",  textSize: 21, iconSize: 30,  bold: false)
                 }
                 .padding(.leading, 5)
             }
@@ -81,14 +80,14 @@ struct filterPopUp: View {
             // MARK: Severity
             sectionButton(title: "Severity", section: .severity) {
                 HStack {
-                    CustomTextField(bg: accent,  accent: background, placeholder: "", text: Binding(get: { String(sevStart) }, set: { sevStart = Int64($0) ?? 0 }),
+                    CustomTextField(bg: accent,  accent: bg, placeholder: "", text: Binding(get: { String(sevStart) }, set: { sevStart = Int64($0) ?? 0 }),
                         width: 65, align: .center)
                     .padding(.top, 10)
                     
-                    CustomText(text: " to ", color: background, width: 30)
+                    CustomText(text: " to ", color: bg, width: 30)
                         .padding(.top, 10)
                     
-                    CustomTextField(bg: accent, accent: background, placeholder: "", text: Binding(get: { String(sevEnd) }, set: { sevEnd = Int64($0) ?? 0 }), width: 65,  align: .center)
+                    CustomTextField(bg: accent, accent: bg, placeholder: "", text: Binding(get: { String(sevEnd) }, set: { sevEnd = Int64($0) ?? 0 }), width: 65,  align: .center)
                     .padding(.top, 10)
                 }
                 .padding(.leading, 10)
@@ -96,7 +95,7 @@ struct filterPopUp: View {
 
             // MARK: Symptoms
             sectionButton(title: "Symptoms", section: .symptoms) {
-                MultipleChoiceCheckboxGroup(options: $symptomOptions, selected: $selectedSymptoms, accent: background, background: accent, width: expandedWidth)
+                MultipleCheckbox(options: $sympOptions, selected: $selectedSymps, accent: bg, bg: accent, width: expandedWidth)
                 .padding(.leading, 10)
                 .padding(.top, 10)
             }
@@ -104,7 +103,7 @@ struct filterPopUp: View {
         .padding(10)
         .padding(.trailing, 10)
         .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(Color(hex: background), lineWidth: 3))
+                .stroke(Color(hex: bg), lineWidth: 3))
         .background(Color(hex: accent))
         .cornerRadius(20)
         .padding(.bottom, 40)
@@ -131,7 +130,7 @@ struct filterPopUp: View {
         
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 5) {
-                CustomText(text: title, color: background,  width: currentWidth, textAlign: .leading, bold: true)
+                CustomText(text: title, color: bg,  width: currentWidth, textAlign: .leading, bold: true)
                 
                 Button(action: {
                     withAnimation(.easeInOut) {
@@ -141,7 +140,7 @@ struct filterPopUp: View {
                     Image(systemName: "chevron.down")
                         .rotationEffect(.degrees(isExpanded ? 180 : 0))
                         .font(.system(size: 20))
-                        .foregroundColor(Color(hex: background))
+                        .foregroundColor(Color(hex: bg))
                 }
                 .buttonStyle(PlainButtonStyle())
             }
@@ -165,9 +164,9 @@ extension String {
 
 struct ScrollableLogTable: View {
     var userID: Int64
-    var logList: [UnifiedLog]
-    var selectedColumns: [String]
-    @State var background: String
+    var list: [UnifiedLog]
+    var selectedCols: [String]
+    @State var bg: String
     @State var accent: String
     @State var height: CGFloat
     @State var width: CGFloat
@@ -197,7 +196,7 @@ struct ScrollableLogTable: View {
     }
     
     var tableWidth: CGFloat {
-        let contentWidth = selectedColumns.reduce(0) { sum, col in
+        let contentWidth = selectedCols.reduce(0) { sum, col in
             sum + (columnWidths[col] ?? defaultWidths[col] ?? 100)
         }
         return min(width, contentWidth)
@@ -207,7 +206,7 @@ struct ScrollableLogTable: View {
         let charWidth: CGFloat = 9.5
         let padding: CGFloat = 16
         let headerCount = column.count
-        let maxRowCount = logList.map { value(for: column, in: $0).count }.max() ?? 0
+        let maxRowCount = list.map { value(for: column, in: $0).count }.max() ?? 0
         let maxCount = max(headerCount, maxRowCount)
         let rawWidth = CGFloat(maxCount) * charWidth + padding
 
@@ -228,14 +227,14 @@ struct ScrollableLogTable: View {
                             VStack(spacing: 0) {
                                 headerRow
                             Rectangle()
-                                .fill(Color(hex: background).opacity(0.4))
+                                .fill(Color(hex: bg).opacity(0.4))
                                 .frame(height: 2)
                             } )
                         {
-                            ForEach(logList, id: \.id) { log in
+                            ForEach(list, id: \.id) { log in
                                 row(for: log)
                                 Rectangle()
-                                    .fill(Color(hex: background).opacity(0.3))
+                                    .fill(Color(hex: bg).opacity(0.3))
                                     .frame(height: 2)
                             }
                         }
@@ -246,8 +245,8 @@ struct ScrollableLogTable: View {
             .background(Color(hex: accent))
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color(hex: background).opacity(0.5), lineWidth: 1) )
-            .frame(height: min(height, headerHeight + CGFloat(logList.count) * rowHeight))
+                    .stroke(Color(hex: bg).opacity(0.5), lineWidth: 1) )
+            .frame(height: min(height, headerHeight + CGFloat(list.count) * rowHeight))
             .frame(width: tableWidth)
         }
 
@@ -266,7 +265,7 @@ struct ScrollableLogTable: View {
                     }
                 }
             }
-            for col in selectedColumns {
+            for col in selectedCols {
                 let width = autoWidth(for: col)
                 columnWidths[col] = width
                 defaultWidths[col] = width
@@ -286,11 +285,11 @@ struct ScrollableLogTable: View {
     // MARK: - Header
     private var headerRow: some View {
         HStack(spacing: 0) {
-            ForEach(selectedColumns, id: \.self) { column in
+            ForEach(selectedCols, id: \.self) { column in
                 ZStack(alignment: .trailing) {
-                    CustomText(text: column, color: background,  textAlign: .center, multiAlign: .center, bold: true, textSize: 18)
+                    CustomText(text: column, color: bg,  textAlign: .center, multiAlign: .center, bold: true, textSize: 18)
                     .frame(width: effectiveWidth(for: column), height: headerHeight)
-                    .background(Color.blend(Color(hex: background), Color(hex: accent), ratio: 0.8))
+                    .background(Color.blend(Color(hex: bg), Color(hex: accent), ratio: 0.8))
 
                     //for resizing
                     Rectangle()
@@ -322,7 +321,7 @@ struct ScrollableLogTable: View {
                     }
                 }
                 Rectangle()
-                    .fill(Color(hex: background).opacity(0.4))
+                    .fill(Color(hex: bg).opacity(0.4))
                     .frame(width: 2)
             }
         }
@@ -331,14 +330,14 @@ struct ScrollableLogTable: View {
 
     // MARK: - Row
     private func row(for log: UnifiedLog) -> some View {
-        let isLastRow = log.id == logList.last?.id
+        let isLastRow = log.id == list.last?.id
 
         return HStack(spacing: 0) {
-            ForEach(selectedColumns.indices, id: \.self) { index in
-                let column = selectedColumns[index]
-                let isLastColumn = index == selectedColumns.count - 1
+            ForEach(selectedCols.indices, id: \.self) { index in
+                let column = selectedCols[index]
+                let isLastColumn = index == selectedCols.count - 1
 
-                CustomText(text: value(for: column, in: log), color: background,  textAlign: .center, textSize: 16)
+                CustomText(text: value(for: column, in: log), color: bg,  textAlign: .center, textSize: 16)
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .frame(width: effectiveWidth(for: column), height: rowHeight)
@@ -347,7 +346,7 @@ struct ScrollableLogTable: View {
                 // Divider for all but the last column
                 if !isLastColumn {
                     Rectangle()
-                        .fill(Color(hex: background).opacity(0.3))
+                        .fill(Color(hex: bg).opacity(0.3))
                         .frame(width: 2)
                 } else {
                     // Add right padding space for last column

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EditableList: View {
     @Binding var items: [String]
-    var title, backgroundColor, accentColor: String
+    var title, bg, accent: String
     var onAdd: (String) -> Void
     var onEdit: (String, String) -> Void
     var onDelete: (String) -> Void
@@ -54,8 +54,8 @@ struct EditableList: View {
                 .padding(.vertical, 10)
                 .padding(.trailing, 90)
                 .padding(.leading, 10)
-                .background(Color(hex: accentColor))
-                .foregroundColor(Color(hex: backgroundColor))
+                .background(Color(hex: accent))
+                .foregroundColor(Color(hex: bg))
                 .cornerRadius(8)
                 .font(.system(size: 20, design: .serif))
                 .frame(height: rowHeight)
@@ -87,7 +87,7 @@ struct EditableList: View {
             ZStack(alignment: .trailing) {
                 ZStack(alignment: .leading) {
                     if newItemText.isEmpty {
-                        CustomText(text: "New item", color: backgroundColor, textSize: 20)
+                        CustomText(text: "New item", color: bg, textSize: 20)
                             .padding(.leading, 10)
                             .padding(.vertical, 10)
                     }
@@ -96,11 +96,11 @@ struct EditableList: View {
                         .padding(.leading, 10)
                         .padding(.trailing, 35)
                         .font(.system(size: 20, design: .serif))
-                        .foregroundColor(Color(hex: backgroundColor))
+                        .foregroundColor(Color(hex: bg))
                         .background(Color.clear)
                         .cornerRadius(8)
                 }
-                .background(Color(hex: accentColor))
+                .background(Color(hex: accent))
                 .cornerRadius(8)
                 .frame(height: rowHeight)
 
@@ -112,7 +112,7 @@ struct EditableList: View {
                     newItemText = ""
                 } label: {
                     Image(systemName: "plus.circle.fill")
-                        .foregroundColor(Color(hex: backgroundColor))
+                        .foregroundColor(Color(hex: bg))
                         .padding(.trailing, 8)
                         .font(.system(size: 28))
                 }
@@ -125,16 +125,16 @@ struct EditableList: View {
     private func actionButton(systemName: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemName)
-                .foregroundColor(Color(hex: backgroundColor))
+                .foregroundColor(Color(hex: bg))
                 .font(.system(size: 28))
         }
         .buttonStyle(PlainButtonStyle())
     }
 }
 
-struct CustomFloatButton: View {
+struct FloatButton: View {
     var accent: String
-    var background: String
+    var bg: String
     var options: [String]
     var actions: [() -> Void]
     
@@ -154,7 +154,7 @@ struct CustomFloatButton: View {
                     .font(.system(size: 40, design: .serif))
                     .padding(20)
                     .background(Color(hex: accent))
-                    .foregroundColor(Color(hex: background))
+                    .foregroundColor(Color(hex: bg))
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
@@ -171,11 +171,11 @@ struct CustomFloatButton: View {
                     Text(option)
                         .frame(width: 140, height: 40)
                         .background(Color(hex: accent))
-                        .foregroundColor(Color(hex: background))
+                        .foregroundColor(Color(hex: bg))
                         .font(.system(size: 15, design: .serif))
                         .cornerRadius(20)
                         .overlay(RoundedRectangle(cornerRadius: 25)
-                                .stroke(Color(hex: background), lineWidth: 2))
+                                .stroke(Color(hex: bg), lineWidth: 2))
                         .opacity(showMenu ? 1 : 0)
                         .scaleEffect(showMenu ? 1 : 0.5)
                 }

@@ -72,7 +72,7 @@ struct CreateAccountView3: View {
     
     private func createAccount() {
         do{
-            try Database.createUser(email: email, password: passOne,  securityQuestion: SQ,  securityAnswer: SA,  background: bg, accent: accent, symptoms: symps, preventativeMeds: prevMeds, emergencyMeds: emergMeds, triggers: triggs)
+            try Database.createUser(email: email, pass: passOne,  SQ: SQ,  SA: SA,  bg: bg, accent: accent, symps: symps, prevMeds: prevMeds, emergMeds: emergMeds, triggs: triggs)
             created = true
         }
         catch{

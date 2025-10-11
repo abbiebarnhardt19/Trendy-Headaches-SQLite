@@ -160,28 +160,28 @@ struct LogView: View {
                 dateField(label: "Date:", text: $stringDate)
                 
                 CustomText(text: "Symptom*", color: accent, bold: true, textSize: 24)
-                MultipleChoiceButtonGroup(options: $sympOptions, selected: $symp, accent: accent)
+                MultipleChoice(options: $sympOptions, selected: $symp, accent: accent)
                 
                 CustomText(text: "Symptom Severity*", color: accent, bold: true, textSize: 24)
-                StepSlider(value: $severity, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
+                Slider(value: $severity, range: 1...10, step: 1, color: accent, width: screenWidth - 50)
                 
                 CustomText(text: "Symptom Onset", color: accent, bold: true, textSize: 24)
-                MultipleChoiceButtonGroup(options: $onsetOptions, selected: $onset, accent: accent)
+                MultipleChoice(options: $onsetOptions, selected: $onset, accent: accent)
                 
-                CustomSingleCheckbox(text: "Emergency Med Taken?", color: accent, isOn: $medTaken)
+                SingleCheckbox(text: "Emergency Med Taken?", color: accent, isOn: $medTaken)
                 
                 if medTaken{
                     CustomText(text: "Emergency Med Name*", color: accent, bold: true, textSize: 24)
-                    MultipleChoiceButtonGroup(options: $emergMedOptions, selected: $medTakenName, accent: accent)
+                    MultipleChoice(options: $emergMedOptions, selected: $medTakenName, accent: accent)
                         
                     
                     if existingLog != nil{
-                        CustomSingleCheckbox(text: "Emergency Med Effective?", color: accent, isOn: $medEffective )
+                        SingleCheckbox(text: "Emergency Med Effective?", color: accent, isOn: $medEffective )
                     }
                 }
                 
                 CustomText(text: "Triggers Present", color: accent, bold: true, textSize: 24)
-                MultipleChoiceCheckboxGroup(options: $triggOptions, selected: $selectedTriggs, accent: accent, background: bg, width: screenWidth-100)
+                MultipleCheckbox(options: $triggOptions, selected: $selectedTriggs, accent: accent, bg: bg, width: screenWidth-100)
                     .padding(.leading, 5)
                 
                 textFieldSection(title: "Symptom Description", text: $sympDesc)
@@ -232,10 +232,10 @@ struct LogView: View {
             textFieldSection(title: "Side Effect*", text: $sideEffectName)
             
             CustomText(text: "Side Effect Severity*", color: accent, bold: true, textSize: 24)
-            StepSlider(value: $sideEffectSev, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
+            Slider(value: $sideEffectSev, range: 1...10, step: 1, color: accent, width: screenWidth - 50)
             
             CustomText(text: "Medication*", color: accent, bold: true, textSize: 24)
-            MultipleChoiceButtonGroup(options: $medOptions, selected: $selectedMed, accent: accent)
+            MultipleChoice(options: $medOptions, selected: $selectedMed, accent: accent)
             
             HStack{
                 Spacer()
@@ -267,7 +267,7 @@ struct LogView: View {
     //date field, which is reused for both views
     private func dateField(label: String, text: Binding<String>) -> some View {
         HStack {
-            DatePickerTextFieldDropdown(selectedDate: $date,  textFieldValue: $stringDate, background: $bg, accent: $accent)
+            DateTextField(date: $date,  textValue: $stringDate, bg: $bg, accent: $accent)
         }
     }
     
@@ -290,11 +290,11 @@ struct LogView: View {
         sideEffectDate = formatter.string(from: Date())
         
         //get data from database
-        sympOptions = Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
-        triggOptions = Database.deleteListDuplicates(list: Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name"))
-        medOptions = Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name")
+        sympOptions = Database.shared.getListVals(userId: userID, table: "symptoms", col: "symptom_name")
+        triggOptions = Database.deleteDups(list: Database.shared.getListVals(userId: userID, table: "triggers", col: "trigger_name"))
+        medOptions = Database.shared.getListVals(userId: userID, table: "medications", col: "medication_name")
         
-        emergMedOptions = Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name", filterColumn: "medication_category", filterValue: "emergency")
+        emergMedOptions = Database.shared.getListVals(userId: userID, table: "medications", col: "medication_name", filterCol: "medication_category", filterVal: "emergency")
         
         if let existingLog = existingLog {
             if let log = Database.shared.getUnifiedLog(by: existingLog, logType: existingTable ?? "") {

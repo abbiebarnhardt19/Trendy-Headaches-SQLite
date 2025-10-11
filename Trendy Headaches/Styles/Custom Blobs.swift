@@ -10,7 +10,7 @@ import Foundation
 
 struct SameAmplitudeBlob: View {
     var waves: Int
-    var amplitude: CGFloat
+    var amp: CGFloat
     var accent: String
     var x: CGFloat
     var y: CGFloat
@@ -20,7 +20,7 @@ struct SameAmplitudeBlob: View {
     var height: CGFloat? = 500
 
     var body: some View {
-        BlobShape(waves: waves, amplitude: amplitude, seed: seed)
+        BlobShape(waves: waves, amplitude: amp, seed: seed)
             .fill(Color(hex: accent))
             .frame(width: width ?? 700, height: height ?? 500)
             .offset(x:x, y:y)
@@ -67,7 +67,7 @@ struct SameAmplitudeBlob: View {
 
 struct WavyTopBottomRectangle: View {
     var waves: Int
-    var amplitude: CGFloat
+    var amp: CGFloat
     var accent: String
     var x: CGFloat
     var y: CGFloat
@@ -81,8 +81,8 @@ struct WavyTopBottomRectangle: View {
             let step = width / CGFloat(waves)
             
             var rng = SeededGenerator(seed: seed)
-            let topAmps = (0..<waves).map { _ in amplitude * CGFloat(Double.random(in: 0.7...1.3, using: &rng)) }
-            let bottomAmps = (0..<waves).map { _ in amplitude * CGFloat(Double.random(in: 0.7...1.3, using: &rng)) }
+            let topAmps = (0..<waves).map { _ in amp * CGFloat(Double.random(in: 0.7...1.3, using: &rng)) }
+            let bottomAmps = (0..<waves).map { _ in amp * CGFloat(Double.random(in: 0.7...1.3, using: &rng)) }
 
             path.move(to: CGPoint(x: 0, y: height))
 

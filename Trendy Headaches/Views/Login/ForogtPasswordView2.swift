@@ -76,15 +76,9 @@ struct ForgotPasswordView2: View {
                     }
                 }
                 .onAppear {
-                    userID = Database.shared.getUserFromEmail(email: email)
-                    SQ = Database.shared.getSingleColumnValue(
-                        userId: userID ?? -1,
-                        columnName: "security_question"
-                    ) ?? ""
-                    SA = Database.shared.getSingleColumnValue(
-                        userId: userID ?? -1,
-                        columnName: "security_answer"
-                    ) ?? ""
+                    userID = Database.shared.userFromEmail(email: email)
+                    SQ = Database.shared.getSingleVal(userId: userID ?? -1, col: "security_question") ?? ""
+                    SA = Database.shared.getSingleVal(userId: userID ?? -1, col: "security_answer") ?? ""
                 }
             }
         }
