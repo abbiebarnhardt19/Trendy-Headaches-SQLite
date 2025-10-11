@@ -1,18 +1,78 @@
+////
+////  NavBarView.swift
+////  Trendy Headaches
+////
+////  Created by Abigail Barnhardt on 8/31/25.
+////
 //
-//  NavBarView.swift
-//  Trendy Headaches
+//import SwiftUI
 //
-//  Created by Abigail Barnhardt on 8/31/25.
+//struct NavBarView: View {
+//    let userID: Int64
+//    @Binding var background: String
+//    @Binding var accent: String
+//    
+//    // Simple model for each tab
+//    struct NavItem {
+//        let icon: String
+//        let label: String
+//        let destination: AnyView
+//        let padding: EdgeInsets?
+//    }
+//    
+//    var navItems: [NavItem]
+//    {
+//        [NavItem(icon: "square.and.pencil", label: "Log", destination: AnyView(LogView(userID: userID, background: $background, accent: $accent) .navigationBarBackButtonHidden(true)), padding: EdgeInsets(top: 0, leading: 15, bottom: 0, trailing: 0)),
+//            
+//            NavItem( icon: "list.bullet",  label: "List", destination: AnyView( ListView(userID: userID, background: $background, accent: $accent).navigationBarBackButtonHidden(true) ), padding: EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0)),
+//            
+//            NavItem( icon: "chart.bar.xaxis",  label: "Analytics",  destination: AnyView( AnalyticsView(userID: userID, background: $background, accent: $accent) .navigationBarBackButtonHidden(true) ),padding: nil),
+//            
+//            NavItem(icon: "person.fill", label: "Profile", destination: AnyView( ProfileView(userID: userID, background: $background, accent: $accent) .navigationBarBackButtonHidden(true)),  padding: EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 15))]
+//    }
+//    
+//    var body: some View {
+//        ZStack {
+//            Color(hex: background)
+//            HStack {
+//                ForEach(navItems.indices, id: \.self) { index in
+//                    let item = navItems[index]
+//                    NavigationLink(destination: item.destination) {
+//                        VStack(spacing: 2) {
+//                            Image(systemName: item.icon)
+//                            CustomText(text: item.label, color: accent,  textAlignment: .center, multilineAlignment: .center, textSize: 15)
+//                        }
+//                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                        .padding(item.padding ?? EdgeInsets())
+//                    }
+//                    .padding(.bottom, 5)
+//                    .buttonStyle(.plain)
+//                }
+//            }
+//            .foregroundColor(Color(hex: accent))
+//        }
+//        .frame(maxWidth: UIScreen.main.bounds.width)
+//        .frame(height: 80)
+//        .ignoresSafeArea(edges: .bottom)
+//    }
+//}
 //
-
+//#Preview {
+//    NavBarView(
+//        userID: 1,
+//        background: .constant("#001d00"),
+//        accent: .constant("#b5c4b9")
+//    )
+//}
 import SwiftUI
 
 struct NavBarView: View {
     let userID: Int64
     @Binding var background: String
     @Binding var accent: String
+    @Binding var selectedIndex: Int
     
-    // Simple model for each tab
+    
     struct NavItem {
         let icon: String
         let label: String
@@ -20,15 +80,24 @@ struct NavBarView: View {
         let padding: EdgeInsets?
     }
     
-    var navItems: [NavItem]
-    {
-        [NavItem(icon: "square.and.pencil", label: "Log", destination: AnyView(LogView(userID: userID, background: $background, accent: $accent) .navigationBarBackButtonHidden(true)), padding: EdgeInsets(top: 0, leading: 15, bottom: 0, trailing: 0)),
+    var navItems: [NavItem] {
+        [
+            NavItem(icon: "square.and.pencil", label: "Log",
+                    destination: AnyView(LogView(userID: userID, background: $background, accent: $accent).navigationBarBackButtonHidden(true)),
+                    padding: EdgeInsets(top: 0, leading: 15, bottom: 0, trailing: 0)),
             
-            NavItem( icon: "list.bullet",  label: "List", destination: AnyView( ListView(userID: userID, background: $background, accent: $accent).navigationBarBackButtonHidden(true) ), padding: EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0)),
+            NavItem(icon: "list.bullet", label: "List",
+                    destination: AnyView(ListView(userID: userID, background: $background, accent: $accent).navigationBarBackButtonHidden(true)),
+                    padding: EdgeInsets(top: 3, leading: 0, bottom: 0, trailing: 0)),
             
-            NavItem( icon: "chart.bar.xaxis",  label: "Analytics",  destination: AnyView( AnalyticsView(userID: userID, background: $background, accent: $accent) .navigationBarBackButtonHidden(true) ),padding: nil),
+            NavItem(icon: "chart.bar.xaxis", label: "Analytics",
+                    destination: AnyView(AnalyticsView(userID: userID, background: $background, accent: $accent).navigationBarBackButtonHidden(true)),
+                    padding: nil),
             
-            NavItem(icon: "person.fill", label: "Profile", destination: AnyView( ProfileView(userID: userID, background: $background, accent: $accent) .navigationBarBackButtonHidden(true)),  padding: EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 15))]
+            NavItem(icon: "person.fill", label: "Profile",
+                    destination: AnyView(ProfileView(userID: userID, background: $background, accent: $accent).navigationBarBackButtonHidden(true)),
+                    padding: EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 15))
+        ]
     }
     
     var body: some View {
@@ -37,18 +106,44 @@ struct NavBarView: View {
             HStack {
                 ForEach(navItems.indices, id: \.self) { index in
                     let item = navItems[index]
+                    
                     NavigationLink(destination: item.destination) {
                         VStack(spacing: 2) {
                             Image(systemName: item.icon)
-                            CustomText(text: item.label, color: accent,  textAlignment: .center, multilineAlignment: .center, textSize: 15)
+                                .font(.system(size: 22))
+                            CustomText(text: item.label,
+                                       color: accent,
+                                       textAlignment: .center,
+                                       multilineAlignment: .center,
+                                       textSize: 15)
                         }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .padding(item.padding ?? EdgeInsets())
+                        .frame(width: 70, height: 70)
+                        .background(
+                            ZStack {
+                                if selectedIndex == index {
+                                    RoundedRectangle(cornerRadius: 35)
+                                        .fill(Color(hex: accent).opacity(0.15))
+                                        .blur(radius: 8)
+                                    RoundedRectangle(cornerRadius: 35)
+                                        .fill(Color(hex: accent).opacity(0.1))
+                                        .blur(radius: 16)
+                                    RoundedRectangle(cornerRadius: 35)
+                                        .fill(Color(hex: accent).opacity(0.05))
+                                        .blur(radius: 40)
+                                }
+                            }
+                        )
+                        .animation(.easeInOut(duration: 0.3), value: selectedIndex)
                     }
-                    .padding(.bottom, 5)
                     .buttonStyle(.plain)
+//                    .onTapGesture {
+//                        withAnimation {
+//                            selectedIndex = index
+//                        }
+//                    }
                 }
             }
+            .frame(maxWidth: .infinity)
             .foregroundColor(Color(hex: accent))
         }
         .frame(maxWidth: UIScreen.main.bounds.width)
@@ -61,6 +156,7 @@ struct NavBarView: View {
     NavBarView(
         userID: 1,
         background: .constant("#001d00"),
-        accent: .constant("#b5c4b9")
+        accent: .constant("#b5c4b9"),
+        selectedIndex: .constant(0)
     )
 }

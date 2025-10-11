@@ -132,7 +132,7 @@ struct LogView: View {
                 }
                 .padding(.leading, leadingPadding)
                 
-                VStack { Spacer(); NavBarView(userID: userID, background: $background, accent: $accent) }
+                VStack { Spacer(); NavBarView(userID: userID, background: $background, accent: $accent, selectedIndex: .constant(0)) }
                     .zIndex(1)
                     .ignoresSafeArea(edges: .bottom)
             }

@@ -48,9 +48,9 @@ struct ProfileView: View {
                 Color(hex: newBackground).ignoresSafeArea()
                 
                 // Decorative blobs
-                SameAmplitudeBlob(waves: 15, amplitude: 15, accent: newAccent, x: 100, y: -375, rotation: -35)
+                SameAmplitudeBlob(waves: 15, amplitude: 11, accent: newAccent, x: 100, y: -395, rotation: -35)
                     .zIndex(1)
-                SameAmplitudeBlob(waves: 15, amplitude: 15, accent: newAccent, x: 265, y: -180, rotation: 145)
+                SameAmplitudeBlob(waves: 15, amplitude: 11, accent: newAccent, x: 265, y: -180, rotation: 145)
                     .zIndex(1)
                 
                 // Content
@@ -68,7 +68,7 @@ struct ProfileView: View {
                 // Bottom Nav Bar
                 VStack {
                     Spacer()
-                    NavBarView(userID: userID, background: $newBackground, accent: $newAccent)
+                    NavBarView(userID: userID, background: $newBackground, accent: $newAccent, selectedIndex: .constant(3))
                 }
                 .ignoresSafeArea(edges: .bottom)
                 .zIndex(1)
@@ -97,7 +97,8 @@ struct ProfileView: View {
         let columnWidth = screenWidth / 2
         
         CustomText(text: "User Profile", color: newAccent, textAlignment: .center, textSize: 45)
-            .padding(.vertical, 50)
+            .padding(.top, 30)
+            .padding(.bottom, 10)
         
         HStack(alignment: .top) {
             VStack(alignment: .center) {

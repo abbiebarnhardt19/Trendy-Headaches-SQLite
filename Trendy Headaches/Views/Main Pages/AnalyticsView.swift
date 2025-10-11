@@ -17,6 +17,8 @@ struct AnalyticsView: View {
     
     @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
     
+    @State private var showCalendarKey: Bool = false
+    
     // List of icons to cycle through
     let availableIcons = [
         "circle.fill", "square.fill", "triangle.fill", "star.fill", "diamond.fill",
@@ -50,26 +52,29 @@ struct AnalyticsView: View {
                 Color(hex: background).ignoresSafeArea()
                 
                 // Decorative blobs
-                SameAmplitudeBlob(waves: 12, amplitude: 20, accent: accent, x: 160, y: -340, rotation: -18)
-                SameAmplitudeBlob(waves: 13, amplitude: 15, accent: accent, x: 0, y: -375, rotation: 155)
+                SameAmplitudeBlob(waves: 12, amplitude: 20, accent: accent, x: 100, y: -350, rotation: -50)
+                SameAmplitudeBlob(waves: 13, amplitude: 15, accent: accent, x: 70, y: -300, rotation: 130)
                 
                 VStack(spacing: 0) {
                     HStack{
-                        CalendarView(logs: logs, background: background, accent: accent, width:screenWidth-120, symptomToIcon: symptomToIcon)
-                            .frame(height: 350)
+                        CalendarView(logs: logs, showKey: $showCalendarKey, background: background, accent: accent, width:screenWidth-120, symptomToIcon: symptomToIcon)
                             .padding(.horizontal, 10)
-                        SeverityKeyBar(accent: accent, width: 20, height:screenWidth-100)
+                        if showCalendarKey{
+                            SeverityKeyBar(accent: accent, width: 20, height:screenWidth-100)
+                        }
                         
                     }
-                    SymptomKey(symptomToIcon: symptomToIcon, accent: accent, width: screenWidth-20)
-                        .padding()
+                    if showCalendarKey{
+                        SymptomKey(symptomToIcon: symptomToIcon, accent: accent, width: screenWidth-20)
+                            .padding()
+                    }
 
                 }
                 
                 // Nav bar overlay at bottom
                 VStack {
                     Spacer()
-                    NavBarView(userID: userID, background: $background,  accent: $accent)
+                    NavBarView(userID: userID, background: $background,  accent: $accent, selectedIndex: .constant(2))
                 }
                 .ignoresSafeArea(edges: .bottom)
                 .zIndex(10)

@@ -80,8 +80,8 @@ struct ListView: View {
                 
                 VStack {
                     HStack{
-                        CustomText(text: "List View", color: accent, width:210, textAlignment: .leading,  multilineAlignment: .leading,  textSize: 53)
-                        .padding(.leading, 20)
+                        CustomText(text: "Log List", color: accent, width:210, textAlignment: .leading,  multilineAlignment: .leading,  textSize: 53)
+                        .padding(.leading, 30)
                         Spacer()
                        
                     }
@@ -128,7 +128,7 @@ struct ListView: View {
                 //nav bar
                 VStack {
                     Spacer()
-                    NavBarView(userID: userID, background: $background,  accent: $accent)
+                    NavBarView(userID: userID, background: $background,  accent: $accent, selectedIndex: .constant(1))
                 }
                 .ignoresSafeArea(edges: .bottom)
                 .zIndex(1)
