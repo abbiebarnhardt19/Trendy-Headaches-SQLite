@@ -15,7 +15,7 @@ struct CreateAccountView: View {
     // Colors and layout
     private let accent = "#b5c4b9"
     private let background = "#001d00"
-    private let leading_padding = UIScreen.main.bounds.width * 0.825
+    private let leading_padding = CGFloat(30)
     
     // Computed property: form validation
     private var formIsValid: Bool {
@@ -36,8 +36,7 @@ struct CreateAccountView: View {
                 
                 ScrollView {
                     ZStack {
-                        
-                        VStack(spacing: 12) {
+                        VStack(spacing: 5) {
                             header
                             emailSection
                             passwordSection
@@ -45,7 +44,7 @@ struct CreateAccountView: View {
                             securitySection
                             continueButton
                         }
-                        .padding(.top, 20)
+                        .padding(.top, 10)
                     }
                 }
             }
@@ -55,8 +54,6 @@ struct CreateAccountView: View {
 
 // MARK: - Subviews
 private extension CreateAccountView {
-
-    
     var header: some View {
         CustomText(text: "Create Account", color: accent, textAlignment: .center, textSize: 50)
             .padding(.bottom, 10)

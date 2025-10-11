@@ -68,12 +68,13 @@ struct ProfileBackgroundComponents: View {
 struct Create1BackgroundComponents: View {
     var background: String
     var accent: String
+    var screenWidth: CGFloat = UIScreen.main.bounds.width
 
     var body: some View {
         ZStack {
             Color(hex: background).ignoresSafeArea()
-            WavyTopBottomRectangle(waves: 20, amplitude: 10, accent: accent, x: 300, y: -630, width: 1000, height: 400)
-            WavyTopBottomRectangle(waves: 20, amplitude: 10, accent: accent, x: 300, y: 600, width: 1000, height: 400)
+            WavyTopBottomRectangle(waves: 8, amplitude: 8, accent: accent, x: 0, y: -430, width: screenWidth, height: 80)
+            WavyTopBottomRectangle(waves: 8, amplitude: 8, accent: accent, x: 0, y: 420, width: screenWidth, height: 80)
         }
     }
 }
@@ -133,12 +134,13 @@ struct Forgot2BackgroundComponents: View {
 struct Forgot3BackgroundComponents: View {
     var background: String
     var accent: String
+    var screenWidth: CGFloat = UIScreen.main.bounds.width
 
     var body: some View {
         ZStack {
             Color(hex: background).ignoresSafeArea()
-            ParametricBlob(points: 45, amplitude: 0.075, x: -160, y: 440, rotation: 335, accent: accent)
-            ParametricBlob(points: 45, amplitude: 0.075, x: 25, y: 350, rotation: 160, accent: accent)
+            SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 140, y: -220, rotation: 120)
+            SameAmplitudeBlob(waves: 10, amplitude: 20, accent: accent, x: 140, y: -220, rotation: 295)
         }
     }
 }
@@ -159,12 +161,13 @@ struct InitialViewBackgroundComponents: View {
 struct LoginBackgroundComponents: View {
     var background: String
     var accent: String
+    var screenWidth: CGFloat = UIScreen.main.bounds.width
 
     var body: some View {
         ZStack {
             Color(hex: background).ignoresSafeArea()
-            ParametricBlob(points: 45, amplitude: 0.075, x: -100, y: 425, rotation: 195, accent: accent)
-            ParametricBlob(points: 45, amplitude: 0.075, x: -30, y: 425, rotation: 30, accent: accent)
+            SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 0, y: -342, rotation: 0, width:screenWidth, height:220)
+            SameAmplitudeBlob(waves: 5, amplitude: 16, accent: accent, x: 0, y: -325, rotation: 180, width:screenWidth, height:220)
         }
     }
 }

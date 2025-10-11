@@ -20,7 +20,7 @@ struct ForgotPasswordView3: View {
     // Theme
     private let accent = "#b5c4b9"
     private let background = "#001d00"
-    private let leadingPadding: CGFloat = 40
+    private let leadingPadding: CGFloat = 30
     private let screenWidth = UIScreen.main.bounds.width
 
     //  Validation
@@ -38,53 +38,58 @@ struct ForgotPasswordView3: View {
                 ScrollView {
                     ZStack {
                         VStack {
-                            Spacer()
-
                             //  Header
                             HStack {
                                 Spacer()
                                 CustomText( text: "Last Step", color: accent, width: 100, textAlignment: .trailing, textSize: 50)
-                                .padding(.top, 20)
-                                .padding(.bottom, 90)
-                                .padding(.trailing, leadingPadding)
+                                .padding(.top, 60)
+                                .padding(.bottom, 70)
+                                .padding(.trailing, 10)
                             }
+                            .frame(width: screenWidth)
 
                             //  Password 1
-                            CustomText(text: "New Password", color: accent)
-                                .padding(.leading, leadingPadding)
-
-                            CustomTextField(background: background, accent: accent,  placeholder: "",  text: $passwordOne,  isSecure: true )
-
-                            // Password warnings
-                            if !passwordOne.isEmpty {
-                                if !DatabaseManager.isPasswordValid(passwordOne) {
-                                    CustomWarningText(text: "8+ chars: uppercase, lowercase, number, & symbol.")
-                                        .padding(.bottom, 5)
-                                } else if DatabaseManager.hashString(passwordOne) == currentPassword {
-                                    CustomWarningText(text: "New password must differ from previous password.")
-                                        .padding(.bottom, 5)
+                            VStack{
+                                CustomText(text: "New Password", color: accent)
+                                    .padding(.leading, leadingPadding)
+                                
+                                CustomTextField(background: background, accent: accent,  placeholder: "",  text: $passwordOne,  isSecure: true )
+                                
+                                // Password warnings
+                                if !passwordOne.isEmpty {
+                                    if !DatabaseManager.isPasswordValid(passwordOne) {
+                                        CustomWarningText(text: "8+ chars: uppercase, lowercase, number, & symbol.")
+                                            .padding(.bottom, 5)
+                                    } else if DatabaseManager.hashString(passwordOne) == currentPassword {
+                                        CustomWarningText(text: "New password must differ from previous password.")
+                                            .padding(.bottom, 5)
+                                    } else {
+                                        CustomWarningText(text: "")
+                                            .padding(.bottom, 15)
+                                    }
                                 } else {
                                     CustomWarningText(text: "")
                                         .padding(.bottom, 15)
                                 }
-                            } else {
-                                CustomWarningText(text: "")
-                                    .padding(.bottom, 15)
                             }
+                            .frame(width: screenWidth)
 
                             //  Password 2
-                            CustomText(text: "Confirm New Password", color: accent)
-                                .padding(.leading, leadingPadding)
-
-                            CustomTextField(background: background, accent: accent, placeholder: "", text: $passwordTwo,  isSecure: true )
-
-                            if !passwordTwo.isEmpty && passwordTwo != passwordOne {
-                                CustomWarningText(text: "Passwords do not match.")
-                                    .padding(.bottom, 5)
-                            } else {
-                                CustomWarningText(text: " ")
-                                    .padding(.bottom, 5)
+                            VStack{
+                                CustomText(text: "Confirm New Password", color: accent)
+                                    .padding(.leading, leadingPadding)
+                                
+                                CustomTextField(background: background, accent: accent, placeholder: "", text: $passwordTwo,  isSecure: true )
+                                
+                                if !passwordTwo.isEmpty && passwordTwo != passwordOne {
+                                    CustomWarningText(text: "Passwords do not match.")
+                                        .padding(.bottom, 5)
+                                } else {
+                                    CustomWarningText(text: " ")
+                                        .padding(.bottom, 5)
+                                }
                             }
+                            .frame(width: screenWidth)
 
                             // Reset Button
                             CustomButton(text: "Reset Password",  background: background, accent: accent, height: 50, width: 200) {
@@ -96,8 +101,6 @@ struct ForgotPasswordView3: View {
                             .navigationDestination(isPresented: $isPasswordUpdated) {
                                 LoginView()
                             }
-
-                            Spacer()
                         }
                     }
                     .onAppear {
