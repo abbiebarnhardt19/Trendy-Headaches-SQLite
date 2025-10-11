@@ -33,7 +33,7 @@ struct ForgotPasswordView3: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Forgot3BackgroundComponents(background: background, accent: accent)
+                Forgot3BGComps(background: background, accent: accent)
 
                 ScrollView {
                     ZStack {

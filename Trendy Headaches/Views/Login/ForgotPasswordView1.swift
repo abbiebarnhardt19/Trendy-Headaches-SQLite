@@ -20,7 +20,7 @@ struct ForgotPasswordView1: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Forgot1BackgroundComponents(background: background, accent: accent)
+                Forgot1BGComps(background: background, accent: accent)
                 
                 VStack(spacing: 20) {
                     // Header and instructions

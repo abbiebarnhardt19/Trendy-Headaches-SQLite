@@ -22,7 +22,7 @@ struct CreateAccountView2: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Create2BackgroundComponents(background: background, accent: accent)
+                Create2BGComps(background: background, accent: accent)
                 
                 VStack(spacing: 20) {
                     // Header

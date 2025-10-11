@@ -20,7 +20,7 @@ struct InitialView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                InitialViewBackgroundComponents(background: background, accent: accent)
+                InitialViewBGComps(background: background, accent: accent)
 
                 //  Content
                 VStack(spacing: 20) {

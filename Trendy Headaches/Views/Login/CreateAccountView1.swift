@@ -32,7 +32,7 @@ struct CreateAccountView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Create1BackgroundComponents(background: background, accent: accent)
+                Create1BGComps(background: background, accent: accent)
                 
                 ScrollView {
                     ZStack {

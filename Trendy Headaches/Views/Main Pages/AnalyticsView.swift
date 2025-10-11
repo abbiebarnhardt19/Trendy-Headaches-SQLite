@@ -46,7 +46,7 @@ struct AnalyticsView: View {
     var body: some View {
         NavigationStack{
             ZStack {
-                AnalyticsBackgroundComponents(background: background, accent: accent)
+                AnalyticsBGComps(background: background, accent: accent)
                 
                 VStack(spacing: 0) {
                     HStack{

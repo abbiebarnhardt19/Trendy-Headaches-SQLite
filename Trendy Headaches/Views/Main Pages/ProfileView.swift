@@ -14,7 +14,7 @@ struct ProfileView: View {
     @Binding var accent: String
     
     //  UI State
-    @State private var isEditing = true
+    @State private var isEditing = false
     @State private var logOut = false
     @State private var showPolicy = false
     @State private var showDeleteConfirmation = false
@@ -44,11 +44,11 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                ProfileBackgroundComponents(background: newBackground, accent: newAccent)
+                ProfileBGComps(background: newBackground, accent: newAccent)
                 
                 // Content
                 ScrollView {
-                    VStack(spacing: 0) {
+                    VStack{
                         if isEditing {
                             editingView()
                         } else {
@@ -95,25 +95,32 @@ struct ProfileView: View {
         
         HStack(alignment: .top) {
             VStack(alignment: .center) {
-                
+                //symptom editable list
                 sectionTitle("Symptoms", width: columnWidth)
                 EditableList(items: $symptoms,  title: "Symptoms", backgroundColor: newBackground, accentColor: newAccent,
                      onAdd: { newSymptom in DatabaseManager.shared.insertItem( table: DatabaseManager.shared.symptoms, userID: userID, nameColumn: DatabaseManager.shared.symptom_name, name: newSymptom, startColumn: DatabaseManager.shared.symptom_start, endColumn: DatabaseManager.shared.symptom_end)},
+                             
                     onEdit: { oldValue, newValue in DatabaseManager.shared.updateItem( table: DatabaseManager.shared.symptoms, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: DatabaseManager.shared.symptom_name)},
+                             
                     onDelete: { value in DatabaseManager.shared.endItem( table: DatabaseManager.shared.symptoms, userID: userID, name: value, nameColumn: DatabaseManager.shared.symptom_name, endColumn: DatabaseManager.shared.symptom_end)} )
                 
+                //prev meds editable list
                 sectionTitle("Preventative Medications", width: columnWidth)
                 EditableList(items: $prevMeds, title: "Preventative Medications", backgroundColor: newBackground, accentColor: newAccent,
                      onAdd: { newPrevMed in DatabaseManager.shared.insertItem( table: DatabaseManager.shared.medications, userID: userID, nameColumn: DatabaseManager.shared.medication_name, name: newPrevMed, startColumn: DatabaseManager.shared.medication_start, endColumn: DatabaseManager.shared.medication_end, medicationCategory: "preventative" )},
+                             
                     onEdit: { oldValue, newValue in DatabaseManager.shared.updateItem( table: DatabaseManager.shared.medications, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: DatabaseManager.shared.medication_name, medicationCategory: "preventative")},
+                             
                     onDelete: { value in DatabaseManager.shared.endItem( table: DatabaseManager.shared.medications, userID: userID, name: value, nameColumn: DatabaseManager.shared.medication_name, endColumn: DatabaseManager.shared.medication_end, medicationCategory: "preventative")})
                 
+                //non-editable list fields
                 sectionTitle("Security Question", width: columnWidth)
                 CustomTextField(background: newBackground, accent: newAccent, placeholder: "",  text: $newSecurityQuestion,  width: columnWidth - 15, height: 50, cornerRadius: 8, textSize: 20,  isMultiline: true)
                 
                 sectionTitle("Color Theme", width: columnWidth)
                 CustomDropdown(color_theme: $newThemeName, background: $newBackground, accent: $newAccent, options: themeOptions, width: columnWidth - 15, height: 50,  cornerRadius: 8, fontSize: 20)
                 
+                //conditionally show hex code text boxes
                 if newThemeName == "Custom" {
                     sectionTitle("Hex Codes", width: columnWidth)
                     ColorPickerTextField(
@@ -124,7 +131,6 @@ struct ProfileView: View {
                                 width: columnWidth-10)
                     .padding(.vertical, 15)
 
-                    
                     ColorPickerTextField(
                                 accent: newAccent,
                                 background: newBackground,
@@ -136,22 +142,31 @@ struct ProfileView: View {
             .frame(maxWidth: columnWidth)
             .padding(.leading, 10)
             
+            //second column
             VStack {
+                //triggers editable list
                 sectionTitle("Triggers", width: columnWidth)
                 EditableList(items: $triggers, title: "Triggers", backgroundColor: newBackground, accentColor: newAccent,
                      onAdd: { newTrigger in DatabaseManager.shared.insertItem( table: DatabaseManager.shared.triggers, userID: userID, nameColumn: DatabaseManager.shared.trigger_name, name: newTrigger, startColumn: DatabaseManager.shared.trigger_start, endColumn: DatabaseManager.shared.trigger_end)},
+                             
                     onEdit: { oldValue, newValue in DatabaseManager.shared.updateItem( table: DatabaseManager.shared.triggers, userID: userID,  oldValue: oldValue, newValue: newValue, nameColumn: DatabaseManager.shared.trigger_name)},
+                             
                     onDelete: { value in DatabaseManager.shared.endItem( table: DatabaseManager.shared.triggers, userID: userID, name: value, nameColumn: DatabaseManager.shared.trigger_name, endColumn: DatabaseManager.shared.trigger_end)} )
                 
+                //emerg meds editable list
                 sectionTitle("Emergency Medications", width: columnWidth)
                 EditableList( items: $emergencyMeds, title: "Emergency Medications", backgroundColor: newBackground, accentColor: newAccent,
                     onAdd: { newEmergencyMed in DatabaseManager.shared.insertItem( table: DatabaseManager.shared.medications, userID: userID, nameColumn: DatabaseManager.shared.medication_name, name: newEmergencyMed, startColumn: DatabaseManager.shared.medication_start, endColumn: DatabaseManager.shared.medication_end,  medicationCategory: "emergency")},
+                              
                     onEdit: { oldValue, newValue in DatabaseManager.shared.updateItem( table: DatabaseManager.shared.medications, userID: userID, oldValue: oldValue, newValue: newValue, nameColumn: DatabaseManager.shared.medication_name, medicationCategory: "emergency")},
+                              
                     onDelete: { value in DatabaseManager.shared.endItem( table: DatabaseManager.shared.medications, userID: userID, name: value, nameColumn: DatabaseManager.shared.medication_name, endColumn: DatabaseManager.shared.medication_end, medicationCategory: "emergency")})
                 
+                //non-edtiable list text field
                 sectionTitle("Security Answer", width: columnWidth)
                 CustomTextField(background: newBackground, accent: newAccent, placeholder: "", text: $newSecurityAnswer, width: columnWidth - 15, height: 50, cornerRadius: 8, textSize: 16, isSecure: true)
                 
+                //push the changes to the database
                 CustomButton( text: "Save", background: newBackground, accent: newAccent, height: 50, width: columnWidth - 25, cornerRadius: 36,  isBold: true, textSize: 25, action: saveProfileChanges )
                 .padding(.top, 10)
             }
@@ -170,14 +185,18 @@ struct ProfileView: View {
             .padding(.vertical, 50)
         
         HStack(alignment: .top) {
+            //column one
             VStack {
+                //display the data in a non-editable list
                 section(columnTitle: "Symptoms", items: symptoms, width: columnWidth)
                 section(columnTitle: "Preventative Meds", items: prevMeds, width: columnWidth)
                 section(columnTitle: "Security Question", items: [newSecurityQuestion], width: columnWidth)
             }
             .frame(maxWidth: columnWidth)
             
+            //column two
             VStack {
+                //display the data in a non-editable list
                 section(columnTitle: "Triggers", items: triggers, width: columnWidth)
                 section(columnTitle: "Emergency Meds", items: emergencyMeds, width: columnWidth)
                 section(columnTitle: "Color Theme", items: [themeName], width: columnWidth)

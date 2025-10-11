@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AnalyticsBackgroundComponents: View {
+struct AnalyticsBGComps: View {
     var background: String
     var accent: String
 
@@ -20,7 +20,7 @@ struct AnalyticsBackgroundComponents: View {
     }
 }
 
-struct ListBackgroundComponents: View {
+struct ListBGComps: View {
     var background: String
     var accent: String
     var screenWidth: CGFloat = UIScreen.main.bounds.width
@@ -34,7 +34,7 @@ struct ListBackgroundComponents: View {
     }
 }
 
-struct LogBackgroundComponents: View {
+struct LogBGComps: View {
     var background: String
     var accent: String
     var screenWidth: CGFloat = UIScreen.main.bounds.width
@@ -50,7 +50,7 @@ struct LogBackgroundComponents: View {
     }
 }
 
-struct ProfileBackgroundComponents: View {
+struct ProfileBGComps: View {
     var background: String
     var accent: String
 
@@ -65,7 +65,7 @@ struct ProfileBackgroundComponents: View {
     }
 }
 
-struct Create1BackgroundComponents: View {
+struct Create1BGComps: View {
     var background: String
     var accent: String
     var screenWidth: CGFloat = UIScreen.main.bounds.width
@@ -79,7 +79,7 @@ struct Create1BackgroundComponents: View {
     }
 }
 
-struct Create2BackgroundComponents: View {
+struct Create2BGComps: View {
     var background: String
     var accent: String
 
@@ -92,7 +92,7 @@ struct Create2BackgroundComponents: View {
     }
 }
 
-struct Create3BackgroundComponents: View {
+struct Create3BGComps: View {
     var background: String
     var accent: String
 
@@ -105,7 +105,7 @@ struct Create3BackgroundComponents: View {
     }
 }
 
-struct Forgot1BackgroundComponents: View {
+struct Forgot1BGComps: View {
     var background: String
     var accent: String
 
@@ -118,7 +118,7 @@ struct Forgot1BackgroundComponents: View {
     }
 }
 
-struct Forgot2BackgroundComponents: View {
+struct Forgot2BGComps: View {
     var background: String
     var accent: String
 
@@ -131,7 +131,7 @@ struct Forgot2BackgroundComponents: View {
     }
 }
 
-struct Forgot3BackgroundComponents: View {
+struct Forgot3BGComps: View {
     var background: String
     var accent: String
     var screenWidth: CGFloat = UIScreen.main.bounds.width
@@ -145,7 +145,7 @@ struct Forgot3BackgroundComponents: View {
     }
 }
 
-struct InitialViewBackgroundComponents: View {
+struct InitialViewBGComps: View {
     var background: String
     var accent: String
 
@@ -158,7 +158,7 @@ struct InitialViewBackgroundComponents: View {
     }
 }
 
-struct LoginBackgroundComponents: View {
+struct LoginBGComps: View {
     var background: String
     var accent: String
     var screenWidth: CGFloat = UIScreen.main.bounds.width

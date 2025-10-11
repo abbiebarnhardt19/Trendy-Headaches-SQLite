@@ -25,7 +25,7 @@ struct CreateAccountView3: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Create3BackgroundComponents(background: background, accent: accent)
+                Create3BGComps(background: background, accent: accent)
                 
                 ScrollView {
                     ZStack {

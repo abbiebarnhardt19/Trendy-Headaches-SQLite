@@ -1,3 +1,8 @@
+//
+//  LoginView.swift
+//  Trendy Headaches
+//
+
 import SwiftUI
 import SQLite
 
@@ -6,7 +11,7 @@ struct LoginView: SwiftUI.View {
     var background: String = "#001d00"
     var accent: String = "#b5c4b9"
     
-    //  State
+    // User variables
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var isLoggedIn = false
@@ -19,7 +24,7 @@ struct LoginView: SwiftUI.View {
     var body: some SwiftUI.View {
         NavigationStack {
             ZStack {
-                LoginBackgroundComponents(background: background, accent: accent)
+                LoginBGComps(background: background, accent: accent)
                 //  Content
                 VStack(spacing: 15) {
                     CustomText(text: "Log In",  color: accent, width: 200, textAlignment: .center,  textSize: 50 )
@@ -67,13 +72,8 @@ struct LoginView: SwiftUI.View {
                 
                 //  Navigation
                 .navigationDestination(isPresented: $isLoggedIn) {
-                    if let userId = userId {
-                        LogView(userID: userId, background: .constant(background),  accent: .constant(accent) )
+                        LogView(userID: userId ?? 0, background: .constant(background),  accent: .constant(accent) )
                         .navigationBarBackButtonHidden(true)
-                    } else {
-                        Text("Oops! Something went wrong. Please try again later.")
-                            .foregroundColor(.red)
-                    }
                 }
             }
         }

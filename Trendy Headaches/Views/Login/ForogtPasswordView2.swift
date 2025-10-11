@@ -35,7 +35,7 @@ struct ForgotPasswordView2: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Forgot2BackgroundComponents(background: background, accent: accent)
+                Forgot2BGComps(background: background, accent: accent)
 
                 ScrollView {
                     ZStack {

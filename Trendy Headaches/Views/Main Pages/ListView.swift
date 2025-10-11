@@ -74,7 +74,7 @@ struct ListView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                ListBackgroundComponents(background: background, accent: accent)
+                ListBGComps(background: background, accent: accent)
                 
                 VStack {
                     //page label
