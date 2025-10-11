@@ -13,7 +13,6 @@ extension DatabaseManager {
         var unifiedLogs: [UnifiedLog] = []
         
         do {
-            // ===== 1️⃣ SYMPTOM LOGS =====
             let symptomLogsQuery = logs.filter(self.user_id == userID)
             
             for row in try self.prepare(symptomLogsQuery) {
@@ -47,34 +46,11 @@ extension DatabaseManager {
                 }
                 
                 // Create Symptom log
-                let unifiedLog = UnifiedLog(
-                    log_id: row[self.log_id],
-                    user_id: row[self.user_id],
-                    log_type: "Symptom",
-                    date: row[self.date],
-                    severity: row[self.severity],
-                    submit_time: row[self.submit_time],
-                    
-                    // Symptom-specific
-                    symptom_id: sid,
-                    symptom_name: symptomName,
-                    onset_time: row[self.onset_time],
-                    med_taken: row[self.med_taken],
-                    medication_id: mid,
-                    medication_name: medicationName,
-                    med_worked: row[self.med_worked],
-                    symptom_description: row[self.symptom_description],
-                    notes: row[self.notes],
-                    trigger_ids: nil,
-                    trigger_names: triggerNames,
-                    
-                    side_effect_med: nil
-                )
+                let unifiedLog = UnifiedLog(log_id: row[self.log_id], user_id: row[self.user_id], log_type: "Symptom",  date: row[self.date], severity: row[self.severity],  submit_time: row[self.submit_time], symptom_id: sid, symptom_name: symptomName,  onset_time: row[self.onset_time], med_taken: row[self.med_taken], medication_id: mid, medication_name: medicationName, med_worked: row[self.med_worked], symptom_description: row[self.symptom_description], notes: row[self.notes], trigger_ids: nil, trigger_names: triggerNames,  side_effect_med: nil)
                 
                 unifiedLogs.append(unifiedLog)
             }
             
-            // ===== 2️⃣ SIDE EFFECT LOGS =====
             let sideEffectQuery = side_effects.filter(self.user_id == userID)
             
             for row in try self.prepare(sideEffectQuery) {
@@ -90,44 +66,20 @@ extension DatabaseManager {
                 }
                 
                 // Create SideEffect log
-                let unifiedLog = UnifiedLog(
-                    log_id: row[self.side_effect_id],
-                    user_id: row[self.user_id],
-                    log_type: "Side Effect",
-                    date: row[self.side_effect_date],
-                    severity: row[self.side_effect_severity],
-                    submit_time: row[self.side_effect_submit_time],
-                    
-                    // Symptom-specific (nil)
-                    symptom_id: nil,
-                    symptom_name: row[self.side_effect_name],
-                    onset_time: nil,
-                    med_taken: nil,
-                    medication_id: nil,
-                    medication_name: nil,
-                    med_worked: nil,
-                    symptom_description: nil,
-                    notes: nil,
-                    trigger_ids: nil,
-                    trigger_names: nil,
-                    side_effect_med: medicationName
-                )
+                let unifiedLog = UnifiedLog( log_id: row[self.side_effect_id], user_id: row[self.user_id], log_type: "Side Effect", date: row[self.side_effect_date], severity: row[self.side_effect_severity], submit_time: row[self.side_effect_submit_time], symptom_id: nil,  symptom_name: row[self.side_effect_name], onset_time: nil, med_taken: nil,  medication_id: nil, medication_name: nil, med_worked: nil, symptom_description: nil, notes: nil, trigger_ids: nil,  trigger_names: nil,  side_effect_med: medicationName)
                 
                 unifiedLogs.append(unifiedLog)
             }
             
-            // ===== 3️⃣ SORT COMBINED RESULTS =====
             unifiedLogs.sort {
                 if $0.date == $1.date {
                     return ($0.submit_time) > ($1.submit_time)
                 }
                 return $0.date > $1.date
             }
-            
         } catch {
-            print("❌ Error fetching unified logs: \(error)")
+            print(" Error fetching unified logs: \(error)")
         }
-        
         return unifiedLogs
     }
     
@@ -151,10 +103,8 @@ extension DatabaseManager {
                 
                 let _ = try run(delete)
             }
-
         } catch {
             print(" Failed to delete log with ID \(logID): \(error)")
         }
     }
-
 }

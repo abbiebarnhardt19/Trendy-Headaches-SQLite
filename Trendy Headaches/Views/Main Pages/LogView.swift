@@ -96,13 +96,7 @@ struct LogView: View {
                 Color(hex: background).ignoresSafeArea()
                 
                 if showEmergencyPopup, !oldLogIDs.isEmpty {
-                    EmergencyMedPopup(
-                        selectedAnswer: $medWorked,
-                        isPresented: $showEmergencyPopup,
-                        oldLogID: oldLogIDs[0], // always show the first pending ID
-                        background: background,
-                        accent: accent
-                    )
+                    EmergencyMedPopup(selectedAnswer: $medWorked, isPresented: $showEmergencyPopup,  oldLogID: oldLogIDs[0],  background: background, accent: accent)
                     .zIndex(5)
                     .onDisappear {
                         // When the popup closes, remove the first ID
@@ -121,7 +115,7 @@ struct LogView: View {
                 backgroundWaves
                 ScrollView {
                     headerSection
-                        .padding(.top, 30)
+                        .padding(.top, 20)
                         .frame(width: screenWidth)
                     
                     if symptomLogViewShown {
@@ -152,9 +146,9 @@ struct LogView: View {
     //waves
     private var backgroundWaves: some View {
         Group {
-            WavyTopBottomRectangle(waves: 10, amplitude: 6, accent: accent, x: 0, y: -580, width: screenWidth, height: 400)
+            WavyTopBottomRectangle(waves: 7, amplitude: 8, accent: accent, x: 0, y: -430, width: screenWidth, height: 80)
                 .zIndex(1)
-            WavyTopBottomRectangle(waves: 10, amplitude: 6, accent: accent, x: 0, y: 515, width: screenWidth, height: 400)
+            WavyTopBottomRectangle(waves: 7, amplitude: 8, accent: accent, x: 0, y: 355, width: screenWidth, height: 80)
                 .zIndex(1)
         }
     }

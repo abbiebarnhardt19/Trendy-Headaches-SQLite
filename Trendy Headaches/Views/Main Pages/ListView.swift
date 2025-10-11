@@ -12,50 +12,54 @@ struct ListView: View {
     @Binding var background: String
     @Binding var accent: String
 
+    //for clicking on lost
     @State private var selectedLogID: Int64? = nil
     @State private var selectedLogTable: String? = nil
     @State private var showLogCreation: Bool = false
     
+    //list of all logs for the table
     @State private var logList: [UnifiedLog] = []
+    
+    //bool for showing the filter dropdowns
     @State private var showFilterPopup: Bool = false
     
+    //column options filter
     @State var columnOptions: [String] = ["Log Type", "Date", "Symptom", "Sev.", "Onset", "Triggers", "Em. Med. Taken?", "Em. Med. Name", "Em. Med. Worked?", "Symp. Desc.", "Notes ", "S.E. Med."]
     @State var selectedColumns: [String] = ["Log Type", "Date", "Symptom", "Sev."]
     
+    //for date filter
     @State var startDate: Date = Date()
     @State var endDate: Date = Date()
-    
     @State var stringStartDate: String = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .none)
     @State var stringEndDate: String = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .none)
     
+    //for severity filter
     @State var sevStart: Int64 = 1
     @State var sevEnd: Int64 = 10
     
+    //for log type filter
     @State var logTypeOptions: [String] = ["Symptom", "Side Effect"]
     @State var logTypeFilter: [String] = ["Symptom", "Side Effect"]
     
+    //for symptom filter
     @State var symptomOptions: [String] = []
     @State var selectedSymptoms: [String] = []
     
+    //for deleting
     @State var deleteCount: Int64 = 0
     
-    
+    //size variables
     var screenWidth: CGFloat = UIScreen.main.bounds.width
     var screenHeight: CGFloat = UIScreen.main.bounds.height
+    var popupHeight: CGFloat = UIScreen.main.bounds.height-150 - 170 - 60
     
-    //height minus the blob height
-    var popupHeight: CGFloat = UIScreen.main.bounds.height-150 - 170 - 110
-    
+    //call this when any filter values change
     func filterLogs() {
         let allLogs = DatabaseManager.shared.getLogList(userID: userID)
         logList = allLogs.filter { log in
-            // Filter by log type
             guard logTypeFilter.contains(log.log_type) else { return false }
             
-            // Filter by start date
             if log.date < startDate { return false }
-            
-            // Filter by end date
             if log.date > endDate { return false }
             
             if log.severity < sevStart { return false }
@@ -67,39 +71,36 @@ struct ListView: View {
         }
     }
 
-
     var body: some View {
         NavigationStack {
             ZStack {
                 Color(hex: background).ignoresSafeArea()
                 
-                SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 30, y: -375, rotation: 0, width:350, height:170)
-                    .zIndex(5)
-                SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 30, y: -270, rotation: 180, width:350, height:150)
-                    .zIndex(5)
+                SameAmplitudeBlob(waves: 4, amplitude: 20, accent: accent, x: 90, y: -382, rotation: -10, width:screenWidth, height:180)
+                SameAmplitudeBlob(waves: 4, amplitude: 16, accent: accent, x: 60, y: -285, rotation: 170, width:screenWidth, height:180)
                 
                 VStack {
+                    //page label
                     HStack{
                         CustomText(text: "Log List", color: accent, width:210, textAlignment: .leading,  multilineAlignment: .leading,  textSize: 53)
                         .padding(.leading, 30)
                         Spacer()
-                       
                     }
-                    .padding(.top, 25)
+                    .padding(.top, 15)
                     
+                    //table
                     HStack{
                         Spacer()
                         ScrollableLogTable( userID: userID, logList: logList, selectedColumns: selectedColumns, background: background, accent: accent, height: popupHeight, width: screenWidth - 20, deleteCount: $deleteCount, onLogTap: { id, table in
                             selectedLogID = id
                             selectedLogTable = table
                         })
-                        
                         Spacer()
-                        
                     }
                     Spacer()
                 }
                 
+                //filter dropdowns
                 if showFilterPopup {
                     VStack {
                         Spacer()
@@ -107,8 +108,7 @@ struct ListView: View {
                             Spacer()
                             filterPopUp(accent: accent, background: background, columnOptions: columnOptions, selectedColumns: $selectedColumns, logTypeOptions: $logTypeOptions, logType: $logTypeFilter, startDate: $startDate, endDate: $endDate, stringStartDate: $stringStartDate, stringEndDate: $stringEndDate, sevStart: $sevStart, sevEnd: $sevEnd, symptomOptions: $symptomOptions, selectedSymptoms: $selectedSymptoms)
                                 .padding(.trailing, 20)
-                                .padding(.bottom, 120) 
-                            
+                                .padding(.bottom, 120)
                         }
                     }
                     .transition(.move(edge: .bottom))
@@ -122,7 +122,7 @@ struct ListView: View {
                         Spacer()
                         FilterDropDown(background: background, accent: accent, showPopUp: $showFilterPopup)
                     }
-                    .padding(.bottom, 80)
+                    .padding(.bottom, 90)
                 }
                 
                 //nav bar
@@ -133,6 +133,7 @@ struct ListView: View {
                 .ignoresSafeArea(edges: .bottom)
                 .zIndex(1)
             }
+            //go to log page when log is clicked
             .navigationDestination(isPresented: $showLogCreation) {
                 LogView(userID: userID, background: $background, accent: $accent)
                     .navigationBarBackButtonHidden(true)
@@ -147,8 +148,8 @@ struct ListView: View {
                 }
             }
         }
+        //load in user logs
         .onAppear{
-
             logList = DatabaseManager.shared.getLogList(userID: userID)
             
             if let earliest = logList.map({ $0.date }).min() {
@@ -156,24 +157,18 @@ struct ListView: View {
                 stringStartDate = DateFormatter.localizedString(from: earliest, dateStyle: .short, timeStyle: .none)
             }
             
-            // ✅ Extract unique, non-empty symptom names
-            symptomOptions = Array(
-                Set(
-                    logList.compactMap { log in
+            symptomOptions = Array(Set( logList.compactMap { log in
                         if let symptom = log.symptom_name, !symptom.isEmpty {
                             return symptom
                         } else {
                             return nil
                         }
-                    }
-                )
-            )
+                    }))
             .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
 
-            
-            // Optionally initialize selectedSymptoms to all available ones
             selectedSymptoms = symptomOptions
         }
+        //update filters when values change
         .onChange(of: startDate) {  filterLogs() }
         .onChange(of: endDate) { filterLogs() }
         .onChange(of: logTypeFilter) {  filterLogs() }
@@ -188,4 +183,3 @@ struct ListView: View {
 #Preview {
     ListView(userID: 1, background: .constant("#001d00"), accent: .constant("#b5c4b9"))
 }
-

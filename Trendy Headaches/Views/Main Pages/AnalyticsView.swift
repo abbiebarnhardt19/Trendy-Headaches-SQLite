@@ -20,10 +20,7 @@ struct AnalyticsView: View {
     @State private var showCalendarKey: Bool = false
     
     // List of icons to cycle through
-    let availableIcons = [
-        "circle.fill", "square.fill", "triangle.fill", "star.fill", "diamond.fill",
-        "hexagon.fill", "heart.fill", "bolt.fill", "leaf.fill", "flame.fill"
-    ]
+    let availableIcons = [ "circle.fill",  "square.fill",  "triangle.fill", "star.fill", "diamond.fill", "hexagon.fill", "heart.fill", "bolt.fill", "leaf.fill", "flame.fill"]
     let unknownIcon = "questionmark.square.fill"
 
     // Keep a mapping from symptom name -> icon
@@ -44,7 +41,6 @@ struct AnalyticsView: View {
         }
     }
     
-    
     var body: some View {
         NavigationStack{
             ZStack {
@@ -59,16 +55,15 @@ struct AnalyticsView: View {
                     HStack{
                         CalendarView(logs: logs, showKey: $showCalendarKey, background: background, accent: accent, width:screenWidth-120, symptomToIcon: symptomToIcon)
                             .padding(.horizontal, 10)
+                        
                         if showCalendarKey{
                             SeverityKeyBar(accent: accent, width: 20, height:screenWidth-100)
                         }
-                        
                     }
                     if showCalendarKey{
                         SymptomKey(symptomToIcon: symptomToIcon, accent: accent, width: screenWidth-20)
                             .padding()
                     }
-
                 }
                 
                 // Nav bar overlay at bottom
@@ -90,7 +85,6 @@ struct AnalyticsView: View {
         }
     }
 }
-
 
 #Preview {
     AnalyticsView(userID: 1, background: .constant("#001d00"), accent: .constant("#b5c4b9"))
