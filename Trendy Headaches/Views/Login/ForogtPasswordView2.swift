@@ -9,33 +9,33 @@ import SwiftUI
 
 struct ForgotPasswordView2: View {
     // MARK: - Input
-    let enteredEmail: String
+    let email: String
 
     // MARK: - State
-    @State private var securityQuestion = ""
-    @State private var securityAnswerHash = ""
-    @State private var enteredAnswer = ""
+    @State private var SQ = ""
+    @State private var SA = ""
+    @State private var answer = ""
     @State private var userID: Int64? = nil
 
     // MARK: - Theme
     private let accent = "#b5c4b9"
-    private let background = "#001d00"
-    private let leadingPadding: CGFloat = 30
+    private let bg = "#001d00"
+    private let leadPadd: CGFloat = 30
     private let screenWidth = UIScreen.main.bounds.width
 
     // MARK: - Validation
-    private var isCorrectAnswer: Bool {
-        guard !enteredAnswer.isEmpty else { return false }
-        let normalizedInput = Database.normalize(
-            enteredAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
+    private var correct: Bool {
+        guard !answer.isEmpty else { return false }
+        let normAnswer = Database.normalize(
+            answer.trimmingCharacters(in: .whitespacesAndNewlines)
         )
-        return Database.hashString(normalizedInput) == securityAnswerHash
+        return Database.hashString(normAnswer) == SA
     }
 
     var body: some View {
         NavigationStack {
             ZStack {
-                Forgot2BGComps(background: background, accent: accent)
+                Forgot2BGComps(bg: bg, accent: accent)
 
                 ScrollView {
                     ZStack {
@@ -44,40 +44,44 @@ struct ForgotPasswordView2: View {
                             //  Header
                             HStack {
                                 CustomText(text: "Please answer your security question", color: accent,  width: screenWidth / 2, textAlign: .leading, multiAlign: .leading, textSize: 50)
-                                .padding(.leading, leadingPadding)
+                                .padding(.leading, leadPadd)
                                 Spacer()
                             }
 
                             //  Security Question
-                            CustomText(text: securityQuestion, color: accent)
-                                .padding(.leading, leadingPadding)
+                            CustomText(text: SQ, color: accent)
+                                .padding(.leading, leadPadd)
                                 .padding(.top, 30)
 
                             // Answer Field
-                            CustomTextField( bg: background, accent: accent,  placeholder: "", text: $enteredAnswer, secure: true)
-                                .padding(.leading, leadingPadding-10)
+                            CustomTextField( bg: bg, accent: accent,  placeholder: "", text: $answer, secure: true)
+                                .padding(.leading, leadPadd-10)
                             .disableAutocorrection(true)
 
                             //  Warning
-                            if !enteredAnswer.isEmpty && !isCorrectAnswer {
+                            if !answer.isEmpty && !correct {
                                 CustomWarningText(text: "Answers do not match.")
                             } else {
                                 CustomWarningText(text: " ")
                             }
 
                             //  Continue Button
-                            CustomNavButton( label: "Continue", dest: ForgotPasswordView3(enteredEmail: enteredEmail),  bg: background, accent: accent )
-                            .disabled(!isCorrectAnswer)
+                            HStack{
+                                Spacer()
+                                CustomNavButton( label: "Continue", dest: ForgotPasswordView3(email: email),  bg: bg, accent: accent )
+                                    .disabled(!correct)
+                                Spacer()
+                            }
                         }
                     }
                 }
                 .onAppear {
-                    userID = Database.shared.getUserFromEmail(email: enteredEmail)
-                    securityQuestion = Database.shared.getSingleColumnValue(
+                    userID = Database.shared.getUserFromEmail(email: email)
+                    SQ = Database.shared.getSingleColumnValue(
                         userId: userID ?? -1,
                         columnName: "security_question"
                     ) ?? ""
-                    securityAnswerHash = Database.shared.getSingleColumnValue(
+                    SA = Database.shared.getSingleColumnValue(
                         userId: userID ?? -1,
                         columnName: "security_answer"
                     ) ?? ""
@@ -88,5 +92,5 @@ struct ForgotPasswordView2: View {
 }
 
 #Preview {
-    ForgotPasswordView2(enteredEmail: "testtest@test.com")
+    ForgotPasswordView2(email: "testtest@test.com")
 }

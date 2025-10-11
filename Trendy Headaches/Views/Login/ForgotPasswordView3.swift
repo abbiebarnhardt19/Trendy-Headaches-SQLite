@@ -9,31 +9,29 @@ import SwiftUI
 
 struct ForgotPasswordView3: View {
     //  Input
-    let enteredEmail: String
+    let email: String
 
     //  State
-    @State private var passwordOne = ""
-    @State private var passwordTwo = ""
-    @State private var isPasswordUpdated = false
-    @State private var currentPassword = ""
+    @State private var passOne = ""
+    @State private var passTwo = ""
+    @State private var updated = false
+    @State private var currentPass = ""
 
     // Theme
     private let accent = "#b5c4b9"
-    private let background = "#001d00"
-    private let leadingPadding: CGFloat = 30
+    private let bg = "#001d00"
+    private let leadPadd: CGFloat = 30
     private let screenWidth = UIScreen.main.bounds.width
 
     //  Validation
-    private var passwordResetValid: Bool {
-        passwordOne == passwordTwo &&
-        passwordOne != currentPassword &&
-        Database.passwordValid(passwordOne)
+    private var resetValid: Bool {
+        passOne == passTwo && passOne != currentPass && Database.passwordValid(passOne)
     }
 
     var body: some View {
         NavigationStack {
             ZStack {
-                Forgot3BGComps(background: background, accent: accent)
+                Forgot3BGComps(bg: bg, accent: accent)
 
                 ScrollView {
                     ZStack {
@@ -42,25 +40,24 @@ struct ForgotPasswordView3: View {
                             HStack {
                                 Spacer()
                                 CustomText( text: "Last Step", color: accent, width: 100, textAlign: .trailing, textSize: 50)
-                                .padding(.top, 60)
-                                .padding(.bottom, 70)
-                                .padding(.trailing, 10)
+                                .padding(.vertical, 70)
+                                .padding(.trailing, 15)
                             }
                             .frame(width: screenWidth)
 
                             //  Password 1
                             VStack{
                                 CustomText(text: "New Password", color: accent)
-                                    .padding(.leading, leadingPadding)
+                                    .padding(.leading, leadPadd)
                                 
-                                CustomTextField(bg: background, accent: accent,  placeholder: "",  text: $passwordOne,  secure: true )
+                                CustomTextField(bg: bg, accent: accent,  placeholder: "",  text: $passOne,  secure: true )
                                 
                                 // Password warnings
-                                if !passwordOne.isEmpty {
-                                    if !Database.passwordValid(passwordOne) {
+                                if !passOne.isEmpty {
+                                    if !Database.passwordValid(passOne) {
                                         CustomWarningText(text: "8+ chars: uppercase, lowercase, number, & symbol.")
                                             .padding(.bottom, 5)
-                                    } else if Database.hashString(passwordOne) == currentPassword {
+                                    } else if Database.hashString(passOne) == currentPass {
                                         CustomWarningText(text: "New password must differ from previous password.")
                                             .padding(.bottom, 5)
                                     } else {
@@ -77,11 +74,11 @@ struct ForgotPasswordView3: View {
                             //  Password 2
                             VStack{
                                 CustomText(text: "Confirm New Password", color: accent)
-                                    .padding(.leading, leadingPadding)
+                                    .padding(.leading, leadPadd)
                                 
-                                CustomTextField(bg: background, accent: accent, placeholder: "", text: $passwordTwo,  secure: true )
+                                CustomTextField(bg: bg, accent: accent, placeholder: "", text: $passTwo,  secure: true )
                                 
-                                if !passwordTwo.isEmpty && passwordTwo != passwordOne {
+                                if !passTwo.isEmpty && passTwo != passOne {
                                     CustomWarningText(text: "Passwords do not match.")
                                         .padding(.bottom, 5)
                                 } else {
@@ -92,20 +89,20 @@ struct ForgotPasswordView3: View {
                             .frame(width: screenWidth)
 
                             // Reset Button
-                            CustomButton(text: "Reset Password",  bg: background, accent: accent, height: 50, width: 200) {
-                                isPasswordUpdated = Database.resetPassword(forEmail: enteredEmail, newPassword: passwordOne)
+                            CustomButton(text: "Reset Password",  bg: bg, accent: accent, height: 50, width: 200) {
+                               updated = Database.resetPassword(forEmail: email, newPassword: passOne)
                             }
                             .padding(.bottom, 120)
-                            .disabled(!passwordResetValid)
-                            .opacity(passwordResetValid ? 1.0 : 0.5)
-                            .navigationDestination(isPresented: $isPasswordUpdated) {
+                            .disabled(!resetValid)
+                            .opacity(resetValid ? 1.0 : 0.5)
+                            .navigationDestination(isPresented: $updated) {
                                 LoginView()
                             }
                         }
                     }
                     .onAppear {
-                        if let currentUser = Database.shared.getUserFromEmail(email: enteredEmail) {
-                            currentPassword = Database.shared.getSingleColumnValue(
+                        if let currentUser = Database.shared.getUserFromEmail(email: email) {
+                            currentPass = Database.shared.getSingleColumnValue(
                                 userId: currentUser,
                                 columnName: "password"
                             ) ?? ""
@@ -118,5 +115,5 @@ struct ForgotPasswordView3: View {
 }
 
 #Preview {
-    ForgotPasswordView3(enteredEmail: "")
+    ForgotPasswordView3(email: "")
 }

@@ -44,7 +44,7 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                ProfileBGComps(background: newBG, accent: newAcc)
+                ProfileBGComps(bg: newBG, accent: newAcc)
                 
                 // Content
                 ScrollView {

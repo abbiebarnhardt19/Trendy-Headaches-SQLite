@@ -8,23 +8,23 @@ import SQLite
 
 struct LoginView: SwiftUI.View {
     //  Theme
-    var background: String = "#001d00"
+    var bg: String = "#001d00"
     var accent: String = "#b5c4b9"
     
     // User variables
     @State private var email: String = ""
     @State private var password: String = ""
-    @State private var isLoggedIn = false
-    @State private var loginError: String? = nil
+    @State private var loggedIn = false
+    @State private var error: String? = nil
     @State private var userId: Int64? = nil
     
     //  Layout
-    private let leadingPadding: CGFloat = 25
+    private let leadPadd: CGFloat = 25
     
     var body: some SwiftUI.View {
         NavigationStack {
             ZStack {
-                LoginBGComps(background: background, accent: accent)
+                LoginBGComps(bg: bg, accent: accent)
                 //  Content
                 VStack(spacing: 15) {
                     CustomText(text: "Log In",  color: accent, width: 200, textAlign: .center,  textSize: 50 )
@@ -33,35 +33,35 @@ struct LoginView: SwiftUI.View {
                     // Email
                     CustomText(text: "Email", color: accent)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, leadingPadding)
+                        .padding(.leading, leadPadd)
                     
-                    CustomTextField(bg: background, accent: accent, placeholder: "", text: $email)
+                    CustomTextField(bg: bg, accent: accent, placeholder: "", text: $email)
                     
                     // Password
                     CustomText(text: "Password", color: accent)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, leadingPadding)
+                        .padding(.leading, leadPadd)
                     
-                    CustomTextField(bg: background, accent: accent, placeholder: "", text: $password, secure: true)
+                    CustomTextField(bg: bg, accent: accent, placeholder: "", text: $password, secure: true)
                     
                     // Forgot Password Link
                     CustomLink(destination: ForgotPasswordView1(), text: "Forgot Password?", accent: accent)
                         .frame(maxWidth: .infinity, alignment: .trailing)
-                        .padding(.trailing, leadingPadding)
+                        .padding(.trailing, leadPadd)
                         .padding(.top, 5)
                     
                     // Login Button
-                    CustomButton(text: "Log In", bg: background, accent: accent) {
+                    CustomButton(text: "Log In", bg: bg, accent: accent) {
                         let result = Database.shared.attemptLogin(email: email, password: password)
                         userId = result.userId
-                        loginError = result.error
-                        isLoggedIn = userId != nil
+                        error = result.error
+                        loggedIn = userId != nil
                     }
                     .padding(.top, 10)
                     
                     // Error Message
-                    if let loginError = loginError {
-                        CustomWarningText(text: loginError)
+                    if let error = error {
+                        CustomWarningText(text: error)
                             .frame(maxWidth: .infinity, alignment: .center)
                     } else {
                         CustomWarningText(text: " ") // Reserve space
@@ -71,8 +71,8 @@ struct LoginView: SwiftUI.View {
                 .onAppear { _ = Database.shared }
                 
                 //  Navigation
-                .navigationDestination(isPresented: $isLoggedIn) {
-                        LogView(userID: userId ?? 0, background: .constant(background),  accent: .constant(accent) )
+                .navigationDestination(isPresented: $loggedIn) {
+                        LogView(userID: userId ?? 0, bg: .constant(bg),  accent: .constant(accent) )
                         .navigationBarBackButtonHidden(true)
                 }
             }

@@ -3,36 +3,26 @@ import SwiftUI
 struct CreateAccountView: View {
     
     // Editable fields
-    @State private var first_name: String = ""
     @State private var email: String = ""
-    @State private var security_question: String = ""
-    @State private var security_answer: String = ""
-    @State private var password_one: String = ""
-    @State private var password_two: String = ""
-    @State private var emailAvailable: Bool = true
-    @State private var emailCheckTask: Task<Void, Never>? = nil
+    @State private var SQ: String = ""
+    @State private var SA: String = ""
+    @State private var pass_one: String = ""
+    @State private var pass_two: String = ""
+    @State private var emailAvail: Bool = true
+    @State private var checkEmail: Task<Void, Never>? = nil
     
     // Colors and layout
     private let accent = "#b5c4b9"
-    private let background = "#001d00"
-    private let leading_padding = CGFloat(30)
+    private let bg = "#001d00"
     
     // Computed property: form validation
     private var formIsValid: Bool {
-        !email.isEmpty &&
-        !password_one.isEmpty &&
-        !password_two.isEmpty &&
-        !security_question.isEmpty &&
-        !security_answer.isEmpty &&
-        password_one == password_two &&
-        Database.passwordValid(password_one) &&
-        emailAvailable
-    }
+        !email.isEmpty &&  !pass_one.isEmpty &&  !pass_two.isEmpty &&  !SQ.isEmpty &&  !SA.isEmpty &&  pass_one == pass_two && Database.passwordValid(pass_one) &&  emailAvail  }
     
     var body: some View {
         NavigationStack {
             ZStack {
-                Create1BGComps(background: background, accent: accent)
+                Create1BGComps(bg: bg, accent: accent)
                 
                 ScrollView {
                     ZStack {
@@ -62,12 +52,12 @@ private extension CreateAccountView {
     var emailSection: some View {
         VStack(spacing: 5) {
             fieldLabel("Email")
-            CustomTextField(bg: background, accent: accent, placeholder: "", text: $email)
+            CustomTextField(bg: bg, accent: accent, placeholder: "", text: $email)
                 .onChange(of: email) {
                     debounceEmailCheck()
                 }
             
-            if !emailAvailable && !email.isEmpty {
+            if !emailAvail && !email.isEmpty {
                 CustomWarningText(text: "There is already an account using this email")
             } else {
                 CustomWarningText(text: "") // spacing placeholder
@@ -79,9 +69,9 @@ private extension CreateAccountView {
     var passwordSection: some View {
         VStack(spacing: 5) {
             fieldLabel("Password")
-            CustomTextField(bg: background, accent: accent, placeholder: "", text: $password_one, secure: true)
+            CustomTextField(bg: bg, accent: accent, placeholder: "", text: $pass_one, secure: true)
             
-            if !Database.passwordValid(password_one) && !password_one.isEmpty {
+            if !Database.passwordValid(pass_one) && !pass_one.isEmpty {
                 CustomWarningText(text: "8+ chars: uppercase, lowercase, number, & symbol")
             } else {
                 CustomWarningText(text: "      ")
@@ -92,9 +82,9 @@ private extension CreateAccountView {
     var confirmPasswordSection: some View {
         VStack(spacing: 5) {
             fieldLabel("Confirm Password")
-            CustomTextField(bg: background, accent: accent, placeholder: "", text: $password_two, secure: true)
+            CustomTextField(bg: bg, accent: accent, placeholder: "", text: $pass_two, secure: true)
             
-            if !password_two.isEmpty && password_two != password_one {
+            if !pass_two.isEmpty && pass_two != pass_one {
                 CustomWarningText(text: "Passwords do not match.")
             } else {
                 CustomWarningText(text: "       ")
@@ -105,19 +95,19 @@ private extension CreateAccountView {
     var securitySection: some View {
         VStack(spacing: 5) {
             fieldLabel("Security Question")
-            CustomTextField(bg: background, accent: accent, placeholder: "", text: $security_question)
+            CustomTextField(bg: bg, accent: accent, placeholder: "", text: $SQ)
             
             CustomWarningText(text: "       ") // for spacing
             
             fieldLabel("Security Question Answer")
-            CustomTextField(bg: background, accent: accent, placeholder: "", text: $security_answer)
+            CustomTextField(bg: bg, accent: accent, placeholder: "", text: $SA)
         }
     }
     
     var continueButton: some View {
         CustomNavButton(
             label: "Continue",
-            dest: CreateAccountView2(email: email, passwordOne: password_one,  securityQuestion: security_question, securityAnswer: security_answer),  bg: background, accent: accent, width: 150)
+            dest: CreateAccountView2(email: email, passOne: pass_one,  SQ: SQ, SA: SA),  bg: bg, accent: accent, width: 150)
         .disabled(!formIsValid)
         .opacity(formIsValid ? 1 : 0.5)
         .padding(.bottom, 45)
@@ -126,15 +116,15 @@ private extension CreateAccountView {
     func fieldLabel(_ text: String) -> some View {
         CustomText(text: text, color: accent)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, leading_padding)
+            .padding(.leading, 30)
     }
     
     func debounceEmailCheck() {
-        emailCheckTask?.cancel()
-        emailCheckTask = Task {
-            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 sec delay
+        checkEmail?.cancel()
+        checkEmail = Task {
+            try? await Task.sleep(nanoseconds: 500_000_000)
             if !Task.isCancelled {
-                emailAvailable = !Database.emailExists(email)
+                emailAvail = !Database.emailExists(email)
             }
         }
     }

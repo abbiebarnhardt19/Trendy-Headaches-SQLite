@@ -11,48 +11,46 @@ import Foundation
 struct LogView: View {
     //  Inputs
     var userID: Int64
-    var existingLogID: Int64? = nil
-    var existingLogTable: String? = nil
-    @Binding var background: String
+    var existingLog: Int64? = nil
+    var existingTable: String? = nil
+    @Binding var bg: String
     @Binding var accent: String
     
     // Layout
-    private let leadingPadding: CGFloat = 40
+    private let leadPadd: CGFloat = 40
     @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
     
     // Shared State
-    @State private var symptomLogViewShown = true
+    @State private var showSymptomView = true
     @State private var logID: Int64 = 0
-    @State private var showEmergencyPopup: Bool = false
+    @State private var showPopup: Bool = false
     @State private var date: Date = Date()
     
     //  Symptom Log variables
     @State private var stringDate: String = ""
-    @State private var dateCheckTask: Task<Void, Never>? = nil
-    @State private var dateFormatCorrect = true
     @State private var onset: String?
     @State private var onsetOptions: [String] = ["From Wake", "Morning", "Afternoon", "Evening"]
-    @State private var symptom: String?
-    @State private var symptomOptions: [String] = []
+    @State private var symp: String?
+    @State private var sympOptions: [String] = []
     @State private var severity: Int64 = 0
     @State private var medTaken: Bool = false
-    @State private var emergencyMedOptions: [String] = []
+    @State private var emergMedOptions: [String] = []
     @State private var medTakenName: String?
-    @State private var symptomDesc: String = ""
+    @State private var sympDesc: String = ""
     @State private var notes: String = ""
-    @State private var triggerOptions: [String] = []
-    @State private var selectedTriggers: [String] = []
-    @State private var symptomID: Int64 = 0
-    @State private var triggerIDs: [Int64] = []
-    @State private var emergencyMedID: Int64? = nil
+    @State private var triggOptions: [String] = []
+    @State private var selectedTriggs: [String] = []
+    @State private var sympID: Int64 = 0
+    @State private var triggIDs: [Int64] = []
+    @State private var emergMedID: Int64? = nil
     
     //  Side Effect Log variables
     @State private var sideEffectDate: String = ""
     @State private var sideEffectName: String = ""
-    @State private var sideEffectSeverity: Int64 = 0
-    @State private var medicationOptions: [String] = []
-    @State private var selectedMedication: String?
-    @State private var medicationID: Int64 = 0
+    @State private var sideEffectSev: Int64 = 0
+    @State private var medOptions: [String] = []
+    @State private var selectedMed: String?
+    @State private var medID: Int64 = 0
     
     //for med popup
     @State private var medWorked: Bool? = nil
@@ -61,7 +59,7 @@ struct LogView: View {
     //for log editing
     @State private var medEffective: Bool = false
     
-    @State private var goToListView = false
+    @State private var listView = false
     
     // Date Formatter
     private let formatter: DateFormatter = {
@@ -71,9 +69,9 @@ struct LogView: View {
     }()
     
     private var formValid: Bool {
-        if symptomLogViewShown {
+        if showSymptomView{
             // Base condition for symptom log
-            var isValid = symptom != nil && severity > 0
+            var isValid = symp != nil && severity > 0
             
             // Extra check: if medTaken is true, require medTakenName
             if medTaken {
@@ -83,20 +81,19 @@ struct LogView: View {
             return isValid
         } else {
             // Side effect log condition
-            return !sideEffectName.isEmpty && sideEffectSeverity > 0 && selectedMedication != nil
+            return !sideEffectName.isEmpty && sideEffectSev > 0 && selectedMed != nil
         }
     }
-
     
     //  Body
     var body: some View {
         
         NavigationStack {
             ZStack {
-                LogBGComps(background: background, accent: accent)
+                LogBGComps(bg: bg, accent: accent)
                 
-                if showEmergencyPopup, !oldLogIDs.isEmpty {
-                    EmergencyMedPopup(selectedAnswer: $medWorked, isPresented: $showEmergencyPopup,  oldLogID: oldLogIDs[0],  background: background, accent: accent)
+                if showPopup, !oldLogIDs.isEmpty {
+                    EmergencyMedPopup(selectedAnswer: $medWorked, isPresented: $showPopup,  oldLogID: oldLogIDs[0],  background: bg, accent: accent)
                     .zIndex(5)
                     .onDisappear {
                         // When the popup closes, remove the first ID
@@ -106,27 +103,26 @@ struct LogView: View {
                             
                             // If there are more, show the next one
                             if !oldLogIDs.isEmpty {
-                                showEmergencyPopup = true
+                                showPopup = true
                             }
                         }
                     }
                 }
-                
                 
                 ScrollView {
                     headerSection
                         .padding(.top, 20)
                         .frame(width: screenWidth)
                     
-                    if symptomLogViewShown {
+                    if showSymptomView {
                         symptomLogView
                     } else {
                         sideEffectLogView
                     }
                 }
-                .padding(.leading, leadingPadding)
+                .padding(.leading, leadPadd)
                 
-                VStack { Spacer(); NavBarView(userID: userID, bg: $background, accent: $accent, selected: .constant(0)) }
+                VStack { Spacer(); NavBarView(userID: userID, bg: $bg, accent: $accent, selected: .constant(0)) }
                     .zIndex(1)
                     .ignoresSafeArea(edges: .bottom)
             }
@@ -136,7 +132,7 @@ struct LogView: View {
             let results = Database.shared.emergencyMedPopup(userID: userID)
             if !results.isEmpty {
                 oldLogIDs = results
-                showEmergencyPopup = true
+                showPopup = true
             }
         }
     }
@@ -146,16 +142,13 @@ struct LogView: View {
     //header and toggle
     private var headerSection: some View {
         HStack {
-            CustomText(text: symptomLogViewShown ? "Symptom Log" : "Side Effect Log",
-                       color: accent,
-                       textAlign: .center,
-                       textSize: 43)
+            CustomText(text: showSymptomView ? "Symptom Log" : "Side Effect Log", color: accent, textAlign: .center,  textSize: 43)
             .lineLimit(1)
             .fixedSize(horizontal: true, vertical: false)
             .padding(.trailing, 10)
             
-            CustomToggle(color: accent, feature: $symptomLogViewShown)
-                .padding(.trailing, leadingPadding)
+            CustomToggle(color: accent, feature: $showSymptomView)
+                .padding(.trailing, leadPadd)
                 .padding(.top, 7)
         }
     }
@@ -167,7 +160,7 @@ struct LogView: View {
                 dateField(label: "Date:", text: $stringDate)
                 
                 CustomText(text: "Symptom*", color: accent, bold: true, textSize: 24)
-                MultipleChoiceButtonGroup(options: $symptomOptions, selected: $symptom, accent: accent)
+                MultipleChoiceButtonGroup(options: $sympOptions, selected: $symp, accent: accent)
                 
                 CustomText(text: "Symptom Severity*", color: accent, bold: true, textSize: 24)
                 StepSlider(value: $severity, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
@@ -179,48 +172,48 @@ struct LogView: View {
                 
                 if medTaken{
                     CustomText(text: "Emergency Med Name*", color: accent, bold: true, textSize: 24)
-                    MultipleChoiceButtonGroup(options: $emergencyMedOptions, selected: $medTakenName, accent: accent)
+                    MultipleChoiceButtonGroup(options: $emergMedOptions, selected: $medTakenName, accent: accent)
                         
                     
-                    if existingLogID != nil{
+                    if existingLog != nil{
                         CustomSingleCheckbox(text: "Emergency Med Effective?", color: accent, isOn: $medEffective )
                     }
                 }
                 
                 CustomText(text: "Triggers Present", color: accent, bold: true, textSize: 24)
-                MultipleChoiceCheckboxGroup(options: $triggerOptions, selected: $selectedTriggers, accent: accent, background: background, width: screenWidth-100)
+                MultipleChoiceCheckboxGroup(options: $triggOptions, selected: $selectedTriggs, accent: accent, background: bg, width: screenWidth-100)
                     .padding(.leading, 5)
                 
-                textFieldSection(title: "Symptom Description", text: $symptomDesc)
+                textFieldSection(title: "Symptom Description", text: $sympDesc)
                 textFieldSection(title: "Notes", text: $notes)
                 
                 // Inside your symptom log view
                 HStack{
                     Spacer()
                     
-                    let buttonText = existingLogID != nil ? "Submit" : "Save"
+                    let buttonText = existingLog != nil ? "Submit" : "Save"
 
-                    CustomButton(text: buttonText, bg: background, accent: accent, height: 50, width: 150) {
-                        if existingLogID == nil{
+                    CustomButton(text: buttonText, bg: bg, accent: accent, height: 50, width: 150) {
+                        if existingLog == nil{
                             submitSymptomLog()
                         }
                         else{
                              if medTakenName != nil && medTakenName != ""{
-                                emergencyMedID = Database.shared.getIDFromName(tableName: "medications", names: [medTakenName ?? ""], userID: userID).first
+                                emergMedID = Database.shared.getIDFromName(tableName: "medications", names: [medTakenName ?? ""], userID: userID).first
                             }
                             else{
-                                emergencyMedID=nil
+                                emergMedID=nil
                             }
                             
-                            Database.shared.updateSymptomLog(logID: existingLogID ?? 0, userID: userID, date: date, onsetTime: onset, severity: severity, symptomID: symptomID, medTaken: medTaken, medicationID: emergencyMedID, medWorked: medEffective, symptomDescription: symptomDesc, notes: notes, triggerIDs: triggerIDs)
+                            Database.shared.updateSymptomLog(logID: existingLog ?? 0, userID: userID, date: date, onsetTime: onset, severity: severity, symptomID: sympID, medTaken: medTaken, medicationID: emergMedID, medWorked: medEffective, symptomDescription: sympDesc, notes: notes, triggerIDs: triggIDs)
                         }// call your function first
-                        goToListView = true  // then trigger navigation
+                       listView = true  // then trigger navigation
                     }
                     .disabled(!formValid)
                     .padding(.trailing, 40)
                     // Navigation destination
-                    .navigationDestination(isPresented: $goToListView) {
-                        ListView(userID: userID, background: $background, accent: $accent)
+                    .navigationDestination(isPresented: $listView) {
+                        ListView(userID: userID, bg: $bg, accent: $accent)
                     }
                     Spacer()
                 }
@@ -239,30 +232,30 @@ struct LogView: View {
             textFieldSection(title: "Side Effect*", text: $sideEffectName)
             
             CustomText(text: "Side Effect Severity*", color: accent, bold: true, textSize: 24)
-            StepSlider(value: $sideEffectSeverity, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
+            StepSlider(value: $sideEffectSev, range: 1...10, step: 1, accentColor: accent, width: screenWidth - 50)
             
             CustomText(text: "Medication*", color: accent, bold: true, textSize: 24)
-            MultipleChoiceButtonGroup(options: $medicationOptions, selected: $selectedMedication, accent: accent)
+            MultipleChoiceButtonGroup(options: $medOptions, selected: $selectedMed, accent: accent)
             
             HStack{
                 Spacer()
                 
-                let buttonText = existingLogID != nil ? "Submit" : "Save"
+                let buttonText = existingLog != nil ? "Submit" : "Save"
 
-                CustomButton(text: buttonText, bg: background, accent: accent, height: 50, width: 150) {
-                    if existingLogID == nil{
+                CustomButton(text: buttonText, bg: bg, accent: accent, height: 50, width: 150) {
+                    if existingLog == nil{
                         submitSideEffectLog()
                     }
                     else{
-                        Database.shared.updateSideEffectLog(logID: existingLogID ?? 0, userID: userID, date: date, sideEffectName: sideEffectName, sideEffectSeverity: sideEffectSeverity, medicationID: medicationID)
+                        Database.shared.updateSideEffectLog(logID: existingLog ?? 0, userID: userID, date: date, sideEffectName: sideEffectName, sideEffectSeverity: sideEffectSev, medicationID: medID)
                     }// call your function first
-                    goToListView = true  // then trigger navigation
+                    listView = true  // then trigger navigation
                 }
                 .disabled(!formValid)
                 .padding(.trailing, 40)
                 // Navigation destination
-                .navigationDestination(isPresented: $goToListView) {
-                    ListView(userID: userID, background: $background, accent: $accent)
+                .navigationDestination(isPresented: $listView) {
+                    ListView(userID: userID, bg: $bg, accent: $accent)
                 }
                 Spacer()
             }
@@ -274,7 +267,7 @@ struct LogView: View {
     //date field, which is reused for both views
     private func dateField(label: String, text: Binding<String>) -> some View {
         HStack {
-            DatePickerTextFieldDropdown(selectedDate: $date,  textFieldValue: $stringDate, background: $background, accent: $accent)
+            DatePickerTextFieldDropdown(selectedDate: $date,  textFieldValue: $stringDate, background: $bg, accent: $accent)
         }
     }
     
@@ -282,8 +275,8 @@ struct LogView: View {
     private func textFieldSection(title: String, text: Binding<String>) -> some View {
         VStack(alignment: .leading) {
             CustomText(text: title, color: accent, bold: true, textSize: 24)
-            CustomTextField(bg: background, accent: accent, placeholder: "", text: text, width: screenWidth - 50, height: 45, textSize: 20, multiline: true)
-                .padding(.trailing, leadingPadding + 20)
+            CustomTextField(bg: bg, accent: accent, placeholder: "", text: text, width: screenWidth - 50, height: 45, textSize: 20, multiline: true)
+                .padding(.trailing, leadPadd + 20)
         }
     }
     
@@ -297,40 +290,40 @@ struct LogView: View {
         sideEffectDate = formatter.string(from: Date())
         
         //get data from database
-        symptomOptions = Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
-        triggerOptions = Database.deleteListDuplicates(list: Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name"))
-        medicationOptions = Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name")
+        sympOptions = Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "symptoms", columnName: "symptom_name")
+        triggOptions = Database.deleteListDuplicates(list: Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "triggers", columnName: "trigger_name"))
+        medOptions = Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name")
         
-        emergencyMedOptions = Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name", filterColumn: "medication_category", filterValue: "emergency")
+        emergMedOptions = Database.shared.getForeignKeyColumnValues(userId: userID, tableName: "medications", columnName: "medication_name", filterColumn: "medication_category", filterValue: "emergency")
         
-        if let existingLogID = existingLogID {
-            if let log = Database.shared.getUnifiedLog(by: existingLogID, logType: existingLogTable ?? "") {
+        if let existingLog = existingLog {
+            if let log = Database.shared.getUnifiedLog(by: existingLog, logType: existingTable ?? "") {
                 
                 if log.log_type == "Symptom" {
                     severity = log.severity
-                    symptomDesc = log.symptom_description ?? ""
+                    sympDesc = log.symptom_description ?? ""
                     notes = log.notes ?? ""
                     onset = log.onset_time ?? ""
                     medTaken = log.med_taken ?? false
                     date = log.date
                     stringDate = formatter.string(from: date)
-                    symptom = log.symptom_name
-                    symptomID = log.symptom_id ?? 0
+                    symp = log.symptom_name
+                    sympID = log.symptom_id ?? 0
                     medTakenName = log.medication_name ?? ""
-                    emergencyMedID = log.medication_id ?? 0
-                    selectedTriggers = log.trigger_names ?? []
-                    triggerIDs = log.trigger_ids ?? []
+                    emergMedID = log.medication_id ?? 0
+                    selectedTriggs = log.trigger_names ?? []
+                    triggIDs = log.trigger_ids ?? []
                     medEffective = log.med_worked ?? false
-                    symptomLogViewShown = true
+                    showSymptomView = true
 
                 } else if log.log_type == "SideEffect" {
                     sideEffectDate = formatter.string(from: log.date)
                     sideEffectName = log.side_effect_med ?? ""
-                    sideEffectSeverity = log.severity
-                    selectedMedication = log.medication_name ?? ""
-                    medicationID = log.medication_id ?? 0
+                    sideEffectSev = log.severity
+                    selectedMed = log.medication_name ?? ""
+                    medID = log.medication_id ?? 0
 
-                    symptomLogViewShown = false
+                    showSymptomView = false
                 }
 
             } else {
@@ -343,34 +336,34 @@ struct LogView: View {
     //function to add the log to the database
     private func submitSymptomLog(){
             //get the symptoms and triggers from the names
-            symptomID = Database.shared.getIDFromName(tableName: "symptoms", names: [symptom ?? ""], userID: userID).first ?? 0
+            sympID = Database.shared.getIDFromName(tableName: "symptoms", names: [symp ?? ""], userID: userID).first ?? 0
             
-            triggerIDs = Database.shared.getIDFromName(tableName: "triggers", names: selectedTriggers, userID: userID)
+            triggIDs = Database.shared.getIDFromName(tableName: "triggers", names: selectedTriggs, userID: userID)
             
         if medTakenName != ""{
-            emergencyMedID = Database.shared.getIDFromName(tableName: "medications", names: [medTakenName ?? ""], userID: userID).first
+            emergMedID = Database.shared.getIDFromName(tableName: "medications", names: [medTakenName ?? ""], userID: userID).first
         }
             
             //convert the date from string format
             let enteredDate = formatter.date(from: stringDate) ?? Date()
             
             //add log to database
-            logID = Database.shared.createLog(userID: userID,  date: enteredDate, symptom_onset: onset ?? "", symptom: symptomID, severity: severity, med_taken: medTaken, med_taken_id: emergencyMedID, symptom_desc: symptomDesc, notes: notes, submit: Date(), triggerIDs: triggerIDs) ?? 0
+            logID = Database.shared.createLog(userID: userID,  date: enteredDate, symptom_onset: onset ?? "", symptom: sympID, severity: severity, med_taken: medTaken, med_taken_id: emergMedID, symptom_desc: sympDesc, notes: notes, submit: Date(), triggerIDs: triggIDs) ?? 0
     }
     
     //function to add the side effect to the database
     private func submitSideEffectLog() {
         //get the medication ID from the name
-        medicationID = Database.shared.getIDFromName(tableName: "medications", names: [selectedMedication ?? ""], userID: userID).first ?? 0
+        medID = Database.shared.getIDFromName(tableName: "medications", names: [selectedMed ?? ""], userID: userID).first ?? 0
        
         //convert the date from a string
         let enteredDate = formatter.date(from: sideEffectDate) ?? Date()
         
         //add it to the database
-        logID = Database.shared.createSideEffectLog(userID: userID, date: enteredDate, submit_time: Date(), side_effect: sideEffectName, side_effect_severity: sideEffectSeverity, medication_id: medicationID) ?? 0 
+        logID = Database.shared.createSideEffectLog(userID: userID, date: enteredDate, submit_time: Date(), side_effect: sideEffectName, side_effect_severity: sideEffectSev, medication_id: medID) ?? 0
     }
 }
 
 #Preview {
-    LogView(userID: 1, background: .constant("#001d00"), accent: .constant("#b5c4b9"))
+    LogView(userID: 1, bg: .constant("#001d00"), accent: .constant("#b5c4b9"))
 }

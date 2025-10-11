@@ -128,60 +128,7 @@ struct WavyTopBottomRectangle: View {
             .offset(x: x, y: y)
     }
 }
-
-struct ParametricBlob: View {
-    var points: Int = 20
-    var amplitude: CGFloat
-    var x: CGFloat
-    var y: CGFloat
-    var rotation: CGFloat
-    var accent: String
-    var width: CGFloat? = 500
-    var height: CGFloat? = 600
-    
-    var body: some View {
-        let rect = CGRect(x: 0, y: 0, width: width ?? 500, height: height ?? 600)
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-        let radiusX = rect.width / 2
-        let radiusY = rect.height / 2
-        
-        let blobPath: Path = {
-            var path = Path()
-            var blobPoints: [CGPoint] = []
-            
-            for i in 0..<points {
-                let angle = 2 * CGFloat.pi * CGFloat(i) / CGFloat(points)
-                let offset = sin(CGFloat(i) * 2) * amplitude
-                
-                let x = center.x + (radiusX * (1 + offset)) * cos(angle)
-                let y = center.y + (radiusY * (1 + offset)) * sin(angle)
-                blobPoints.append(CGPoint(x: x, y: y))
-            }
-            
-            if let first = blobPoints.first {
-                path.move(to: first)
-            }
-            
-            for i in 0..<points {
-                let next = blobPoints[(i + 1) % points]
-                let midX = (blobPoints[i].x + next.x) / 2
-                let midY = (blobPoints[i].y + next.y) / 2
-                let mid = CGPoint(x: midX, y: midY)
-                
-                path.addQuadCurve(to: mid, control: blobPoints[i])
-            }
-            
-            path.closeSubpath()
-            return path
-        }()
-        
-        return blobPath
-            .fill(Color(hex: accent))
-            .frame(width: 400, height: 300)
-            .offset(x: x, y: y)
-            .rotationEffect(.degrees(rotation))
-    }
-}
+//
 
 // Reproducible random generator
 struct SeededGenerator: RandomNumberGenerator {

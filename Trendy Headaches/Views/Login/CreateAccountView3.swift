@@ -3,29 +3,28 @@ import CryptoKit
 
 struct CreateAccountView3: View {
     // Info from previous pages
-    var background: String = ""
+    var bg: String = ""
     var accent: String = ""
     var email: String = ""
-    var passwordOne: String = ""
-    var currentSecurityQuestion: String = ""
-    var currentSecurityAnswer: String = ""
+    var passOne: String = ""
+    var SQ: String = ""
+    var SA: String = ""
     
     // Editable variables for this page
-    @State private var symptoms: String = ""
-    @State private var preventativeMeds: String = ""
-    @State private var emergencyMeds: String = ""
-    @State private var triggers: String = ""
-    @State private var errorMessage: String = ""
-    @State private var accountCreated = false
+    @State private var symps: String = ""
+    @State private var prevMeds: String = ""
+    @State private var emergMeds: String = ""
+    @State private var triggs: String = ""
+    @State private var created = false
     
     // Layout constants
     private let screenWidth = UIScreen.main.bounds.width
-    private let leadingPadding = UIScreen.main.bounds.width * 0.8
+    private let leadPadd = UIScreen.main.bounds.width * 0.8
     
     var body: some View {
         NavigationStack {
             ZStack {
-                Create3BGComps(background: background, accent: accent)
+                Create3BGComps(bg: bg, accent: accent)
                 
                 ScrollView {
                     ZStack {
@@ -39,27 +38,22 @@ struct CreateAccountView3: View {
                             
                             // Input fields
                             Group {
-                                labeledField("Symptom or Illness", text: $symptoms)
-                                labeledField("Preventative Treatments", text: $preventativeMeds)
-                                labeledField("Emergency Treatments", text: $emergencyMeds)
-                                labeledField("Triggers", text: $triggers)
+                                labeledField("Symptom or Illness", text: $symps)
+                                labeledField("Preventative Treatments", text: $prevMeds)
+                                labeledField("Emergency Treatments", text: $emergMeds)
+                                labeledField("Triggers", text: $triggs)
                             }
                             
                             // Submit button
-                            CustomButton(text: "Submit", bg: background, accent: accent) {
+                            CustomButton(text: "Submit", bg: bg, accent: accent) {
                                 createAccount()
                             }
                             .padding(.bottom, 40)
-                            
-                            // Error message
-                            if !errorMessage.isEmpty {
-                                CustomWarningText(text: errorMessage)
-                            }
                         }
                         .padding()
                     }
-                    .navigationDestination(isPresented: $accountCreated) {
-                        LoginView(background: background, accent: accent)
+                    .navigationDestination(isPresented: $created) {
+                        LoginView(bg: bg, accent: accent)
                     }
                 }
             }
@@ -70,19 +64,19 @@ struct CreateAccountView3: View {
     private func labeledField(_ label: String, text: Binding<String>) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             CustomText(text: label, color: accent)
-                .padding(.leading, leadingPadding)
-            CustomTextField(bg: background, accent: accent, placeholder: "", text: text)
-                .padding(.leading, leadingPadding-10)
+                .padding(.leading, leadPadd)
+            CustomTextField(bg: bg, accent: accent, placeholder: "", text: text)
+                .padding(.leading, leadPadd-10)
         }
     }
     
     private func createAccount() {
-        do {
-            try Database.createUser(email: email, password: passwordOne,  securityQuestion: currentSecurityQuestion,  securityAnswer: currentSecurityAnswer,  background: background, accent: accent, symptoms: symptoms, preventativeMeds: preventativeMeds, emergencyMeds: emergencyMeds, triggers: triggers)
-            errorMessage = ""
-            accountCreated = true
-        } catch {
-            errorMessage = "Failed to create account"
+        do{
+            try Database.createUser(email: email, password: passOne,  securityQuestion: SQ,  securityAnswer: SA,  background: bg, accent: accent, symptoms: symps, preventativeMeds: prevMeds, emergencyMeds: emergMeds, triggers: triggs)
+            created = true
+        }
+        catch{
+            print("Failed to create account")
         }
     }
 }

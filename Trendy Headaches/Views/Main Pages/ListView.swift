@@ -9,23 +9,23 @@ import SwiftUI
 
 struct ListView: View {
     var userID: Int64
-    @Binding var background: String
+    @Binding var bg: String
     @Binding var accent: String
 
     //for clicking on lost
-    @State private var selectedLogID: Int64? = nil
-    @State private var selectedLogTable: String? = nil
-    @State private var showLogCreation: Bool = false
+    @State private var selectLog: Int64? = nil
+    @State private var selectTable: String? = nil
+    @State private var showLog: Bool = false
     
     //list of all logs for the table
     @State private var logList: [UnifiedLog] = []
     
     //bool for showing the filter dropdowns
-    @State private var showFilterPopup: Bool = false
+    @State private var showFilter: Bool = false
     
     //column options filter
-    @State var columnOptions: [String] = ["Log Type", "Date", "Symptom", "Sev.", "Onset", "Triggers", "Em. Med. Taken?", "Em. Med. Name", "Em. Med. Worked?", "Symp. Desc.", "Notes ", "S.E. Med."]
-    @State var selectedColumns: [String] = ["Log Type", "Date", "Symptom", "Sev."]
+    @State var colOptions: [String] = ["Log Type", "Date", "Symptom", "Sev.", "Onset", "Triggers", "Em. Med. Taken?", "Em. Med. Name", "Em. Med. Worked?", "Symp. Desc.", "Notes ", "S.E. Med."]
+    @State var selectedCols: [String] = ["Log Type", "Date", "Symptom", "Sev."]
     
     //for date filter
     @State var startDate: Date = Date()
@@ -42,8 +42,8 @@ struct ListView: View {
     @State var logTypeFilter: [String] = ["Symptom", "Side Effect"]
     
     //for symptom filter
-    @State var symptomOptions: [String] = []
-    @State var selectedSymptoms: [String] = []
+    @State var sympOptions: [String] = []
+    @State var selectedSymps: [String] = []
     
     //for deleting
     @State var deleteCount: Int64 = 0
@@ -65,7 +65,7 @@ struct ListView: View {
             if log.severity < sevStart { return false }
             if log.severity > sevEnd { return false }
             
-            guard selectedSymptoms.contains(log.symptom_name ?? "") else { return false }
+            guard selectedSymps.contains(log.symptom_name ?? "") else { return false }
             
             return true
         }
@@ -74,7 +74,7 @@ struct ListView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                ListBGComps(background: background, accent: accent)
+                ListBGComps(bg: bg, accent: accent)
                 
                 VStack {
                     //page label
@@ -88,9 +88,9 @@ struct ListView: View {
                     //table
                     HStack{
                         Spacer()
-                        ScrollableLogTable( userID: userID, logList: logList, selectedColumns: selectedColumns, background: background, accent: accent, height: popupHeight, width: screenWidth - 20, deleteCount: $deleteCount, onLogTap: { id, table in
-                            selectedLogID = id
-                            selectedLogTable = table
+                        ScrollableLogTable( userID: userID, logList: logList, selectedColumns: selectedCols, background: bg, accent: accent, height: popupHeight, width: screenWidth - 20, deleteCount: $deleteCount, onLogTap: { id, table in
+                            selectLog = id
+                            selectTable = table
                         })
                         Spacer()
                     }
@@ -98,12 +98,12 @@ struct ListView: View {
                 }
                 
                 //filter dropdowns
-                if showFilterPopup {
+                if showFilter {
                     VStack {
                         Spacer()
                         HStack {
                             Spacer()
-                            filterPopUp(accent: accent, background: background, columnOptions: columnOptions, selectedColumns: $selectedColumns, logTypeOptions: $logTypeOptions, logType: $logTypeFilter, startDate: $startDate, endDate: $endDate, stringStartDate: $stringStartDate, stringEndDate: $stringEndDate, sevStart: $sevStart, sevEnd: $sevEnd, symptomOptions: $symptomOptions, selectedSymptoms: $selectedSymptoms)
+                            filterPopUp(accent: accent, background: bg, columnOptions: colOptions, selectedColumns: $selectedCols, logTypeOptions: $logTypeOptions, logType: $logTypeFilter, startDate: $startDate, endDate: $endDate, stringStartDate: $stringStartDate, stringEndDate: $stringEndDate, sevStart: $sevStart, sevEnd: $sevEnd, symptomOptions: $sympOptions, selectedSymptoms: $selectedSymps)
                                 .padding(.trailing, 20)
                                 .padding(.bottom, 120)
                         }
@@ -117,7 +117,7 @@ struct ListView: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        FilterDropDown(background: background, accent: accent, showPopUp: $showFilterPopup)
+                        FilterDropDown(background: bg, accent: accent, showPopUp: $showFilter)
                     }
                     .padding(.bottom, 90)
                 }
@@ -125,22 +125,22 @@ struct ListView: View {
                 //nav bar
                 VStack {
                     Spacer()
-                    NavBarView(userID: userID, bg: $background,  accent: $accent, selected: .constant(1))
+                    NavBarView(userID: userID, bg: $bg,  accent: $accent, selected: .constant(1))
                 }
                 .ignoresSafeArea(edges: .bottom)
                 .zIndex(1)
             }
             //go to log page when log is clicked
-            .navigationDestination(isPresented: $showLogCreation) {
-                LogView(userID: userID, background: $background, accent: $accent)
+            .navigationDestination(isPresented: $showLog) {
+                LogView(userID: userID, bg: $bg, accent: $accent)
                     .navigationBarBackButtonHidden(true)
             }
             .navigationDestination(
                 isPresented: Binding(
-                    get: { selectedLogID != nil },
-                    set: { if !$0 { selectedLogID = nil } } ) ) {
-                if let id = selectedLogID, let table = selectedLogTable {
-                    LogView(userID: userID, existingLogID: id, existingLogTable: table, background: $background, accent: $accent)
+                    get: { selectLog != nil },
+                    set: { if !$0 { selectLog = nil } } ) ) {
+                if let id = selectLog, let table = selectTable {
+                    LogView(userID: userID, existingLog: id, existingTable: table, bg: $bg, accent: $accent)
                         .navigationBarBackButtonHidden(true)
                 }
             }
@@ -154,7 +154,7 @@ struct ListView: View {
                 stringStartDate = DateFormatter.localizedString(from: earliest, dateStyle: .short, timeStyle: .none)
             }
             
-            symptomOptions = Array(Set( logList.compactMap { log in
+            sympOptions = Array(Set( logList.compactMap { log in
                         if let symptom = log.symptom_name, !symptom.isEmpty {
                             return symptom
                         } else {
@@ -163,7 +163,7 @@ struct ListView: View {
                     }))
             .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
 
-            selectedSymptoms = symptomOptions
+            selectedSymps = sympOptions
         }
         //update filters when values change
         .onChange(of: startDate) {  filterLogs() }
@@ -171,12 +171,12 @@ struct ListView: View {
         .onChange(of: logTypeFilter) {  filterLogs() }
         .onChange(of: sevStart) { filterLogs() }
         .onChange(of: sevEnd) {  filterLogs() }
-        .onChange(of: selectedSymptoms) {  filterLogs() }
+        .onChange(of: selectedSymps) {  filterLogs() }
         .onChange(of: deleteCount) {  filterLogs() }
         .navigationBarBackButtonHidden(true)
     }
 }
 
 #Preview {
-    ListView(userID: 1, background: .constant("#001d00"), accent: .constant("#b5c4b9"))
+    ListView(userID: 1, bg: .constant("#001d00"), accent: .constant("#b5c4b9"))
 }
