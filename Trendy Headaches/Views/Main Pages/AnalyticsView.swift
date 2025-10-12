@@ -56,7 +56,7 @@ struct AnalyticsView: View {
                         .padding(.bottom, 20)
                         .padding(.trailing, 60)
                         .padding(.top, 30)
-                        HiddenChart(bg: bg, accent: accent, width: screenWidth,  hideChart: $hideCalendar)
+
                         if !hideCalendar{
                             HStack{
                                 CalendarView(logs: logs, showKey: $calKey, hideChart: $hideCalendar, background: bg, accent: accent, width:screenWidth-60, symptomToIcon: symptomToIcon)
@@ -66,6 +66,9 @@ struct AnalyticsView: View {
                                 SeverityKeyBar(accent: accent, width: screenWidth-40, height:20)
                                 SymptomKey(symptomToIcon: symptomToIcon, accent: accent, width: screenWidth-40)
                             }
+                        }
+                        else{
+                            HiddenChart(bg: bg, accent: accent, chart: "Calendar", width: screenWidth,  hideChart: $hideCalendar)
                         }
                     }
                 }

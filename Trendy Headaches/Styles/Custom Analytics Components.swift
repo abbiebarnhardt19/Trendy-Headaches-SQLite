@@ -278,19 +278,30 @@ struct SeverityKeyBar: View {
     }
 }
 
-struct HiddenChart: View{
+struct HiddenChart: View {
     var bg: String
     var accent: String
+    var chart: String
     var width: CGFloat
     @Binding var hideChart: Bool
     
-    var body: some View{
-        VStack{
-        CustomText(text: "Test", color: accent)
-            Button(action: {hideChart.toggle()}){
-                Image(systemName: "chevron.right")
-                    .foregroundColor(Color(hex: bg))
-            }
+    var body: some View {
+        let buttonText = "Show \(chart) Visual"
+        // Calculate text width using system font that matches your button text size
+        let textWidth = buttonText.width(usingFont: .systemFont(ofSize: 25, weight: .regular))
+        
+        HStack {
+            CustomButton(
+                text: buttonText,
+                bg: bg,
+                accent: accent,
+                height: 50,
+                width: textWidth + 60, // Add some horizontal padding
+                corner: 30,
+                bold: false,
+                textSize: 25,
+                action: { hideChart.toggle() }
+            )
         }
         .frame(width: width)
     }
