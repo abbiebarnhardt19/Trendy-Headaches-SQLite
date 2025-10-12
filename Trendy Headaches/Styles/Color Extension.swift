@@ -72,4 +72,40 @@ extension Color {
             opacity: Double(a1 + (a2 - a1) * ratio)
         )
     }
+    
+    func adjusted(by amount: Double) -> Color {
+        // Convert to UIColor to modify brightness/saturation
+        let uiColor = UIColor(self)
+        var hue: CGFloat = 0
+        var saturation: CGFloat = 0
+        var brightness: CGFloat = 0
+        var alpha: CGFloat = 0
+        uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+        
+        // adjust brightness (or saturation)
+        let newBrightness = max(min(brightness + CGFloat(amount), 1.0), 0.0)
+        return Color(hue: hue, saturation: saturation, brightness: newBrightness)
+    }
+    
+    func toHex() -> String? {
+        let uiColor = UIColor(self)
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        guard uiColor.getRed(&r, green: &g, blue: &b, alpha: &a) else { return nil }
+        let rgb: Int = (Int)(r * 255) << 16 | (Int)(g * 255) << 8 | (Int)(b * 255)
+        return String(format: "#%06x", rgb)
+    }
+    func rotatedHue(by amount: Double) -> Color {
+            let uiColor = UIColor(self)
+            var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, alpha: CGFloat = 0
+            
+            guard uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha) else {
+                return self
+            }
+            
+            let newHue = CGFloat(fmod(Double(hue) + amount, 1.0))
+            // Slightly adjust brightness to create extra separation
+            let newBrightness = min(max(brightness * (0.9 + amount * 0.2), 0), 1)
+            
+            return Color(hue: newHue, saturation: saturation, brightness: newBrightness)
+        }
 }

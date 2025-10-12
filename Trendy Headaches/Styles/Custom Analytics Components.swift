@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Charts
 
 struct CalendarView: View {
     let logs: [UnifiedLog]
@@ -304,5 +305,55 @@ struct HiddenChart: View {
             )
         }
         .frame(width: width)
+    }
+}
+
+import SwiftUI
+import Charts
+
+struct SeverityPieChart: View {
+    var logList: [UnifiedLog]
+    var accent: String
+
+    // Group logs by severity and sort them
+    private var severityCounts: [(severity: String, count: Int)] {
+        let grouped = Dictionary(grouping: logList, by: { $0.severity })
+        return grouped
+            .map { (key, value) in (severity: String(key), count: value.count) }
+            .sorted { Int($0.severity)! > Int($1.severity)! }
+    }
+
+    var body: some View {
+        let baseColor = Color(hex: accent)
+        let total = max(severityCounts.count, 1)
+
+        Chart(severityCounts, id: \.severity) { item in
+            let idx = severityCounts.firstIndex { $0.severity == item.severity } ?? 0
+            let hueShift = Double(idx) / Double(total)
+            let sliceColor = baseColor.rotatedHue(by: hueShift)
+
+            // Determine readable text color
+            let hex = sliceColor.toHex() ?? accent
+            let isDark = Color.isHexColorDark(hex)
+            let textColor = isDark ? Color.white : Color.black
+
+            SectorMark(
+                angle: .value("Count", item.count),
+                angularInset: 1.5
+            )
+            .foregroundStyle(sliceColor)
+            // Use overlay to place the label inside the slice
+            .annotation(position: .overlay) {
+                GeometryReader { geo in
+                    Text(item.severity)
+                        .font(.system(size: 20, design: .serif))
+                        .foregroundColor(textColor)
+                        .position(x: geo.size.width / 2, y: geo.size.height / 2)
+                }
+            }
+        }
+        .chartLegend(.hidden) // hide default legend
+        .frame(height: 250)
+        .padding()
     }
 }

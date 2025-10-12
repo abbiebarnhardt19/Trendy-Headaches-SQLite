@@ -18,7 +18,9 @@ struct AnalyticsView: View {
     @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
     
     @State private var calKey: Bool = false
-    @State private var hideCalendar: Bool = false
+    @State private var hideCalendar: Bool = true
+    @State private var hideSeverity: Bool = false
+    
     
     // List of icons to cycle through
     let icons = [ "circle.fill",  "square.fill",  "triangle.fill", "star.fill", "diamond.fill", "hexagon.fill", "heart.fill", "bolt.fill", "leaf.fill", "flame.fill"]
@@ -58,10 +60,8 @@ struct AnalyticsView: View {
                         .padding(.top, 30)
 
                         if !hideCalendar{
-                            HStack{
-                                CalendarView(logs: logs, showKey: $calKey, hideChart: $hideCalendar, background: bg, accent: accent, width:screenWidth-60, symptomToIcon: symptomToIcon)
-                                    .padding(.horizontal, 10)
-                            }
+                            CalendarView(logs: logs, showKey: $calKey, hideChart: $hideCalendar, background: bg, accent: accent, width:screenWidth-60, symptomToIcon: symptomToIcon)
+                                .padding(.horizontal, 10)
                             if calKey{
                                 SeverityKeyBar(accent: accent, width: screenWidth-40, height:20)
                                 SymptomKey(symptomToIcon: symptomToIcon, accent: accent, width: screenWidth-40)
@@ -70,6 +70,9 @@ struct AnalyticsView: View {
                         else{
                             HiddenChart(bg: bg, accent: accent, chart: "Calendar", width: screenWidth,  hideChart: $hideCalendar)
                         }
+                    }
+                    if !hideSeverity{
+                        SeverityPieChart(logList: logs, accent: accent)
                     }
                 }
                 
