@@ -90,7 +90,9 @@ struct LogView: View {
         
         NavigationStack {
             ZStack {
+                
                 LogBGComps(bg: bg, accent: accent)
+                
                 
                 if showPopup, !oldLogIDs.isEmpty {
                     EmergencyMedPopup(selectedAnswer: $medWorked, isPresented: $showPopup,  oldLogID: oldLogIDs[0],  background: bg, accent: accent)
@@ -279,7 +281,6 @@ struct LogView: View {
                 .padding(.trailing, leadPadd + 20)
         }
     }
-    
     
     //Functions
     

@@ -12,11 +12,10 @@ struct AnalyticsBGComps: View {
     var accent: String
 
     var body: some View {
-        ZStack {
             Color(hex: bg).ignoresSafeArea()
-            SameAmplitudeBlob(waves: 12, amp: 20, accent: accent,  x: 100, y: -350, rotation: -50)
-            SameAmplitudeBlob(waves: 13, amp: 15, accent: accent, x: 70, y: -300, rotation: 130)
-        }
+            SameAmplitudeBlob(waves: 12, amp: 15, accent: accent,  x: 100, y: -380, rotation: -48)
+            .zIndex(5)
+            SameAmplitudeBlob(waves: 12, amp: 15, accent: accent, x: 50, y: -320, rotation: 134)
     }
 }
 
@@ -40,13 +39,11 @@ struct LogBGComps: View {
     var screenWidth: CGFloat = UIScreen.main.bounds.width
     
     var body: some View {
-        ZStack {
-            Color(hex: bg).ignoresSafeArea()
+        Color(hex: bg).ignoresSafeArea()
             WavyTopBottomRectangle(waves: 7, amp: 8, accent: accent, x: 0, y: -430, width: screenWidth, height: 80)
-                .zIndex(1)
+                .zIndex(5)
             WavyTopBottomRectangle(waves: 7, amp: 8, accent: accent, x: 0, y: 355, width: screenWidth, height: 80)
                 .zIndex(1)
-        }
     }
 }
 

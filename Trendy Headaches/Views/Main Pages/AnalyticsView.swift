@@ -18,6 +18,7 @@ struct AnalyticsView: View {
     @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
     
     @State private var calKey: Bool = false
+    @State private var hideCalendar: Bool = false
     
     // List of icons to cycle through
     let icons = [ "circle.fill",  "square.fill",  "triangle.fill", "star.fill", "diamond.fill", "hexagon.fill", "heart.fill", "bolt.fill", "leaf.fill", "flame.fill"]
@@ -45,19 +46,27 @@ struct AnalyticsView: View {
         NavigationStack{
             ZStack {
                 AnalyticsBGComps(bg: bg, accent: accent)
-                
-                VStack(spacing: 0) {
-                    HStack{
-                        CalendarView(logs: logs, showKey: $calKey, background: bg, accent: accent, width:screenWidth-120, symptomToIcon: symptomToIcon)
-                            .padding(.horizontal, 10)
-                        
-                        if calKey{
-                            SeverityKeyBar(accent: accent, width: 20, height:screenWidth-100)
+                ScrollView{
+                    VStack(spacing: 0) {
+                        HStack{
+                            Spacer()
+                            CustomText(text: "Analytics", color: accent, width: 220, textSize: 53)
                         }
-                    }
-                    if calKey{
-                        SymptomKey(symptomToIcon: symptomToIcon, accent: accent, width: screenWidth-20)
-                            .padding()
+                        .frame(width: screenWidth)
+                        .padding(.bottom, 20)
+                        .padding(.trailing, 60)
+                        .padding(.top, 30)
+                        HiddenChart(bg: bg, accent: accent, width: screenWidth,  hideChart: $hideCalendar)
+                        if !hideCalendar{
+                            HStack{
+                                CalendarView(logs: logs, showKey: $calKey, hideChart: $hideCalendar, background: bg, accent: accent, width:screenWidth-60, symptomToIcon: symptomToIcon)
+                                    .padding(.horizontal, 10)
+                            }
+                            if calKey{
+                                SeverityKeyBar(accent: accent, width: screenWidth-40, height:20)
+                                SymptomKey(symptomToIcon: symptomToIcon, accent: accent, width: screenWidth-40)
+                            }
+                        }
                     }
                 }
                 

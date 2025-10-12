@@ -10,6 +10,7 @@ import SwiftUI
 struct CalendarView: View {
     let logs: [UnifiedLog]
     @Binding var showKey: Bool
+    @Binding var hideChart: Bool
     var background: String
     var accent: String
     var width: CGFloat
@@ -21,13 +22,17 @@ struct CalendarView: View {
     }
     
     @State private var currentMonth: Date = Date()
+    
     private let calendar = Calendar.current
     private let weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    
+    @State private var isFullScreen = false
     
     var body: some View {
         VStack(spacing: 10) {
             // Month Navigation
             HStack {
+                Spacer()
                 Button(action: { changeMonth(by: -1) }) { Image(systemName: "chevron.left")
                     .foregroundColor(Color(hex: background))}
                 .frame(width:5)
@@ -43,12 +48,20 @@ struct CalendarView: View {
                 
                 //show key button
                 Button(action: {showKey.toggle()}){
-                    CustomText(text:showKey ? "Dismiss Key" : "Show Key", color: accent,  width:110, textAlign: .center, textSize: 16)
+                    CustomText(text: "Key", color: accent,  width:60, textAlign: .center, textSize: 16)
                         .frame(height: 27)
                         .background(Color(hex: background))
                         .cornerRadius(20)
-                }
-                .padding(.trailing, 5)
+                    }
+                Spacer()
+                
+                Button(action: {hideChart.toggle()}){
+                    CustomText(text: "Hide", color: accent,  width:70, textAlign: .center, textSize: 16)
+                        .frame(height: 27)
+                        .background(Color(hex: background))
+                        .cornerRadius(20)
+                    }
+                Spacer()
             }
             
             // Weekday Labels
@@ -114,7 +127,7 @@ struct CalendarView: View {
                 }
             }
         }
-        .frame(width: width, height: width)
+        .frame(width: width, height: width-50)
         .padding()
         .background(Color(hex: accent))
         .cornerRadius(15)
@@ -172,6 +185,7 @@ struct CalendarView: View {
         }
     }
 }
+
 
 //make a key for mapping the shapes to the symptoms
 struct SymptomKey: View {
@@ -236,29 +250,48 @@ struct SymptomKey: View {
 //make the gradient bar for the severity key
 struct SeverityKeyBar: View {
     var accent: String
-    var width: CGFloat = 20
-    var height: CGFloat = 300
+    var width: CGFloat = 300
+    var height: CGFloat = 20
     
     private let severityColors: [Color] = [Color(hex: "#FFB950"), Color(hex: "#FFAD33"), Color(hex: "#FF931F"), Color(hex: "#FF7E33"), Color(hex: "#FA5E1F"), Color(hex: "#EC3F13"), Color(hex: "#B81702"),  Color(hex: "#A50104"), Color(hex: "#8E0103"), Color(hex: "#7A0103")]
     
     var body: some View {
-        HStack(alignment: .top, spacing: 8) {
+        VStack{
             // gradient bar
             RoundedRectangle(cornerRadius: width / 2)
-                .fill(LinearGradient(gradient: Gradient(colors: severityColors), startPoint: .bottom, endPoint: .top))
+                .fill(LinearGradient(gradient: Gradient(colors: severityColors), startPoint: .leading, endPoint: .trailing))
                 .frame(width: width, height: height)
             
             //Labels
-            VStack(spacing: 0) {
-                ForEach((1...10).reversed(), id: \.self) { i in
+            HStack(spacing: 0) {
+                ForEach((1...10), id: \.self) { i in
                     CustomText(text:"\(i)", color:accent,  textAlign: .center, textSize: 14)
-                        .frame(height: height / 10)
+                        .frame(width: width / 10)
                 }
             }
             .frame(height: height)
         }
-        .frame(width: width + 30, height: height, alignment: .top)
+        .frame(width: width,  height: height, alignment: .top)
         .fixedSize(horizontal: false, vertical: true)
-        .padding(.trailing, 10)
+        .padding(.top, 15)
+        .padding(.bottom, 40)
+    }
+}
+
+struct HiddenChart: View{
+    var bg: String
+    var accent: String
+    var width: CGFloat
+    @Binding var hideChart: Bool
+    
+    var body: some View{
+        VStack{
+        CustomText(text: "Test", color: accent)
+            Button(action: {hideChart.toggle()}){
+                Image(systemName: "chevron.right")
+                    .foregroundColor(Color(hex: bg))
+            }
+        }
+        .frame(width: width)
     }
 }
