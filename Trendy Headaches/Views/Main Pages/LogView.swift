@@ -32,7 +32,7 @@ struct LogView: View {
     @State private var onsetOptions: [String] = ["From Wake", "Morning", "Afternoon", "Evening"]
     @State private var symp: String?
     @State private var sympOptions: [String] = []
-    @State private var severity: Int64 = 0
+    @State private var severity: Int64 = 1
     @State private var medTaken: Bool = false
     @State private var emergMedOptions: [String] = []
     @State private var medTakenName: String?

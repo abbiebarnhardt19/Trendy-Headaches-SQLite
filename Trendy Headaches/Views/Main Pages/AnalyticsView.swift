@@ -72,7 +72,7 @@ struct AnalyticsView: View {
                         }
                     }
                     if !hideSeverity{
-                        SeverityPieChart(logList: logs, accent: accent)
+                        SeverityPieChart(logList: logs, accent: accent, bg: bg)
                     }
                 }
                 
