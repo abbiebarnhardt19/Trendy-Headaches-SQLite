@@ -75,6 +75,7 @@ struct AnalyticsView: View {
                         SeverityPieChart(logList: logs, accent: accent, bg: bg)
                     }
                 }
+                .zIndex(2)
                 
                 // Nav bar overlay at bottom
                 VStack {

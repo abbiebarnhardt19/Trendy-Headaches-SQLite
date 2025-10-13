@@ -16,6 +16,7 @@ struct AnalyticsBGComps: View {
             SameAmplitudeBlob(waves: 12, amp: 15, accent: accent,  x: 100, y: -380, rotation: -48)
             .zIndex(5)
             SameAmplitudeBlob(waves: 12, amp: 15, accent: accent, x: 50, y: -320, rotation: 134)
+            .zIndex(5)
     }
 }
 

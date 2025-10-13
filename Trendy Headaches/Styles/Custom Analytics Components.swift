@@ -292,157 +292,11 @@ struct HiddenChart: View {
         let textWidth = buttonText.width(usingFont: .systemFont(ofSize: 25, weight: .regular))
         
         HStack {
-            CustomButton(
-                text: buttonText,
-                bg: bg,
-                accent: accent,
-                height: 50,
-                width: textWidth + 60, // Add some horizontal padding
-                corner: 30,
-                bold: false,
-                textSize: 25,
-                action: { hideChart.toggle() }
-            )
+            CustomButton( text: buttonText,  bg: bg,  accent: accent,  height: 50, width: textWidth + 60,   corner: 30, bold: false,  textSize: 25, action: { hideChart.toggle() } )
         }
         .frame(width: width)
     }
 }
-//
-//struct SeverityPieChart: View {
-//    var logList: [UnifiedLog]
-//    var accent: String
-//    
-//    @State private var selectedSlice: String? = nil
-//    
-//    private var severityCounts: [(severity: String, count: Int)] {
-//        let grouped = Dictionary(grouping: logList, by: { $0.severity })
-//        return grouped
-//            .map { (key, value) in (severity: String(key), count: value.count) }
-//            .sorted { Int($0.severity)! < Int($1.severity)! } // fixed order
-//    }
-//    
-//    var body: some View {
-//        let chartSize: CGFloat = 250
-//        let baseColor = Color(hex: accent)
-//        
-//        ZStack {
-//            ForEach(severityCounts.indices, id: \.self) { idx in
-//                let item = severityCounts[idx]
-//                let start = startAngle(for: idx)
-//                let end = endAngle(for: idx)
-//                let mid = Angle(degrees: (start.degrees + end.degrees)/2)
-//                
-//                let sliceColor = baseColor.rotatedHue(by: Double(idx)/Double(severityCounts.count))
-//                let hex = sliceColor.toHex() ?? accent
-//                let textColor: Color = Color.isHexColorDark(hex) ? .white : .black
-//                
-//                // Draw slice
-//                PieSliceShape(startAngle: start, endAngle: end)
-//                    .fill(sliceColor)
-//                    .frame(width: chartSize, height: chartSize)
-//                    .onTapGesture {
-//                        withAnimation {
-//                            // Toggle selection
-//                            if selectedSlice == item.severity {
-//                                selectedSlice = nil
-//                            } else {
-//                                selectedSlice = item.severity
-//                            }
-//                        }
-//                    }
-//                
-//                // Draw label
-//                let radius = chartSize / 3
-//                let x = chartSize/2 + CGFloat(cos(mid.radians)) * radius
-//                let y = chartSize/2 + CGFloat(sin(mid.radians)) * radius
-//                
-//                Text(item.severity)
-//                    .font(.system(size: 18, design: .serif))
-//                    .foregroundColor(textColor)
-//                    .position(x: x, y: y)
-//                
-//                // Draw dividing lines
-//                PieSliceDivider(angle: start)
-//                    .stroke(Color.black, lineWidth: 3)
-//                
-//                if idx == severityCounts.count - 1 {
-//                    PieSliceDivider(angle: end)
-//                        .stroke(Color.black, lineWidth: 3)
-//                }
-//            }
-//            
-//            // Tooltip popup
-//            if let selected = selectedSlice,
-//               let item = severityCounts.first(where: { $0.severity == selected }) {
-//                Text("\(item.severity): \(item.count) item\(item.count > 1 ? "s" : "")")
-//                    .padding(8)
-//                    .background(Color(.systemBackground))
-//                    .cornerRadius(8)
-//                    .shadow(radius: 4)
-//                    .transition(.scale.combined(with: .opacity))
-//                    .onTapGesture {
-//                        withAnimation { selectedSlice = nil }
-//                    }
-//            }
-//        }
-//        .frame(width: chartSize, height: chartSize)
-//        .padding()
-//    }
-//    
-//    // Calculate start angle of slice
-//    private func startAngle(for index: Int) -> Angle {
-//        let total = severityCounts.map(\.count).reduce(0, +)
-//        let sumBefore = severityCounts.prefix(index).map(\.count).reduce(0, +)
-//        return Angle(degrees: Double(sumBefore) / Double(total) * 360 - 90)
-//    }
-//    
-//    // Calculate end angle of slice
-//    private func endAngle(for index: Int) -> Angle {
-//        let total = severityCounts.map(\.count).reduce(0, +)
-//        let sumUpTo = severityCounts.prefix(index + 1).map(\.count).reduce(0, +)
-//        return Angle(degrees: Double(sumUpTo) / Double(total) * 360 - 90)
-//    }
-//}
-//
-//// Pie slice shape
-//struct PieSliceShape: Shape {
-//    var startAngle: Angle
-//    var endAngle: Angle
-//    
-//    func path(in rect: CGRect) -> Path {
-//        let center = CGPoint(x: rect.midX, y: rect.midY)
-//        let radius = min(rect.width, rect.height) / 2
-//        
-//        var path = Path()
-//        path.move(to: center)
-//        path.addArc(center: center,
-//                    radius: radius,
-//                    startAngle: startAngle,
-//                    endAngle: endAngle,
-//                    clockwise: false)
-//        path.closeSubpath()
-//        return path
-//    }
-//}
-//
-//// Divider line
-//struct PieSliceDivider: Shape {
-//    var angle: Angle
-//    
-//    func path(in rect: CGRect) -> Path {
-//        let center = CGPoint(x: rect.midX, y: rect.midY)
-//        let radius = min(rect.width, rect.height) / 2
-//        let endPoint = CGPoint(
-//            x: center.x + CGFloat(cos(angle.radians)) * radius,
-//            y: center.y + CGFloat(sin(angle.radians)) * radius
-//        )
-//        
-//        var path = Path()
-//        path.move(to: center)
-//        path.addLine(to: endPoint)
-//        return path
-//    }
-//}
 
 // Struct for bullet list items
 struct SymptomCount: Identifiable {
@@ -451,9 +305,6 @@ struct SymptomCount: Identifiable {
     let count: Int
 }
 
-import SwiftUI
-
-// MARK: - Main Pie Chart View
 struct SeverityPieChart: View {
     var logList: [UnifiedLog]
     var accent: String
@@ -461,7 +312,6 @@ struct SeverityPieChart: View {
     
     @State private var selectedSlice: String? = nil
     
-    // Count logs per severity
     private var severityCounts: [(severity: String, count: Int)] {
         let grouped = Dictionary(grouping: logList, by: { $0.severity })
         return grouped
@@ -475,105 +325,93 @@ struct SeverityPieChart: View {
         let popOutOffset: CGFloat = 15
         
         ZStack {
-            // Draw slices
-            ForEach(severityCounts.indices, id: \.self) { idx in
-                let item = severityCounts[idx]
-                let start = startAngle(for: idx)
-                let end = endAngle(for: idx)
-                let mid = Angle(degrees: (start.degrees + end.degrees)/2)
-                
-                let sliceColor = baseColor.rotatedHue(by: Double(idx)/Double(severityCounts.count))
-                let hex = sliceColor.toHex() ?? accent
-                let textColor: Color = Color.isHexColorDark(hex) ? .white : .black
-                
-                // Determine offset if selected
-                let isSelected = selectedSlice == item.severity
-                let dx = isSelected ? CGFloat(cos(mid.radians)) * popOutOffset : 0
-                let dy = isSelected ? CGFloat(sin(mid.radians)) * popOutOffset : 0
-                
-                // Draw slice with popout
-                PieSliceShape(startAngle: start, endAngle: end)
-                    .fill(sliceColor)
-                    .frame(width: chartSize, height: chartSize)
-                    .offset(x: dx, y: dy)
-                    .onTapGesture {
-                        withAnimation(.spring()) {
-                            if selectedSlice == item.severity {
-                                selectedSlice = nil
-                            } else {
-                                selectedSlice = item.severity
+            // Square background
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color(hex: accent))
+                .frame(width: chartSize + 40, height: chartSize + 40)
+                .shadow(radius: 4)
+            
+            // Pie slices
+            ZStack {
+                ForEach(severityCounts.indices, id: \.self) { idx in
+                    let item = severityCounts[idx]
+                    let start = startAngle(for: idx)
+                    let end = endAngle(for: idx)
+                    let mid = Angle(degrees: (start.degrees + end.degrees)/2)
+                    
+                    let sliceColor = baseColor.rotatedHue(by: Double(idx)/Double(severityCounts.count))
+                    let hex = sliceColor.toHex() ?? accent
+                    let textColor: Color = Color.isHexColorDark(hex) ? .white : .black
+                    
+                    // Pop-out offset
+                    let isSelected = selectedSlice == item.severity
+                    let dx = isSelected ? cos(mid.radians) * popOutOffset : 0
+                    let dy = isSelected ? sin(mid.radians) * popOutOffset : 0
+                    
+                    // Slice with black border
+                    PieSliceShape(startAngle: start, endAngle: end)
+                        .fill(sliceColor)
+                        .overlay(
+                            PieSliceShape(startAngle: start, endAngle: end)
+                                .stroke(Color.black, lineWidth: 2)
+                        )
+                        .frame(width: chartSize, height: chartSize)
+                        .offset(x: dx, y: dy)
+                        .onTapGesture {
+                            withAnimation(.spring()) {
+                                selectedSlice = selectedSlice == item.severity ? nil : item.severity
                             }
                         }
-                    }
-                
-                // Draw label inside slice
-                let radius = chartSize / 3
-                let x = chartSize/2 + CGFloat(cos(mid.radians)) * radius + dx
-                let y = chartSize/2 + CGFloat(sin(mid.radians)) * radius + dy
-                
-                Text(item.severity)
-                    .font(.system(size: 18, design: .serif))
-                    .foregroundColor(textColor)
-                    .position(x: x, y: y)
-                
-                // Draw dividing lines (attached to center)
-                PieSliceDivider(angle: start)
-                    .stroke(Color.black, lineWidth: 3)
-                
-                if idx == severityCounts.count - 1 {
-                    PieSliceDivider(angle: end)
-                        .stroke(Color.black, lineWidth: 3)
+                    
+                    // Label
+                    let labelRadius = chartSize * 0.35
+                    let labelX = chartSize/2 + cos(mid.radians) * labelRadius + dx
+                    let labelY = chartSize/2 + sin(mid.radians) * labelRadius + dy
+                    
+                    Text(item.severity)
+                        .font(.system(size: 18, design: .serif))
+                        .foregroundColor(textColor)
+                        .position(x: labelX, y: labelY)
                 }
             }
+            .frame(width: chartSize, height: chartSize)
             
-            // Tooltip popup
-            // Tooltip popup
+            // MARK: Tooltip overlay
             if let selected = selectedSlice {
-                let logsForSlice = logList.filter { String($0.severity) == selected }
-
-                // Count logs per symptom
-                let symptomCounts: [SymptomCount] = Dictionary(grouping: logsForSlice, by: { $0.symptom_name ?? "" })
-                    .map { SymptomCount(symptom: $0.key, count: $0.value.count) }
-                    .sorted { $0.symptom < $1.symptom }
-
-                // Compute mid-angle of selected slice
                 if let idx = severityCounts.firstIndex(where: { $0.severity == selected }) {
                     let start = startAngle(for: idx)
                     let end = endAngle(for: idx)
                     let mid = Angle(degrees: (start.degrees + end.degrees)/2)
-
+                    let logsForSlice = logList.filter { String($0.severity) == selected }
                     let total = logsForSlice.count
-                    let severityNumber = selected
-                    let logText = total == 1 ? "Log" : "Logs"
-
-                    // Offset distance for the tooltip
                     let tooltipOffset: CGFloat = 50
                     let dx = CGFloat(-cos(mid.radians)) * tooltipOffset
                     let dy = CGFloat(-sin(mid.radians)) * tooltipOffset
-
+                    
+                    // Count symptoms
+                    let symptomCounts: [SymptomCount] = Dictionary(grouping: logsForSlice, by: { $0.symptom_name ?? "" })
+                        .map { SymptomCount(symptom: $0.key, count: $0.value.count) }
+                        .sorted { $0.symptom < $1.symptom }
+                    
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Sev. \(severityNumber): \(total) \(logText) (\(Int(Double(total) / Double(logList.count) * 100))%)")
+                        Text("Sev. \(selected): \(total) \(total == 1 ? "Log" : "Logs") (\(Int(Double(total) / Double(logList.count) * 100))%)")
                             .foregroundColor(Color(hex: accent))
                             .font(.system(size: 18, design: .serif))
-
+                        
                         ForEach(symptomCounts) { item in
                             HStack(alignment: .top, spacing: 6) {
                                 Text("•")
                                     .foregroundColor(Color(hex: accent))
                                     .font(.system(size: 16, design: .serif))
                                 
-                                // Truncate symptom to max 12 characters with ellipsis if needed
                                 let maxLength = 8
-                                let truncatedSymptom = item.symptom.count > maxLength
-                                    ? String(item.symptom.prefix(maxLength)) + "…"
-                                    : item.symptom
+                                let truncated = item.symptom.count > maxLength ? String(item.symptom.prefix(maxLength)) + "…" : item.symptom
                                 
-                                Text("\(truncatedSymptom): \(item.count) (\(Int(Double(item.count) / Double(total) * 100))%)")
+                                Text("\(truncated): \(item.count) (\(Int(Double(item.count)/Double(total)*100))%)")
                                     .foregroundColor(Color(hex: accent))
                                     .font(.system(size: 16, design: .serif))
                             }
                         }
-
                     }
                     .padding(15)
                     .background(Color(hex: bg))
@@ -582,20 +420,15 @@ struct SeverityPieChart: View {
                             .stroke(Color(hex: accent), lineWidth: 5)
                     )
                     .cornerRadius(15)
-                    .offset(x: dx, y: dy) // move diagonally from slice
+                    .offset(x: dx, y: dy)
                     .transition(.scale.combined(with: .opacity))
-                    .onTapGesture {
-                        withAnimation { selectedSlice = nil }
-                    }
+                    .onTapGesture { withAnimation { selectedSlice = nil } }
                 }
             }
-
         }
-        .frame(width: chartSize, height: chartSize)
-        .padding()
     }
+
     
-    // MARK: - Angle helpers
     private func startAngle(for index: Int) -> Angle {
         let total = severityCounts.map(\.count).reduce(0, +)
         let sumBefore = severityCounts.prefix(index).map(\.count).reduce(0, +)
@@ -608,6 +441,7 @@ struct SeverityPieChart: View {
         return Angle(degrees: Double(sumUpTo) / Double(total) * 360 - 90)
     }
 }
+
 
 // MARK: - Pie slice shape
 struct PieSliceShape: Shape {
