@@ -72,7 +72,10 @@ struct AnalyticsView: View {
                         }
                     }
                     if !hideSeverity{
-                        SeverityPieChart(logList: logs, accent: accent, bg: bg)
+                        SeverityPieChart(logList: logs, accent: accent, bg: bg, hideChart: $hideSeverity)
+                    }
+                    else{
+                        HiddenChart(bg: bg, accent: accent, chart: "Log Severity", width: screenWidth,  hideChart: $hideSeverity)
                     }
                 }
                 .zIndex(2)
