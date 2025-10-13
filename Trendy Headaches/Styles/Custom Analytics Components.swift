@@ -38,12 +38,14 @@ struct CalendarView: View {
                     .foregroundColor(Color(hex: background))}
                 .frame(width:5)
                 .padding(.leading, 5)
+                .buttonStyle(PlainButtonStyle())
                 
                 CustomText(text:monthYearString(for: currentMonth), color: background,  width:110, textSize: 18)
                 
                 Button(action: { changeMonth(by: 1) }) { Image(systemName: "chevron.right")
                     .foregroundColor(Color(hex: background))}
                 .frame(width:5)
+                .buttonStyle(PlainButtonStyle())
                 
                 Spacer()
                 
@@ -54,6 +56,7 @@ struct CalendarView: View {
                         .background(Color(hex: background))
                         .cornerRadius(20)
                     }
+                .buttonStyle(PlainButtonStyle())
                 Spacer()
                 
                 Button(action: {hideChart.toggle()}){
@@ -62,6 +65,7 @@ struct CalendarView: View {
                         .background(Color(hex: background))
                         .cornerRadius(20)
                     }
+                .buttonStyle(PlainButtonStyle())
                 Spacer()
             }
             
@@ -349,6 +353,7 @@ struct SeverityPieChart: View {
                             .background(Color(hex: bg))
                             .cornerRadius(20)
                         }
+                    .buttonStyle(PlainButtonStyle())
                 }
                 .frame(width: chartSize)
                 .padding(.bottom, 5)
