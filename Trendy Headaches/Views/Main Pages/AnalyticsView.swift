@@ -18,7 +18,7 @@ struct AnalyticsView: View {
     @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
     
     @State private var calKey: Bool = false
-    @State private var hideCalendar: Bool = true
+    @State private var hideCalendar: Bool = false
     @State private var hideSeverity: Bool = false
     
     
@@ -59,24 +59,33 @@ struct AnalyticsView: View {
                         .padding(.trailing, 60)
                         .padding(.top, 30)
 
-                        if !hideCalendar{
-                            CalendarView(logs: logs, showKey: $calKey, hideChart: $hideCalendar, background: bg, accent: accent, width:screenWidth-60, symptomToIcon: symptomToIcon)
-                                .padding(.horizontal, 10)
-                            if calKey{
-                                SeverityKeyBar(accent: accent, width: screenWidth-40, height:20)
-                                SymptomKey(symptomToIcon: symptomToIcon, accent: accent, width: screenWidth-40)
+                        
+                            if !hideCalendar{
+                                VStack{
+                                    CalendarView(logs: logs, showKey: $calKey, hideChart: $hideCalendar, background: bg, accent: accent, width:screenWidth-60, symptomToIcon: symptomToIcon)
+                                        .padding(.horizontal, 10)
+                                    if calKey{
+                                        SeverityKeyBar(accent: accent, width: screenWidth-40, height:20)
+                                        SymptomKey(symptomToIcon: symptomToIcon, accent: accent, width: screenWidth-40)
+                                }
                             }
+                            .padding(.bottom, 10)
+                                
                         }
                         else{
                             HiddenChart(bg: bg, accent: accent, chart: "Calendar", width: screenWidth,  hideChart: $hideCalendar)
+
+                        }
+                        if !hideSeverity{
+                            SeverityPieChart(logList: logs, accent: accent, bg: bg, hideChart: $hideSeverity)
+                        }
+                        else{
+                            HiddenChart(bg: bg, accent: accent, chart: "Log Severity", width: screenWidth,  hideChart: $hideSeverity)
                         }
                     }
-                    if !hideSeverity{
-                        SeverityPieChart(logList: logs, accent: accent, bg: bg, hideChart: $hideSeverity)
-                    }
-                    else{
-                        HiddenChart(bg: bg, accent: accent, chart: "Log Severity", width: screenWidth,  hideChart: $hideSeverity)
-                    }
+                    .padding(.bottom, 150)
+                    
+                    
                 }
                 .zIndex(2)
                 

@@ -291,12 +291,8 @@ struct HiddenChart: View {
     @Binding var hideChart: Bool
     
     var body: some View {
-        let buttonText = "Show \(chart) Visual"
-        // Calculate text width using system font that matches your button text size
-        let textWidth = buttonText.width(usingFont: .systemFont(ofSize: 25, weight: .regular))
-        
         HStack {
-            CustomButton( text: buttonText,  bg: bg,  accent: accent,  height: 50, width: textWidth + 60,   corner: 30, bold: false,  textSize: 25, action: { hideChart.toggle() } )
+            CustomButton( text: "Show \(chart) Visual",  bg: bg,  accent: accent,  height: 50, width: UIScreen.main.bounds.width -  30,   corner: 30, bold: false,  textSize: 25, action: { hideChart.toggle() } )
         }
         .frame(width: width)
     }
@@ -326,7 +322,7 @@ struct SeverityPieChart: View {
     }
     
     var body: some View {
-        let chartSize: CGFloat = 250
+        let chartSize: CGFloat = 200
         let baseColor = Color(hex: accent)
         let popOutOffset: CGFloat = 15
 
@@ -336,27 +332,28 @@ struct SeverityPieChart: View {
 
         ZStack {
             // Square background
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: 15)
                 .fill(Color(hex: accent))
-                .frame(width: chartSize + 40, height: chartSize + 80) // extra height for label
-                .shadow(radius: 4)
+                .frame(width: UIScreen.main.bounds.width -  30, height: chartSize + 70)
 
-            VStack(spacing: 10) {
+            VStack {
                 // Label above chart
                 HStack{
-                    CustomText(text:"Log Severity", color: bg)
+                    CustomText(text:"Log Severity", color: bg, width: 140, textSize: 25)
                         .padding(.leading, 20)
-                    
+                    Spacer()
                     Button(action: {hideChart.toggle()}){
                         CustomText(text: "Hide", color: accent,  width:70, textAlign: .center, textSize: 16)
-                            .frame(height: 27)
+                            .frame(height: 29)
                             .background(Color(hex: bg))
                             .cornerRadius(20)
                         }
                     .buttonStyle(PlainButtonStyle())
+                    .padding(.trailing, 20)
                 }
-                .frame(width: chartSize)
+                .frame(width: UIScreen.main.bounds.width -  30)
                 .padding(.bottom, 5)
+                .padding(.top, 15)
 
                 // Pie chart
                 ZStack {
@@ -400,8 +397,58 @@ struct SeverityPieChart: View {
                             .foregroundColor(textColor)
                             .position(x: labelX, y: labelY)
                     }
+                    if let selected = selectedSlice,
+                           let idx = severityCounts.firstIndex(where: { $0.severity == selected }) {
+                            let item = severityCounts[idx]
+                            let start = startAngle(for: idx)
+                            let end = endAngle(for: idx)
+                            let mid = Angle(degrees: (start.degrees + end.degrees) / 2)
+
+                            let tooltipOffset: CGFloat = 50
+                            let dx = CGFloat(-cos(mid.radians)) * tooltipOffset
+                            let dy = CGFloat(-sin(mid.radians)) * tooltipOffset
+
+                            // Build your symptom breakdown for this severity
+                            let severityNumber = item.severity
+                            let total = item.count
+                            let logText = total == 1 ? "log" : "logs"
+                            let symptomCounts: [SymptomCount] = makeSymptomCounts(for: selected)
+
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Sev. \(severityNumber): \(total) \(logText) (\(Int(Double(total) / Double(logList.count) * 100))%)")
+                                    .foregroundColor(Color(hex: accent))
+                                    .font(.system(size: 18, design: .serif))
+
+                                ForEach(symptomCounts) { item in
+                                    HStack(alignment: .top, spacing: 6) {
+                                        Text("•")
+                                            .foregroundColor(Color(hex: accent))
+                                            .font(.system(size: 16, design: .serif))
+                                        
+                                        let maxLength = 8
+                                        let truncated = item.symptom.count > maxLength
+                                            ? String(item.symptom.prefix(maxLength)) + "…"
+                                            : item.symptom
+                                        
+                                        Text("\(truncated): \(item.count) (\(Int(Double(item.count) / Double(total) * 100))%)")
+                                            .foregroundColor(Color(hex: accent))
+                                            .font(.system(size: 16, design: .serif))
+                                    }
+                                }
+                            }
+                            .padding(10)
+                            .background(Color(hex: bg))
+                            .cornerRadius(10)
+                            .shadow(radius: 4)
+                            .position(x: chartSize / 2 + dx, y: chartSize / 2 + dy)
+                            .transition(.opacity.combined(with: .scale))
+                            .animation(.easeInOut, value: selectedSlice)
+                        
+                        }
                 }
                 .frame(width: chartSize, height: chartSize)
+                
+                Spacer()
             }
             .frame(width: chartSize + 40, height: chartSize + 80)
         }
@@ -420,6 +467,25 @@ struct SeverityPieChart: View {
         let sumUpTo = severityCounts.prefix(index + 1).map(\.count).reduce(0, +)
         return Angle(degrees: Double(sumUpTo) / Double(total) * 360 - 90)
     }
+    private func makeSymptomCounts(for severity: String) -> [SymptomCount] {
+        // Convert string severity to Int64 for comparison
+        guard let severityInt = Int64(severity) else { return [] }
+
+        // Filter logs matching the selected severity
+        let filteredLogs = logList.filter { $0.severity == severityInt }
+
+        // Group by symptom (assuming UnifiedLog has a `symptom` property)
+        let grouped = Dictionary(grouping: filteredLogs, by: { $0.symptom_name })
+
+        // Convert dictionary to [SymptomCount] and sort by descending count
+        let counts = grouped.map { (symptom, logs) in
+            SymptomCount(symptom: symptom ?? "", count: logs.count)
+        }
+
+        return counts.sorted { $0.count > $1.count }
+    }
+
+
 }
 
 
