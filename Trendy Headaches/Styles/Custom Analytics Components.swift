@@ -305,6 +305,7 @@ struct SymptomCount: Identifiable {
     let count: Int
 }
 
+
 struct SeverityPieChart: View {
     var logList: [UnifiedLog]
     var accent: String
