@@ -325,6 +325,11 @@ struct SeverityPieChart: View {
         let baseColor = Color(hex: accent)
         let popOutOffset: CGFloat = 15
         
+        var sliceColors: [Color] {
+            baseColor.generateHarmoniousColors(from: baseColor, count: severityCounts.count)
+        }
+
+        
         ZStack {
             // Square background
             RoundedRectangle(cornerRadius: 20)
@@ -340,7 +345,7 @@ struct SeverityPieChart: View {
                     let end = endAngle(for: idx)
                     let mid = Angle(degrees: (start.degrees + end.degrees)/2)
                     
-                    let sliceColor = baseColor.rotatedHue(by: Double(idx)/Double(severityCounts.count))
+                    let sliceColor = sliceColors[idx]
                     let hex = sliceColor.toHex() ?? accent
                     let textColor: Color = Color.isHexColorDark(hex) ? .white : .black
                     

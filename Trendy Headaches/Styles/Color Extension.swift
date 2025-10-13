@@ -94,18 +94,31 @@ extension Color {
         let rgb: Int = (Int)(r * 255) << 16 | (Int)(g * 255) << 8 | (Int)(b * 255)
         return String(format: "#%06x", rgb)
     }
-    func rotatedHue(by amount: Double) -> Color {
-            let uiColor = UIColor(self)
-            var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, alpha: CGFloat = 0
-            
-            guard uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha) else {
-                return self
-            }
-            
-            let newHue = CGFloat(fmod(Double(hue) + amount, 1.0))
-            // Slightly adjust brightness to create extra separation
-            let newBrightness = min(max(brightness * (0.9 + amount * 0.2), 0), 1)
-            
-            return Color(hue: newHue, saturation: saturation, brightness: newBrightness)
-        }
+
+
+    func generateHarmoniousColors(from baseColor: Color, count: Int) -> [Color] {
+        let uiColor = UIColor(baseColor)
+           var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, alpha: CGFloat = 0
+
+           guard uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha) else {
+               return Array(repeating: baseColor, count: count)
+           }
+
+           var colors: [Color] = []
+
+           for i in 0..<count {
+               let fraction = CGFloat(i) / CGFloat(count - 1)  // 0 -> 1
+
+               // Brightness from dark to light, avoiding too dark or too neon
+               let newBrightness = 0.25 + 0.7 * fraction   // 0.25 = dark, 0.95 = light
+
+               // Saturation: darker = richer, lighter = softer/pastel
+               let newSaturation = 0.4 + 0.6 * (1 - fraction)  // reduces saturation for light colors
+
+               colors.append(Color(hue: Double(hue), saturation: Double(min(max(newSaturation, 0), 1)), brightness: Double(min(max(newBrightness, 0), 1))))
+           }
+
+           return colors
+    }
+
 }
