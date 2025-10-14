@@ -3,7 +3,7 @@
 //  Trendy Headaches
 //
 //  Created by Abigail Barnhardt on 10/14/25.
-import SwiftUI
+
 import SwiftUI
 
 struct CustomStackedBarChart: View {
@@ -46,7 +46,7 @@ struct CustomStackedBarChart: View {
 
         let yDivisions = min(5, maxCount > 0 ? maxCount : 5)
         let chartHeight: CGFloat = 200
-        let yAxisWidth: CGFloat = 15
+        let yAxisWidth: CGFloat = 14
 
         VStack(alignment: .leading, spacing: 10) {
             CustomText(text: "Logs by Symptom", color: bg, width: 250, textSize: 25)
@@ -58,19 +58,16 @@ struct CustomStackedBarChart: View {
                 VStack(spacing: 0) {
                     ForEach(Array(0...yDivisions).reversed(), id: \.self) { i in
                         let value = Int(Double(maxCount) * Double(i) / Double(yDivisions))
-                        CustomText(text: "\(value)", color: bg, width: yAxisWidth, textAlign: .trailing, textSize: 14)
+                        CustomText(text: "\(value)", color: bg, width: yAxisWidth, textAlign: .center, textSize: 12)
                             .frame(height: 1, alignment: .center)
-                            .padding(.trailing, 2)
-                        
                         if i > 0 {
                             Spacer()
                                 .frame(height: chartHeight / CGFloat(yDivisions))
                         }
                     }
                 }
-                .frame(height: chartHeight, alignment: .top)
+                .frame(height: chartHeight)
                 
-                // Chart area with grid lines and bars
                 ZStack(alignment: .topLeading) {
                     // Grid lines
                     VStack(spacing: 0) {
@@ -92,9 +89,11 @@ struct CustomStackedBarChart: View {
                         ForEach(monthlySymptomData, id: \.month) { monthData in
                             VStack(spacing: 2) {
                                 ZStack(alignment: .bottom) {
+                                    //y axis lines
                                     RoundedRectangle(cornerRadius: 6)
                                         .fill(baseColor.opacity(0.2))
 
+                                    //each bar
                                     if !monthData.symptoms.isEmpty {
                                         VStack(spacing: 0) {
                                             ForEach(monthData.symptoms, id: \.symptom) { symptomData in
@@ -104,28 +103,29 @@ struct CustomStackedBarChart: View {
                                                     .frame(height: chartHeight * heightRatio)
                                             }
                                         }
-                                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
                                     }
                                 }
-                                .frame(width: 25, height: chartHeight)
+                                .frame(width: 20)
 
-                                CustomText(text: monthLabel(for: monthData.month), color: bg, textAlign: .center, textSize: 10)
-                                    .rotationEffect(.degrees(50))
+                                //x axis label
+                                CustomText(text: monthLabel(for: monthData.month), color: bg, textAlign: .center, textSize: 9)
                                     .fixedSize()
                                     .frame(height: 30)
-                                    .padding(.top, 10)
-                                    
+                                    .padding(.top, 5)
+                                    .padding(.leading, 3)
                             }
                         }
                     }
                 }
             }
             .frame(width: width)
-            .padding(.horizontal)
+            .padding(.horizontal, 5)
         }
+        //background box
         .padding(.vertical)
         .background(Color(hex: accent))
-        .cornerRadius(15)
+        .cornerRadius(30)
         .padding()
     }
 
