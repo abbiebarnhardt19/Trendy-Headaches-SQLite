@@ -18,8 +18,8 @@ struct AnalyticsView: View {
     @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
     
     @State private var calKey: Bool = false
-    @State private var hideCalendar: Bool = false
-    @State private var hideSeverity: Bool = false
+    @State private var hideCalendar: Bool = true
+    @State private var hideSeverity: Bool = true
     
     
     // List of icons to cycle through
@@ -82,6 +82,7 @@ struct AnalyticsView: View {
                         else{
                             HiddenChart(bg: bg, accent: accent, chart: "Log Severity", width: screenWidth,  hideChart: $hideSeverity)
                         }
+//                        CustomStackedBarChart(logList: logs, accent: accent, background: bg)
                     }
                     .padding(.bottom, 150)
                     
