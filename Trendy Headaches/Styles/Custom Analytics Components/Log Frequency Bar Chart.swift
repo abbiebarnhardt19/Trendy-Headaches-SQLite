@@ -106,7 +106,7 @@ struct CustomStackedBarChart: View {
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
                                     }
                                 }
-                                .frame(width: 20)
+                                .frame(width: (width-15-10*11)/12)
 
                                 //x axis label
                                 CustomText(text: monthLabel(for: monthData.month), color: bg, textAlign: .center, textSize: 9)

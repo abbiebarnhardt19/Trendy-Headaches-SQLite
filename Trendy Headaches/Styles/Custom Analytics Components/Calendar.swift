@@ -5,6 +5,7 @@
 //  Created by Abigail Barnhardt on 10/14/25.
 //
 import SwiftUI
+
 struct CalendarView: View {
     let logs: [UnifiedLog]
     @Binding var showKey: Bool

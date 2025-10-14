@@ -117,8 +117,6 @@ extension Color {
 
                colors.append(Color(hue: Double(hue), saturation: Double(min(max(newSaturation, 0), 1)), brightness: Double(min(max(newBrightness, 0), 1))))
            }
-
            return colors
     }
-
 }
