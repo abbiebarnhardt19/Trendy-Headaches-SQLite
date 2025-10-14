@@ -82,7 +82,7 @@ struct AnalyticsView: View {
                         else{
                             HiddenChart(bg: bg, accent: accent, chart: "Log Severity", width: screenWidth,  hideChart: $hideSeverity)
                         }
-//                        CustomStackedBarChart(logList: logs, accent: accent, background: bg)
+//                        CustomStackedBarChart(logList: logs, accent: accent, bg: bg)
                     }
                     .padding(.bottom, 150)
                     
