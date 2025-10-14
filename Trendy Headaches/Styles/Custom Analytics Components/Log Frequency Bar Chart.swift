@@ -3,109 +3,125 @@
 //  Trendy Headaches
 //
 //  Created by Abigail Barnhardt on 10/14/25.
-//
+import SwiftUI
 import SwiftUI
 
 struct CustomStackedBarChart: View {
     var logList: [UnifiedLog]
-    var accent: String // hex string
-    var bg: String     // hex string
+    var accent: String
+    var bg: String
     var width: CGFloat
 
-    @State private var selectedMonth: Date? = nil
-
-    // MARK: - Aggregated Data
     private var monthlySymptomData: [(month: Date, symptoms: [(symptom: String, count: Int)])] {
         let calendar = Calendar.current
         let now = Date()
-        let oneYearAgo = calendar.date(byAdding: .year, value: -1, to: now)!
-        
-        let startMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: oneYearAgo))!
-        let months = (0..<12).compactMap { offset in
-            calendar.date(byAdding: .month, value: offset, to: startMonth)
-        }
-        
+        let currentMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: now))!
+        let startMonth = calendar.date(byAdding: .month, value: -11, to: currentMonth)!
+        let months = (0...11).compactMap { calendar.date(byAdding: .month, value: $0, to: startMonth) }
         let filtered = logList.filter { $0.date >= startMonth }
-        
         let byMonth = Dictionary(grouping: filtered) { log -> Date in
             let comps = calendar.dateComponents([.year, .month], from: log.date)
             return calendar.date(from: comps)!
         }
-        
         return months.map { month in
             if let logs = byMonth[month] {
                 let symptomGroups = Dictionary(grouping: logs, by: { $0.symptom_name ?? "Unknown" })
-                let counts = symptomGroups.map { (symptom, logs) in
-                    (symptom, logs.count)
-                }
-                return (month, counts.sorted(by: { $0.0 < $1.0 }))
+                let counts = symptomGroups.map { (symptom, logs) in (symptom, logs.count) }
+                return (month, counts.sorted { $0.0 < $1.0 })
             } else {
                 return (month, [])
             }
         }
     }
 
-    // MARK: - Max Height Normalization
     private var maxCount: Int {
-        monthlySymptomData.map { $0.symptoms.map(\.count).reduce(0, +) }.max() ?? 1
+        max(monthlySymptomData.map { $0.symptoms.map(\.count).reduce(0, +) }.max() ?? 1, 1)
     }
 
-    // MARK: - Body
     var body: some View {
-        // Convert accent string to Color
         let baseColor = Color(hex: accent)
-        
-        // Collect all unique symptoms as non-optional Strings
         let allSymptoms = Array(Set(monthlySymptomData.flatMap { $0.symptoms.map { $0.symptom } }))
-
-        // Generate colors
         let colorPalette = baseColor.generateHarmoniousColors(from: baseColor, count: allSymptoms.count)
-
-        // Map symptoms to colors
         let colorMap = Dictionary(uniqueKeysWithValues: zip(allSymptoms, colorPalette))
 
-        
-        VStack(alignment: .leading) {
-            Text("Headache Symptoms by Month")
-                .font(.headline)
-                .padding(.horizontal)
-            
-            HStack(alignment: .bottom, spacing: 10) {
-                ForEach(monthlySymptomData, id: \.month) { monthData in
-                    VStack {
-                        GeometryReader { geo in
-                            ZStack(alignment: .bottom) {
-                                // Accent-colored background for bar container
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color(hex: accent).opacity(0.2))
-                                
-                                if !monthData.symptoms.isEmpty {
-                                    VStack(spacing: 0) {
-                                        ForEach(monthData.symptoms, id: \.symptom) { symptomData in
-                                            let heightRatio = CGFloat(symptomData.count) / CGFloat(maxCount)
-                                            let color = colorMap[symptomData.symptom] ?? .gray
+        let yDivisions = min(5, maxCount > 0 ? maxCount : 5)
+        let chartHeight: CGFloat = 200
+        let yAxisWidth: CGFloat = 15
 
-                                            Rectangle()
-                                                .fill(color)
-                                                .frame(height: geo.size.height * heightRatio)
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 1)
-                                                        .stroke(Color.white.opacity(0.3), lineWidth: 0.5)
-                                                )
-                                        }
-                                    }
-                                } 
+        VStack(alignment: .leading, spacing: 10) {
+            CustomText(text: "Logs by Symptom", color: bg, width: 250, textSize: 25)
+                .padding(.bottom, 15)
+                .padding(.leading, 15)
+
+            HStack(alignment: .top, spacing: 5) {
+                // Y-axis labels
+                VStack(spacing: 0) {
+                    ForEach(Array(0...yDivisions).reversed(), id: \.self) { i in
+                        let value = Int(Double(maxCount) * Double(i) / Double(yDivisions))
+                        CustomText(text: "\(value)", color: bg, width: yAxisWidth, textAlign: .trailing, textSize: 14)
+                            .frame(height: 1, alignment: .center)
+                            .padding(.trailing, 2)
+                        
+                        if i > 0 {
+                            Spacer()
+                                .frame(height: chartHeight / CGFloat(yDivisions))
+                        }
+                    }
+                }
+                .frame(height: chartHeight, alignment: .top)
+                
+                // Chart area with grid lines and bars
+                ZStack(alignment: .topLeading) {
+                    // Grid lines
+                    VStack(spacing: 0) {
+                        ForEach(0...yDivisions, id: \.self) { i in
+                            Rectangle()
+                                .fill(Color(hex: bg).opacity(0.3))
+                                .frame(height: 1)
+                            
+                            if i < yDivisions {
+                                Spacer()
+                                    .frame(height: chartHeight / CGFloat(yDivisions))
                             }
                         }
-                        .frame(height: 200)
-                        
-                        CustomText(text:shortMonthFormatter.string(from: monthData.month), color: bg,  width:20, textAlign: .center, textSize: 8)
                     }
-                    .frame(maxWidth: .infinity)
+                    .frame(height: chartHeight)
+                    
+                    // Bars
+                    HStack(alignment: .bottom, spacing: 5) {
+                        ForEach(monthlySymptomData, id: \.month) { monthData in
+                            VStack(spacing: 2) {
+                                ZStack(alignment: .bottom) {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(baseColor.opacity(0.2))
+
+                                    if !monthData.symptoms.isEmpty {
+                                        VStack(spacing: 0) {
+                                            ForEach(monthData.symptoms, id: \.symptom) { symptomData in
+                                                let heightRatio = CGFloat(symptomData.count) / CGFloat(maxCount)
+                                                Rectangle()
+                                                    .fill(colorMap[symptomData.symptom] ?? .gray)
+                                                    .frame(height: chartHeight * heightRatio)
+                                            }
+                                        }
+                                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    }
+                                }
+                                .frame(width: 25, height: chartHeight)
+
+                                CustomText(text: monthLabel(for: monthData.month), color: bg, textAlign: .center, textSize: 10)
+                                    .rotationEffect(.degrees(50))
+                                    .fixedSize()
+                                    .frame(height: 30)
+                                    .padding(.top, 10)
+                                    
+                            }
+                        }
+                    }
                 }
             }
+            .frame(width: width)
             .padding(.horizontal)
-            .frame(width: width, height: 250)
         }
         .padding(.vertical)
         .background(Color(hex: accent))
@@ -113,15 +129,15 @@ struct CustomStackedBarChart: View {
         .padding()
     }
 
-    // MARK: - Formatters
-    private var shortMonthFormatter: DateFormatter {
-        let df = DateFormatter()
-        df.dateFormat = "MMM"
-        return df
-    }
     private var monthFormatter: DateFormatter {
         let df = DateFormatter()
-        df.dateFormat = "MMMM yyyy"
+        df.dateFormat = "MMM yyyy"
         return df
+    }
+
+    private func monthLabel(for date: Date) -> String {
+        let month = monthFormatter.string(from: date).prefix(3)
+        let year = monthFormatter.string(from: date).suffix(4)
+        return "\(month),\n\(year)"
     }
 }
