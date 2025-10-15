@@ -4,6 +4,53 @@
 //
 //  Created by Abigail Barnhardt on 10/14/25.
 import SwiftUI
+import SwiftUI
+
+// Helper for wrapping layout
+struct FlowLayout: Layout {
+    var spacing: CGFloat = 10
+    
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let result = FlowResult(in: proposal.replacingUnspecifiedDimensions().width, subviews: subviews, spacing: spacing)
+        return result.size
+    }
+    
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let result = FlowResult(in: bounds.width, subviews: subviews, spacing: spacing)
+        for (index, subview) in subviews.enumerated() {
+            subview.place(at: CGPoint(x: bounds.minX + result.positions[index].x, y: bounds.minY + result.positions[index].y), proposal: .unspecified)
+        }
+    }
+    
+    struct FlowResult {
+        var size: CGSize
+        var positions: [CGPoint]
+        
+        init(in maxWidth: CGFloat, subviews: Subviews, spacing: CGFloat) {
+            var positions: [CGPoint] = []
+            var currentX: CGFloat = 0
+            var currentY: CGFloat = 0
+            var lineHeight: CGFloat = 0
+            
+            for subview in subviews {
+                let size = subview.sizeThatFits(.unspecified)
+                
+                if currentX + size.width > maxWidth && currentX > 0 {
+                    currentX = 0
+                    currentY += lineHeight + spacing
+                    lineHeight = 0
+                }
+                
+                positions.append(CGPoint(x: currentX, y: currentY))
+                currentX += size.width + spacing
+                lineHeight = max(lineHeight, size.height)
+            }
+            
+            self.size = CGSize(width: maxWidth, height: currentY + lineHeight)
+            self.positions = positions
+        }
+    }
+}
 
 struct CustomStackedBarChart: View {
     var logList: [UnifiedLog]
@@ -11,6 +58,8 @@ struct CustomStackedBarChart: View {
     var bg: String
     var width: CGFloat
 
+    @State var showKey: Bool = false
+    
     private var monthlySymptomData: [(month: Date, symptoms: [(symptom: String, count: Int)])] {
         let calendar = Calendar.current
         let now = Date()
@@ -26,7 +75,7 @@ struct CustomStackedBarChart: View {
             if let logs = byMonth[month] {
                 let symptomGroups = Dictionary(grouping: logs, by: { $0.symptom_name ?? "Unknown" })
                 let counts = symptomGroups.map { (symptom, logs) in (symptom, logs.count) }
-                    .sorted { $0.1 < $1.1 } // Sort by count (second element), largest first
+                    .sorted { $0.1 > $1.1 } // Sort by count (second element), largest first
                 return (month, counts)
             } else {
                 return (month, [])
@@ -52,17 +101,26 @@ struct CustomStackedBarChart: View {
         let yAxisWidth: CGFloat = 15
 
         VStack(alignment: .leading, spacing: 10) {
-            CustomText(text: "Logs by Symptom", color: bg, width: 250, textSize: 25)
-                .padding(.bottom, 10)
-                .padding(.leading, 15)
+            HStack{
+                CustomText(text: "Logs by Symptom", color: bg, width: 250, textSize: 25)
+                    .padding(.bottom, 10)
+                    .padding(.leading, 15)
+                
+                Button(action: {showKey.toggle()}){
+                    CustomText(text: "Key", color: accent,  width:60, textAlign: .center, textSize: 16)
+                        .frame(height: 27)
+                        .background(Color(hex: bg))
+                        .cornerRadius(20)
+                    }
+                .buttonStyle(PlainButtonStyle())
+            }
 
             HStack(alignment: .top, spacing: 0) {
                 // Y-axis labels
                 VStack(spacing: 0) {
                     ForEach(yValues.reversed(), id: \.self) { value in
                         CustomText(text: "\(value)", color: bg, width: yAxisWidth, textAlign: .trailing, textSize: 10)
-                            .padding(.trailing, 7)
-                            .padding(.bottom, 6)
+                            .padding(.trailing, 5)
                             .frame(height: 1)
                         
                         if value > 0 {
@@ -115,8 +173,7 @@ struct CustomStackedBarChart: View {
                                 CustomText(text: monthLabel(for: monthData.month), color: bg, textAlign: .center, textSize: 8)
                                     .fixedSize()
                                     .frame(height: 30)
-                                    .padding(.top, 3)
-                                    .offset(x:2)
+                                    .padding(.top, 7)
                             }
                         }
                     }
@@ -126,6 +183,24 @@ struct CustomStackedBarChart: View {
             }
             .frame(width: width)
             .padding(.horizontal)
+            
+            
+            // Symptom color legend
+            if showKey{
+                FlowLayout(spacing: 10) {
+                    ForEach(allSymptoms, id: \.self) { symptom in
+                        HStack(spacing: 5) {
+                            Circle()
+                                .fill(colorMap[symptom] ?? .gray)
+                                .frame(width: 10, height: 10)
+                            
+                            CustomText(text: symptom, color: bg, textSize: 12)
+                        }
+                    }
+                }
+                .padding(.leading, 30)
+                .padding(.bottom, 5)
+            }
         }
         .padding(.vertical, 10)
         .background(Color(hex: accent))
