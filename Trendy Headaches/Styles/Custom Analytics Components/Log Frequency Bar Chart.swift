@@ -27,7 +27,7 @@ struct CustomStackedBarChart: View {
             if let logs = byMonth[month] {
                 let symptomGroups = Dictionary(grouping: logs, by: { $0.symptom_name ?? "Unknown" })
                 let counts = symptomGroups.map { (symptom, logs) in (symptom, logs.count) }
-                return (month, counts.sorted { $0.0 < $1.0 })
+                return (month, counts)
             } else {
                 return (month, [])
             }
@@ -40,64 +40,68 @@ struct CustomStackedBarChart: View {
 
     var body: some View {
         let baseColor = Color(hex: accent)
-        let allSymptoms = Array(Set(monthlySymptomData.flatMap { $0.symptoms.map { $0.symptom } }))
+        let allSymptoms = Array(Set(monthlySymptomData.flatMap { $0.symptoms.map { $0.symptom } })).sorted()
         let colorPalette = baseColor.generateHarmoniousColors(from: baseColor, count: allSymptoms.count)
         let colorMap = Dictionary(uniqueKeysWithValues: zip(allSymptoms, colorPalette))
 
-        let yDivisions = min(5, maxCount > 0 ? maxCount : 5)
+        // Calculate nice intervals for y-axis
+        let yStep = max(1, Int(ceil(Double(maxCount) / 5.0)))
+        let yMax = Int(ceil(Double(maxCount) / Double(yStep))) * yStep
+        let yValues = stride(from: 0, through: yMax, by: yStep).map { $0 }
         let chartHeight: CGFloat = 200
-        let yAxisWidth: CGFloat = 14
+        let yAxisWidth: CGFloat = 10
 
         VStack(alignment: .leading, spacing: 10) {
             CustomText(text: "Logs by Symptom", color: bg, width: 250, textSize: 25)
-                .padding(.bottom, 15)
+                .padding(.bottom, 10)
                 .padding(.leading, 15)
 
-            HStack(alignment: .top, spacing: 5) {
+            HStack(alignment: .top, spacing: 0) {
                 // Y-axis labels
                 VStack(spacing: 0) {
-                    ForEach(Array(0...yDivisions).reversed(), id: \.self) { i in
-                        let value = Int(Double(maxCount) * Double(i) / Double(yDivisions))
-                        CustomText(text: "\(value)", color: bg, width: yAxisWidth, textAlign: .center, textSize: 12)
-                            .frame(height: 1, alignment: .center)
-                        if i > 0 {
+                    ForEach(yValues.reversed(), id: \.self) { value in
+                        CustomText(text: "\(value)", color: bg, width: yAxisWidth, textAlign: .trailing, textSize: 10)
+                            .padding(.trailing, 7)
+                            .padding(.bottom, 6)
+                            .frame(height: 1)
+                        
+                        if value > 0 {
                             Spacer()
-                                .frame(height: chartHeight / CGFloat(yDivisions))
+                                .frame(height: chartHeight * CGFloat(yStep) / CGFloat(yMax))
                         }
                     }
                 }
-                .frame(height: chartHeight)
+                .frame(height: chartHeight, alignment: .top)
                 
+                // Chart area with grid lines behind bars
                 ZStack(alignment: .topLeading) {
-                    // Grid lines
+                    // Grid lines (full width)
                     VStack(spacing: 0) {
-                        ForEach(0...yDivisions, id: \.self) { i in
+                        ForEach(yValues.reversed(), id: \.self) { value in
                             Rectangle()
                                 .fill(Color(hex: bg).opacity(0.3))
                                 .frame(height: 1)
                             
-                            if i < yDivisions {
+                            if value > 0 {
                                 Spacer()
-                                    .frame(height: chartHeight / CGFloat(yDivisions))
+                                    .frame(height: chartHeight * CGFloat(yStep) / CGFloat(yMax))
                             }
                         }
                     }
                     .frame(height: chartHeight)
                     
-                    // Bars
-                    HStack(alignment: .bottom, spacing: 5) {
+                    // Bars on top
+                    HStack(alignment: .bottom, spacing: 10) {
                         ForEach(monthlySymptomData, id: \.month) { monthData in
                             VStack(spacing: 2) {
                                 ZStack(alignment: .bottom) {
-                                    //y axis lines
                                     RoundedRectangle(cornerRadius: 6)
                                         .fill(baseColor.opacity(0.2))
 
-                                    //each bar
                                     if !monthData.symptoms.isEmpty {
                                         VStack(spacing: 0) {
                                             ForEach(monthData.symptoms, id: \.symptom) { symptomData in
-                                                let heightRatio = CGFloat(symptomData.count) / CGFloat(maxCount)
+                                                let heightRatio = CGFloat(symptomData.count) / CGFloat(yMax)
                                                 Rectangle()
                                                     .fill(colorMap[symptomData.symptom] ?? .gray)
                                                     .frame(height: chartHeight * heightRatio)
@@ -106,27 +110,26 @@ struct CustomStackedBarChart: View {
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
                                     }
                                 }
-                                .frame(width: (width-15-10*11)/12)
+                                .frame(width: (width-15-(10*11)-10)/12, height: chartHeight)
 
-                                //x axis label
-                                CustomText(text: monthLabel(for: monthData.month), color: bg, textAlign: .center, textSize: 9)
+                                CustomText(text: monthLabel(for: monthData.month), color: bg, textAlign: .center, textSize: 8)
                                     .fixedSize()
                                     .frame(height: 30)
-                                    .padding(.top, 5)
-                                    .padding(.leading, 3)
+                                    .padding(.top, 7)
                             }
                         }
                     }
                 }
+                
+                Spacer()
             }
             .frame(width: width)
-            .padding(.horizontal, 5)
+            .padding(.horizontal)
         }
-        //background box
-        .padding(.vertical)
+        .padding(.vertical, 10)
         .background(Color(hex: accent))
         .cornerRadius(30)
-        .padding()
+        .frame(width: width)
     }
 
     private var monthFormatter: DateFormatter {
