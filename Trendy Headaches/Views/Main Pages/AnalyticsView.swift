@@ -17,9 +17,9 @@ struct AnalyticsView: View {
     
     @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
     
-    @State private var hideCalendar: Bool = false
+    @State private var hideCalendar: Bool = true
     @State private var hideSeverity: Bool = true
-    @State private var hideFreqChart: Bool = true
+    @State private var hideFreqChart: Bool = false
     
     
     // List of icons to cycle through
@@ -77,7 +77,7 @@ struct AnalyticsView: View {
                         }
                         
                         if !hideFreqChart{
-                            CustomStackedBarChart(logList: logs, accent: accent, bg: bg, width:screenWidth-60, hideChart: $hideFreqChart)
+                            CustomStackedBarChart(logList: logs, accent: accent, bg: bg, width:screenWidth-40, hideChart: $hideFreqChart)
                                 .padding(.bottom, 10)
                         }
                         else{

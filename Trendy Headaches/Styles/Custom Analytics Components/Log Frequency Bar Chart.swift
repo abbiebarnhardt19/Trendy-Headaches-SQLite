@@ -3,10 +3,11 @@
 //  Trendy Headaches
 //
 //  Created by Abigail Barnhardt on 10/14/25.
-import SwiftUI
+//
+
 import SwiftUI
 
-// Helper for wrapping layout
+// MARK: - FlowLayout Helper
 struct FlowLayout: Layout {
     var spacing: CGFloat = 10
     
@@ -34,13 +35,11 @@ struct FlowLayout: Layout {
             
             for subview in subviews {
                 let size = subview.sizeThatFits(.unspecified)
-                
                 if currentX + size.width > maxWidth && currentX > 0 {
                     currentX = 0
                     currentY += lineHeight + spacing
                     lineHeight = 0
                 }
-                
                 positions.append(CGPoint(x: currentX, y: currentY))
                 currentX += size.width + spacing
                 lineHeight = max(lineHeight, size.height)
@@ -51,7 +50,6 @@ struct FlowLayout: Layout {
         }
     }
 }
-
 struct CustomStackedBarChart: View {
     var logList: [UnifiedLog]
     var accent: String
@@ -61,7 +59,9 @@ struct CustomStackedBarChart: View {
 
     @State var showKey: Bool = false
     @State var yearOffset: Int = 0
-    
+    @State private var selectedMonth: Date? = nil
+    @State private var selectedSymptom: String? = nil
+
     private var monthlySymptomData: [(month: Date, symptoms: [(symptom: String, count: Int)])] {
         let calendar = Calendar.current
         let now = Date()
@@ -88,14 +88,12 @@ struct CustomStackedBarChart: View {
     private var maxCount: Int {
         max(monthlySymptomData.map { $0.symptoms.map(\.count).reduce(0, +) }.max() ?? 1, 1)
     }
-    
+
     private var symptomOrder: [String] {
         let globalSymptomCounts = Dictionary(grouping: monthlySymptomData.flatMap { $0.symptoms }) { $0.symptom }
             .mapValues { $0.map(\.count).reduce(0, +) }
         return globalSymptomCounts.sorted {
-            if $0.value == $1.value {
-                return $0.key > $1.key // Secondary sort by name for stability
-            }
+            if $0.value == $1.value { return $0.key > $1.key }
             return $0.value < $1.value
         }.map { $0.key }
     }
@@ -105,155 +103,126 @@ struct CustomStackedBarChart: View {
         let colorPalette = baseColor.generateHarmoniousColors(from: baseColor, count: symptomOrder.count)
         let colorMap = Dictionary(uniqueKeysWithValues: zip(symptomOrder, colorPalette))
 
-        // Calculate nice intervals for y-axis
-        let yStep = max(1, Int(ceil(Double(maxCount) / 5.0)))
-        let yMax = Int(ceil(Double(maxCount) / Double(yStep))) * yStep
+        let yStep = max(1, Int(ceil(Double(maxCount)/5.0)))
+        let yMax = Int(ceil(Double(maxCount)/Double(yStep)))*yStep
         let yValues = stride(from: 0, through: yMax, by: yStep).map { $0 }
         let chartHeight: CGFloat = 150
         let yAxisWidth: CGFloat = 15
+        let barSpacing: CGFloat = 10
+        let barWidth: CGFloat = (width - yAxisWidth - (barSpacing*11) - 20)/12
 
         VStack(alignment: .leading, spacing: 10) {
-            HStack{
+            // Buttons
+            HStack {
                 Spacer()
-                Button(action: { yearOffset -= 1 }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(Color(hex: bg))
-                        .font(.system(size: 16))
-                        .frame(width: 10, height: 20)
-                       
-                }
-                .buttonStyle(PlainButtonStyle())
-                
-                CustomText(text: "Logs by Symptom", color: bg, width: 150, textAlign: .center, textSize: 18)
-                
-                Button(action: { yearOffset += 1 }) {
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(yearOffset >= 0 ? Color(hex: bg).opacity(0.3) : Color(hex: bg))
-                        .font(.system(size: 17))
-                        .frame(width: 10, height: 20)
-                }
-                .buttonStyle(PlainButtonStyle())
-                .disabled(yearOffset >= 0)
-                
+                Button(action: { yearOffset -= 1 }) { Image(systemName: "chevron.left").foregroundColor(Color(hex:bg)) }
+                CustomText(text:"Logs by Symptom", color:bg, width:150, textAlign:.center, textSize:18)
+                Button(action: { yearOffset += 1 }) { Image(systemName:"chevron.right").foregroundColor(yearOffset>=0 ? Color(hex:bg).opacity(0.3) : Color(hex:bg)) }
+                    .disabled(yearOffset>=0)
                 Spacer()
-                
-                Button(action: {showKey.toggle()}){
-                    CustomText(text: "Key", color: accent,  width:60, textAlign: .center, textSize: 16)
-                        .frame(height: 27)
-                        .background(Color(hex: bg))
-                        .cornerRadius(20)
-                    }
-                .buttonStyle(PlainButtonStyle())
-                
-                Button(action: {hideChart.toggle()}){
-                    CustomText(text: "Hide", color: accent,  width:60, textAlign: .center, textSize: 16)
-                        .frame(height: 27)
-                        .background(Color(hex: bg))
-                        .cornerRadius(20)
-                    }
-                .buttonStyle(PlainButtonStyle())
+                Button(action:{showKey.toggle()}) { CustomText(text:"Key", color:accent, width:60, textAlign:.center, textSize:16).frame(height:27).background(Color(hex:bg)).cornerRadius(20) }
+                Button(action:{hideChart.toggle()}) { CustomText(text:"Hide", color:accent, width:60, textAlign:.center, textSize:16).frame(height:27).background(Color(hex:bg)).cornerRadius(20) }
             }
-            .frame(width:width)
-            .padding(.top, 3)
-            .padding(.bottom, 10)
-            .padding(.leading, 5)
-
-            HStack(alignment: .top, spacing: 0) {
-                // Y-axis labels
-                VStack(spacing: 0) {
-                    ForEach(yValues.reversed(), id: \.self) { value in
-                        CustomText(text: "\(value)", color: bg, width: yAxisWidth, textAlign: .trailing, textSize: 10)
-                            .padding(.trailing, 7)
-                            .frame(height: 1)
-                            .offset(y:-3)
-                        
-                        if value > 0 {
-                            Spacer()
-                                .frame(height: chartHeight * CGFloat(yStep) / CGFloat(yMax))
+            .padding(.horizontal)
+            
+            // Chart area with Y-axis and bars
+            ZStack(alignment:.topLeading) {
+                HStack(alignment: .top, spacing:0) {
+                    // Y-axis
+                    VStack(spacing:0) {
+                        ForEach(yValues.reversed(), id:\.self) { value in
+                            CustomText(text:"\(value)", color:bg, width:yAxisWidth, textAlign:.trailing, textSize:10)
+                                .padding(.trailing,7)
+                                .frame(height:1)
+                                .offset(y:-3)
+                            if value>0 { Spacer().frame(height: chartHeight*CGFloat(yStep)/CGFloat(yMax)) }
                         }
                     }
-                }
-                .frame(height: chartHeight, alignment: .top)
-                
-                // Chart area with grid lines behind bars
-                ZStack(alignment: .topLeading) {
-                    // Grid lines (full width)
-                    VStack(spacing: 0) {
-                        ForEach(yValues.reversed(), id: \.self) { value in
-                            Rectangle()
-                                .fill(Color(hex: bg).opacity(0.3))
-                                .frame(height: 1)
-                            
-                            if value > 0 {
-                                Spacer()
-                                    .frame(height: chartHeight * CGFloat(yStep) / CGFloat(yMax))
+                    .frame(height: chartHeight, alignment:.top)
+                    
+                    // Bars + grid
+                    ZStack(alignment:.topLeading) {
+                        // Grid lines
+                        VStack(spacing:0) {
+                            ForEach(yValues.reversed(), id:\.self) { value in
+                                Rectangle().fill(Color(hex:bg).opacity(0.3)).frame(height:1)
+                                if value>0 { Spacer().frame(height: chartHeight*CGFloat(yStep)/CGFloat(yMax)) }
                             }
                         }
-                    }
-                    .frame(height: chartHeight)
-                    
-                    // Bars on top
-                    HStack(alignment: .bottom, spacing: 10) {
-                        ForEach(monthlySymptomData, id: \.month) { monthData in
-                            VStack(spacing: 2) {
-                                ZStack(alignment: .bottom) {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .fill(baseColor.opacity(0.2))
-
-                                    if !monthData.symptoms.isEmpty {
-                                        VStack(spacing: 0) {
-                                            // Sort symptoms by global order for consistent stacking
-                                            ForEach(symptomOrder, id: \.self) { symptom in
-                                                if let symptomData = monthData.symptoms.first(where: { $0.symptom == symptom }) {
-                                                    let heightRatio = CGFloat(symptomData.count) / CGFloat(yMax)
-                                                    Rectangle()
-                                                        .fill(colorMap[symptomData.symptom] ?? .gray)
-                                                        .frame(height: chartHeight * heightRatio)
+                        .frame(height: chartHeight)
+                        
+                        // Bars
+                        HStack(alignment:.bottom, spacing:barSpacing) {
+                            ForEach(monthlySymptomData, id:\.month) { monthData in
+                                VStack(spacing:2) {
+                                    ZStack(alignment:.bottom) {
+                                        RoundedRectangle(cornerRadius:6).fill(baseColor.opacity(0.2))
+                                        VStack(spacing:0) {
+                                            ForEach(symptomOrder, id:\.self) { symptom in
+                                                if let s = monthData.symptoms.first(where:{$0.symptom==symptom}) {
+                                                    Rectangle().fill(colorMap[s.symptom] ?? .gray).frame(height: chartHeight*CGFloat(s.count)/CGFloat(yMax))
+                                                        .onTapGesture {
+                                                            withAnimation(.spring()) {
+                                                                if selectedMonth == monthData.month && selectedSymptom==s.symptom {
+                                                                    selectedMonth=nil; selectedSymptom=nil
+                                                                } else { selectedMonth=monthData.month; selectedSymptom=s.symptom }
+                                                            }
+                                                        }
                                                 }
                                             }
                                         }
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        .clipShape(RoundedRectangle(cornerRadius:8))
                                     }
+                                    .frame(width:barWidth,height:chartHeight)
+                                    
+                                    CustomText(text: monthLabel(for: monthData.month), color:bg, textAlign:.center, textSize:8)
+                                        .fixedSize()
+                                        .frame(height:30)
+                                        .padding(.top,3)
+                                        .offset(x:2)
                                 }
-                                .frame(width: (width-15-(10*11)-10)/12, height: chartHeight)
-
-                                CustomText(text: monthLabel(for: monthData.month), color: bg, textAlign: .center, textSize: 8)
-                                    .fixedSize()
-                                    .frame(height: 30)
-                                    .padding(.top, 3)
-                                    .offset(x:2)
                             }
                         }
                     }
                 }
                 
-                Spacer()
+                // Tooltip on top of all
+                // Tooltip on top of all
+                if let selectedMonth, let selectedSymptom {
+                    TooltipOverlay(
+                        month: selectedMonth,
+                        symptom: selectedSymptom,
+                        monthlySymptomData: monthlySymptomData,
+                        symptomOrder: symptomOrder,
+                        chartWidth: width,
+                        chartHeight: chartHeight,
+                        maxCount: maxCount,
+                        colorMap: colorMap // pass the actual color map
+                    )
+                }
+
+
             }
-            .frame(width: width)
-            .padding(.horizontal)
+            .frame(height:chartHeight+30)
             
-            
-            // Symptom color legend
-            if showKey{
-                FlowLayout(spacing: 10) {
-                    ForEach(symptomOrder, id: \.self) { symptom in
-                        HStack(spacing: 5) {
-                            Circle()
-                                .fill(colorMap[symptom] ?? .gray)
-                                .frame(width: 10, height: 10)
-                            
-                            CustomText(text: symptom, color: bg, textSize: 12)
+            // Key
+            if showKey {
+                FlowLayout(spacing:10) {
+                    ForEach(symptomOrder,id:\.self){ symptom in
+                        HStack(spacing:5) {
+                            Circle().fill(colorMap[symptom] ?? .gray).frame(width:10,height:10)
+                            CustomText(text:symptom,color:bg,textSize:12)
                         }
                     }
                 }
-                .padding(.leading, 30)
-                .padding(.bottom, 5)
+                .padding(.leading,30)
+                .padding(.bottom,5)
             }
         }
-        .padding(.vertical, 10)
-        .background(Color(hex: accent))
+        .padding(.vertical,10)
+        .background(Color(hex:accent))
         .cornerRadius(30)
-        .frame(width: width)
+        .frame(width:width)
     }
 
     private var monthFormatter: DateFormatter {
@@ -266,5 +235,84 @@ struct CustomStackedBarChart: View {
         let month = monthFormatter.string(from: date).prefix(3)
         let year = monthFormatter.string(from: date).suffix(4)
         return "\(month),\n\(year)"
+    }
+}
+struct TooltipOverlay: View {
+    var month: Date
+    var symptom: String
+    var monthlySymptomData: [(month: Date, symptoms: [(symptom: String, count: Int)])]
+    var symptomOrder: [String]
+    var chartWidth: CGFloat
+    var chartHeight: CGFloat
+    var maxCount: Int
+    var colorMap: [String: Color]
+
+    // Compute tooltip info
+    var tooltipInfo: (x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat, color: Color, count: Int)? {
+        let calendar = Calendar.current
+        guard let monthData = monthlySymptomData.first(where: { calendar.isDate($0.month, equalTo: month, toGranularity: .month) }),
+              let symptomData = monthData.symptoms.first(where: { $0.symptom == symptom }) else {
+            return nil
+        }
+
+        let barSpacing: CGFloat = 10
+        let barWidth: CGFloat = (chartWidth - 15 - (barSpacing * CGFloat(monthlySymptomData.count - 1)) - 10) / CGFloat(monthlySymptomData.count)
+        let index = monthlySymptomData.firstIndex(where: { calendar.isDate($0.month, equalTo: month, toGranularity: .month) }) ?? 0
+        let barX = CGFloat(index) * (barWidth + barSpacing)
+
+        // Compute cumulative height from bottom
+        let yMax = CGFloat(maxCount)
+        var cumulativeHeight: CGFloat = 0
+        var segmentHeight: CGFloat = 0
+        for name in symptomOrder {
+            if let data = monthData.symptoms.first(where: { $0.symptom == name }) {
+                let height = chartHeight * CGFloat(data.count) / yMax
+                if name == symptom {
+                    segmentHeight = height
+                    break
+                }
+                cumulativeHeight += height
+            }
+        }
+
+        let tooltipY = cumulativeHeight + segmentHeight / 2
+        let tooltipWidth: CGFloat = 120
+        let horizontalMargin: CGFloat = 10
+
+        // Correct X calculation using center, not edge
+        var tooltipCenterX: CGFloat
+        if barX + barWidth / 2 < chartWidth / 2 {
+            // Left half → tooltip on right
+            tooltipCenterX = barX + barWidth + horizontalMargin + tooltipWidth / 2
+        } else {
+            // Right half → tooltip on left
+            tooltipCenterX = barX - horizontalMargin - tooltipWidth / 2
+        }
+
+        return (x: tooltipCenterX, y: tooltipY, width: tooltipWidth, height: segmentHeight, color: colorMap[symptom] ?? .gray, count: symptomData.count)
+    }
+
+
+    var body: some View {
+        if let info = tooltipInfo {
+            VStack(spacing: 2) {
+                Text(symptom).font(.caption).bold()
+                Text("\(info.count) logs").font(.caption2)
+            }
+            .padding(4)
+            .background(info.color)
+            .cornerRadius(6)
+            .shadow(radius: 2)
+            .frame(width: info.width, height: info.height, alignment: .center)
+            .position(x: info.x, y: info.y)
+        }
+    }
+}
+
+extension DateFormatter {
+    static var monthYear: DateFormatter {
+        let df = DateFormatter()
+        df.dateFormat = "MMMM yyyy"
+        return df
     }
 }
