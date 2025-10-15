@@ -109,7 +109,7 @@ struct CustomStackedBarChart: View {
         let yStep = max(1, Int(ceil(Double(maxCount) / 5.0)))
         let yMax = Int(ceil(Double(maxCount) / Double(yStep))) * yStep
         let yValues = stride(from: 0, through: yMax, by: yStep).map { $0 }
-        let chartHeight: CGFloat = 200
+        let chartHeight: CGFloat = 150
         let yAxisWidth: CGFloat = 15
 
         VStack(alignment: .leading, spacing: 10) {

@@ -70,6 +70,7 @@ struct CalendarView: View {
                 .buttonStyle(PlainButtonStyle())
                 Spacer()
             }
+            .padding(.top, 3)
             
             // Weekday Labels
             HStack {
@@ -141,7 +142,7 @@ struct CalendarView: View {
                 SymptomKey(symptomToIcon: symptomToIcon, accent: background, width: width)
             }
         }
-        .frame(width: width, height: showKey ? width + 50 : width - 100)
+        .frame(width: width, height: showKey ? width : width - 100)
         .padding()
         .background(Color(hex: accent))
         .cornerRadius(30)
