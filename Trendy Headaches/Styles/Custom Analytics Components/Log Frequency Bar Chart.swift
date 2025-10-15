@@ -3,7 +3,6 @@
 //  Trendy Headaches
 //
 //  Created by Abigail Barnhardt on 10/14/25.
-
 import SwiftUI
 
 struct CustomStackedBarChart: View {
@@ -27,6 +26,7 @@ struct CustomStackedBarChart: View {
             if let logs = byMonth[month] {
                 let symptomGroups = Dictionary(grouping: logs, by: { $0.symptom_name ?? "Unknown" })
                 let counts = symptomGroups.map { (symptom, logs) in (symptom, logs.count) }
+                    .sorted { $0.1 < $1.1 } // Sort by count (second element), largest first
                 return (month, counts)
             } else {
                 return (month, [])
@@ -49,7 +49,7 @@ struct CustomStackedBarChart: View {
         let yMax = Int(ceil(Double(maxCount) / Double(yStep))) * yStep
         let yValues = stride(from: 0, through: yMax, by: yStep).map { $0 }
         let chartHeight: CGFloat = 200
-        let yAxisWidth: CGFloat = 10
+        let yAxisWidth: CGFloat = 15
 
         VStack(alignment: .leading, spacing: 10) {
             CustomText(text: "Logs by Symptom", color: bg, width: 250, textSize: 25)
@@ -115,7 +115,8 @@ struct CustomStackedBarChart: View {
                                 CustomText(text: monthLabel(for: monthData.month), color: bg, textAlign: .center, textSize: 8)
                                     .fixedSize()
                                     .frame(height: 30)
-                                    .padding(.top, 7)
+                                    .padding(.top, 3)
+                                    .offset(x:2)
                             }
                         }
                     }
