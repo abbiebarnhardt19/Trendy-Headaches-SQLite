@@ -75,7 +75,6 @@ struct CustomStackedBarChart: View {
             if let logs = byMonth[month] {
                 let symptomGroups = Dictionary(grouping: logs, by: { $0.symptom_name ?? "Unknown" })
                 let counts = symptomGroups.map { (symptom, logs) in (symptom, logs.count) }
-                    .sorted { $0.1 > $1.1 } // Sort by count (second element), largest first
                 return (month, counts)
             } else {
                 return (month, [])
@@ -86,12 +85,22 @@ struct CustomStackedBarChart: View {
     private var maxCount: Int {
         max(monthlySymptomData.map { $0.symptoms.map(\.count).reduce(0, +) }.max() ?? 1, 1)
     }
+    
+    private var symptomOrder: [String] {
+        let globalSymptomCounts = Dictionary(grouping: monthlySymptomData.flatMap { $0.symptoms }) { $0.symptom }
+            .mapValues { $0.map(\.count).reduce(0, +) }
+        return globalSymptomCounts.sorted {
+            if $0.value == $1.value {
+                return $0.key > $1.key // Secondary sort by name for stability
+            }
+            return $0.value < $1.value
+        }.map { $0.key }
+    }
 
     var body: some View {
         let baseColor = Color(hex: accent)
-        let allSymptoms = Array(Set(monthlySymptomData.flatMap { $0.symptoms.map { $0.symptom } })).sorted()
-        let colorPalette = baseColor.generateHarmoniousColors(from: baseColor, count: allSymptoms.count)
-        let colorMap = Dictionary(uniqueKeysWithValues: zip(allSymptoms, colorPalette))
+        let colorPalette = baseColor.generateHarmoniousColors(from: baseColor, count: symptomOrder.count)
+        let colorMap = Dictionary(uniqueKeysWithValues: zip(symptomOrder, colorPalette))
 
         // Calculate nice intervals for y-axis
         let yStep = max(1, Int(ceil(Double(maxCount) / 5.0)))
@@ -158,11 +167,14 @@ struct CustomStackedBarChart: View {
 
                                     if !monthData.symptoms.isEmpty {
                                         VStack(spacing: 0) {
-                                            ForEach(monthData.symptoms, id: \.symptom) { symptomData in
-                                                let heightRatio = CGFloat(symptomData.count) / CGFloat(yMax)
-                                                Rectangle()
-                                                    .fill(colorMap[symptomData.symptom] ?? .gray)
-                                                    .frame(height: chartHeight * heightRatio)
+                                            // Sort symptoms by global order for consistent stacking
+                                            ForEach(symptomOrder, id: \.self) { symptom in
+                                                if let symptomData = monthData.symptoms.first(where: { $0.symptom == symptom }) {
+                                                    let heightRatio = CGFloat(symptomData.count) / CGFloat(yMax)
+                                                    Rectangle()
+                                                        .fill(colorMap[symptomData.symptom] ?? .gray)
+                                                        .frame(height: chartHeight * heightRatio)
+                                                }
                                             }
                                         }
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -188,7 +200,7 @@ struct CustomStackedBarChart: View {
             // Symptom color legend
             if showKey{
                 FlowLayout(spacing: 10) {
-                    ForEach(allSymptoms, id: \.self) { symptom in
+                    ForEach(symptomOrder, id: \.self) { symptom in
                         HStack(spacing: 5) {
                             Circle()
                                 .fill(colorMap[symptom] ?? .gray)
