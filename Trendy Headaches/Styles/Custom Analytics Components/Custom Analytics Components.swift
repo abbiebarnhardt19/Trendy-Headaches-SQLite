@@ -16,7 +16,7 @@ struct HiddenChart: View {
     
     var body: some View {
         HStack {
-            CustomButton( text: "Show \(chart) Visual",  bg: bg,  accent: accent,  height: 50, width: UIScreen.main.bounds.width -  30,   corner: 30, bold: false,  textSize: 25, action: { hideChart.toggle() } )
+            CustomButton( text: "Show \(chart) Visual",  bg: bg,  accent: accent,  height: 50, width: UIScreen.main.bounds.width -  30,   corner: 30, bold: false,  textSize: 22, action: { hideChart.toggle() } )
         }
         .frame(width: width)
     }

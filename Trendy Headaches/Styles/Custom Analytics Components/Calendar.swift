@@ -35,6 +35,7 @@ struct CalendarView: View {
                 Spacer()
                 Button(action: { changeMonth(by: -1) }) { Image(systemName: "chevron.left")
                     .foregroundColor(Color(hex: background))}
+                .font(.system(size: 17))
                 .frame(width:5)
                 .padding(.leading, 5)
                 .buttonStyle(PlainButtonStyle())
@@ -43,6 +44,7 @@ struct CalendarView: View {
                 
                 Button(action: { changeMonth(by: 1) }) { Image(systemName: "chevron.right")
                     .foregroundColor(Color(hex: background))}
+                .font(.system(size: 17))
                 .frame(width:5)
                 .buttonStyle(PlainButtonStyle())
                 
@@ -97,7 +99,7 @@ struct CalendarView: View {
                                     Image(systemName: icon(for: dayLogs[0].symptom_name ?? "Unknown"))
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(width: 8, height: 8)
+                                        .frame(width: 6, height: 6)
                                         .foregroundColor(color(forSeverity: dayLogs[0].severity))
                                         .padding(.top, 2)
                                 }
@@ -106,12 +108,12 @@ struct CalendarView: View {
                                 ForEach(dayLogs.indices, id: \.self) { i in
                                     let log = dayLogs[i]
                                     let angle = Double(i) / Double(dayLogs.count) * 360
-                                    let radius: CGFloat = 14
+                                    let radius: CGFloat = 12
 
                                     Image(systemName: icon(for: log.symptom_name))
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(width: 8, height: 8)
+                                        .frame(width: 6, height: 6)
                                         .foregroundColor(color(forSeverity: log.severity))
                                         .offset(x: cos(angle * .pi / 180) * radius, y: sin(angle * .pi / 180) * radius)
                                 }
@@ -127,9 +129,9 @@ struct CalendarView: View {
                                     
                             }
                         }
-                        .frame(height: 35)
+                        .frame(height: 30)
                     } else {
-                        Spacer().frame(height: 30)
+                        Spacer().frame(height: 25)
                     }
                 }
 
@@ -139,7 +141,7 @@ struct CalendarView: View {
                 SymptomKey(symptomToIcon: symptomToIcon, accent: background, width: width)
             }
         }
-        .frame(width: width, height: showKey ? width + 50 : width - 70)
+        .frame(width: width, height: showKey ? width + 50 : width - 100)
         .padding()
         .background(Color(hex: accent))
         .cornerRadius(30)

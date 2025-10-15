@@ -30,7 +30,7 @@ struct SeverityPieChart: View {
     }
     
     var body: some View {
-        let chartSize: CGFloat = 200
+        let chartSize: CGFloat = 170
         let baseColor = Color(hex: accent)
         let popOutOffset: CGFloat = 15
 
@@ -40,15 +40,15 @@ struct SeverityPieChart: View {
 
         ZStack {
             // Square background
-            RoundedRectangle(cornerRadius: 15)
+            RoundedRectangle(cornerRadius: 30)
                 .fill(Color(hex: accent))
                 .frame(width: UIScreen.main.bounds.width -  30, height: chartSize + 70)
 
             VStack {
                 // Label above chart
                 HStack{
-                    CustomText(text:"Log Severity", color: bg, width: 140, textSize: 18)
-                        .padding(.leading, 20)
+                    CustomText(text:"Log Severity", color: bg, width: 140, textSize: 20)
+                        .padding(.leading, 30)
                     Spacer()
                     Button(action: {hideChart.toggle()}){
                         CustomText(text: "Hide", color: accent,  width:60, textAlign: .center, textSize: 16)
@@ -60,7 +60,6 @@ struct SeverityPieChart: View {
                     .padding(.trailing, 20)
                 }
                 .frame(width: UIScreen.main.bounds.width -  30)
-                .padding(.bottom, 5)
                 .padding(.top, 15)
 
                 // Pie chart
@@ -151,7 +150,6 @@ struct SeverityPieChart: View {
                             .position(x: chartSize / 2 + dx, y: chartSize / 2 + dy)
                             .transition(.opacity.combined(with: .scale))
                             .animation(.easeInOut, value: selectedSlice)
-                        
                         }
                 }
                 .frame(width: chartSize, height: chartSize)
@@ -161,8 +159,6 @@ struct SeverityPieChart: View {
             .frame(width: chartSize + 40, height: chartSize + 80)
         }
     }
-
-
     
     private func startAngle(for index: Int) -> Angle {
         let total = severityCounts.map(\.count).reduce(0, +)
