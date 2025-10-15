@@ -38,7 +38,7 @@ struct CalendarView: View {
                 .padding(.leading, 5)
                 .buttonStyle(PlainButtonStyle())
                 
-                CustomText(text:monthYearString(for: currentMonth), color: background,  width:110, textSize: 18)
+                CustomText(text:monthYearString(for: currentMonth), color: background,  width:120, textAlign: .center, textSize: 18)
                 
                 Button(action: { changeMonth(by: 1) }) { Image(systemName: "chevron.right")
                     .foregroundColor(Color(hex: background))}
@@ -59,7 +59,7 @@ struct CalendarView: View {
                 Spacer()
                 
                 Button(action: {hideChart.toggle()}){
-                    CustomText(text: "Hide", color: accent,  width:70, textAlign: .center, textSize: 16)
+                    CustomText(text: "Hide", color: accent,  width:60, textAlign: .center, textSize: 16)
                         .frame(height: 27)
                         .background(Color(hex: background))
                         .cornerRadius(20)

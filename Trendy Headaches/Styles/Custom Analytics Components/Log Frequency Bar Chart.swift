@@ -57,14 +57,17 @@ struct CustomStackedBarChart: View {
     var accent: String
     var bg: String
     var width: CGFloat
+    @Binding var hideChart: Bool
 
     @State var showKey: Bool = false
+    @State var yearOffset: Int = 0
     
     private var monthlySymptomData: [(month: Date, symptoms: [(symptom: String, count: Int)])] {
         let calendar = Calendar.current
         let now = Date()
         let currentMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: now))!
-        let startMonth = calendar.date(byAdding: .month, value: -11, to: currentMonth)!
+        let adjustedMonth = calendar.date(byAdding: .year, value: yearOffset, to: currentMonth)!
+        let startMonth = calendar.date(byAdding: .month, value: -11, to: adjustedMonth)!
         let months = (0...11).compactMap { calendar.date(byAdding: .month, value: $0, to: startMonth) }
         let filtered = logList.filter { $0.date >= startMonth }
         let byMonth = Dictionary(grouping: filtered) { log -> Date in
@@ -111,8 +114,26 @@ struct CustomStackedBarChart: View {
 
         VStack(alignment: .leading, spacing: 10) {
             HStack{
-                CustomText(text: "Logs by Symptom", color: bg, width: 210, textSize: 25)
-                    .padding(.leading, 17)
+                Spacer()
+                Button(action: { yearOffset -= 1 }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(Color(hex: bg))
+                        .font(.system(size: 16))
+                        .frame(width: 10, height: 20)
+                       
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                CustomText(text: "Logs by Symptom", color: bg, width: 150, textAlign: .center, textSize: 18)
+                
+                Button(action: { yearOffset += 1 }) {
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(yearOffset >= 0 ? Color(hex: bg).opacity(0.3) : Color(hex: bg))
+                        .font(.system(size: 17))
+                        .frame(width: 10, height: 20)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .disabled(yearOffset >= 0)
                 
                 Spacer()
                 
@@ -123,16 +144,26 @@ struct CustomStackedBarChart: View {
                         .cornerRadius(20)
                     }
                 .buttonStyle(PlainButtonStyle())
+                
+                Button(action: {hideChart.toggle()}){
+                    CustomText(text: "Hide", color: accent,  width:60, textAlign: .center, textSize: 16)
+                        .frame(height: 27)
+                        .background(Color(hex: bg))
+                        .cornerRadius(20)
+                    }
+                .buttonStyle(PlainButtonStyle())
             }
+            .frame(width:width)
             .padding(.top, 3)
             .padding(.bottom, 10)
+            .padding(.leading, 5)
 
             HStack(alignment: .top, spacing: 0) {
                 // Y-axis labels
                 VStack(spacing: 0) {
                     ForEach(yValues.reversed(), id: \.self) { value in
                         CustomText(text: "\(value)", color: bg, width: yAxisWidth, textAlign: .trailing, textSize: 10)
-                            .padding(.trailing, 5)
+                            .padding(.trailing, 7)
                             .frame(height: 1)
                             .offset(y:-3)
                         

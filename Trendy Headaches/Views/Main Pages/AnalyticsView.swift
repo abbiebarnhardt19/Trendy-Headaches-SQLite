@@ -20,6 +20,7 @@ struct AnalyticsView: View {
     @State private var calKey: Bool = false
     @State private var hideCalendar: Bool = true
     @State private var hideSeverity: Bool = true
+    @State private var hideFreqChart: Bool = false
     
     
     // List of icons to cycle through
@@ -78,11 +79,18 @@ struct AnalyticsView: View {
                         }
                         if !hideSeverity{
                             SeverityPieChart(logList: logs, accent: accent, bg: bg, hideChart: $hideSeverity)
+                                .padding(.bottom, 10)
                         }
                         else{
                             HiddenChart(bg: bg, accent: accent, chart: "Log Severity", width: screenWidth,  hideChart: $hideSeverity)
                         }
-                        CustomStackedBarChart(logList: logs, accent: accent, bg: bg, width:screenWidth-60)
+                        
+                        if !hideFreqChart{
+                            CustomStackedBarChart(logList: logs, accent: accent, bg: bg, width:screenWidth-60, hideChart: $hideFreqChart)
+                        }
+                        else{
+                            HiddenChart(bg: bg, accent: accent, chart: "Logs by Symptom", width: screenWidth,  hideChart: $hideFreqChart)
+                        }
                     }
                     .padding(.bottom, 150)
                     

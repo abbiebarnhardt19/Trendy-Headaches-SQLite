@@ -47,12 +47,12 @@ struct SeverityPieChart: View {
             VStack {
                 // Label above chart
                 HStack{
-                    CustomText(text:"Log Severity", color: bg, width: 140, textSize: 25)
+                    CustomText(text:"Log Severity", color: bg, width: 140, textSize: 18)
                         .padding(.leading, 20)
                     Spacer()
                     Button(action: {hideChart.toggle()}){
-                        CustomText(text: "Hide", color: accent,  width:70, textAlign: .center, textSize: 16)
-                            .frame(height: 29)
+                        CustomText(text: "Hide", color: accent,  width:60, textAlign: .center, textSize: 16)
+                            .frame(height: 27)
                             .background(Color(hex: bg))
                             .cornerRadius(20)
                         }
