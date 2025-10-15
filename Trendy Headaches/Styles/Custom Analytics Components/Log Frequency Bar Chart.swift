@@ -111,9 +111,10 @@ struct CustomStackedBarChart: View {
 
         VStack(alignment: .leading, spacing: 10) {
             HStack{
-                CustomText(text: "Logs by Symptom", color: bg, width: 250, textSize: 25)
-                    .padding(.bottom, 10)
-                    .padding(.leading, 15)
+                CustomText(text: "Logs by Symptom", color: bg, width: 210, textSize: 25)
+                    .padding(.leading, 17)
+                
+                Spacer()
                 
                 Button(action: {showKey.toggle()}){
                     CustomText(text: "Key", color: accent,  width:60, textAlign: .center, textSize: 16)
@@ -123,6 +124,8 @@ struct CustomStackedBarChart: View {
                     }
                 .buttonStyle(PlainButtonStyle())
             }
+            .padding(.top, 3)
+            .padding(.bottom, 10)
 
             HStack(alignment: .top, spacing: 0) {
                 // Y-axis labels
@@ -131,6 +134,7 @@ struct CustomStackedBarChart: View {
                         CustomText(text: "\(value)", color: bg, width: yAxisWidth, textAlign: .trailing, textSize: 10)
                             .padding(.trailing, 5)
                             .frame(height: 1)
+                            .offset(y:-3)
                         
                         if value > 0 {
                             Spacer()
@@ -185,7 +189,8 @@ struct CustomStackedBarChart: View {
                                 CustomText(text: monthLabel(for: monthData.month), color: bg, textAlign: .center, textSize: 8)
                                     .fixedSize()
                                     .frame(height: 30)
-                                    .padding(.top, 7)
+                                    .padding(.top, 3)
+                                    .offset(x:2)
                             }
                         }
                     }
