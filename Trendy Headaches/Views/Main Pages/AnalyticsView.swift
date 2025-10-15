@@ -17,10 +17,9 @@ struct AnalyticsView: View {
     
     @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
     
-    @State private var calKey: Bool = false
-    @State private var hideCalendar: Bool = true
+    @State private var hideCalendar: Bool = false
     @State private var hideSeverity: Bool = true
-    @State private var hideFreqChart: Bool = false
+    @State private var hideFreqChart: Bool = true
     
     
     // List of icons to cycle through
@@ -61,22 +60,14 @@ struct AnalyticsView: View {
                         .padding(.top, 30)
 
                         
-                            if !hideCalendar{
-                                VStack{
-                                    CalendarView(logs: logs, showKey: $calKey, hideChart: $hideCalendar, background: bg, accent: accent, width:screenWidth-60, symptomToIcon: symptomToIcon)
-                                        .padding(.horizontal, 10)
-                                    if calKey{
-                                        SeverityKeyBar(accent: accent, width: screenWidth-40, height:20)
-                                        SymptomKey(symptomToIcon: symptomToIcon, accent: accent, width: screenWidth-40)
-                                }
-                            }
-                            .padding(.bottom, 10)
-                                
+                        if !hideCalendar{
+                            CalendarView(logs: logs, hideChart: $hideCalendar, background: bg, accent: accent, width:screenWidth-60, symptomToIcon: symptomToIcon)
+                                .padding(.bottom, 10)
                         }
                         else{
                             HiddenChart(bg: bg, accent: accent, chart: "Calendar", width: screenWidth,  hideChart: $hideCalendar)
-
                         }
+                        
                         if !hideSeverity{
                             SeverityPieChart(logList: logs, accent: accent, bg: bg, hideChart: $hideSeverity)
                                 .padding(.bottom, 10)
@@ -87,6 +78,7 @@ struct AnalyticsView: View {
                         
                         if !hideFreqChart{
                             CustomStackedBarChart(logList: logs, accent: accent, bg: bg, width:screenWidth-60, hideChart: $hideFreqChart)
+                                .padding(.bottom, 10)
                         }
                         else{
                             HiddenChart(bg: bg, accent: accent, chart: "Logs by Symptom", width: screenWidth,  hideChart: $hideFreqChart)

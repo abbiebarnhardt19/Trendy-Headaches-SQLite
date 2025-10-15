@@ -8,7 +8,7 @@ import SwiftUI
 
 struct CalendarView: View {
     let logs: [UnifiedLog]
-    @Binding var showKey: Bool
+    
     @Binding var hideChart: Bool
     var background: String
     var accent: String
@@ -21,6 +21,7 @@ struct CalendarView: View {
     }
     
     @State private var currentMonth: Date = Date()
+    @State var showKey: Bool = false
     
     private let calendar = Calendar.current
     private let weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -88,9 +89,10 @@ struct CalendarView: View {
                             if dayLogs.count == 1 {
                                 // Single log: icon below number
                                 VStack(spacing: 2) {
-                                    Text("\(calendar.component(.day, from: date))")
+                                    CustomText(text:"\(calendar.component(.day, from: date))", color: background, textAlign: .center, textSize: 14)
                                         .foregroundColor(Color(hex: background))
                                         .fontWeight(isToday(date) ? .bold : .regular)
+                                        .padding(.top, 12)
                                     
                                     Image(systemName: icon(for: dayLogs[0].symptom_name ?? "Unknown"))
                                         .resizable()
@@ -114,27 +116,33 @@ struct CalendarView: View {
                                         .offset(x: cos(angle * .pi / 180) * radius, y: sin(angle * .pi / 180) * radius)
                                 }
                                 // Day number in center
-                                Text("\(calendar.component(.day, from: date))")
+                                CustomText(text:"\(calendar.component(.day, from: date))", color: background, textAlign: .center, textSize: 14)
                                     .foregroundColor(Color(hex: background))
                                     .fontWeight(isToday(date) ? .bold : .regular)
                             } else {
                                 // No logs
-                                Text("\(calendar.component(.day, from: date))")
+                                CustomText(text:"\(calendar.component(.day, from: date))", color: background, textAlign: .center, textSize: 14)
                                     .foregroundColor(Color(hex: background))
                                     .fontWeight(isToday(date) ? .bold : .regular)
+                                    
                             }
                         }
-                        .frame(height: 40)
+                        .frame(height: 35)
                     } else {
-                        Spacer().frame(height: 40)
+                        Spacer().frame(height: 30)
                     }
                 }
+
+            }
+            if showKey{
+                SeverityKeyBar(accent: background, width: width, height:20)
+                SymptomKey(symptomToIcon: symptomToIcon, accent: background, width: width)
             }
         }
-        .frame(width: width, height: width-50)
+        .frame(width: width, height: showKey ? width + 50 : width - 70)
         .padding()
         .background(Color(hex: accent))
-        .cornerRadius(15)
+        .cornerRadius(30)
     }
 
 //change the moth
@@ -277,7 +285,6 @@ struct SeverityKeyBar: View {
         }
         .frame(width: width,  height: height, alignment: .top)
         .fixedSize(horizontal: false, vertical: true)
-        .padding(.top, 15)
-        .padding(.bottom, 40)
+        .padding(.bottom, 30)
     }
 }
