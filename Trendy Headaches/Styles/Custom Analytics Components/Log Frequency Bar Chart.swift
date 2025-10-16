@@ -116,12 +116,17 @@ struct CustomStackedBarChart: View {
             HStack {
                 Spacer()
                 Button(action: { yearOffset -= 1 }) { Image(systemName: "chevron.left").foregroundColor(Color(hex:bg)) }
+                
                 CustomText(text:"Logs by Symptom", color:bg, width:150, textAlign:.center, textSize:18)
+                
                 Button(action: { yearOffset += 1 }) { Image(systemName:"chevron.right").foregroundColor(yearOffset>=0 ? Color(hex:bg).opacity(0.3) : Color(hex:bg)) }
                     .disabled(yearOffset>=0)
+                
                 Spacer()
-                Button(action:{showKey.toggle()}) { CustomText(text:"Key", color:accent, width:60, textAlign:.center, textSize:16).frame(height:27).background(Color(hex:bg)).cornerRadius(20) }
-                Button(action:{hideChart.toggle()}) { CustomText(text:"Hide", color:accent, width:60, textAlign:.center, textSize:16).frame(height:27).background(Color(hex:bg)).cornerRadius(20) }
+                
+                Button(action:{showKey.toggle()}) { CustomText(text:"Key", color:accent, width:40, textAlign:.center, textSize:12).frame(height:25).background(Color(hex:bg)).cornerRadius(20) }
+                
+                Button(action:{hideChart.toggle()}) { CustomText(text:"Hide", color:accent, width:45, textAlign:.center, textSize:12).frame(height:25).background(Color(hex:bg)).cornerRadius(20) }
             }
             .padding(.horizontal)
             
@@ -227,7 +232,7 @@ struct CustomStackedBarChart: View {
                     ForEach(symptomOrder,id:\.self){ symptom in
                         HStack(spacing:5) {
                             Circle().fill(colorMap[symptom] ?? .gray).frame(width:10,height:10)
-                            CustomText(text:symptom,color:bg,textSize:12)
+                            CustomText(text:symptom.capitalizedWords ,color:bg,textSize:12)
                         }
                     }
                 }
@@ -351,7 +356,7 @@ struct TooltipOverlay: View {
             let textColor: Color = Color.isHexColorDark(info.color.hexString) ? .white : .black
             
             VStack(spacing: 2) {
-                Text(symptom)
+                Text(symptom.capitalizedWords)
                     .font(.system(size: 12, weight: .bold, design: .serif))
                     .fixedSize()
                 Text("\(info.count) logs (\(Int(info.percent))%)")
@@ -393,5 +398,14 @@ extension DateFormatter {
         let df = DateFormatter()
         df.dateFormat = "MMMM yyyy"
         return df
+    }
+}
+
+extension String {
+    var capitalizedWords: String {
+        self
+            .split(separator: " ")
+            .map { $0.prefix(1).uppercased() + $0.dropFirst() }
+            .joined(separator: " ")
     }
 }

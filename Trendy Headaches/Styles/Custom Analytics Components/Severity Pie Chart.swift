@@ -51,8 +51,8 @@ struct SeverityPieChart: View {
                         .padding(.leading, 30)
                     Spacer()
                     Button(action: {hideChart.toggle()}){
-                        CustomText(text: "Hide", color: accent,  width:60, textAlign: .center, textSize: 16)
-                            .frame(height: 27)
+                        CustomText(text: "Hide", color: accent,  width:45, textAlign: .center, textSize: 12)
+                            .frame(height: 25)
                             .background(Color(hex: bg))
                             .cornerRadius(20)
                         }

@@ -32,7 +32,6 @@ struct CalendarView: View {
         VStack(spacing: 10) {
             // Month Navigation
             HStack {
-                Spacer()
                 Button(action: { changeMonth(by: -1) }) { Image(systemName: "chevron.left")
                     .foregroundColor(Color(hex: background))}
                 .font(.system(size: 17))
@@ -52,23 +51,21 @@ struct CalendarView: View {
                 
                 //show key button
                 Button(action: {showKey.toggle()}){
-                    CustomText(text: "Key", color: accent,  width:60, textAlign: .center, textSize: 16)
-                        .frame(height: 27)
+                    CustomText(text: "Key", color: accent,  width:40, textAlign: .center, textSize: 12)
+                        .frame(height: 25)
                         .background(Color(hex: background))
                         .cornerRadius(20)
                     }
                 .buttonStyle(PlainButtonStyle())
                 .padding(.leading, 10)
-                Spacer()
                 
                 Button(action: {hideChart.toggle()}){
-                    CustomText(text: "Hide", color: accent,  width:60, textAlign: .center, textSize: 16)
-                        .frame(height: 27)
+                    CustomText(text: "Hide", color: accent,  width:45, textAlign: .center, textSize: 12)
+                        .frame(height: 25)
                         .background(Color(hex: background))
                         .cornerRadius(20)
                     }
                 .buttonStyle(PlainButtonStyle())
-                Spacer()
             }
             .padding(.top, 3)
             
