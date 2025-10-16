@@ -7,49 +7,6 @@
 
 import SwiftUI
 
-// MARK: - FlowLayout Helper
-struct FlowLayout: Layout {
-    var spacing: CGFloat = 10
-    
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let result = FlowResult(in: proposal.replacingUnspecifiedDimensions().width, subviews: subviews, spacing: spacing)
-        return result.size
-    }
-    
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let result = FlowResult(in: bounds.width, subviews: subviews, spacing: spacing)
-        for (index, subview) in subviews.enumerated() {
-            subview.place(at: CGPoint(x: bounds.minX + result.positions[index].x, y: bounds.minY + result.positions[index].y), proposal: .unspecified)
-        }
-    }
-    
-    struct FlowResult {
-        var size: CGSize
-        var positions: [CGPoint]
-        
-        init(in maxWidth: CGFloat, subviews: Subviews, spacing: CGFloat) {
-            var positions: [CGPoint] = []
-            var currentX: CGFloat = 0
-            var currentY: CGFloat = 0
-            var lineHeight: CGFloat = 0
-            
-            for subview in subviews {
-                let size = subview.sizeThatFits(.unspecified)
-                if currentX + size.width > maxWidth && currentX > 0 {
-                    currentX = 0
-                    currentY += lineHeight + spacing
-                    lineHeight = 0
-                }
-                positions.append(CGPoint(x: currentX, y: currentY))
-                currentX += size.width + spacing
-                lineHeight = max(lineHeight, size.height)
-            }
-            
-            self.size = CGSize(width: maxWidth, height: currentY + lineHeight)
-            self.positions = positions
-        }
-    }
-}
 struct CustomStackedBarChart: View {
     var logList: [UnifiedLog]
     var accent: String
@@ -62,35 +19,28 @@ struct CustomStackedBarChart: View {
     @State private var selectedMonth: Date? = nil
     @State private var selectedSymptom: String? = nil
 
-    private var monthlySymptomData: [(month: Date, symptoms: [(symptom: String, count: Int)])] {
+    //get all the month data
+    private var data: [(month: Date, symptoms: [(symptom: String, count: Int)])] {
         let calendar = Calendar.current
-        let now = Date()
-        let currentMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: now))!
-        let adjustedMonth = calendar.date(byAdding: .year, value: yearOffset, to: currentMonth)!
-        let startMonth = calendar.date(byAdding: .month, value: -11, to: adjustedMonth)!
-        let months = (0...11).compactMap { calendar.date(byAdding: .month, value: $0, to: startMonth) }
-        let filtered = logList.filter { $0.date >= startMonth }
-        let byMonth = Dictionary(grouping: filtered) { log -> Date in
-            let comps = calendar.dateComponents([.year, .month], from: log.date)
-            return calendar.date(from: comps)!
+        let startMonth = calendar.date(byAdding: .month, value: -11, to: calendar.date(from: calendar.dateComponents([.year, .month], from: Date()))!)!
+        
+        let months = (0..<12).compactMap { calendar.date(byAdding: .month, value: $0, to: startMonth) }
+        let logsByMonth = Dictionary(grouping: logList.filter { $0.date >= startMonth }) {
+            calendar.date(from: calendar.dateComponents([.year, .month], from: $0.date))!
         }
+        
         return months.map { month in
-            if let logs = byMonth[month] {
-                let symptomGroups = Dictionary(grouping: logs, by: { $0.symptom_name ?? "Unknown" })
-                let counts = symptomGroups.map { (symptom, logs) in (symptom, logs.count) }
-                return (month, counts)
-            } else {
-                return (month, [])
-            }
+            (month, logsByMonth[month]?.reduce(into: [String: Int]()) { $0[$1.symptom_name ?? "Unknown", default: 0] += 1 }
+                    .map { ($0.key, $0.value) } ?? [])
         }
     }
 
     private var maxCount: Int {
-        max(monthlySymptomData.map { $0.symptoms.map(\.count).reduce(0, +) }.max() ?? 1, 1)
+        max(data.map { $0.symptoms.map(\.count).reduce(0, +) }.max() ?? 1, 1)
     }
 
     private var symptomOrder: [String] {
-        let globalSymptomCounts = Dictionary(grouping: monthlySymptomData.flatMap { $0.symptoms }) { $0.symptom }
+        let globalSymptomCounts = Dictionary(grouping: data.flatMap { $0.symptoms }) { $0.symptom }
             .mapValues { $0.map(\.count).reduce(0, +) }
         return globalSymptomCounts.sorted {
             if $0.value == $1.value { return $0.key > $1.key }
@@ -100,21 +50,20 @@ struct CustomStackedBarChart: View {
 
     var body: some View {
         let baseColor = Color(hex: accent)
-        let colorPalette = baseColor.generateHarmoniousColors(from: baseColor, count: symptomOrder.count)
-        let colorMap = Dictionary(uniqueKeysWithValues: zip(symptomOrder, colorPalette))
+        let colorMap = Dictionary(uniqueKeysWithValues: zip(symptomOrder, baseColor.generateHarmoniousColors(from: baseColor, count: symptomOrder.count)))
 
-        let yStep = max(1, Int(ceil(Double(maxCount)/5.0)))
-        let yMax = Int(ceil(Double(maxCount)/Double(yStep)))*yStep
-        let yValues = stride(from: 0, through: yMax, by: yStep).map { $0 }
         let chartHeight: CGFloat = 150
+        let yStep = max(1, Int(ceil(Double(maxCount) / 5)))
+        let yMax = ((maxCount + yStep - 1) / yStep) * yStep
+        let yValues = Array(stride(from: 0, through: yMax, by: yStep))
+
         let yAxisWidth: CGFloat = 15
         let barSpacing: CGFloat = 10
-        let barWidth: CGFloat = (width - yAxisWidth - (barSpacing*11) - 20)/12
+        let barWidth = (width - yAxisWidth - barSpacing * 11 - 20) / 12
 
         VStack(alignment: .leading, spacing: 10) {
             // Buttons
             HStack {
-                Spacer()
                 Button(action: { yearOffset -= 1 }) { Image(systemName: "chevron.left").foregroundColor(Color(hex:bg)) }
                 
                 CustomText(text:"Logs by Symptom", color:bg, width:150, textAlign:.center, textSize:18)
@@ -127,8 +76,11 @@ struct CustomStackedBarChart: View {
                 Button(action:{showKey.toggle()}) { CustomText(text:"Key", color:accent, width:40, textAlign:.center, textSize:12).frame(height:25).background(Color(hex:bg)).cornerRadius(20) }
                 
                 Button(action:{hideChart.toggle()}) { CustomText(text:"Hide", color:accent, width:45, textAlign:.center, textSize:12).frame(height:25).background(Color(hex:bg)).cornerRadius(20) }
+                
+                CustomButton(text:"Hide", bg: accent, accent: bg, height: 25, width: 45){hideChart.toggle()}
             }
             .padding(.horizontal)
+            .padding(.bottom, 10)
             
             // Chart area with Y-axis and bars
             ZStack(alignment:.topLeading) {
@@ -158,7 +110,7 @@ struct CustomStackedBarChart: View {
                         
                         // Bars
                         HStack(alignment:.bottom, spacing:barSpacing) {
-                            ForEach(monthlySymptomData, id:\.month) { monthData in
+                            ForEach(data, id:\.month) { monthData in
                                 VStack(spacing:2) {
                                     ZStack(alignment:.bottom) {
                                         RoundedRectangle(cornerRadius:6).fill(baseColor.opacity(0.2))
@@ -207,38 +159,38 @@ struct CustomStackedBarChart: View {
                     }
                 }
                 
-                // Tooltip on top of all
-                // Tooltip on top of all
+                // popup if segment is selected
                 if let selectedMonth, let selectedSymptom {
-                    TooltipOverlay(
-                        month: selectedMonth,
-                        symptom: selectedSymptom,
-                        monthlySymptomData: monthlySymptomData,
-                        symptomOrder: symptomOrder,
-                        chartWidth: width,
-                        chartHeight: chartHeight,
-                        maxCount: maxCount,
-                        colorMap: colorMap // pass the actual color map
-                    )
+                    TooltipOverlay(month: selectedMonth, symptom: selectedSymptom, data: data, symptomOrder: symptomOrder, chartWidth: width, chartHeight: chartHeight, maxCount: maxCount, colorMap: colorMap)
                 }
-
-
             }
             .frame(height:chartHeight+30)
             
-            // Key
+            //symptom legend
+            // Symptom legend using FlexibleWrap
             if showKey {
-                FlowLayout(spacing:10) {
-                    ForEach(symptomOrder,id:\.self){ symptom in
-                        HStack(spacing:5) {
-                            Circle().fill(colorMap[symptom] ?? .gray).frame(width:10,height:10)
-                            CustomText(text:symptom.capitalizedWords ,color:bg,textSize:12)
-                        }
+                FlexibleWrap(
+                    items: symptomOrder,
+                    spacing: 10,
+                    circleWidth: 10,
+                    charWidth: 7
+                ) { symptom in
+                    HStack(spacing: 5) {
+                        Circle()
+                            .fill(colorMap[symptom] ?? .gray)
+                            .frame(width: 10, height: 10)
+                        Text(symptom.capitalizedWords.count > 10
+                             ? String(symptom.capitalizedWords.prefix(10)) + "…"
+                             : symptom.capitalizedWords)
+                            .font(.system(size: 12))
+                            .lineLimit(1)
+                            .truncationMode(.tail)
                     }
                 }
-                .padding(.leading,30)
-                .padding(.bottom,5)
+                .padding(.leading, 25)
+                .padding(.bottom, 5)
             }
+
         }
         .padding(.vertical,10)
         .background(Color(hex:accent))
@@ -258,10 +210,11 @@ struct CustomStackedBarChart: View {
         return "\(month),\n\(year)"
     }
 }
+
 struct TooltipOverlay: View {
     var month: Date
     var symptom: String
-    var monthlySymptomData: [(month: Date, symptoms: [(symptom: String, count: Int)])]
+    var data: [(month: Date, symptoms: [(symptom: String, count: Int)])]
     var symptomOrder: [String]
     var chartWidth: CGFloat
     var chartHeight: CGFloat
@@ -287,7 +240,7 @@ struct TooltipOverlay: View {
 
     var tooltipInfo: (x: CGFloat, y: CGFloat, width: CGFloat, color: Color, count: Int, segmentHeight: CGFloat, percent: Double)? {
         let calendar = Calendar.current
-        guard let monthData = monthlySymptomData.first(where: { calendar.isDate($0.month, equalTo: month, toGranularity: .month) }),
+        guard let monthData = data.first(where: { calendar.isDate($0.month, equalTo: month, toGranularity: .month) }),
               let symptomData = monthData.symptoms.first(where: { $0.symptom == symptom }) else {
             return nil
         }
@@ -300,11 +253,11 @@ struct TooltipOverlay: View {
         let yAxisWidth: CGFloat = 15
         let chartHorizontalPadding: CGFloat = 20
         let barSpacing: CGFloat = 10
-        let actualBarCount = CGFloat(max(1, monthlySymptomData.count))
+        let actualBarCount = CGFloat(max(1, data.count))
         let computedBarWidth = (chartWidth - yAxisWidth - (barSpacing * (actualBarCount - 1)) - chartHorizontalPadding) / actualBarCount
         let usedBarWidth = computedBarWidth.isFinite && computedBarWidth > 0 ? computedBarWidth : (chartWidth - yAxisWidth - (barSpacing * 11) - 20) / 12
 
-        let index = monthlySymptomData.firstIndex(where: { calendar.isDate($0.month, equalTo: month, toGranularity: .month) }) ?? 0
+        let index = data.firstIndex(where: { calendar.isDate($0.month, equalTo: month, toGranularity: .month) }) ?? 0
         let barAreaXOffset = yAxisWidth + (chartHorizontalPadding / 2)
         let barLeftX = barAreaXOffset + CGFloat(index) * (usedBarWidth + barSpacing)
         let barRightX = barLeftX + usedBarWidth
@@ -360,34 +313,32 @@ struct TooltipOverlay: View {
                     .font(.system(size: 12, weight: .bold, design: .serif))
                     .fixedSize()
                 Text("\(info.count) logs (\(Int(info.percent))%)")
-                    .font(.system(size: 10,  design: .serif))
+                    .font(.system(size: 10, design: .serif))
                     .fixedSize()
             }
             .foregroundColor(textColor)
             .padding(6)
-            .background(info.color)
-            .cornerRadius(6)
             .background(
-                GeometryReader { proxy in
-                    Color.clear.preference(key: TooltipWidthKey.self, value: proxy.size.width)
+                ZStack {
+                    info.color
+                        .cornerRadius(6) // only apply cornerRadius here
+                    GeometryReader { proxy in
+                        Color.clear.preference(key: TooltipWidthKey.self, value: proxy.size.width)
+                    }
+                    GeometryReader { proxy in
+                        Color.clear.preference(key: TooltipHeightKey.self, value: proxy.size.height)
+                    }
                 }
             )
             .onPreferenceChange(TooltipWidthKey.self) { value in
                 DispatchQueue.main.async { self.measuredWidth = value }
             }
-            .background(
-                GeometryReader { proxy in
-                    Color.clear.preference(key: TooltipHeightKey.self, value: proxy.size.height)
-                }
-            )
             .onPreferenceChange(TooltipHeightKey.self) { height in
                 DispatchQueue.main.async { self.measuredHeight = height }
             }
-            .position(
-                x: info.x,
-                y: info.y + 5
-            )
+            .position(x: info.x, y: info.y + 5)
         }
+
     }
 
 
