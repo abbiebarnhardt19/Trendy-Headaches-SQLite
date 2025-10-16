@@ -43,7 +43,7 @@ extension Color {
         return String(format:"#%02X%02X%02X", ri, gi, bi)
     }
     
-    static func isHexColorDark(_ hex: String) -> Bool {
+    static func isHexDark(_ hex: String) -> Bool {
             // Strip the `#` if it exists
             var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
             hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
@@ -107,7 +107,7 @@ extension Color {
     }
 
 
-    func generateHarmoniousColors(from baseColor: Color, count: Int) -> [Color] {
+    func generateColors(from baseColor: Color, count: Int) -> [Color] {
         let uiColor = UIColor(baseColor)
            var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, alpha: CGFloat = 0
 

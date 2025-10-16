@@ -236,7 +236,7 @@ struct DateTextField: View {
                     .padding()
                     .padding(.bottom, 45)
                     .offset(y: 60)
-                    .colorScheme(Color.isHexColorDark(accent) ? .dark : .light)
+                    .colorScheme(Color.isHexDark(accent) ? .dark : .light)
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .onChange(of: date) {
                         textValue = formatter.string(from: date)

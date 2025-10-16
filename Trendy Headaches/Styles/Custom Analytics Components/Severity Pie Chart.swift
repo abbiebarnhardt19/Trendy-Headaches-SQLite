@@ -22,6 +22,7 @@ struct SeverityPieChart: View {
     
     @State private var selectedSlice: String? = nil
     
+    
     private var severityCounts: [(severity: String, count: Int)] {
         let grouped = Dictionary(grouping: logList, by: { $0.severity })
         return grouped
@@ -35,7 +36,7 @@ struct SeverityPieChart: View {
         let popOutOffset: CGFloat = 15
 
         var sliceColors: [Color] {
-            baseColor.generateHarmoniousColors(from: baseColor, count: severityCounts.count)
+            baseColor.generateColors(from: baseColor, count: severityCounts.count)
         }
 
         ZStack {
@@ -72,7 +73,7 @@ struct SeverityPieChart: View {
                         
                         let sliceColor = sliceColors[idx]
                         let hex = sliceColor.toHex() ?? accent
-                        let textColor: Color = Color.isHexColorDark(hex) ? .white : .black
+                        let textColor: Color = Color.isHexDark(hex) ? .white : .black
                         
                         // Pop-out offset
                         let isSelected = selectedSlice == item.severity
