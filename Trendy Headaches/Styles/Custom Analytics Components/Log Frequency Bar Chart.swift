@@ -157,20 +157,36 @@ struct CustomStackedBarChart: View {
                                 VStack(spacing:2) {
                                     ZStack(alignment:.bottom) {
                                         RoundedRectangle(cornerRadius:6).fill(baseColor.opacity(0.2))
-                                        VStack(spacing:0) {
-                                            ForEach(symptomOrder, id:\.self) { symptom in
-                                                if let s = monthData.symptoms.first(where:{$0.symptom==symptom}) {
-                                                    Rectangle().fill(colorMap[s.symptom] ?? .gray).frame(height: chartHeight*CGFloat(s.count)/CGFloat(yMax))
+                                        VStack(spacing: 0) {
+                                            let popGap: CGFloat = 8
+
+                                            ForEach(symptomOrder, id: \.self) { symptom in
+                                                if let s = monthData.symptoms.first(where: { $0.symptom == symptom }) {
+                                                    let segmentHeight = chartHeight * CGFloat(s.count) / CGFloat(yMax)
+                                                    let isSelected = selectedMonth == monthData.month && selectedSymptom == s.symptom
+                                                    let topPadding: CGFloat = isSelected ? popGap / 2 : 0
+                                                    let bottomPadding: CGFloat = isSelected ? popGap / 2 : 0
+
+                                                    Rectangle()
+                                                        .fill(colorMap[s.symptom] ?? .gray)
+                                                        .frame(height: segmentHeight)
+                                                        .padding(.top, topPadding)
+                                                        .padding(.bottom, bottomPadding)
                                                         .onTapGesture {
                                                             withAnimation(.spring()) {
-                                                                if selectedMonth == monthData.month && selectedSymptom==s.symptom {
-                                                                    selectedMonth=nil; selectedSymptom=nil
-                                                                } else { selectedMonth=monthData.month; selectedSymptom=s.symptom }
+                                                                if selectedMonth == monthData.month && selectedSymptom == s.symptom {
+                                                                    selectedMonth = nil
+                                                                    selectedSymptom = nil
+                                                                } else {
+                                                                    selectedMonth = monthData.month
+                                                                    selectedSymptom = s.symptom
+                                                                }
                                                             }
                                                         }
                                                 }
                                             }
                                         }
+
                                         .clipShape(RoundedRectangle(cornerRadius:8))
                                     }
                                     .frame(width:barWidth,height:chartHeight)
