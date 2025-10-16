@@ -32,6 +32,17 @@ extension Color {
                   opacity: Double(a) / 255)
     }
     
+    var hexString: String {
+        let uiColor = UIColor(self)
+        var r: CGFloat = 0
+        var g: CGFloat = 0
+        var b: CGFloat = 0
+        var a: CGFloat = 0
+        uiColor.getRed(&r, green: &g, blue: &b, alpha: &a)
+        let ri = Int(r*255), gi = Int(g*255), bi = Int(b*255)
+        return String(format:"#%02X%02X%02X", ri, gi, bi)
+    }
+    
     static func isHexColorDark(_ hex: String) -> Bool {
             // Strip the `#` if it exists
             var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)

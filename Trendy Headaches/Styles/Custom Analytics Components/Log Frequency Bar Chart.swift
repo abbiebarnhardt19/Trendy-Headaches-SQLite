@@ -280,30 +280,30 @@ struct TooltipOverlay: View {
         }
     }
 
-    var tooltipInfo: (x: CGFloat, y: CGFloat, width: CGFloat, color: Color, count: Int, segmentHeight: CGFloat)? {
+    var tooltipInfo: (x: CGFloat, y: CGFloat, width: CGFloat, color: Color, count: Int, segmentHeight: CGFloat, percent: Double)? {
         let calendar = Calendar.current
         guard let monthData = monthlySymptomData.first(where: { calendar.isDate($0.month, equalTo: month, toGranularity: .month) }),
               let symptomData = monthData.symptoms.first(where: { $0.symptom == symptom }) else {
             return nil
         }
 
-        // Parent chart constants
+        // total logs in the month
+        let totalCount = monthData.symptoms.map(\.count).reduce(0, +)
+        let percent = totalCount > 0 ? Double(symptomData.count) / Double(totalCount) * 100 : 0
+
+        // existing calculations...
         let yAxisWidth: CGFloat = 15
         let chartHorizontalPadding: CGFloat = 20
         let barSpacing: CGFloat = 10
-
-        // Compute bar width
         let actualBarCount = CGFloat(max(1, monthlySymptomData.count))
         let computedBarWidth = (chartWidth - yAxisWidth - (barSpacing * (actualBarCount - 1)) - chartHorizontalPadding) / actualBarCount
         let usedBarWidth = computedBarWidth.isFinite && computedBarWidth > 0 ? computedBarWidth : (chartWidth - yAxisWidth - (barSpacing * 11) - 20) / 12
 
-        // Bar X positions
         let index = monthlySymptomData.firstIndex(where: { calendar.isDate($0.month, equalTo: month, toGranularity: .month) }) ?? 0
         let barAreaXOffset = yAxisWidth + (chartHorizontalPadding / 2)
         let barLeftX = barAreaXOffset + CGFloat(index) * (usedBarWidth + barSpacing)
         let barRightX = barLeftX + usedBarWidth
 
-        // Compute cumulative height to find segment center
         let yMax = CGFloat(maxCount)
         var cumulativeHeight: CGFloat = 0
         var segmentHeight: CGFloat = 0
@@ -321,7 +321,6 @@ struct TooltipOverlay: View {
 
         let segmentCenterY = cumulativeHeight + segmentHeight / 2
 
-        // Horizontal tooltip placement
         let gap: CGFloat = 10
         let effectiveTooltipWidth = max(60, measuredWidth > 0 ? measuredWidth : 120)
         let leftMost = effectiveTooltipWidth / 2
@@ -343,19 +342,26 @@ struct TooltipOverlay: View {
         }
         centerX = min(rightMost, max(leftMost, centerX))
 
-        return (x: centerX, y: segmentCenterY, width: effectiveTooltipWidth, color: colorMap[symptom] ?? .gray, count: symptomData.count, segmentHeight: segmentHeight)
+        return (x: centerX, y: segmentCenterY, width: effectiveTooltipWidth, color: colorMap[symptom] ?? .gray, count: symptomData.count, segmentHeight: segmentHeight, percent: percent)
     }
+
 
     var body: some View {
         if let info = tooltipInfo {
+            let textColor: Color = Color.isHexColorDark(info.color.hexString) ? .white : .black
+            
             VStack(spacing: 2) {
-                Text(symptom).font(.caption).bold().fixedSize()
-                Text("\(info.count) logs").font(.caption2).fixedSize()
+                Text(symptom)
+                    .font(.system(size: 12, weight: .bold, design: .serif))
+                    .fixedSize()
+                Text("\(info.count) logs (\(Int(info.percent))%)")
+                    .font(.system(size: 10,  design: .serif))
+                    .fixedSize()
             }
+            .foregroundColor(textColor)
             .padding(6)
             .background(info.color)
             .cornerRadius(6)
-            .shadow(radius: 2)
             .background(
                 GeometryReader { proxy in
                     Color.clear.preference(key: TooltipWidthKey.self, value: proxy.size.width)
@@ -374,10 +380,11 @@ struct TooltipOverlay: View {
             }
             .position(
                 x: info.x,
-                y: info.y   + 5
+                y: info.y + 5
             )
         }
     }
+
 
 }
 
