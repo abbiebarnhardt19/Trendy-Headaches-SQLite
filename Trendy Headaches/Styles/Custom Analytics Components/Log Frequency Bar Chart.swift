@@ -247,10 +247,9 @@ struct TooltipOverlay: View {
     var maxCount: Int
     var colorMap: [String: Color]
 
-    // measured width of the tooltip (real runtime width)
     @State private var measuredWidth: CGFloat = 0
+    @State private var measuredHeight: CGFloat = 0
 
-    // PreferenceKey to measure child width
     private struct TooltipWidthKey: PreferenceKey {
         static var defaultValue: CGFloat = 0
         static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
@@ -258,71 +257,66 @@ struct TooltipOverlay: View {
         }
     }
 
-    // Compute tooltip info (positions computed relative to bar region)
-    var tooltipInfo: (x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat, color: Color, count: Int)? {
+    private struct TooltipHeightKey: PreferenceKey {
+        static var defaultValue: CGFloat = 0
+        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+            value = nextValue()
+        }
+    }
+
+    var tooltipInfo: (x: CGFloat, y: CGFloat, width: CGFloat, color: Color, count: Int, segmentHeight: CGFloat)? {
         let calendar = Calendar.current
         guard let monthData = monthlySymptomData.first(where: { calendar.isDate($0.month, equalTo: month, toGranularity: .month) }),
               let symptomData = monthData.symptoms.first(where: { $0.symptom == symptom }) else {
             return nil
         }
 
-        // Layout constants used in parent chart — keep these in sync
+        // Parent chart constants
         let yAxisWidth: CGFloat = 15
-        let chartHorizontalPadding: CGFloat = 20 // match .padding(.horizontal) effect
+        let chartHorizontalPadding: CGFloat = 20
         let barSpacing: CGFloat = 10
 
-        // compute barWidth consistent with the parent chart calculation
-        let barWidth: CGFloat = (chartWidth - yAxisWidth - (barSpacing * 11) - 20) / 12
-        // Defensive fallback if your count differs
+        // Compute bar width
         let actualBarCount = CGFloat(max(1, monthlySymptomData.count))
         let computedBarWidth = (chartWidth - yAxisWidth - (barSpacing * (actualBarCount - 1)) - chartHorizontalPadding) / actualBarCount
+        let usedBarWidth = computedBarWidth.isFinite && computedBarWidth > 0 ? computedBarWidth : (chartWidth - yAxisWidth - (barSpacing * 11) - 20) / 12
 
-        let usedBarWidth = computedBarWidth.isFinite && computedBarWidth > 0 ? computedBarWidth : barWidth
-
-        // index of this month
+        // Bar X positions
         let index = monthlySymptomData.firstIndex(where: { calendar.isDate($0.month, equalTo: month, toGranularity: .month) }) ?? 0
-
-        // The X where the bar area starts (after Y-axis & left padding)
         let barAreaXOffset = yAxisWidth + (chartHorizontalPadding / 2)
         let barLeftX = barAreaXOffset + CGFloat(index) * (usedBarWidth + barSpacing)
         let barRightX = barLeftX + usedBarWidth
 
-        // cumulative height to find vertical center of the segment
+        // Compute cumulative height to find segment center
         let yMax = CGFloat(maxCount)
         var cumulativeHeight: CGFloat = 0
         var segmentHeight: CGFloat = 0
         for name in symptomOrder {
             if let data = monthData.symptoms.first(where: { $0.symptom == name }) {
-                let height = chartHeight * CGFloat(data.count) / yMax
+                let h = chartHeight * CGFloat(data.count) / yMax
                 if name == symptom {
-                    segmentHeight = height
+                    segmentHeight = h
                     break
+                } else {
+                    cumulativeHeight += h
                 }
-                cumulativeHeight += height
             }
         }
 
-        let tooltipY = cumulativeHeight + segmentHeight / 2
-        let gap: CGFloat = 10 // fixed gap you requested
+        let segmentCenterY = cumulativeHeight + segmentHeight / 2
 
-        // measuredWidth will be set after body renders; default to 120 while measuring
+        // Horizontal tooltip placement
+        let gap: CGFloat = 10
         let effectiveTooltipWidth = max(60, measuredWidth > 0 ? measuredWidth : 120)
-
-        // Decide left or right side and compute center from the corresponding edge
-        var centerX: CGFloat
-
-        // Determine available space to avoid overflowing chart bounds:
         let leftMost = effectiveTooltipWidth / 2
         let rightMost = chartWidth - effectiveTooltipWidth / 2
 
+        var centerX: CGFloat
         if barRightX + gap + effectiveTooltipWidth <= chartWidth {
-            // Enough space on right → place tooltip to the right with gap from barRight
             centerX = barRightX + gap + effectiveTooltipWidth / 2
         } else if barLeftX - gap - effectiveTooltipWidth >= 0 {
-            // Enough space on left → place tooltip to the left with gap from barLeft
             centerX = barLeftX - gap - effectiveTooltipWidth / 2
         } else {
-            // Fallback: prefer the side with more space, then clamp
             let spaceRight = chartWidth - barRightX - gap
             let spaceLeft = barLeftX - gap
             if spaceRight >= spaceLeft {
@@ -331,11 +325,9 @@ struct TooltipOverlay: View {
                 centerX = min(rightMost, max(leftMost, barLeftX - gap - effectiveTooltipWidth / 2))
             }
         }
-
-        // clamp for safety
         centerX = min(rightMost, max(leftMost, centerX))
 
-        return (x: centerX, y: tooltipY, width: effectiveTooltipWidth, height: max(20, segmentHeight), color: colorMap[symptom] ?? .gray, count: symptomData.count)
+        return (x: centerX, y: segmentCenterY, width: effectiveTooltipWidth, color: colorMap[symptom] ?? .gray, count: symptomData.count, segmentHeight: segmentHeight)
     }
 
     var body: some View {
@@ -348,27 +340,30 @@ struct TooltipOverlay: View {
             .background(info.color)
             .cornerRadius(6)
             .shadow(radius: 2)
-            // measure the actual width of rendered tooltip
             .background(
                 GeometryReader { proxy in
-                    Color.clear
-                        .preference(key: TooltipWidthKey.self, value: proxy.size.width)
+                    Color.clear.preference(key: TooltipWidthKey.self, value: proxy.size.width)
                 }
             )
-            // capture measured width
             .onPreferenceChange(TooltipWidthKey.self) { value in
-                // update on the main thread to avoid layout warnings
-                DispatchQueue.main.async {
-                    self.measuredWidth = value
-                }
+                DispatchQueue.main.async { self.measuredWidth = value }
             }
-            // set explicit frame height so position aligns with vertical calculation
-            .frame(height: info.height)
-            .position(x: info.x, y: info.y)
+            .background(
+                GeometryReader { proxy in
+                    Color.clear.preference(key: TooltipHeightKey.self, value: proxy.size.height)
+                }
+            )
+            .onPreferenceChange(TooltipHeightKey.self) { height in
+                DispatchQueue.main.async { self.measuredHeight = height }
+            }
+            .position(
+                x: info.x,
+                y: info.y   + 5
+            )
         }
     }
-}
 
+}
 
 extension DateFormatter {
     static var monthYear: DateFormatter {
