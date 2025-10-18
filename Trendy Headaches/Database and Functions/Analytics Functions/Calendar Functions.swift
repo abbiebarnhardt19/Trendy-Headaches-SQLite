@@ -1,3 +1,10 @@
+//
+//  Calendar Functions.swift
+//  Trendy Headaches
+//
+//  Created by Abigail Barnhardt on 10/17/25.
+//
+
 import SwiftUI
 import Foundation
 
