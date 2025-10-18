@@ -80,10 +80,11 @@ struct ListView: View {
                     //page label
                     HStack{
                         CustomText(text: "Log List", color: accent, width:210, textAlign: .leading,  multiAlign: .leading,  textSize: 53)
-                        .padding(.leading, 30)
+                            .frame(height: 80)
+                            .padding(.leading, UIScreen.main.bounds.width * 0.15)
                         Spacer()
                     }
-                    .padding(.top, 15)
+                    .padding(.top, 10)
                     
                     //table
                     HStack{
@@ -104,27 +105,23 @@ struct ListView: View {
                         HStack {
                             Spacer()
                             filterPopUp(accent: accent, bg: bg, colOptions: colOptions, selectedCols: $selectedCols, typeOptions: $logTypeOptions, type: $logTypeFilter, start: $startDate, end: $endDate, stringStart: $stringStartDate, stringEnd: $stringEndDate, sevStart: $sevStart, sevEnd: $sevEnd, sympOptions: $sympOptions, selectedSymps: $selectedSymps)
-                                .padding(.trailing, 20)
-                                .padding(.bottom, 120)
+                                .padding(.trailing, 45)
+                                .padding(.bottom, 130)
                         }
                     }
                     .transition(.move(edge: .bottom))
                     .zIndex(10)
                 }
 
-                // filter button
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        FilterDropDown(accent: accent, popUp: $showFilter)
-                    }
-                    .padding(.bottom, 90)
-                }
-                
                 //nav bar
                 VStack {
                     Spacer()
+                    HStack{
+                        Spacer()
+                        FilterDropDown(accent: accent, popUp: $showFilter)
+                            .padding(.trailing, 10)
+                            .padding(.bottom, UIScreen.main.bounds.height * 0.06)
+                    }
                     NavBarView(userID: userID, bg: $bg,  accent: $accent, selected: .constant(1))
                 }
                 .ignoresSafeArea(edges: .bottom)

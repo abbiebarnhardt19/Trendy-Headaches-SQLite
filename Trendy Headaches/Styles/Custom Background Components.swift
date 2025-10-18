@@ -29,8 +29,12 @@ struct ListBGComps: View {
     var body: some View {
         ZStack {
             Color(hex: bg).ignoresSafeArea()
-            SameAmplitudeBlob(waves: 4, amp: 20, accent: accent, x: 90, y: -382, rotation: -10, width:screenWidth, height:180)
-            SameAmplitudeBlob(waves: 4, amp: 16, accent: accent, x: 60, y: -285, rotation: 170, width:screenWidth, height:180)
+//            SameAmplitudeBlob(waves: 4, amp: 20, accent: accent, x: 90, y: -382, rotation: -10, width:screenWidth, height:180)
+//            SameAmplitudeBlob(waves: 4, amp: 16, accent: accent, x: 60, y: -285, rotation: 170, width:screenWidth, height:180)
+            
+            SameAmplitudeBlob(waves: 5, amp: 12, accent: accent, x: -UIScreen.main.bounds.width * 0.1, y: -UIScreen.main.bounds.height * 0.47, rotation: 0, width:UIScreen.main.bounds.width+70, height:UIScreen.main.bounds.height*0.15)
+            
+            SameAmplitudeBlob(waves: 5, amp: 15, accent: accent, x: -UIScreen.main.bounds.width * 0.1, y: -UIScreen.main.bounds.height * 0.335, rotation: 180, width:UIScreen.main.bounds.width+70, height:UIScreen.main.bounds.height*0.125)
         }
     }
 }
@@ -56,10 +60,10 @@ struct ProfileBGComps: View {
     var body: some View {
         ZStack {
             Color(hex: bg).ignoresSafeArea()
-            SameAmplitudeBlob(waves: 15, amp: 11, accent: accent, x: 100, y: -395, rotation: -35)
-                .zIndex(1)
-            SameAmplitudeBlob(waves: 15, amp: 11, accent: accent, x: 265, y: -180, rotation: 145)
-                .zIndex(1)
+            WavyTopBottomRectangle(waves: 7, amp: 10, accent: accent, x: 0, y: -UIScreen.main.bounds.height * 0.625, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 0.35)
+                    .zIndex(5)
+                WavyTopBottomRectangle(waves: 7, amp: 8, accent: accent, x: 0, y: UIScreen.main.bounds.height * 0.395, width: UIScreen.main.bounds.width, height: 80)
+                    .zIndex(1)
         }
     }
 }
