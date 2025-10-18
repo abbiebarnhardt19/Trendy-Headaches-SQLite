@@ -133,13 +133,15 @@ struct Forgot1BGComps: View {
 struct Forgot2BGComps: View {
     var bg: String
     var accent: String
-    var screenWidth = UIScreen.main.bounds.width
+    
+    @State var width = UIScreen.main.bounds.width
+    @State var height = UIScreen.main.bounds.height
 
     var body: some View {
         ZStack {
             Color(hex: bg).ignoresSafeArea()
-            SameAmplitudeBlob(waves: 5, amp: 20, accent: accent, x: -40, y: -362, rotation: 10, width: screenWidth, height:260)
-            SameAmplitudeBlob(waves: 5, amp: 16, accent: accent, x: 0, y: -325, rotation: 180, width: screenWidth, height:180)
+            SameAmplitudeBlob(waves: 5, amp: 20, accent: accent, x: 0, y: -height * 0.425, rotation: 0, width: width, height: height * 0.35)
+            SameAmplitudeBlob(waves: 5, amp: 16, accent: accent, x: 0, y: -height * 0.4, rotation: 180, width: width, height: height * 0.25)
         }
     }
 }

@@ -12,7 +12,7 @@ struct ForgotPasswordView2: View {
     let email: String
 
     // MARK: - State
-    @State private var SQ = ""
+    @State private var SQ = "t"
     @State private var SA = ""
     @State private var answer = ""
     @State private var userID: Int64? = nil
@@ -37,21 +37,23 @@ struct ForgotPasswordView2: View {
             ZStack {
                 Forgot2BGComps(bg: bg, accent: accent)
 
-                ScrollView {
                     ZStack {
-                        VStack(alignment: .leading, spacing: 20) {
-                            
+                        VStack(alignment: .leading, spacing: 10) {
+                            Spacer()
                             //  Header
                             HStack {
-                                CustomText(text: "Please answer your security question", color: accent,  width: screenWidth / 2, textAlign: .leading, multiAlign: .leading, textSize: 50)
+                                CustomText(
+                                    text: "Please\nanswer your\nsecurity question", color: accent, width: screenWidth, textAlign: .leading, multiAlign: .leading, textSize: 45)
                                 .padding(.leading, leadPadd)
                                 Spacer()
                             }
-
+                            .padding(.top, 40)
+                            
                             //  Security Question
-                            CustomText(text: SQ, color: accent)
+                            CustomText(text: "test", color: accent)
                                 .padding(.leading, leadPadd)
-                                .padding(.top, 30)
+                                .padding(.top, 20)
+                            
 
                             // Answer Field
                             CustomTextField( bg: bg, accent: accent,  placeholder: "", text: $answer, secure: true)
@@ -72,8 +74,10 @@ struct ForgotPasswordView2: View {
                                     .disabled(!correct)
                                 Spacer()
                             }
+                            Spacer()
                         }
-                    }
+                        .frame(height: UIScreen.main.bounds.height)
+                        .padding(.bottom, 100)
                 }
                 .onAppear {
                     userID = Database.shared.userFromEmail(email: email)

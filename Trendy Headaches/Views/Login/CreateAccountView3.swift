@@ -4,7 +4,7 @@ import CryptoKit
 struct CreateAccountView3: View {
     // Info from previous pages
     var bg: String = ""
-    var accent: String = "fff000"
+    var accent: String = ""
     var email: String = ""
     var passOne: String = ""
     var SQ: String = ""
