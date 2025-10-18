@@ -305,20 +305,3 @@ struct TooltipOverlay: View {
         }
     }
 }
-
-extension DateFormatter {
-    static var monthYear: DateFormatter {
-        let df = DateFormatter()
-        df.dateFormat = "MMMM yyyy"
-        return df
-    }
-}
-
-extension String {
-    var capitalizedWords: String {
-        self
-            .split(separator: " ")
-            .map { $0.prefix(1).uppercased() + $0.dropFirst() }
-            .joined(separator: " ")
-    }
-}

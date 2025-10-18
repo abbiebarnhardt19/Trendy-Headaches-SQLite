@@ -15,8 +15,8 @@ struct AnalyticsView: View {
     @State var logs: [UnifiedLog] = []
     @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
     @State private var hideCalendar: Bool = true
-    @State private var hideSeverity: Bool = false
-    @State private var hideFreqChart: Bool = true
+    @State private var hideSeverity: Bool = true
+    @State private var hideFreqChart: Bool = false
     
     var body: some View {
         NavigationStack{

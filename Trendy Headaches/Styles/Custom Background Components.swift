@@ -13,9 +13,10 @@ struct AnalyticsBGComps: View {
 
     var body: some View {
             Color(hex: bg).ignoresSafeArea()
-            SameAmplitudeBlob(waves: 12, amp: 15, accent: accent,  x: 100, y: -380, rotation: -48)
+//            SameAmplitudeBlob(waves: 12, amp: 15, accent: accent,  x: 100, y: -380, rotation: -48)
+        SameAmplitudeBlob(waves: 10, amp: 20, accent: accent,  x: UIScreen.main.bounds.height * 0.425, y: -UIScreen.main.bounds.width * 0.32, rotation:295, width: UIScreen.main.bounds.width)
             .zIndex(5)
-            SameAmplitudeBlob(waves: 12, amp: 15, accent: accent, x: 50, y: -320, rotation: 134)
+        SameAmplitudeBlob(waves: 10, amp: 20, accent: accent,  x: UIScreen.main.bounds.height * 0.29, y: -UIScreen.main.bounds.width * 0.25, rotation:117, width: UIScreen.main.bounds.width)
             .zIndex(5)
     }
 }

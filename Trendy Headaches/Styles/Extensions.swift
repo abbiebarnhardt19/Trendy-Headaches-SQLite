@@ -131,3 +131,25 @@ extension Color {
            return colors
     }
 }
+
+extension DateFormatter {
+    static var monthYear: DateFormatter {
+        let df = DateFormatter()
+        df.dateFormat = "MMMM yyyy"
+        return df
+    }
+}
+
+extension String {
+    var capitalizedWords: String {
+        self
+            .split(separator: " ")
+            .map { $0.prefix(1).uppercased() + $0.dropFirst() }
+            .joined(separator: " ")
+    }
+    func width(usingFont font: UIFont) -> CGFloat {
+        let attributes = [NSAttributedString.Key.font: font]
+        return (self as NSString).size(withAttributes: attributes).width
+    }
+}
+

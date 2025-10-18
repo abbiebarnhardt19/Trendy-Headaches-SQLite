@@ -155,12 +155,7 @@ struct filterPopUp: View {
     }
 }
 
-extension String {
-    func width(usingFont font: UIFont) -> CGFloat {
-        let attributes = [NSAttributedString.Key.font: font]
-        return (self as NSString).size(withAttributes: attributes).width
-    }
-}
+
 
 struct ScrollableLogTable: View {
     var userID: Int64
