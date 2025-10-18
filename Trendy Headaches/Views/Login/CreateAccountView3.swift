@@ -4,7 +4,7 @@ import CryptoKit
 struct CreateAccountView3: View {
     // Info from previous pages
     var bg: String = ""
-    var accent: String = ""
+    var accent: String = "fff000"
     var email: String = ""
     var passOne: String = ""
     var SQ: String = ""
@@ -19,7 +19,7 @@ struct CreateAccountView3: View {
     
     // Layout constants
     private let screenWidth = UIScreen.main.bounds.width
-    private let leadPadd = UIScreen.main.bounds.width * 0.8
+    private let leadPadd = CGFloat(20)
     
     var body: some View {
         NavigationStack {
@@ -50,13 +50,16 @@ struct CreateAccountView3: View {
                             }
                             .padding(.bottom, 40)
                         }
+                        .zIndex(1)
                         .padding()
                     }
+                    
                     .navigationDestination(isPresented: $created) {
                         LoginView(bg: bg, accent: accent)
                     }
                 }
             }
+           
         }
     }
     

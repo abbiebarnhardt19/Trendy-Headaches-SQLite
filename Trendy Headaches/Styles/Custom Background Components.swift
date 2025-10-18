@@ -13,7 +13,7 @@ struct AnalyticsBGComps: View {
 
     var body: some View {
             Color(hex: bg).ignoresSafeArea()
-//            SameAmplitudeBlob(waves: 12, amp: 15, accent: accent,  x: 100, y: -380, rotation: -48)
+
         SameAmplitudeBlob(waves: 10, amp: 20, accent: accent,  x: UIScreen.main.bounds.height * 0.425, y: -UIScreen.main.bounds.width * 0.32, rotation:295, width: UIScreen.main.bounds.width)
             .zIndex(5)
         SameAmplitudeBlob(waves: 10, amp: 20, accent: accent,  x: UIScreen.main.bounds.height * 0.29, y: -UIScreen.main.bounds.width * 0.25, rotation:117, width: UIScreen.main.bounds.width)
@@ -29,8 +29,6 @@ struct ListBGComps: View {
     var body: some View {
         ZStack {
             Color(hex: bg).ignoresSafeArea()
-//            SameAmplitudeBlob(waves: 4, amp: 20, accent: accent, x: 90, y: -382, rotation: -10, width:screenWidth, height:180)
-//            SameAmplitudeBlob(waves: 4, amp: 16, accent: accent, x: 60, y: -285, rotation: 170, width:screenWidth, height:180)
             
             SameAmplitudeBlob(waves: 5, amp: 12, accent: accent, x: -UIScreen.main.bounds.width * 0.1, y: -UIScreen.main.bounds.height * 0.47, rotation: 0, width:UIScreen.main.bounds.width+70, height:UIScreen.main.bounds.height*0.15)
             
@@ -71,13 +69,16 @@ struct ProfileBGComps: View {
 struct Create1BGComps: View {
     var bg: String
     var accent: String
-    var screenWidth: CGFloat = UIScreen.main.bounds.width
 
+    @State var width = UIScreen.main.bounds.width
+    @State var height = UIScreen.main.bounds.height
     var body: some View {
         ZStack {
             Color(hex: bg).ignoresSafeArea()
-            WavyTopBottomRectangle(waves: 8, amp: 8, accent: accent, x: 0, y: -430, width: screenWidth, height: 80)
-            WavyTopBottomRectangle(waves: 8, amp: 8, accent: accent, x: 0, y: 420, width: screenWidth, height: 80)
+            WavyTopBottomRectangle(waves: 6, amp: 8, accent: accent, x: 0, y: -height * 0.65, width: width, height: height * 0.35)
+                    .zIndex(5)
+            WavyTopBottomRectangle(waves: 6, amp: 8, accent: accent, x: 0, y: height * 0.5, width: width, height: 80)
+                .zIndex(1)
         }
     }
 }
@@ -85,12 +86,15 @@ struct Create1BGComps: View {
 struct Create2BGComps: View {
     var bg: String
     var accent: String
+    
+    @State var width = UIScreen.main.bounds.width
+    @State var height = UIScreen.main.bounds.height
 
     var body: some View {
         ZStack {
             Color(hex: bg).ignoresSafeArea()
-            SameAmplitudeBlob(waves: 10, amp: 20, accent: accent, x: 100, y: -220, rotation: -180)
-            SameAmplitudeBlob(waves: 10, amp: 20, accent: accent, x: 100, y: -220, rotation: 360)
+            SameAmplitudeBlob(waves: 10, amp: 20, accent: accent, x: width * 0.3, y: -height * 0.25, rotation: -180)
+            SameAmplitudeBlob(waves: 10, amp: 20, accent: accent, x: width * 0.3, y: -height * 0.25, rotation: 360)
         }
     }
 }
@@ -98,13 +102,18 @@ struct Create2BGComps: View {
 struct Create3BGComps: View {
     var bg: String
     var accent: String
+    
+    @State var width = UIScreen.main.bounds.width
+    @State var height = UIScreen.main.bounds.height
 
     var body: some View {
-        ZStack {
-            Color(hex: bg).ignoresSafeArea()
-            WavyTopBottomRectangle(waves: 20, amp: 10, accent: accent, x: 300, y: -575, width: 1000, height: 400)
-            WavyTopBottomRectangle(waves: 20, amp: 8, accent: accent, x: 300, y: 550, width: 1000, height: 400)
+        ZStack(alignment: .top) {
+            WavyTopBottomRectangle(waves: 6, amp: 8, accent: accent, x: 0, y: height * 0.5, width: width, height: height * 0.2)
+
+            WavyTopBottomRectangle(waves: 6, amp: 8, accent: accent, x: 0, y: -height * 0.55, width: width, height: height * 0.2)
+
         }
+        .zIndex(5)
     }
 }
 

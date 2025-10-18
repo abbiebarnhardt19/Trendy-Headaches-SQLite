@@ -13,7 +13,7 @@ extension Database {
     //get all the logs for a user and sort them
     func getLogList(userID: Int64) -> [UnifiedLog] {
         var unifiedLogs: [UnifiedLog] = []
-        
+
         do {
             let symptomLogsQuery = logs.filter(self.user_id == userID)
             
