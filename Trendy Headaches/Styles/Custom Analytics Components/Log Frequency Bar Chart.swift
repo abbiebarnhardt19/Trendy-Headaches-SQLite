@@ -183,6 +183,7 @@ struct CustomStackedBarChart: View {
         .background(Color(hex:accent))
         .cornerRadius(30)
         .frame(width:width)
+        .padding(.bottom, 10)
     }
 
     private var monthFormatter: DateFormatter {

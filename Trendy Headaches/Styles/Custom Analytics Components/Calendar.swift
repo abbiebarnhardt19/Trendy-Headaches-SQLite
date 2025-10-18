@@ -4,287 +4,164 @@
 //
 //  Created by Abigail Barnhardt on 10/14/25.
 //
+
 import SwiftUI
 
 struct CalendarView: View {
     let logs: [UnifiedLog]
-    
     @Binding var hideChart: Bool
-    var background: String
+    var bg: String
     var accent: String
     var width: CGFloat
-    let symptomToIcon: [String: String]
+    let sympIcon: [String: String]
 
-    func icon(for symptom: String?) -> String {
-        guard let name = symptom, !name.isEmpty else { return "questionmark.square.fill" }
-        return symptomToIcon[name] ?? "questionmark.square.fill"
-    }
-    
-    @State private var currentMonth: Date = Date()
-    @State var showKey: Bool = false
-    
+    @State private var currentMonth = Date()
+    @State private var showKey = false
     private let calendar = Calendar.current
-    private let weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    
-    @State private var isFullScreen = false
-    
+    private let weekDays = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+    let maxMonth = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: Date()))!
+
     var body: some View {
         VStack(spacing: 10) {
-            // Month Navigation
-            HStack {
-                Button(action: { changeMonth(by: -1) }) { Image(systemName: "chevron.left")
-                    .foregroundColor(Color(hex: background))}
-                .font(.system(size: 17))
-                .frame(width:5)
-                .padding(.leading, 5)
-                .buttonStyle(PlainButtonStyle())
-                
-                CustomText(text:monthYearString(for: currentMonth), color: background,  width:120, textAlign: .center, textSize: 18)
-                
-                Button(action: { changeMonth(by: 1) }) { Image(systemName: "chevron.right")
-                    .foregroundColor(Color(hex: background))}
-                .font(.system(size: 17))
-                .frame(width:5)
-                .buttonStyle(PlainButtonStyle())
-                
-                Spacer()
-                
-                //show key button
-                Button(action: {showKey.toggle()}){
-                    CustomText(text: "Key", color: accent,  width:40, textAlign: .center, textSize: 12)
-                        .frame(height: 25)
-                        .background(Color(hex: background))
-                        .cornerRadius(20)
-                    }
-                .buttonStyle(PlainButtonStyle())
-                .padding(.leading, 10)
-                
-                Button(action: {hideChart.toggle()}){
-                    CustomText(text: "Hide", color: accent,  width:45, textAlign: .center, textSize: 12)
-                        .frame(height: 25)
-                        .background(Color(hex: background))
-                        .cornerRadius(20)
-                    }
-                .buttonStyle(PlainButtonStyle())
-            }
-            .padding(.top, 3)
-            
-            // Weekday Labels
-            HStack {
-                ForEach(weekDays, id: \.self) { day in
-                    CustomText(text: day, color: background, textAlign: .center,  textSize: 14)
-                        .frame(maxWidth: .infinity)
-                }
-            }
-            
-            // Calendar Grid
-            let days = makeDays()
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(minimum: 0, maximum: .infinity)), count: 7), spacing: 10 )
-            {
-                ForEach(days.indices, id: \.self) { idx in
-                    if let date = days[idx] {
-                        ZStack {
-                            let dayLogs = logs.filter { calendar.isDate($0.date, inSameDayAs: date) }
-                            
-                            if dayLogs.count == 1 {
-                                // Single log: icon below number
-                                VStack(spacing: 2) {
-                                    CustomText(text:"\(calendar.component(.day, from: date))", color: background, textAlign: .center, textSize: 14)
-                                        .foregroundColor(Color(hex: background))
-                                        .fontWeight(isToday(date) ? .bold : .regular)
-                                        .padding(.top, 12)
-                                    
-                                    Image(systemName: icon(for: dayLogs[0].symptom_name ?? "Unknown"))
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 6, height: 6)
-                                        .foregroundColor(color(forSeverity: dayLogs[0].severity))
-                                        .padding(.top, 2)
-                                }
-                            } else if dayLogs.count > 1 {
-                                // Multiple logs: use icons around number
-                                ForEach(dayLogs.indices, id: \.self) { i in
-                                    let log = dayLogs[i]
-                                    let angle = Double(i) / Double(dayLogs.count) * 360
-                                    let radius: CGFloat = 12
-
-                                    Image(systemName: icon(for: log.symptom_name))
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 6, height: 6)
-                                        .foregroundColor(color(forSeverity: log.severity))
-                                        .offset(x: cos(angle * .pi / 180) * radius, y: sin(angle * .pi / 180) * radius)
-                                }
-                                // Day number in center
-                                CustomText(text:"\(calendar.component(.day, from: date))", color: background, textAlign: .center, textSize: 14)
-                                    .foregroundColor(Color(hex: background))
-                                    .fontWeight(isToday(date) ? .bold : .regular)
-                            } else {
-                                // No logs
-                                CustomText(text:"\(calendar.component(.day, from: date))", color: background, textAlign: .center, textSize: 14)
-                                    .foregroundColor(Color(hex: background))
-                                    .fontWeight(isToday(date) ? .bold : .regular)
-                                    
-                            }
-                        }
-                        .frame(height: 30)
-                    } else {
-                        Spacer().frame(height: 25)
-                    }
-                }
-
-            }
-            if showKey{
-                SeverityKeyBar(accent: background, width: width, height:20)
-                SymptomKey(symptomToIcon: symptomToIcon, accent: background, width: width)
+            TopBar
+            WeekdayLabels
+            CalendarGrid
+            if showKey {
+                SeverityKeyBar(accent: bg, width: width, height: 20)
+                SymptomKey(sympIcon: sympIcon, accent: bg, width: width)
             }
         }
-        .frame(width: width, height: showKey ? width : width - 100)
+        .frame(width: width)
         .padding()
         .background(Color(hex: accent))
         .cornerRadius(30)
+        .padding(.bottom, 10)
     }
 
-//change the moth
-    private func changeMonth(by offset: Int) {
-        if let newMonth = calendar.date(byAdding: .month, value: offset, to: currentMonth) {
-            currentMonth = newMonth
+    //calendar parts
+    private var TopBar: some View {
+        HStack(spacing: 8) {
+            CustomButton(systemImage: "chevron.left", bg: bg, accent: accent, height: 15, width: 12) {currentMonth = changeMonth(currentMonth: currentMonth, by: -1)}
+            
+            CustomText(text: monthYearString(for: currentMonth), color: bg, width: textWidth(for: monthYearString(for: currentMonth), fontSize: 18), textAlign: .center, textSize: 18)
+                .padding(.bottom, 9)
+            
+            CustomButton(systemImage: "chevron.right", bg: bg, accent: accent, height: 15, width: 12, disabled: currentMonth >= maxMonth) {currentMonth = changeMonth(currentMonth: currentMonth, by: 1)}
+            
+            Spacer()
+            
+            CustomButton(text: "Key", bg: accent, accent: bg, height: 25, width: 45, textSize: 12) { showKey.toggle() }
+            CustomButton(text: "Hide", bg: accent, accent: bg, height: 25, width: 45, textSize: 12) { hideChart.toggle() }
         }
+        .frame(height: 20)
     }
-    
-    //get the month and year for the month change
-    private func monthYearString(for date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "LLLL yyyy"
-        return formatter.string(from: date)
-    }
-    
-    //check if it is today to make the date bold
-    private func isToday(_ date: Date) -> Bool {
-        calendar.isDateInToday(date)
-    }
-    
-    //assign the days to their spot on the grid
-    private func makeDays() -> [Date?] {
-        var days: [Date?] = []
-        let range = calendar.range(of: .day, in: .month, for: currentMonth)!
-        let firstDay = calendar.date(from: calendar.dateComponents([.year, .month], from: currentMonth))!
-        let firstWeekday = calendar.component(.weekday, from: firstDay)
-        
-        for _ in 1..<firstWeekday { days.append(nil) }
-        for day in range {
-            if let date = calendar.date(byAdding: .day, value: day-1, to: firstDay) {
-                days.append(date)
+
+    private var WeekdayLabels: some View {
+        HStack {
+            ForEach(weekDays, id: \.self) { day in
+                CustomText(text: day, color: bg, textAlign: .center, textSize: 14)
+                    .frame(maxWidth: .infinity)
             }
         }
-        return days
     }
-    
-    // Map severity to color
-    private func color(forSeverity severity: Int64) -> Color {
-        switch severity {
-        case 1: return Color(hex: "#FFB950")
-        case 2: return Color(hex: "#FFAD33")
-        case 3: return Color(hex: "#FF931F")
-        case 4: return Color(hex: "#FF7E33")
-        case 5: return Color(hex: "#FA5E1F")
-        case 6: return Color(hex: "#EC3F13")
-        case 7: return Color(hex: "#B81702")
-        case 8: return Color(hex: "#A50104")
-        case 9: return Color(hex: "#8E0103")
-        case 10: return Color(hex: "#7A0103")
-        default: return Color.gray
+
+        //lay out the days on the grid
+    private var CalendarGrid: some View {
+        let days = makeDays(for: currentMonth)
+        return LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 10) {
+            ForEach(days.indices, id: \.self) { idx in
+                if let date = days[idx] {
+                    let dayLogs = logs.filter { calendar.isDate($0.date, inSameDayAs: date) }
+                    DayCell(date: date, logs: dayLogs, bg: bg, sympIcon: sympIcon, calendar: calendar)
+                } else {
+                    Spacer().frame(height: 20)
+                }
+            }
         }
     }
 }
 
+//make each day
+struct DayCell: View {
+    let date: Date
+    let logs: [UnifiedLog]
+    let bg: String
+    let sympIcon: [String: String]
+    let calendar: Calendar
+
+    var body: some View {
+        ZStack {
+            // Day number
+            CustomText(text: "\(calendar.component(.day, from: date))", color: bg, textAlign: .center, textSize: 14)
+
+            // Log icons
+            ForEach(Array(logs.enumerated()), id: \.offset) { i, log in
+                LogIcon(log: log, index: i, total: logs.count, sympIcon: sympIcon)
+            }
+        }
+        .frame(height: 25)
+    }
+}
+
+//log icon with symbol
+struct LogIcon: View {
+    let log: UnifiedLog
+    let index: Int
+    let total: Int
+    let sympIcon: [String: String]
+
+    var body: some View {
+        let angle = Double(index)/Double(total) * 360
+        let radius: CGFloat = 12
+        Image(systemName: icon(for: log.symptom_name, symptomToIcon: sympIcon))
+            .resizable()
+            .scaledToFit()
+            .frame(width: 6, height: 6)
+            .foregroundColor(color(forSeverity: log.severity))
+            .offset(x: cos(angle * .pi / 180) * radius, y: sin(angle * .pi / 180) * radius)
+    }
+}
 
 //make a key for mapping the shapes to the symptoms
 struct SymptomKey: View {
-    let symptomToIcon: [String: String]
+    let sympIcon: [String: String]
     var accent: String
     var width: CGFloat
     var itemHeight: CGFloat = 13
 
     var body: some View {
-        self.generateContent()
+        genSympKey(from: sympIcon, accent: accent, width: width, itemHeight: itemHeight)
             .frame(width: width, alignment: .leading)
-    }
-
-    private func generateContent() -> some View {
-        var widthUsed: CGFloat = 0
-        var rows: [[(String, String)]] = [[]]
-
-        for symptom in symptomToIcon.keys.sorted() {
-            let iconName = symptomToIcon[symptom] ?? "questionmark.square.fill"
-            let displayText = String(symptom.prefix(12))
-            let itemWidth = textWidth(for: displayText) + itemHeight
-
-            if widthUsed + itemWidth > width {
-                rows.append([])
-                widthUsed = 0
-            }
-            rows[rows.count - 1].append((symptom, iconName))
-            widthUsed += itemWidth
-        }
-
-        return VStack(alignment: .leading) {
-            ForEach(0..<rows.count, id: \.self) { rowIndex in
-                HStack {
-                    ForEach(rows[rowIndex], id: \.0) { item in
-                        HStack(spacing: 4) {
-                            Image(systemName: item.1)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: itemHeight, height: itemHeight)
-                                .foregroundColor(Color(hex: accent))
-                            CustomText(text:String(item.0.prefix(12)), color: accent, textSize: 12)
-                                .lineLimit(1)
-                                .truncationMode(.tail)
-                        }
-                        .padding(.vertical, 2)
-                        .padding(.horizontal, 4)
-                    }
-                }
-            }
-        }
-    }
-
-    // Estimate width of text
-    private func textWidth(for text: String) -> CGFloat {
-        let font = UIFont.systemFont(ofSize: 14)
-        let attributes = [NSAttributedString.Key.font: font]
-        let size = text.size(withAttributes: attributes)
-        return size.width
+            .padding(.bottom, 10)
     }
 }
 
-//make the gradient bar for the severity key
+//making the color key
 struct SeverityKeyBar: View {
     var accent: String
     var width: CGFloat = 300
     var height: CGFloat = 20
-    
-    private let severityColors: [Color] = [Color(hex: "#FFB950"), Color(hex: "#FFAD33"), Color(hex: "#FF931F"), Color(hex: "#FF7E33"), Color(hex: "#FA5E1F"), Color(hex: "#EC3F13"), Color(hex: "#B81702"),  Color(hex: "#A50104"), Color(hex: "#8E0103"), Color(hex: "#7A0103")]
-    
+
+    private let severityColors: [Color] = [
+        "#FFB950", "#FFAD33", "#FF931F", "#FF7E33", "#FA5E1F",
+        "#EC3F13", "#B81702", "#A50104", "#8E0103", "#7A0103"
+    ].map(Color.init(hex:))
+
     var body: some View {
-        VStack{
-            // gradient bar
-            RoundedRectangle(cornerRadius: width / 2)
-                .fill(LinearGradient(gradient: Gradient(colors: severityColors), startPoint: .leading, endPoint: .trailing))
+        VStack(spacing: 4) {
+            // Gradient bar
+            RoundedRectangle(cornerRadius: height / 2)
+                .fill(LinearGradient(colors: severityColors, startPoint: .leading, endPoint: .trailing))
                 .frame(width: width, height: height)
-            
-            //Labels
+
             HStack(spacing: 0) {
-                ForEach((1...10), id: \.self) { i in
-                    CustomText(text:"\(i)", color:accent,  textAlign: .center, textSize: 14)
+                ForEach(1...10, id: \.self) { level in
+                    CustomText(text: "\(level)", color: accent, textAlign: .center, textSize: 14)
                         .frame(width: width / 10)
                 }
             }
-            .frame(height: height)
         }
-        .frame(width: width,  height: height, alignment: .top)
-        .fixedSize(horizontal: false, vertical: true)
+        .frame(width: width)
         .padding(.bottom, 30)
     }
 }

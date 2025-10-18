@@ -4,7 +4,6 @@
 //
 //  Created by Abigail Barnhardt on 8/31/25.
 //
-
 import SwiftUI
 
 struct AnalyticsView: View {
@@ -14,35 +13,10 @@ struct AnalyticsView: View {
     @Binding var accent: String
     
     @State var logs: [UnifiedLog] = []
-    
     @State private var screenWidth: CGFloat = UIScreen.main.bounds.width
-    
-    @State private var hideCalendar: Bool = true
+    @State private var hideCalendar: Bool = false
     @State private var hideSeverity: Bool = true
-    @State private var hideFreqChart: Bool = false
-    
-    
-    // List of icons to cycle through
-    let icons = [ "circle.fill",  "square.fill",  "triangle.fill", "star.fill", "diamond.fill", "hexagon.fill", "heart.fill", "bolt.fill", "leaf.fill", "flame.fill"]
-
-    // Keep a mapping from symptom name -> icon
-    @State private var symptomToIcon: [String: String] = [:]
-
-    //assign the icons to the symptoms
-    func icon(for symptom: String?) -> String {
-        guard let name = symptom, !name.isEmpty else {
-            return  "questionmark.square.fill"
-        }
-
-        if let assignedIcon = symptomToIcon[name] {
-            return assignedIcon
-        } else {
-            // Assign next available icon in a cycle
-            let nextIcon = icons[symptomToIcon.count % icons.count]
-            symptomToIcon[name] = nextIcon
-            return nextIcon
-        }
-    }
+    @State private var hideFreqChart: Bool = true
     
     var body: some View {
         NavigationStack{
@@ -55,14 +29,11 @@ struct AnalyticsView: View {
                             CustomText(text: "Analytics", color: accent, width: 220, textSize: 53)
                         }
                         .frame(width: screenWidth)
-                        .padding(.bottom, 20)
-                        .padding(.trailing, 60)
-                        .padding(.top, 30)
+                        .padding(.vertical, 25)
+                        .padding(.trailing, 20)
 
-                        
                         if !hideCalendar{
-                            CalendarView(logs: logs, hideChart: $hideCalendar, background: bg, accent: accent, width:screenWidth-60, symptomToIcon: symptomToIcon)
-                                .padding(.bottom, 10)
+                            CalendarView(logs: logs, hideChart: $hideCalendar, bg: bg, accent: accent, width: screenWidth - 60, sympIcon: generateSymptomToIconMap(from: logs))
                         }
                         else{
                             HiddenChart(bg: bg, accent: accent, chart: "Calendar", width: screenWidth,  hideChart: $hideCalendar)
@@ -78,17 +49,13 @@ struct AnalyticsView: View {
                         
                         if !hideFreqChart{
                             CustomStackedBarChart(logList: logs, accent: accent, bg: bg, width:screenWidth-40, hideChart: $hideFreqChart)
-                                .padding(.bottom, 10)
                         }
                         else{
                             HiddenChart(bg: bg, accent: accent, chart: "Logs by Symptom", width: screenWidth,  hideChart: $hideFreqChart)
                         }
                     }
                     .padding(.bottom, 150)
-                    
-                    
                 }
-                .zIndex(2)
                 
                 // Nav bar overlay at bottom
                 VStack {
@@ -99,17 +66,11 @@ struct AnalyticsView: View {
                 .zIndex(10)
                 .onAppear{
                     logs = Database.shared.getLogList(userID: userID)
-                    var mapping: [String: String] = [:]
-                    for (index, symptom) in Set(logs.compactMap { $0.symptom_name }).sorted().enumerated() {
-                        mapping[symptom] = icons[index % icons.count]
-                    }
-                    symptomToIcon = mapping
                 }
             }
         }
     }
 }
-
 
 #Preview {
     AnalyticsView(userID: 1, bg: .constant("#001d00"), accent: .constant("#b5c4b9"))

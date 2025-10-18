@@ -6,12 +6,7 @@
 //
 import SwiftUI
 
-// Struct for bullet list items
-struct SymptomCount: Identifiable {
-    let id = UUID()
-    let symptom: String
-    let count: Int
-}
+
 
 
 struct SeverityPieChart: View {
@@ -158,6 +153,7 @@ struct SeverityPieChart: View {
                 Spacer()
             }
             .frame(width: chartSize + 40, height: chartSize + 80)
+            .padding(.bottom, 10)
         }
     }
     
@@ -224,8 +220,7 @@ struct PieSliceDivider: Shape {
         let radius = min(rect.width, rect.height) / 2
         let endPoint = CGPoint(
             x: center.x + CGFloat(cos(angle.radians)) * radius,
-            y: center.y + CGFloat(sin(angle.radians)) * radius
-        )
+            y: center.y + CGFloat(sin(angle.radians)) * radius)
         
         var path = Path()
         path.move(to: center)

@@ -35,4 +35,11 @@ struct UnifiedLog {
     var id: String { "\(log_type)_\(log_id)" }
 }
 
+// Struct for bullet list items
+struct SymptomCount: Identifiable {
+    let id = UUID()
+    let symptom: String
+    let count: Int
+}
+
 
