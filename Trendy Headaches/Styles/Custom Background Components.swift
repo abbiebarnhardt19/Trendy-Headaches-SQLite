@@ -42,9 +42,9 @@ struct LogBGComps: View {
     
     var body: some View {
         Color(hex: bg).ignoresSafeArea()
-            WavyTopBottomRectangle(waves: 7, amp: 8, accent: accent, x: 0, y: -430, width: screenWidth, height: 80)
+        WavyTopBottomRectangle(waves: 7, amp: 10, accent: accent, x: 0, y: -UIScreen.main.bounds.height * 0.64, width: screenWidth, height: UIScreen.main.bounds.height * 0.35)
                 .zIndex(5)
-            WavyTopBottomRectangle(waves: 7, amp: 8, accent: accent, x: 0, y: 355, width: screenWidth, height: 80)
+            WavyTopBottomRectangle(waves: 7, amp: 8, accent: accent, x: 0, y: UIScreen.main.bounds.height * 0.41, width: screenWidth, height: 80)
                 .zIndex(1)
     }
 }
