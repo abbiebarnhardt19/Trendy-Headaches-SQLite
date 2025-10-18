@@ -149,13 +149,15 @@ struct Forgot2BGComps: View {
 struct Forgot3BGComps: View {
     var bg: String
     var accent: String
-    var screenWidth: CGFloat = UIScreen.main.bounds.width
+    
+    @State var width = UIScreen.main.bounds.width
+    @State var height = UIScreen.main.bounds.height
 
     var body: some View {
         ZStack {
             Color(hex: bg).ignoresSafeArea()
-            SameAmplitudeBlob(waves: 10, amp: 20, accent: accent, x: 140, y: -220, rotation: 120)
-            SameAmplitudeBlob(waves: 10, amp: 20, accent: accent, x: 140, y: -220, rotation: 295)
+            SameAmplitudeBlob(waves: 5, amp: 30, accent: accent, x: height * 0.39, y: 0, rotation: 270, width: height * 0.25, height: width)
+            SameAmplitudeBlob(waves: 5, amp: 30, accent: accent, x: height * 0.39, y: 0, rotation: 90, width: height * 0.25, height: width)
         }
     }
 }
@@ -163,12 +165,15 @@ struct Forgot3BGComps: View {
 struct InitialViewBGComps: View {
     var bg: String
     var accent: String
+    
+    @State var width = UIScreen.main.bounds.width
+    @State var height = UIScreen.main.bounds.height
 
     var body: some View {
         ZStack {
             Color(hex: bg).ignoresSafeArea()
-            SameAmplitudeBlob(waves: 10, amp: 20, accent: accent, x: 140, y: -220, rotation: 120)
-            SameAmplitudeBlob(waves: 10, amp: 20, accent: accent, x: 140, y: -220, rotation: 295)
+            SameAmplitudeBlob(waves: 5, amp: 25, accent: accent, x: height * 0.4, y: 0, rotation: 90, width: 200, height: width)
+            SameAmplitudeBlob(waves: 5, amp: 25, accent: accent, x: height * 0.4, y: 0, rotation: 270, width: 200, height: width)
         }
     }
 }
@@ -176,13 +181,15 @@ struct InitialViewBGComps: View {
 struct LoginBGComps: View {
     var bg: String
     var accent: String
-    var screenWidth: CGFloat = UIScreen.main.bounds.width
+    
+    @State var width = UIScreen.main.bounds.width
+    @State var height = UIScreen.main.bounds.height
 
     var body: some View {
         ZStack {
             Color(hex: bg).ignoresSafeArea()
-            SameAmplitudeBlob(waves: 4, amp: 20, accent: accent, x: 0, y: -342, rotation: 0, width:screenWidth, height:220)
-            SameAmplitudeBlob(waves: 5, amp: 16, accent: accent, x: 0, y: -325, rotation: 180, width:screenWidth, height:220)
+            SameAmplitudeBlob(waves: 4, amp: 20, accent: accent, x: 0, y:  -height * 0.4, rotation: 0, width:width, height:220)
+            SameAmplitudeBlob(waves: 5, amp: 16, accent: accent, x: 0, y: -height * 0.4, rotation: 180, width:width, height:220)
         }
     }
 }
