@@ -7,17 +7,70 @@
 
 import SwiftUI
 
+// wrapping
+struct FlexibleWrap<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
+    var items: Data
+    var spacing: CGFloat
+    var circleWidth: CGFloat
+    var charWidth: CGFloat
+    var content: (Data.Element) -> Content
+
+    init(items: Data, spacing: CGFloat, circleWidth: CGFloat, charWidth: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
+        self.items = items
+        self.spacing = spacing
+        self.circleWidth = circleWidth
+        self.charWidth = charWidth
+        self.content = content
+    }
+
+    var body: some View {
+        generateContent(in: UIScreen.main.bounds.width - 20)
+    }
+
+    private func generateContent(in totalWidth: CGFloat) -> some View {
+        var width: CGFloat = 0
+        var rows: [[Data.Element]] = [[]]
+
+        for item in items {
+            let itemWidth = estimateWidth(for: item)
+            if width + itemWidth + spacing > totalWidth {
+                rows.append([item])
+                width = itemWidth + spacing
+            } else {
+                rows[rows.count - 1].append(item)
+                width += itemWidth + spacing
+            }
+        }
+
+        return VStack(alignment: .leading, spacing: spacing) {
+            ForEach(0..<rows.count, id: \.self) { rowIndex in
+                HStack(alignment: .center, spacing: spacing) {
+                    ForEach(rows[rowIndex], id: \.self) { item in
+                        content(item)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+
+    private func estimateWidth(for item: Data.Element) -> CGFloat {
+        let textCount = String(describing: item).count
+        return circleWidth + 8 + CGFloat(textCount) * charWidth
+    }
+}
+
 struct CustomStackedBarChart: View {
     var logList: [UnifiedLog]
     var accent: String
     var bg: String
-    var width: CGFloat
     @Binding var hideChart: Bool
 
     @State var showKey: Bool = false
     @State var yearOff: Int = 0
     @State private var selMon: Date? = nil
     @State private var selSymp: String? = nil
+    @State private var width = UIScreen.main.bounds.width - 30
 
     //get all the month data
     private var data: [(month: Date, symptoms: [(symptom: String, count: Int)])] {

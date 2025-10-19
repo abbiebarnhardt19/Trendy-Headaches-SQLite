@@ -162,19 +162,20 @@ struct LogView: View {
                 dateField(label: "Date:", text: $stringDate)
                 
                 CustomText(text: "Symptom*", color: accent, bold: true, textSize: 24)
-                MultipleChoice(options: $sympOptions, selected: $symp, accent: accent)
+                MultipleChoice(options: $sympOptions, selected: $symp, accent: accent, width: screenWidth - 140 )
                 
                 CustomText(text: "Symptom Severity*", color: accent, bold: true, textSize: 24)
                 Slider(value: $severity, range: 1...10, step: 1, color: accent, width: screenWidth - 50)
                 
                 CustomText(text: "Symptom Onset", color: accent, bold: true, textSize: 24)
-                MultipleChoice(options: $onsetOptions, selected: $onset, accent: accent)
+                MultipleChoice(options: $onsetOptions, selected: $onset, accent: accent, width: screenWidth - 140 )
+                
                 
                 SingleCheckbox(text: "Emergency Med Taken?", color: accent, isOn: $medTaken)
                 
                 if medTaken{
                     CustomText(text: "Emergency Med Name*", color: accent, bold: true, textSize: 24)
-                    MultipleChoice(options: $emergMedOptions, selected: $medTakenName, accent: accent)
+                    MultipleChoice(options: $emergMedOptions, selected: $medTakenName, accent: accent, width: screenWidth - 140 )
                         
                     
                     if existingLog != nil{
@@ -183,7 +184,8 @@ struct LogView: View {
                 }
                 
                 CustomText(text: "Triggers Present", color: accent, bold: true, textSize: 24)
-                MultipleCheckbox(options: $triggOptions, selected: $selectedTriggs, accent: accent, bg: bg, width: screenWidth-100)
+                
+                MultipleCheckboxWrapped(options: $triggOptions, selected: $selectedTriggs, accent: bg,  bg: accent, width: screenWidth-140, textSize: 20)
                     .padding(.leading, 5)
                 
                 textFieldSection(title: "Symptom Description", text: $sympDesc)
@@ -237,7 +239,7 @@ struct LogView: View {
             Slider(value: $sideEffectSev, range: 1...10, step: 1, color: accent, width: screenWidth - 50)
             
             CustomText(text: "Medication*", color: accent, bold: true, textSize: 24)
-            MultipleChoice(options: $medOptions, selected: $selectedMed, accent: accent)
+            MultipleChoice(options: $medOptions, selected: $selectedMed, accent: accent, width: screenWidth - 140 )
             
             HStack{
                 Spacer()

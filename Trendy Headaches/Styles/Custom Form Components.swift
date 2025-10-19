@@ -7,110 +7,6 @@
 
 import SwiftUI
 
-struct MultipleCheckbox: View {
-    @Binding var options: [String]
-    @Binding var selected: [String]
-    var accent: String
-    var bg: String
-    var width: CGFloat = 140
-    
-    let boxSize: CGFloat = 22
-    let spacing: CGFloat = 8
-    
-    var body: some View {
-        FlexibleWrapCheckboxLayout(
-            items: options,
-            spacing: spacing,
-            maxWidth: width
-        ) { option in
-            HStack(spacing: 6) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(selected.contains(option) ? Color(hex: accent) : Color.clear)
-                        .overlay(RoundedRectangle(cornerRadius: 4)
-                                .stroke(Color(hex: accent), lineWidth: 2))
-                        .frame(width: boxSize, height: boxSize)
-                    
-                    if selected.contains(option) {
-                        Image(systemName: "checkmark")
-                            .foregroundColor(Color(hex: bg))
-                            .font(.system(size: boxSize * 0.7, weight: .bold))
-                    }
-                }
-                
-                CustomText(text: option, color: accent, textSize: 20)
-                    .lineLimit(1)
-                    .fixedSize()
-            }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                withAnimation(.easeInOut(duration: 0.15)) {
-                    if let index = selected.firstIndex(of: option) {
-                        selected.remove(at: index)
-                    } else {
-                        selected.append(option)
-                    }
-                }
-            }
-        }
-        .frame(width: width, alignment: .leading)
-    }
-}
-
-struct FlexibleWrapCheckboxLayout<Item: Hashable, Content: View>: View {
-    var items: [Item]
-    var spacing: CGFloat
-    var maxWidth: CGFloat
-    var content: (Item) -> Content
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: spacing) {
-            let rows = computeRows()
-            ForEach(rows.indices, id: \.self) { rowIndex in
-                HStack(spacing: spacing) {
-                    ForEach(rows[rowIndex], id: \.self) { item in
-                        content(item)
-                            .fixedSize()
-                            .padding(.trailing, 15)
-                            .padding(.bottom, 5)
-                    }
-                }
-            }
-        }
-        .frame(width: maxWidth, alignment: .leading)
-    }
-
-    private func computeRows() -> [[Item]] {
-        var rows: [[Item]] = []
-        var currentRow: [Item] = []
-        var currentWidth: CGFloat = 0
-
-        for item in items {
-            let itemWidth: CGFloat = estimateWidth(of: item)
-
-            if currentWidth + itemWidth + spacing > maxWidth {
-                rows.append(currentRow)
-                currentRow = [item]
-                currentWidth = itemWidth + spacing
-            } else {
-                currentRow.append(item)
-                currentWidth += itemWidth + spacing
-            }
-        }
-
-        if !currentRow.isEmpty { rows.append(currentRow) }
-        return rows
-    }
-
-    private func estimateWidth(of item: Item) -> CGFloat {
-        if let text = item as? String {
-            return text.width(usingFont: .systemFont(ofSize: 20)) + 6 + 22 // text + spacing + checkbox
-        } else {
-            return 50
-        }
-    }
-}
-
 //custom switch
 struct CustomToggle: View {
     var color: String
@@ -274,59 +170,6 @@ struct SingleCheckbox: View {
     }
 }
 
-// mutliple choice group with dynamic sizing
-struct FlexibleWrap<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
-    var items: Data
-    var spacing: CGFloat
-    var circleWidth: CGFloat
-    var charWidth: CGFloat
-    var content: (Data.Element) -> Content
-
-    init(items: Data, spacing: CGFloat, circleWidth: CGFloat, charWidth: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
-        self.items = items
-        self.spacing = spacing
-        self.circleWidth = circleWidth
-        self.charWidth = charWidth
-        self.content = content
-    }
-
-    var body: some View {
-        generateContent(in: UIScreen.main.bounds.width - 20)
-    }
-
-    private func generateContent(in totalWidth: CGFloat) -> some View {
-        var width: CGFloat = 0
-        var rows: [[Data.Element]] = [[]]
-
-        for item in items {
-            let itemWidth = estimateWidth(for: item)
-            if width + itemWidth + spacing > totalWidth {
-                rows.append([item])
-                width = itemWidth + spacing
-            } else {
-                rows[rows.count - 1].append(item)
-                width += itemWidth + spacing
-            }
-        }
-
-        return VStack(alignment: .leading, spacing: spacing) {
-            ForEach(0..<rows.count, id: \.self) { rowIndex in
-                HStack(alignment: .center, spacing: spacing) {
-                    ForEach(rows[rowIndex], id: \.self) { item in
-                        content(item)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-    }
-
-    private func estimateWidth(for item: Data.Element) -> CGFloat {
-        let textCount = String(describing: item).count
-        return circleWidth + 8 + CGFloat(textCount) * charWidth
-    }
-}
-
 //numerical slider
 struct Slider: View {
     @Binding var value: Int64
@@ -400,43 +243,76 @@ struct MultipleChoice: View {
     @Binding var options: [String]
     @Binding var selected: String?
     var accent: String
+    var width: CGFloat
 
     let circleWidth: CGFloat = 20
     let spacing: CGFloat = 8
-    let charWidth: CGFloat = 14
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            FlexibleWrap(items: options, spacing: 12, circleWidth: circleWidth, charWidth: charWidth) { option in
-                HStack(spacing: 8) {
-                    Circle()
-                        .stroke(Color(hex: accent), lineWidth: 2)
-                        .background( Circle()
-                            .fill(selected == option ? Color(hex: accent) : Color.clear))
-                        .frame(width: circleWidth, height: circleWidth)
+        let rows = computeRows()
+        
+        VStack(alignment: .leading, spacing: 12) {
+            ForEach(0..<rows.count, id: \.self) { rowIndex in
+                HStack(spacing: 12) {
+                    ForEach(rows[rowIndex], id: \.self) { option in
+                        HStack(spacing: 8) {
+                            Circle()
+                                .stroke(Color(hex: accent), lineWidth: 2)
+                                .background(Circle()
+                                    .fill(selected == option ? Color(hex: accent) : Color.clear))
+                                .frame(width: circleWidth, height: circleWidth)
+                            
+                            CustomText(text: option, color: accent, textSize: 20)
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                                .fixedSize(horizontal: true, vertical: false)
+                        }
+                        .contentShape(Rectangle())
                         .onTapGesture {
                             selected = option
                         }
-
-                    CustomText(text: option, color: accent, textSize: 20)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                        .onTapGesture {
-                            selected = option
-                        }
+                    }
                 }
-                .padding(.trailing, 25)
-                .fixedSize()
-                .contentShape(Rectangle())
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
+        .frame(width: width, alignment: .leading)
         .padding(.bottom, 10)
         .padding(.leading, 5)
-        .onAppear{
-            if options.count == 1{
+        .onAppear {
+            if options.count == 1 {
                 selected = options[0]
             }
         }
+    }
+    
+    private func computeRows() -> [[String]] {
+        var rows: [[String]] = [[]]
+        var currentRowWidth: CGFloat = 0
+        let font = UIFont.systemFont(ofSize: 20, weight: .regular)
+        let itemSpacing: CGFloat = 12
+        
+        for option in options {
+            let textWidth = option.width(usingFont: font)
+            // Circle + gap + text (removed trailing padding from calculation)
+            let itemWidth = circleWidth + 8 + textWidth
+            
+            // Calculate what the new width would be if we add this item
+            let newRowWidth = currentRowWidth == 0 ? itemWidth : currentRowWidth + itemSpacing + itemWidth
+            
+            // Allow going significantly over to pack more items
+            if newRowWidth > width * 1.3 && !rows[rows.count - 1].isEmpty {
+                // Start a new row
+                rows.append([option])
+                currentRowWidth = itemWidth
+            } else {
+                // Add to current row
+                rows[rows.count - 1].append(option)
+                currentRowWidth = newRowWidth
+            }
+        }
+        
+        return rows
     }
 }
 
@@ -483,5 +359,97 @@ struct CustomDropdown: View {
         }
         .buttonStyle(.plain)
         .padding(.bottom, 20)
+    }
+}
+struct MultipleCheckboxWrapped: View {
+    @Binding var options: [String]
+    @Binding var selected: [String]
+    var accent: String
+    var bg: String
+    var width: CGFloat
+    var itemHeight: CGFloat = 20
+    var textSize: CGFloat = 14
+    
+    var body: some View {
+        let rows = computeRows()
+        
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(0..<rows.count, id: \.self) { rowIndex in
+                HStack(spacing: 8) {
+                    ForEach(rows[rowIndex], id: \.self) { option in
+                        HStack(spacing: 4) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke(Color(hex: bg), lineWidth: 2)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .fill(selected.contains(option) ? Color(hex: bg) : Color.clear)
+                                    )
+                                    .frame(width: itemHeight, height: itemHeight)
+                                
+                                if selected.contains(option) {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(Color(hex: accent))
+                                        .font(.system(size: itemHeight * 0.6, weight: .bold))
+                                }
+                            }
+                            
+                            CustomText(
+                                text: option,
+                                color: bg,
+                                textSize: textSize
+                            )
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                            .fixedSize(horizontal: true, vertical: false)
+                            .padding(.leading, 4)
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.15)) {
+                                if let index = selected.firstIndex(of: option) {
+                                    selected.remove(at: index)
+                                } else {
+                                    selected.append(option)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 2)
+                        .padding(.horizontal, 4)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .frame(width: width, alignment: .leading)
+    }
+    
+    private func computeRows() -> [[String]] {
+        var rows: [[String]] = [[]]
+        var currentRowWidth: CGFloat = 0
+        let font = UIFont.systemFont(ofSize: textSize, weight: .regular)
+        let itemSpacing: CGFloat = 8
+        
+        for option in options {
+            let textWidth = option.width(usingFont: font)
+            // Much tighter calculation: Circle + small gap + text only
+            let itemWidth = itemHeight + 4 + textWidth
+            
+            // Calculate what the new width would be if we add this item
+            let newRowWidth = currentRowWidth == 0 ? itemWidth : currentRowWidth + itemSpacing + itemWidth
+            
+            // Allow going significantly over to pack more items
+            if newRowWidth > width * 1.3 && !rows[rows.count - 1].isEmpty {
+                // Start a new row
+                rows.append([option])
+                currentRowWidth = itemWidth
+            } else {
+                // Add to current row
+                rows[rows.count - 1].append(option)
+                currentRowWidth = newRowWidth
+            }
+        }
+        
+        return rows
     }
 }

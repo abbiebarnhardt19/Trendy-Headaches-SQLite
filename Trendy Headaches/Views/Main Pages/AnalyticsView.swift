@@ -17,6 +17,15 @@ struct AnalyticsView: View {
     @State private var hideCalendar: Bool = true
     @State private var hideSeverity: Bool = true
     @State private var hideFreqChart: Bool = false
+    @State private var showFilter: Bool = false
+    
+    @State var startDate: Date = Date()
+    @State var endDate: Date = Date()
+    @State var stringStartDate: String = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .none)
+    @State var stringEndDate: String = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .none)
+    
+    @State var sympOptions: [String] = []
+    @State var selectedSymps: [String] = []
     
     var body: some View {
         NavigationStack{
@@ -33,7 +42,7 @@ struct AnalyticsView: View {
                         .padding(.trailing, 20)
 
                         if !hideCalendar{
-                            CalendarView(logs: logs, hideChart: $hideCalendar, bg: bg, accent: accent, width: screenWidth - 60, sympIcon: generateSymptomToIconMap(from: logs))
+                            CalendarView(logs: logs, hideChart: $hideCalendar, bg: bg, accent: accent, sympIcon: generateSymptomToIconMap(from: logs))
                         }
                         else{
                             HiddenChart(bg: bg, accent: accent, chart: "Calendar", width: screenWidth,  hideChart: $hideCalendar)
@@ -48,7 +57,7 @@ struct AnalyticsView: View {
                         }
                         
                         if !hideFreqChart{
-                            CustomStackedBarChart(logList: logs, accent: accent, bg: bg, width:screenWidth-40, hideChart: $hideFreqChart)
+                            CustomStackedBarChart(logList: logs, accent: accent, bg: bg, hideChart: $hideFreqChart)
                         }
                         else{
                             HiddenChart(bg: bg, accent: accent, chart: "Logs by Symptom", width: screenWidth,  hideChart: $hideFreqChart)
@@ -57,15 +66,48 @@ struct AnalyticsView: View {
                     .padding(.bottom, 150)
                 }
                 
+                
+                
+
+                
                 // Nav bar overlay at bottom
                 VStack {
                     Spacer()
+                    HStack{
+                        if showFilter{
+                            Spacer()
+                            analyticsFilter(accent: accent, bg: bg, start: $startDate, end: $endDate, stringStart: $stringStartDate, stringEnd: $stringEndDate, sympOptions: $sympOptions, selectedSymps: $selectedSymps)
+                                .padding(.trailing, 20)
+                        }
+                    }
+                    HStack{
+                        Spacer()
+                        FilterDropDown(accent: bg, popUp: $showFilter)
+                            .padding(.bottom, 12)
+                    }
+
                     NavBarView(userID: userID, bg: $bg,  accent: $accent, selected: .constant(2))
                 }
                 .ignoresSafeArea(edges: .bottom)
                 .zIndex(10)
                 .onAppear{
                     logs = Database.shared.getLogList(userID: userID)
+                    
+                    if let earliest = logs.map({ $0.date }).min() {
+                        startDate = earliest
+                        stringStartDate = DateFormatter.localizedString(from: earliest, dateStyle: .short, timeStyle: .none)
+                    }
+                    
+                    sympOptions = Array(Set( logs.compactMap { log in
+                                if let symptom = log.symptom_name, !symptom.isEmpty {
+                                    return symptom
+                                } else {
+                                    return nil
+                                }
+                            }))
+                    .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+
+                    selectedSymps = sympOptions
                 }
             }
         }

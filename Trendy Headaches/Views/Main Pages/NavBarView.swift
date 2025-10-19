@@ -63,7 +63,7 @@ struct NavBarView: View {
                                         .blur(radius: 16)
                                     RoundedRectangle(cornerRadius: 35)
                                         .fill(Color(hex: accent).opacity(0.01))
-                                        .blur(radius: 40)
+                                        .blur(radius: 45)
                                 }
                             } )
                         .animation(.easeInOut(duration: 0.0), value: selected)

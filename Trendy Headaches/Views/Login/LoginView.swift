@@ -19,7 +19,7 @@ struct LoginView: SwiftUI.View {
     @State private var userId: Int64? = nil
     
     //  Layout
-    private let leadPadd: CGFloat = 25
+    private let leadPadd: CGFloat = 15
     
     var body: some SwiftUI.View {
         NavigationStack {
@@ -27,8 +27,10 @@ struct LoginView: SwiftUI.View {
                 LoginBGComps(bg: bg, accent: accent)
                 //  Content
                 VStack(spacing: 15) {
-                    CustomText(text: "Log In",  color: accent, width: 200, textAlign: .center,  textSize: 50 )
-                    .padding(.bottom, 20)
+                    HStack{
+                        CustomText(text: "Log In",  color: accent, width: 170, textAlign: .center,  textSize: 50 )
+                        Spacer()
+                    }
                     
                     // Email
                     CustomText(text: "Email", color: accent)

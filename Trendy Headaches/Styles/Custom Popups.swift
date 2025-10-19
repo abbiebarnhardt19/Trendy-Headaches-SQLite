@@ -134,7 +134,7 @@ struct EmergencyMedPopup: View {
                                     },
                                     set: { newValue in
                                         selectedAnswer = (newValue == "Yes")
-                                    }), accent: background )
+                            }), accent: background, width: screenWidth - 100 )
                         }
                         .frame(width: 100)
                         Spacer()

@@ -12,13 +12,13 @@ struct CalendarView: View {
     @Binding var hideChart: Bool
     var bg: String
     var accent: String
-    var width: CGFloat
     let sympIcon: [String: String]
 
     @State private var currentMonth = Date()
     @State private var showKey = false
     private let calendar = Calendar.current
     private let weekDays = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+    private let width = UIScreen.main.bounds.width - 60
     let maxMonth = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: Date()))!
 
     var body: some View {

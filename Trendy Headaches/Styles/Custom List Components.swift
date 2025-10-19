@@ -54,16 +54,14 @@ struct filterPopUp: View {
         VStack(alignment: .leading, spacing: 10) {
             // MARK: Columns
                 sectionButton(title: "Columns", section: .columns) {
-                    MultipleCheckbox(options: $colOptions, selected: $selectedCols, accent: bg, bg: accent, width: expandedWidth)
-                    .padding(.leading, 10)
+                    MultipleCheckboxWrapped(options: $colOptions, selected: $selectedCols, accent: accent, bg: bg, width: expandedWidth)
                     .padding(.top, 10)
                 }
             
             // MARK: Log Type
             sectionButton(title: "Log Type", section: .logType) {
-                MultipleCheckbox(options: $typeOptions, selected: $type, accent: bg, bg: accent, width: expandedWidth)
+                MultipleCheckboxWrapped(options: $typeOptions, selected: $type, accent: bg, bg: accent, width: expandedWidth)
                 .padding(.top, 10)
-                .padding(.leading, 10)
             }
 
             // MARK: Date
@@ -95,8 +93,7 @@ struct filterPopUp: View {
 
             // MARK: Symptoms
             sectionButton(title: "Symptoms", section: .symptoms) {
-                MultipleCheckbox(options: $sympOptions, selected: $selectedSymps, accent: bg, bg: accent, width: expandedWidth)
-                .padding(.leading, 10)
+                MultipleCheckboxWrapped(options: $sympOptions, selected: $selectedSymps, accent: accent, bg: bg, width: expandedWidth )
                 .padding(.top, 10)
             }
         }
