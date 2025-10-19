@@ -7,56 +7,110 @@
 
 import SwiftUI
 
-// wrapping
-struct FlexibleWrap<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
-    var items: Data
-    var spacing: CGFloat
-    var circleWidth: CGFloat
-    var charWidth: CGFloat
-    var content: (Data.Element) -> Content
+struct TooltipOverlay: View {
+    var month: Date
+    var symptom: String
+    var data: [(month: Date, symptoms: [(symptom: String, count: Int)])]
+    var sympOrder: [String]
+    var chartWidth: CGFloat
+    var chartHeight: CGFloat
+    var maxCount: Int
+    var colorMap: [String: Color]
 
-    init(items: Data, spacing: CGFloat, circleWidth: CGFloat, charWidth: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
-        self.items = items
-        self.spacing = spacing
-        self.circleWidth = circleWidth
-        self.charWidth = charWidth
-        self.content = content
+    @State private var measWid: CGFloat = 0
+    @State private var measHeight: CGFloat = 0
+
+    private struct ToolWidKey: PreferenceKey {
+        static var defaultValue: CGFloat = 0
+        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+            value = nextValue()
+        }
+    }
+
+    private struct ToolHeiKey: PreferenceKey {
+        static var defaultValue: CGFloat = 0
+        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+            value = nextValue()
+        }
+    }
+
+    var tooltipInfo: (x: CGFloat, y: CGFloat, width: CGFloat, color: Color, count: Int, segHeight: CGFloat, percent: Double)? {
+        let cal = Calendar.current
+        guard
+            let mon = data.first(where: { cal.isDate($0.month, equalTo: month, toGranularity: .month) }),
+            let sym = mon.symptoms.first(where: { $0.symptom == symptom })
+        else { return nil }
+
+        let total = mon.symptoms.reduce(0) { $0 + $1.count }
+        let percent = total > 0 ? Double(sym.count) / Double(total) * 100 : 0
+
+        // chart metrics
+        let (yAx, pad, space): (CGFloat, CGFloat, CGFloat) = (15, 20, 10)
+        let bars = CGFloat(max(1, data.count))
+        let barW = (chartWidth - yAx - pad - space * (bars - 1)) / bars
+        let usedW = barW.isFinite && barW > 0 ? barW : (chartWidth - yAx - space * 11 - 20) / 12
+
+        // x positions
+        let i = CGFloat(data.firstIndex { cal.isDate($0.month, equalTo: month, toGranularity: .month) } ?? 0)
+        let barL = yAx + pad / 2 + i * (usedW + space)
+        let barR = barL + usedW
+
+        // segment height + center
+        let yMax = CGFloat(maxCount)
+        var (cum, seg): (CGFloat, CGFloat) = (0, 0)
+        for n in sympOrder {
+            guard let d = mon.symptoms.first(where: { $0.symptom == n }) else { continue }
+            let h = chartHeight * CGFloat(d.count) / yMax
+            if n == symptom { seg = h; break } else { cum += h }
+        }
+        let segY = cum + seg / 2
+
+        // tooltip width + clamped x
+        let effW = max(60, measWid > 0 ? measWid : 120)
+        let (gap, lMost, rMost): (CGFloat, CGFloat, CGFloat) = (10, effW/2, chartWidth - effW/2)
+        let rightX = barR + gap + effW/2
+        let leftX  = barL - gap - effW/2
+        let cenX = rightX + effW <= chartWidth
+            ? rightX
+            : leftX >= 0 ? leftX
+            : min(rMost, max(lMost, (chartWidth - effW) / 2))
+
+        return ( x: min(rMost, max(lMost, cenX)), y: segY, width: effW, color: colorMap[symptom] ?? .gray, count: sym.count, segHeight: seg, percent: percent)
     }
 
     var body: some View {
-        generateContent(in: UIScreen.main.bounds.width - 20)
-    }
-
-    private func generateContent(in totalWidth: CGFloat) -> some View {
-        var width: CGFloat = 0
-        var rows: [[Data.Element]] = [[]]
-
-        for item in items {
-            let itemWidth = estimateWidth(for: item)
-            if width + itemWidth + spacing > totalWidth {
-                rows.append([item])
-                width = itemWidth + spacing
-            } else {
-                rows[rows.count - 1].append(item)
-                width += itemWidth + spacing
+        if let info = tooltipInfo {
+            let textColor: Color = Color.isHexDark(info.color.hexString) ? .white : .black
+            
+            VStack(spacing: 2) {
+                Text(symptom.capitalizedWords)
+                    .font(.system(size: 12, weight: .bold, design: .serif))
+                    .fixedSize()
+                Text("\(info.count) logs (\(Int(info.percent))%)")
+                    .font(.system(size: 10, design: .serif))
+                    .fixedSize()
             }
-        }
-
-        return VStack(alignment: .leading, spacing: spacing) {
-            ForEach(0..<rows.count, id: \.self) { rowIndex in
-                HStack(alignment: .center, spacing: spacing) {
-                    ForEach(rows[rowIndex], id: \.self) { item in
-                        content(item)
+            .foregroundColor(textColor)
+            .padding(6)
+            .background(
+                ZStack {
+                    info.color
+                        .cornerRadius(6)
+                    GeometryReader { proxy in
+                        Color.clear.preference(key: ToolWidKey.self, value: proxy.size.width)
                     }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                    GeometryReader { proxy in
+                        Color.clear.preference(key: ToolHeiKey.self, value: proxy.size.height)
+                    }
+                })
+            .onPreferenceChange(ToolWidKey.self) { value in
+                DispatchQueue.main.async { self.measWid = value }
             }
+            .onPreferenceChange(ToolHeiKey.self) { height in
+                DispatchQueue.main.async { self.measHeight = height }
+            }
+            .position(x: info.x, y: info.y + 5)
         }
-    }
-
-    private func estimateWidth(for item: Data.Element) -> CGFloat {
-        let textCount = String(describing: item).count
-        return circleWidth + 8 + CGFloat(textCount) * charWidth
     }
 }
 
@@ -215,21 +269,9 @@ struct CustomStackedBarChart: View {
             
             //symptom legend
             if showKey {
-                FlexibleWrap(items: sympOrder, spacing: 10, circleWidth: 10, charWidth: 7 ){ symptom in
-                    HStack(spacing: 5) {
-                        Circle()
-                            .fill(colorMap[symptom] ?? .gray)
-                            .frame(width: 10, height: 10)
-                        Text(symptom.capitalizedWords.count > 10
-                             ? String(symptom.capitalizedWords.prefix(10)) + "…"
-                             : symptom.capitalizedWords)
-                            .font(.system(size: 12))
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                    }
-                }
-                .padding(.leading, 25)
-                .padding(.bottom, 5)
+                BarSymptomKey(sympOrder: sympOrder, colorMap: colorMap, bg: bg, width: width - 50)
+                    .padding(.leading, 25)
+                    .padding(.bottom, 5)
             }
         }
         .padding(.vertical,10)
@@ -252,109 +294,72 @@ struct CustomStackedBarChart: View {
     }
 }
 
-struct TooltipOverlay: View {
-    var month: Date
-    var symptom: String
-    var data: [(month: Date, symptoms: [(symptom: String, count: Int)])]
+struct BarSymptomKey: View {
     var sympOrder: [String]
-    var chartWidth: CGFloat
-    var chartHeight: CGFloat
-    var maxCount: Int
     var colorMap: [String: Color]
-
-    @State private var measWid: CGFloat = 0
-    @State private var measHeight: CGFloat = 0
-
-    private struct ToolWidKey: PreferenceKey {
-        static var defaultValue: CGFloat = 0
-        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-            value = nextValue()
-        }
-    }
-
-    private struct ToolHeiKey: PreferenceKey {
-        static var defaultValue: CGFloat = 0
-        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-            value = nextValue()
-        }
-    }
-
-    var tooltipInfo: (x: CGFloat, y: CGFloat, width: CGFloat, color: Color, count: Int, segHeight: CGFloat, percent: Double)? {
-        let cal = Calendar.current
-        guard
-            let mon = data.first(where: { cal.isDate($0.month, equalTo: month, toGranularity: .month) }),
-            let sym = mon.symptoms.first(where: { $0.symptom == symptom })
-        else { return nil }
-
-        let total = mon.symptoms.reduce(0) { $0 + $1.count }
-        let percent = total > 0 ? Double(sym.count) / Double(total) * 100 : 0
-
-        // chart metrics
-        let (yAx, pad, space): (CGFloat, CGFloat, CGFloat) = (15, 20, 10)
-        let bars = CGFloat(max(1, data.count))
-        let barW = (chartWidth - yAx - pad - space * (bars - 1)) / bars
-        let usedW = barW.isFinite && barW > 0 ? barW : (chartWidth - yAx - space * 11 - 20) / 12
-
-        // x positions
-        let i = CGFloat(data.firstIndex { cal.isDate($0.month, equalTo: month, toGranularity: .month) } ?? 0)
-        let barL = yAx + pad / 2 + i * (usedW + space)
-        let barR = barL + usedW
-
-        // segment height + center
-        let yMax = CGFloat(maxCount)
-        var (cum, seg): (CGFloat, CGFloat) = (0, 0)
-        for n in sympOrder {
-            guard let d = mon.symptoms.first(where: { $0.symptom == n }) else { continue }
-            let h = chartHeight * CGFloat(d.count) / yMax
-            if n == symptom { seg = h; break } else { cum += h }
-        }
-        let segY = cum + seg / 2
-
-        // tooltip width + clamped x
-        let effW = max(60, measWid > 0 ? measWid : 120)
-        let (gap, lMost, rMost): (CGFloat, CGFloat, CGFloat) = (10, effW/2, chartWidth - effW/2)
-        let rightX = barR + gap + effW/2
-        let leftX  = barL - gap - effW/2
-        let cenX = rightX + effW <= chartWidth
-            ? rightX
-            : leftX >= 0 ? leftX
-            : min(rMost, max(lMost, (chartWidth - effW) / 2))
-
-        return ( x: min(rMost, max(lMost, cenX)), y: segY, width: effW, color: colorMap[symptom] ?? .gray, count: sym.count, segHeight: seg, percent: percent)
-    }
-
+    var bg: String
+    var width: CGFloat
+    
     var body: some View {
-        if let info = tooltipInfo {
-            let textColor: Color = Color.isHexDark(info.color.hexString) ? .white : .black
-            
-            VStack(spacing: 2) {
-                Text(symptom.capitalizedWords)
-                    .font(.system(size: 12, weight: .bold, design: .serif))
-                    .fixedSize()
-                Text("\(info.count) logs (\(Int(info.percent))%)")
-                    .font(.system(size: 10, design: .serif))
-                    .fixedSize()
-            }
-            .foregroundColor(textColor)
-            .padding(6)
-            .background(
-                ZStack {
-                    info.color
-                        .cornerRadius(6)
-                    GeometryReader { proxy in
-                        Color.clear.preference(key: ToolWidKey.self, value: proxy.size.width)
+        let rows = computeRows()
+        
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(0..<rows.count, id: \.self) { rowIndex in
+                HStack(spacing: 10) {
+                    ForEach(rows[rowIndex], id: \.self) { symptom in
+                        HStack(spacing: 5) {
+                            Circle()
+                                .fill(colorMap[symptom] ?? .gray)
+                                .frame(width: 10, height: 10)
+                            
+                            CustomText(
+                                text: symptom.capitalizedWords.count > 10
+                                    ? String(symptom.capitalizedWords.prefix(10)) + "…"
+                                    : symptom.capitalizedWords,
+                                color: bg,
+                                textSize: 12
+                            )
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                            .fixedSize(horizontal: true, vertical: false)
+                        }
                     }
-                    GeometryReader { proxy in
-                        Color.clear.preference(key: ToolHeiKey.self, value: proxy.size.height)
-                    }
-                })
-            .onPreferenceChange(ToolWidKey.self) { value in
-                DispatchQueue.main.async { self.measWid = value }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .onPreferenceChange(ToolHeiKey.self) { height in
-                DispatchQueue.main.async { self.measHeight = height }
-            }
-            .position(x: info.x, y: info.y + 5)
         }
+        .frame(width: width, alignment: .leading)
+    }
+    
+    private func computeRows() -> [[String]] {
+        var rows: [[String]] = [[]]
+        var currentRowWidth: CGFloat = 0
+        let font = UIFont.systemFont(ofSize: 12, weight: .regular)
+        let itemSpacing: CGFloat = 10
+        
+        for symptom in sympOrder {
+            let displayText = symptom.capitalizedWords.count > 10
+                ? String(symptom.capitalizedWords.prefix(10)) + "…"
+                : symptom.capitalizedWords
+            let textWidth = displayText.width(usingFont: font)
+            // Circle + gap + text
+            let itemWidth = 10 + 5 + textWidth
+            
+            // Calculate what the new width would be if we add this item
+            let newRowWidth = currentRowWidth == 0 ? itemWidth : currentRowWidth + itemSpacing + itemWidth
+            
+            // Allow going significantly over to pack more items
+            if newRowWidth > width * 1.3 && !rows[rows.count - 1].isEmpty {
+                // Start a new row
+                rows.append([symptom])
+                currentRowWidth = itemWidth
+            } else {
+                // Add to current row
+                rows[rows.count - 1].append(symptom)
+                currentRowWidth = newRowWidth
+            }
+        }
+        
+        return rows
     }
 }

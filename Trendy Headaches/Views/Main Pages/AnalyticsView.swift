@@ -27,6 +27,18 @@ struct AnalyticsView: View {
     @State var sympOptions: [String] = []
     @State var selectedSymps: [String] = []
     
+    func filterLogs() {
+        let allLogs = Database.shared.getLogList(userID: userID)
+        logs = allLogs.filter { log in
+            if log.date < startDate { return false }
+            if log.date > endDate { return false }
+            
+            guard selectedSymps.contains(log.symptom_name ?? "") else { return false }
+            
+            return true
+        }
+    }
+    
     var body: some View {
         NavigationStack{
             ZStack {
@@ -65,11 +77,7 @@ struct AnalyticsView: View {
                     }
                     .padding(.bottom, 150)
                 }
-                
-                
-                
-
-                
+    
                 // Nav bar overlay at bottom
                 VStack {
                     Spacer()
@@ -109,6 +117,9 @@ struct AnalyticsView: View {
 
                     selectedSymps = sympOptions
                 }
+                .onChange(of: startDate) {  filterLogs() }
+                .onChange(of: endDate) { filterLogs() }
+                .onChange(of: selectedSymps) {filterLogs()}
             }
         }
     }
