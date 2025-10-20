@@ -200,7 +200,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 360F6B4E2E57853E00415F0E /* Build configuration list for PBXProject "Trendy Headaches New" */;
+			buildConfigurationList = 360F6B4E2E57853E00415F0E /* Build configuration list for PBXProject "Trendy Headaches SQLite" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -571,7 +571,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		360F6B4E2E57853E00415F0E /* Build configuration list for PBXProject "Trendy Headaches New" */ = {
+		360F6B4E2E57853E00415F0E /* Build configuration list for PBXProject "Trendy Headaches SQLite" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				360F6B762E57854000415F0E /* Debug */,

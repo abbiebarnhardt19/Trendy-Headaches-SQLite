@@ -8,6 +8,7 @@
 //testing if new SQL repo works
 import SwiftUI
 //test test
+//test three, the working file is trnedy headaches SQLite
 
 struct AnalyticsView: View {
     
