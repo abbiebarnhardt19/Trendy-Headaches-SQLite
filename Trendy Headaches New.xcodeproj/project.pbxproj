@@ -28,9 +28,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		360F6B532E57853E00415F0E /* Trendy Headaches.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Trendy Headaches.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		360F6B642E57854000415F0E /* Trendy HeadachesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Trendy HeadachesTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		360F6B6E2E57854000415F0E /* Trendy HeadachesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Trendy HeadachesUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		360F6B532E57853E00415F0E /* Trendy Headaches New.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Trendy Headaches New.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		360F6B642E57854000415F0E /* Trendy Headaches NewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Trendy Headaches NewTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		360F6B6E2E57854000415F0E /* Trendy Headaches NewUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Trendy Headaches NewUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -91,9 +91,9 @@
 		360F6B542E57853E00415F0E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				360F6B532E57853E00415F0E /* Trendy Headaches.app */,
-				360F6B642E57854000415F0E /* Trendy HeadachesTests.xctest */,
-				360F6B6E2E57854000415F0E /* Trendy HeadachesUITests.xctest */,
+				360F6B532E57853E00415F0E /* Trendy Headaches New.app */,
+				360F6B642E57854000415F0E /* Trendy Headaches NewTests.xctest */,
+				360F6B6E2E57854000415F0E /* Trendy Headaches NewUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -108,9 +108,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		360F6B522E57853E00415F0E /* Trendy Headaches */ = {
+		360F6B522E57853E00415F0E /* Trendy Headaches New */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 360F6B782E57854000415F0E /* Build configuration list for PBXNativeTarget "Trendy Headaches" */;
+			buildConfigurationList = 360F6B782E57854000415F0E /* Build configuration list for PBXNativeTarget "Trendy Headaches New" */;
 			buildPhases = (
 				360F6B4F2E57853E00415F0E /* Sources */,
 				360F6B502E57853E00415F0E /* Frameworks */,
@@ -123,17 +123,17 @@
 			fileSystemSynchronizedGroups = (
 				360F6B552E57853E00415F0E /* Trendy Headaches */,
 			);
-			name = "Trendy Headaches";
+			name = "Trendy Headaches New";
 			packageProductDependencies = (
 				360F6BB82E5BAE3F00415F0E /* SQLite */,
 			);
 			productName = "Trendy Headaches";
-			productReference = 360F6B532E57853E00415F0E /* Trendy Headaches.app */;
+			productReference = 360F6B532E57853E00415F0E /* Trendy Headaches New.app */;
 			productType = "com.apple.product-type.application";
 		};
-		360F6B632E57854000415F0E /* Trendy HeadachesTests */ = {
+		360F6B632E57854000415F0E /* Trendy Headaches NewTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 360F6B7B2E57854000415F0E /* Build configuration list for PBXNativeTarget "Trendy HeadachesTests" */;
+			buildConfigurationList = 360F6B7B2E57854000415F0E /* Build configuration list for PBXNativeTarget "Trendy Headaches NewTests" */;
 			buildPhases = (
 				360F6B602E57854000415F0E /* Sources */,
 				360F6B612E57854000415F0E /* Frameworks */,
@@ -147,16 +147,16 @@
 			fileSystemSynchronizedGroups = (
 				360F6B672E57854000415F0E /* Trendy HeadachesTests */,
 			);
-			name = "Trendy HeadachesTests";
+			name = "Trendy Headaches NewTests";
 			packageProductDependencies = (
 			);
 			productName = "Trendy HeadachesTests";
-			productReference = 360F6B642E57854000415F0E /* Trendy HeadachesTests.xctest */;
+			productReference = 360F6B642E57854000415F0E /* Trendy Headaches NewTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		360F6B6D2E57854000415F0E /* Trendy HeadachesUITests */ = {
+		360F6B6D2E57854000415F0E /* Trendy Headaches NewUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 360F6B7E2E57854000415F0E /* Build configuration list for PBXNativeTarget "Trendy HeadachesUITests" */;
+			buildConfigurationList = 360F6B7E2E57854000415F0E /* Build configuration list for PBXNativeTarget "Trendy Headaches NewUITests" */;
 			buildPhases = (
 				360F6B6A2E57854000415F0E /* Sources */,
 				360F6B6B2E57854000415F0E /* Frameworks */,
@@ -170,11 +170,11 @@
 			fileSystemSynchronizedGroups = (
 				360F6B712E57854000415F0E /* Trendy HeadachesUITests */,
 			);
-			name = "Trendy HeadachesUITests";
+			name = "Trendy Headaches NewUITests";
 			packageProductDependencies = (
 			);
 			productName = "Trendy HeadachesUITests";
-			productReference = 360F6B6E2E57854000415F0E /* Trendy HeadachesUITests.xctest */;
+			productReference = 360F6B6E2E57854000415F0E /* Trendy Headaches NewUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -200,7 +200,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 360F6B4E2E57853E00415F0E /* Build configuration list for PBXProject "Trendy Headaches" */;
+			buildConfigurationList = 360F6B4E2E57853E00415F0E /* Build configuration list for PBXProject "Trendy Headaches New" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -217,9 +217,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				360F6B522E57853E00415F0E /* Trendy Headaches */,
-				360F6B632E57854000415F0E /* Trendy HeadachesTests */,
-				360F6B6D2E57854000415F0E /* Trendy HeadachesUITests */,
+				360F6B522E57853E00415F0E /* Trendy Headaches New */,
+				360F6B632E57854000415F0E /* Trendy Headaches NewTests */,
+				360F6B6D2E57854000415F0E /* Trendy Headaches NewUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -275,12 +275,12 @@
 /* Begin PBXTargetDependency section */
 		360F6B662E57854000415F0E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 360F6B522E57853E00415F0E /* Trendy Headaches */;
+			target = 360F6B522E57853E00415F0E /* Trendy Headaches New */;
 			targetProxy = 360F6B652E57854000415F0E /* PBXContainerItemProxy */;
 		};
 		360F6B702E57854000415F0E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 360F6B522E57853E00415F0E /* Trendy Headaches */;
+			target = 360F6B522E57853E00415F0E /* Trendy Headaches New */;
 			targetProxy = 360F6B6F2E57854000415F0E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -427,7 +427,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "abbiebarnhardt.Trendy-Headaches";
+				PRODUCT_BUNDLE_IDENTIFIER = "abbiebarnhardt.Trendy-Headaches-New";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -466,7 +466,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "abbiebarnhardt.Trendy-Headaches";
+				PRODUCT_BUNDLE_IDENTIFIER = "abbiebarnhardt.Trendy-Headaches-New";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -489,14 +489,14 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "abbiebarnhardt.Trendy-HeadachesTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "abbiebarnhardt.Trendy-Headaches-NewTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Trendy Headaches.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Trendy Headaches";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Trendy Headaches New.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Trendy Headaches New";
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
 			name = Debug;
@@ -512,14 +512,14 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "abbiebarnhardt.Trendy-HeadachesTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "abbiebarnhardt.Trendy-Headaches-NewTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Trendy Headaches.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Trendy Headaches";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Trendy Headaches New.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Trendy Headaches New";
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
 			name = Release;
@@ -534,7 +534,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "abbiebarnhardt.Trendy-HeadachesUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = "abbiebarnhardt.Trendy-Headaches-NewUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -556,7 +556,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "abbiebarnhardt.Trendy-HeadachesUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = "abbiebarnhardt.Trendy-Headaches-NewUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -571,7 +571,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		360F6B4E2E57853E00415F0E /* Build configuration list for PBXProject "Trendy Headaches" */ = {
+		360F6B4E2E57853E00415F0E /* Build configuration list for PBXProject "Trendy Headaches New" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				360F6B762E57854000415F0E /* Debug */,
@@ -580,7 +580,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		360F6B782E57854000415F0E /* Build configuration list for PBXNativeTarget "Trendy Headaches" */ = {
+		360F6B782E57854000415F0E /* Build configuration list for PBXNativeTarget "Trendy Headaches New" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				360F6B792E57854000415F0E /* Debug */,
@@ -589,7 +589,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		360F6B7B2E57854000415F0E /* Build configuration list for PBXNativeTarget "Trendy HeadachesTests" */ = {
+		360F6B7B2E57854000415F0E /* Build configuration list for PBXNativeTarget "Trendy Headaches NewTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				360F6B7C2E57854000415F0E /* Debug */,
@@ -598,7 +598,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		360F6B7E2E57854000415F0E /* Build configuration list for PBXNativeTarget "Trendy HeadachesUITests" */ = {
+		360F6B7E2E57854000415F0E /* Build configuration list for PBXNativeTarget "Trendy Headaches NewUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				360F6B7F2E57854000415F0E /* Debug */,
